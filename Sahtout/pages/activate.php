@@ -1,9 +1,10 @@
 <?php
 require_once '../includes/session.php'; // Includes config.php for database connections
+require_once '../includes/config.mail.php'; // For email sending
 
 $errors = [];
 $success = '';
-
+$page_class = 'activate';
 $token = $_GET['token'] ?? '';
 if (!$token) {
     $errors[] = "Invalid activation link.";
@@ -33,25 +34,52 @@ if (!$token) {
                 if ($stmt_insert->execute()) {
                     $stmt_insert->close();
 
-                    // Mark as activated
-                    $stmt_update = $site_db->prepare("UPDATE pending_accounts SET activated = 1 WHERE token = ?");
-                    if (!$stmt_update) {
+                    // Delete from pending_accounts
+                    $stmt_delete = $site_db->prepare("DELETE FROM pending_accounts WHERE token = ?");
+                    if (!$stmt_delete) {
                         $errors[] = "Database query error: " . $site_db->error;
                     } else {
-                        $stmt_update->bind_param('s', $token);
-                        if ($stmt_update->execute()) {
+                        $stmt_delete->bind_param('s', $token);
+                        if ($stmt_delete->execute()) {
+                            // Send confirmation email
+                            sendActivationConfirmationEmail($account['username'], $account['email']);
                             $success = "Your account has been activated! You will be redirected to the login page shortly.";
                             header("Refresh: 3; url=/Sahtout/pages/login.php"); // Redirect after 3 seconds
                         } else {
-                            $errors[] = "Failed to update activation status: " . $site_db->error;
+                            $errors[] = "Failed to delete pending account: " . $site_db->error;
                         }
-                        $stmt_update->close();
+                        $stmt_delete->close();
                     }
                 } else {
                     $errors[] = "Failed to activate account: " . $auth_db->error;
                 }
             }
         }
+    }
+}
+
+// Function to send activation confirmation email
+function sendActivationConfirmationEmail($username, $email) {
+    global $errors;
+    // Determine protocol dynamically
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+    try {
+        $mail = getMailer();
+        $mail->addAddress($email, $username);
+        $mail->AddEmbeddedImage('logo.png', 'logo_cid');
+        $mail->Subject = 'Account Activation Confirmation';
+        $login_link = $protocol . $_SERVER['HTTP_HOST'] . "/sahtout/pages/login.php";
+        $mail->Body = "<h2>Welcome, $username!</h2>
+            <img src='cid:logo_cid' alt='Sahtout logo'>
+            <p>Your account has been successfully activated.</p>
+            <p>You can now log in to start your adventure by clicking the button below:</p>
+            <p><a href='$login_link' style='background-color:#ffd700;color:#000;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;'>Log In</a></p>
+            <p>If you did not activate this account, please contact support immediately.</p>";
+        if (!$mail->send()) {
+            $errors[] = "Failed to send confirmation email: " . $mail->ErrorInfo;
+        }
+    } catch (Exception $e) {
+        $errors[] = "Email error: " . $e->getMessage();
     }
 }
 
@@ -217,7 +245,7 @@ if (file_exists($header_file)) {
     if (file_exists($footer_file)) {
         include $footer_file;
     } else {
-        die("Error: Header file not found.");
+        die("Error: Footer file not found.");
     }
     ?>
 </body>

@@ -2,6 +2,7 @@
 require_once '../includes/session.php';
 require_once '../includes/config.mail.php';
 require_once '../includes/config.cap.php'; // reCAPTCHA keys
+$page_class = 'resend';
 require_once '../includes/header.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -65,11 +66,13 @@ function sendActivationEmail($username, $email, $token) {
     try {
         $mail = getMailer();
         $mail->addAddress($email, $username);
+        $mail->AddEmbeddedImage('logo.png', 'logo_cid');
         $mail->Subject = '[RESEND] Activate Your Account';
 
         $activation_link = $protocol . $_SERVER['HTTP_HOST'] . "/sahtout/pages/activate.php?token=$token";
 
         $mail->Body = "<h2>Welcome, $username!</h2>
+            <img src='cid:logo_cid' alt='Sahtout logo'>
             <p>Thank you for registering. Please click the button below to activate your account:</p>
             <p><a href='$activation_link' style='background-color:#ffd700;color:#000;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;'>Activate Account</a></p>
             <p>If you didn't request this, please ignore this email.</p>";
@@ -97,7 +100,6 @@ function sendActivationEmail($username, $email, $token) {
             width: 100%;
             overflow-x: hidden;
             margin: 0;
-            background-color: #1a1a1a;
             min-height: 100vh;
             display: flex;
             flex-direction: column;

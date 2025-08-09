@@ -113,9 +113,11 @@ if (empty($errors)) {
         try {
             $mail = getMailer();
             $mail->addAddress($email, $username);
+            $mail->AddEmbeddedImage('logo.png', 'logo_cid');
             $mail->Subject = 'Activate Your Account';
             $mail->Body = "
                 <h2>Welcome, $username!</h2>
+                <img src='cid:logo_cid' alt='Sahtout logo'>
                 <p>Thank you for registering. Please click the button below to activate your account:</p>
                 <p><a href='$activation_link' style='background-color:#6e4d15;color:white;padding:10px 20px;text-decoration:none;'>Activate Account</a></p>
                 <p>If you did not register, please ignore this email.</p>
