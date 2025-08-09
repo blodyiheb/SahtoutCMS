@@ -1,0 +1,344 @@
+/* Home page styles */
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+    margin: 0;
+}
+
+body.home {
+    background: url('../../img/backgrounds/bg-home.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'UnifrakturCook', 'Arial', sans-serif;
+    color: #fff;
+    margin: 0;
+}
+
+/* Header adjustments for full width */
+header {
+    width: 100%;
+    margin: 0;
+    padding: 1rem 0;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1000;
+}
+
+/* Main content adjustments */
+main {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* News Preview Section */
+.news-preview {
+    max-width: 800px;
+    width: calc(100% - 2rem);
+    margin: 2rem auto;
+}
+
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.news-item {
+    position: relative;
+}
+
+.news-item a {
+    text-decoration: none;
+    display: block;
+}
+
+.news-image {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #ffd700;
+    border-radius: 8px;
+    margin: 5px;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    transition: transform 0.3s ease;
+}
+
+.news-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.news-image:hover {
+    transform: scale(1.05);
+}
+
+.news-title {
+    display: block; /* Changed to block to span full width */
+    position: absolute;
+    top: 80%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%; /* Span the full width of the image */
+    text-align: center; /* Center text within the full-width span */
+    color: #ffffff;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 0; /* Remove border-radius to match image edges */
+}
+
+.news-date {
+    text-align: center;
+    color: #ff0000;
+    font-family: 'UnifrakturCook', sans-serif;
+    text-shadow: #ffe600 1px 1px 2px;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+/* Hero Gallery Slider */
+.hero-gallery {
+    position: relative;
+    max-width: 800px;
+    width: calc(100% - 2rem);
+    margin: 2rem auto;
+    overflow: hidden;
+    border: 2px solid #ffd700;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+.slider {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 100%;
+}
+
+.slide {
+    flex: 0 0 100%;
+    width: 100%;
+}
+
+.slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.slider-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: #ffd700;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    border-radius: 4px;
+}
+
+.slider-nav.prev {
+    left: 10px;
+}
+
+.slider-nav.next {
+    right: 10px;
+}
+
+.slider-dots {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+}
+
+.dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    background: #ccc;
+    border-radius: 50%;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.dot.active {
+    background: #ffd700;
+}
+
+/* Tabs Container */
+.tabs-container {
+    max-width: 800px;
+    width: calc(100% - 2rem);
+    margin: 2rem auto;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 1rem;
+    border: 2px solid #ffd700;
+    border-radius: 8px;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.tab {
+    background: #333;
+    color: #ffd700;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    margin: 0 0.5rem;
+    cursor: pointer;
+    font-family: 'UnifrakturCook', sans-serif;
+    font-size: 1.1rem;
+    border-radius: 4px;
+}
+
+.tab.active {
+    background: #ffd700;
+    color: #000;
+}
+
+.tab-content {
+    padding: 1rem;
+    color: #fff;
+}
+
+.tab-content h2 {
+    color: #ffd700;
+    margin-bottom: 1rem;
+}
+
+.tab-content a {
+    color: #ffd700;
+    text-decoration: none;
+}
+
+.tab-content a:hover {
+    text-decoration: underline;
+}
+
+/* Realm Status */
+.server-status {
+    position: fixed;
+    top: 150px;
+    right: 15px;
+    width: 300px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #ffd700;
+    border-radius: 10px;
+    padding: 15px;
+    font-family: 'Friz Quadrata', serif;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    box-sizing: border-box;
+}
+
+.server-status h2 {
+    text-align: center;
+    color: #ff2600;
+    font-family: 'UnifrakturCook', cursive;
+    margin-bottom: 15px;
+}
+
+.server-status ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.server-status li {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.server-status img {
+    border-radius: 8px;
+    margin-bottom: 8px;
+    max-width: 50%;
+    height: auto;
+}
+
+.server-status strong {
+    font-size: 18px;
+    color: #ffd700;
+}
+
+.server-status .online {
+    color: #00ff00;
+    font-weight: bold;
+    font-family: 'UnifrakturCook', cursive;
+}
+
+.server-status .offline {
+    color: #ff0000;
+    font-weight: bold;
+    font-family: 'UnifrakturCook', cursive;
+}
+
+.server-status .players,
+.server-status .realm-ip {
+    display: block;
+    font-size: 14px;
+    margin-top: 4px;
+    color: #ccc;
+}
+
+/* Footer adjustments for full width */
+footer {
+    width: 100%;
+    margin: 0;
+    padding: 1rem 0;
+    box-sizing: border-box;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    html, body {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    header {
+        padding: 1rem 0;
+    }
+
+    main {
+        padding: 0;
+        margin-top: 100px; /* Prevent overlap with fixed nav */
+    }
+
+    .news-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-gallery {
+        max-width: 100%;
+        width: 100%;
+        margin: 1rem 0;
+        border-radius: 0;
+    }
+
+    .tabs-container {
+        max-width: 100%;
+        width: 100%;
+        margin: 1rem 0;
+    }
+
+    .server-status {
+        position: static;
+        width: 100%;
+        max-width: 300px;
+        margin: 1rem auto;
+    }
+
+    footer {
+        padding: 1rem 0;
+    }
+}

@@ -1,0 +1,185 @@
+<?php
+require_once '../includes/session.php';
+$page_class = 'news';
+include dirname(__DIR__) . '/includes/header.php';
+
+$base_url = '/sahtout/';
+$default_image_url = 'img/newsimg/news.png';
+$log_dir = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR;
+$log_file = $log_dir . 'image_errors.log';
+
+// Ensure log directory exists
+if (!file_exists($log_dir)) {
+    mkdir($log_dir, 0755, true);
+}
+if (!is_writable($log_dir)) {
+    error_log("Log directory not writable: $log_dir");
+}
+
+$items_per_page = 5;
+$slug = isset($_GET['slug']) ? trim($_GET['slug']) : '';
+$is_single = !empty($slug);
+
+if ($is_single) {
+    $query = "SELECT id, title, slug, content, posted_by, post_date, image_url, is_important, category 
+              FROM server_news 
+              WHERE slug = ?";
+    $stmt = $site_db->prepare($query);
+    $stmt->bind_param('s', $slug);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $news = $result->fetch_assoc();
+    $stmt->close();
+
+    if (!$news) {
+        header('HTTP/1.0 404 Not Found');
+        echo '<h1>404 - News Not Found</h1>';
+        echo '<p>The news article you are looking for does not exist.</p>';
+        include dirname(__DIR__) . '/includes/footer.php';
+        exit;
+    }
+
+    // Log if image_url is suspicious
+    if (!empty($news['image_url']) && !preg_match('/^img\/newsimg\/.*\.(jpg|png|gif)$/i', $news['image_url'])) {
+        error_log("Suspicious image_url for news ID {$news['id']}: {$news['image_url']}", 3, $log_file);
+    }
+} else {
+    $current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+    $offset = ($current_page - 1) * $items_per_page;
+
+    $total_query = "SELECT COUNT(*) as total FROM server_news";
+    $total_result = $site_db->query($total_query);
+    $total_rows = $total_result->fetch_assoc()['total'];
+    $total_pages = ceil($total_rows / $items_per_page);
+    $current_page = min($current_page, $total_pages);
+
+    $query = "SELECT id, title, slug, LEFT(content, 200) as excerpt, posted_by, 
+              post_date, image_url, is_important, category 
+              FROM server_news 
+              ORDER BY is_important DESC, post_date DESC
+              LIMIT ?, ?";
+    $stmt = $site_db->prepare($query);
+    $stmt->bind_param('ii', $offset, $items_per_page);
+    $stmt->execute();
+    $result = $stmt->get_result();
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php if ($is_single): ?>
+        <meta name="description" content="<?php echo htmlspecialchars(substr($news['content'], 0, 150)); ?>...">
+        <link rel="canonical" href="/sahtout/pages/news.php?slug=<?php echo htmlspecialchars($news['slug']); ?>">
+        <title><?php echo htmlspecialchars($news['title']); ?></title>
+    <?php else: ?>
+        <meta name="description" content="Latest news and updates for our World of Warcraft server.">
+        <link rel="canonical" href="/sahtout/pages/news.php?page=<?php echo $current_page; ?>">
+        <title>News</title>
+    <?php endif; ?>
+    <meta name="robots" content="index">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/news.css">
+</head>
+<body class="news <?php echo $is_single ? 'single-view' : 'list-view'; ?>">
+    <div class="main-content">
+        <div class="wow-news-container">
+            <?php if ($is_single): ?>
+                <!-- Single News Article View -->
+                <article class="news-single <?php echo $news['is_important'] ? 'important' : ''; ?>">
+                    <?php if (!empty($news['image_url'])): ?>
+                        <img src="<?php echo $base_url . htmlspecialchars($news['image_url']); ?>" 
+                             alt="<?php echo htmlspecialchars($news['title']); ?>" 
+                             class="news-single-image"
+                             onerror="this.src='<?php echo $base_url . htmlspecialchars($default_image_url); ?>'">
+                    <?php else: ?>
+                        <img src="<?php echo $base_url . htmlspecialchars($default_image_url); ?>" 
+                             alt="<?php echo htmlspecialchars($news['title']); ?>" 
+                             class="news-single-image">
+                    <?php endif; ?>
+                    <h1 class="news-single-title"><?php echo htmlspecialchars($news['title']); ?></h1>
+                    <div class="news-single-meta">
+                        <span class="category <?php echo htmlspecialchars($news['category']); ?>">
+                            <?php echo ucfirst(htmlspecialchars($news['category'])); ?>
+                        </span>
+                        <span class="date"><?php echo date('M j, Y', strtotime($news['post_date'])); ?></span>
+                        <span class="author">Posted by <?php echo htmlspecialchars($news['posted_by']); ?></span>
+                    </div>
+                    <div class="news-single-content">
+                        <?php echo nl2br(htmlspecialchars($news['content'])); ?>
+                    </div>
+                    <a href="/sahtout/pages/news.php" class="news-single-back">← Back to News</a>
+                </article>
+            <?php else: ?>
+                <!-- News List -->
+                <h1 class="wow-news-title">Sahtout News</h1>
+                <?php if ($result->num_rows === 0): ?>
+                    <div class="no-news">No news available at this time.</div>
+                <?php else: ?>
+                    <div class="news-list">
+                        <?php while ($news = $result->fetch_assoc()): ?>
+                            <?php
+                            // Log suspicious image_url
+                            if (!empty($news['image_url']) && !preg_match('/^img\/newsimg\/.*\.(jpg|png|gif)$/i', $news['image_url'])) {
+                                error_log("Suspicious image_url for news ID {$news['id']}: {$news['image_url']}", 3, $log_file);
+                            }
+                            ?>
+                            <a href="/sahtout/pages/news.php?slug=<?php echo htmlspecialchars($news['slug']); ?>" class="news-link">
+                                <article class="news-item <?php echo $news['is_important'] ? 'important' : ''; ?>">
+                                    <?php if (!empty($news['image_url'])): ?>
+                                        <img src="<?php echo $base_url . htmlspecialchars($news['image_url']); ?>" 
+                                             alt="<?php echo htmlspecialchars($news['title']); ?>" 
+                                             class="news-image"
+                                             onerror="this.src='<?php echo $base_url . htmlspecialchars($default_image_url); ?>'">
+                                    <?php else: ?>
+                                        <img src="<?php echo $base_url . htmlspecialchars($default_image_url); ?>" 
+                                             alt="<?php echo htmlspecialchars($news['title']); ?>" 
+                                             class="news-image">
+                                    <?php endif; ?>
+                                    <div class="news-content">
+                                        <h2><?php echo htmlspecialchars($news['title']); ?></h2>
+                                        <div class="news-meta">
+                                            <span class="category <?php echo htmlspecialchars($news['category']); ?>">
+                                                <?php echo ucfirst(htmlspecialchars($news['category'])); ?>
+                                            </span>
+                                            <span class="date"><?php echo date('M j, Y', strtotime($news['post_date'])); ?></span>
+                                            <span class="author">Posted by <?php echo htmlspecialchars($news['posted_by']); ?></span>
+                                        </div>
+                                        <p class="news-excerpt"><?php echo htmlspecialchars($news['excerpt']); ?>...</p>
+                                    </div>
+                                </article>
+                            </a>
+                        <?php endwhile; ?>
+                    </div>
+
+                    <!-- Pagination -->
+                    <?php if ($total_pages > 1): ?>
+                        <div class="news-pagination">
+                            <?php if ($current_page > 1): ?>
+                                <a href="/sahtout/pages/news.php?page=<?php echo $current_page - 1; ?>" 
+                                   class="pagination-link" 
+                                   aria-label="Previous page">« Prev</a>
+                            <?php endif; ?>
+                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                                <a href="/sahtout/pages/news.php?page=<?php echo $i; ?>" 
+                                   class="pagination-link <?php echo $i == $current_page ? 'active' : ''; ?>" 
+                                   aria-label="Go to page <?php echo $i; ?>">
+                                    <?php echo $i; ?>
+                                </a>
+                            <?php endfor; ?>
+                            <?php if ($current_page < $total_pages): ?>
+                                <a href="/sahtout/pages/news.php?page=<?php echo $current_page + 1; ?>" 
+                                   class="pagination-link" 
+                                   aria-label="Next page">Next »</a>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php if (!$is_single) $stmt->close(); ?>
+    <?php include dirname(__DIR__) . '/includes/footer.php'; ?>
+</body>
+</html>

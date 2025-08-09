@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteRule ^(.*)$ /sahtout/pages [R=301,L]
+Options -Indexes

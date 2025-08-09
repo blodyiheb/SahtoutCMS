@@ -1,0 +1,4 @@
+body.register {
+  background: url('../../img/backgrounds/bg-register.jpg') no-repeat center center fixed;
+  background-size: cover;
+}

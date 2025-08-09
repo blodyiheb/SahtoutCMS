@@ -1,0 +1,116 @@
+body.news.single-view {
+    background: url('/sahtout/img/backgrounds/bg-news.jpg') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    color: #e0e0e0;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.wow-news-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 1px solid #3a3a3a;
+    border-radius: 10px;
+    flex: 1;
+}
+
+.news-single {
+    background: rgba(10, 10, 10, 0.7);
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 30px;
+}
+
+.news-single.important {
+    border-left: 6px solid #ff4500;
+    background: rgba(30, 10, 10, 0.8);
+}
+
+.news-single-image {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    border: 1px solid #555;
+    border-radius: 6px;
+    margin-bottom: 30px;
+    display: block;
+}
+
+.news-single-title {
+    color: #ffd100;
+    font-family: 'UnifrakturCook', 'Arial', sans-serif;
+    font-size: 2.8em;
+    text-shadow: 2px 2px 4px #000;
+    margin: 0 0 20px;
+    line-height: 1.2;
+}
+
+.news-single-meta {
+    color: #aaa;
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.news-single-meta .category {
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+.category.update { background: #4a6ea9; color: white; }
+.category.event { background: #8a6d3b; color: white; }
+.category.maintenance { background: #d9534f; color: white; }
+.category.other { background: #5bc0de; color: white; }
+
+.news-single-content {
+    color: #e0e0e0;
+    font-size: 1.2em;
+    line-height: 1.8;
+    margin-bottom: 30px;
+}
+
+.news-single-back {
+    display: inline-block;
+    padding: 12px 25px;
+    background: rgba(255, 209, 0, 0.15);
+    border: 1px solid #ffd100;
+    border-radius: 5px;
+    color: #ffd100;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+.news-single-back:hover {
+    background: rgba(255, 209, 0, 0.35);
+    transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+    .wow-news-container {
+        padding: 20px;
+        max-width: 100%;
+    }
+
+    .news-single {
+        padding: 20px;
+    }
+
+    .news-single-title {
+        font-size: 2.2em;
+    }
+
+    .news-single-content {
+        font-size: 1.1em;
+    }
+}

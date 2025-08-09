@@ -1,0 +1,144 @@
+footer {
+    background-color: #0e0e0e;
+    color: white;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    width: 100%;
+    max-width: 100%;
+    clear: both;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-logo-img {
+    height: 60px;
+}
+
+.footer-center {
+    text-align: center;
+    flex: 1;
+}
+
+.footer-socials {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.footer-socials i,
+.kick-icon {
+    font-size: 20px;
+    color: white;
+    transition: color 0.3s, transform 0.3s ease;
+}
+
+.footer-socials a:hover i,
+.footer-socials a:hover .kick-icon {
+    color: #e5ff00;
+    transform: scale(1.2);
+}
+
+.kick-icon {
+    width: 30px;
+    height: 30px;
+    filter: brightness(0) invert(1);
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.kick-icon:hover {
+    transform: scale(1.2);
+}
+
+/* Back to Top Button */
+#backToTop {
+    position: fixed;
+    bottom: 40px;
+    left: 20px;
+    background: linear-gradient(135deg, #88eb06, #fbff00);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+}
+
+#backToTop:hover {
+    background: linear-gradient(135deg, #00cc66, #00ff88);
+    transform: scale(1.1);
+}
+
+#backToTop:active {
+    transform: scale(0.9);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-logo {
+        order: 1;
+        margin-bottom: 1rem;
+    }
+
+    .footer-socials {
+        order: 2;
+        margin: 1rem 0;
+    }
+
+    .footer-center {
+        order: 3;
+        margin-top: 1rem;
+    }
+
+    #backToTop {
+        bottom: 20px;
+        left: 15px;
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-logo-img {
+        height: 50px;
+    }
+
+    .footer-socials i,
+    .kick-icon {
+        font-size: 18px;
+    }
+
+    .kick-icon {
+        width: 25px;
+        height: 25px;
+    }
+
+    #backToTop {
+        bottom: 15px;
+        left: 10px;
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+}

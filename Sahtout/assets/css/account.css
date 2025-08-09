@@ -1,0 +1,223 @@
+body.account {
+    background: url('/sahtout/img/backgrounds/bg-account.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #eee;
+    font-family: 'Cinzel', serif;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+main {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+footer {
+    flex-shrink: 0;
+}
+.account-sahtout-main {
+    max-width: 1200px;
+    margin: 100px auto;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.7);
+    border: 1px solid #f0a500;
+    min-height: 60vh;
+}
+.account-sahtout-title,
+.account-sahtout-subtitle {
+    color: #ffffff;
+    border-bottom: 1px solid #f0a500;
+    text-shadow: #006321 1px 2px;
+    padding-bottom: 10px;
+    text-align: center;
+}
+.account-sahtout-section {
+    margin-bottom: 30px;
+}
+.account-sahtout-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    justify-content: center;
+}
+.account-sahtout-card {
+    background: #333;
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 3px solid #f0a500;
+}
+.account-sahtout-characters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    justify-content: center;
+}
+.account-sahtout-character {
+    background: #2a2a2a;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #444;
+    transition: transform 0.3s;
+}
+.account-sahtout-character:hover {
+    transform: translateY(-5px);
+    border-color: #f0a500;
+}
+.account-sahtout-character-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.account-sahtout-character-name {
+    font-weight: bold;
+    color: #f0a500;
+}
+.account-sahtout-character-details {
+    font-size: 0.9em;
+    color: #aaa;
+    text-align: center;
+}
+.account-sahtout-form-group {
+    margin-bottom: 15px;
+    text-align: center;
+}
+.account-sahtout-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #eca202;
+}
+.account-sahtout-input,
+.account-sahtout-select {
+    width: 220px;
+    padding: 10px;
+    background: #333;
+    border: 1px solid #444;
+    color: #eee;
+    border-radius: 4px;
+}
+.account-sahtout-button {
+    background: #f0a500;
+    color: #111;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+.account-sahtout-button:hover {
+    background: #ffc107;
+}
+.account-sahtout-button-small {
+    padding: 5px 10px;
+    font-size: 0.8em;
+}
+.account-sahtout-message {
+    padding: 10px;
+    margin: 10px auto;
+    border-radius: 4px;
+    max-width: 600px;
+    text-align: center;
+}
+.account-sahtout-success {
+    background: #335533;
+    color: #55ff55;
+}
+.account-sahtout-error {
+    background: #4f0606;
+    color: #e61111;
+}
+.account-sahtout-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #444;
+    justify-content: center;
+}
+.account-sahtout-tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    background: #333;
+    margin-right: 5px;
+    border-radius: 5px 5px 0 0;
+}
+.account-sahtout-tab.active {
+    background: #f0a500;
+    color: #111;
+}
+.account-sahtout-tab-content {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+}
+.account-sahtout-tab-content.active {
+    display: flex;
+}
+.account-sahtout-grid,
+.account-sahtout-characters,
+.account-sahtout-table,
+.account-sahtout-form {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1000px;
+    width: 100%;
+}
+.account-sahtout-gold {
+    color: gold;
+}
+.account-sahtout-table {
+    margin: 10px auto;
+    width: 100%;
+    max-width: 800px;
+}
+.account-sahtout-table th,
+.account-sahtout-table td {
+    padding: 10px;
+    border: 1px solid #444444;
+    text-align: left;
+}
+.account-sahtout-table th {
+    background: #333;
+    color: #f0a500;
+}
+.account-sahtout-table td {
+    background: #2a2a2a;
+}
+.account-sahtout-form {
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+}
+.account-sahtout-icon {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+@media (max-width: 768px) {
+    
+    .account-sahtout-main {
+        padding: 15px;
+        margin: 20px auto;
+    }
+    .account-sahtout-grid,
+    .account-sahtout-characters {
+        grid-template-columns: 1fr;
+        justify-content: center;
+    }
+   .account-sahtout-character-name {
+       margin-left: 100px;
+    }
+    .account-sahtout-table,
+    .account-sahtout-form {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+}

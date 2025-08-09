@@ -1,0 +1,251 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: unset;
+    box-sizing: border-box;
+}
+
+/* Header */
+header {
+    background: rgba(0, 0, 0, 0.33);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    z-index: 1000;
+}
+
+header img {
+    vertical-align: middle;
+}
+
+header nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+header nav a {
+    display: inline-block;
+    color: #ffd700;
+    margin: 0.5rem;
+    padding: 0.8rem 1.2rem;
+    text-decoration: none;
+    font-family: 'UnifrakturCook', sans-serif;
+    font-size: 1.1rem;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #ffd700;
+    border-radius: 4px;
+    transition: background 0.3s, color 0.3s;
+}
+
+header nav a:hover {
+    background: #ffd700;
+    color: #000;
+}
+
+/* User profile image */
+.user-profile {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+}
+
+.user-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ffd700;
+    object-fit: cover;
+}
+
+/* Navbar toggle button */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.hamburger {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background: #ffd700;
+    position: relative;
+}
+
+.hamburger::before,
+.hamburger::after {
+    content: '';
+    position: absolute;
+    width: 25px;
+    height: 3px;
+    background: #ffd700;
+    left: 0;
+}
+
+.hamburger::before {
+    top: -8px;
+}
+
+.hamburger::after {
+    top: 8px;
+}
+
+/* Close button */
+.nav-close {
+    display: none;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #ffd700;
+    color: #ffd700;
+    padding: 0.5rem 1rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 4px;
+    margin: 0.5rem auto;
+    transition: background 0.3s, color 0.3s;
+}
+
+.nav-close:hover {
+    background: #ffd700;
+    color: #000;
+}
+
+header nav.nav-open .nav-close {
+    display: block;
+}
+
+/* Main content */
+main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    flex: 1;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    background: #ffd700;
+    color: #000;
+    text-decoration: none;
+    border-radius: 4px;
+    font-family: 'UnifrakturCook', sans-serif;
+    font-weight: bold;
+}
+
+.btn:hover {
+    background: #e6c200;
+}
+
+/* Form container */
+.form-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+.form-container h2 {
+    color: #ffd700;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-family: 'UnifrakturCook', sans-serif;
+}
+
+.form-container label {
+    display: block;
+    margin: 0.5rem 0;
+    font-weight: bold;
+}
+
+.form-container input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: none;
+    border-radius: 4px;
+    background: #333;
+    color: #fff;
+}
+
+.form-container button {
+    width: 100%;
+    padding: 0.8rem;
+}
+
+.form-container .error {
+    color: #ff0000;
+    margin-bottom: 1rem;
+}
+
+.form-container .success {
+    color: #00ff00;
+    margin-bottom: 1rem;
+}
+
+.form-container a {
+    color: #ffd700;
+    text-decoration: none;
+}
+
+.form-container a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: block;
+    }
+
+    header nav {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        background: rgba(0, 0, 0, 0.9);
+        flex-direction: column;
+        padding: 1rem;
+        z-index: 1000;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        border: 1px solid #ffd700;
+    }
+
+    header nav.nav-open {
+        display: flex;
+    }
+
+    header nav a {
+        margin: 0.5rem 0;
+        padding: 1rem 1.5rem;
+        width: 80%;
+        text-align: center;
+        font-size: 1.2rem;
+    }
+
+    main {
+        margin-top: 100px;
+    }
+
+    .form-container {
+        padding: 1rem;
+    }
+
+    .user-profile {
+        position: absolute;
+        top: 1rem;
+        right: 4rem;
+    }
+}

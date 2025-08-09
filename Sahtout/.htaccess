@@ -1,0 +1,5 @@
+RewriteEngine On
+
+# Redirect /sahtout or /sahtout (with or without slash) to /sahtout/pages/home.php
+RewriteCond %{REQUEST_URI} ^/sahtout/?$ [NC]
+RewriteRule ^.*$ /sahtout/pages/home.php [L]

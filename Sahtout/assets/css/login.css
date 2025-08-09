@@ -1,0 +1,13 @@
+/* Full-page layout */
+
+       body.login {
+    background: url('/sahtout/img/backgrounds/bg-login.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'UnifrakturCook', 'Arial', sans-serif;
+    color: #fff;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
