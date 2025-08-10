@@ -83,7 +83,7 @@ if (in_array($current_page, $protected_pages) || in_array($current_page, $admin_
 }
 
 // For login, register, and activate pages, redirect to account if already logged in
-$public_pages = ['login.php', 'register.php', 'activate.php'];
+$public_pages = ['login.php', 'register.php', 'activate.php','forgot-password.php', 'reset_password.php','resend-activation.php'];
 if (in_array($current_page, $public_pages) && !empty($_SESSION['user_id']) && !empty($_SESSION['username'])) {
     /** @var \mysqli_stmt|false $stmt */
     $stmt = $auth_db->prepare("SELECT id FROM account WHERE id = ? AND username = ?");
