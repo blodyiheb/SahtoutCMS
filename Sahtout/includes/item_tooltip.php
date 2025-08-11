@@ -1,9 +1,14 @@
 <?php
 // Data definitions
 $qualityColors = [
-    0 => '#9d9d9d', 1 => '#ffffff', 2 => '#1eff00',
-    3 => '#0070dd', 4 => '#a335ee', 5 => '#ff8000',
-    6 => '#e6cc80', 7 => '#e6cc80'
+    0 => '#9d9d9d', // Poor (Grey)
+    1 => '#ffffff', // Common (White)
+    2 => '#1eff00', // Uncommon (Green)
+    3 => '#0070dd', // Rare (Blue)
+    4 => '#a335ee', // Epic (Purple)
+    5 => '#ff8000', // Legendary (Orange)
+    6 => '#e6cc80', // Artifact (Red)
+    7 => '#e6cc80'  // Bind to Account (Gold)
 ];
 
 $bondingTypes = [
@@ -111,9 +116,29 @@ $socketColors = [
 ];
 
 $classRestrictions = [
-    1 => 'Warrior', 2 => 'Paladin', 4 => 'Hunter', 8 => 'Rogue', 16 => 'Priest',
-    32 => 'Death Knight', 64 => 'Shaman', 128 => 'Mage', 256 => 'Warlock',
-    512 => 'Monk', 1024 => 'Druid', 2048 => 'Demon Hunter'
+    1 => 'Warrior',
+    2 => 'Paladin',
+    4 => 'Hunter',
+    8 => 'Rogue',
+    16 => 'Priest',
+    32 => 'Death Knight',
+    64 => 'Shaman',
+    128 => 'Mage',
+    256 => 'Warlock',
+    1024 => 'Druid'
+];
+
+$classColors = [
+    1 => '#C69B6D', // Warrior: Tan
+    2 => '#F48CBA', // Paladin: Pink
+    4 => '#AAD372', // Hunter: Pistachio
+    8 => '#FFF468', // Rogue: Yellow
+    16 => '#FFFFFF', // Priest: White
+    32 => '#C41E3A', // Death Knight: Red
+    64 => '#0070DD', // Shaman: Blue
+    128 => '#3FC7EB', // Mage: Light Blue
+    256 => '#8788EE', // Warlock: Purple
+    1024 => '#FF7C0A' // Druid: Orange
 ];
 
 // Helpers
@@ -132,27 +157,38 @@ function formatDPS($min, $max, $delay) {
 
 // Tooltip function
 function generateTooltip($item) {
-    global $qualityColors, $bondingTypes, $inventoryTypes, $classNames, $subclassNames, $normalStats, $specialStats, $socketColors, $classRestrictions, $triggerFlags, $world_db;
+    global $qualityColors, $bondingTypes, $inventoryTypes, $classNames, $subclassNames, $normalStats, $specialStats, $socketColors, $classRestrictions, $classColors, $triggerFlags, $world_db;
 
-    $color = $qualityColors[$item['Quality']] ?? '#ffffff';
+    // Set item name color based on quality
+    $itemColor = $qualityColors[$item['Quality']] ?? '#ffffff';
+    if ($item['Quality'] == 7 && ($item['flags'] & 134221824) == 134221824) {
+        $itemColor = '#e6cc80';
+    }
+    // Log item color for debugging
+    error_log("item_tooltip.php: Item {$item['entry']} ({$item['name']}) Quality={$item['Quality']}, Color=$itemColor");
+
     $name = htmlspecialchars($item['name']);
     $desc = htmlspecialchars($item['description']);
     $level = $item['ItemLevel'];
     $reqLevel = $item['RequiredLevel'];
     $sell = $item['SellPrice'] ?? 0;
     $dur = $item['MaxDurability'] ?? 0;
-    $speed = $item['delay'] > 0 ? round($item['delay'] / 1000, 2) : null;
+    // Only calculate speed for weapons (class = 2)
+    $speed = ($item['class'] == 2 && $item['delay'] > 0) ? round($item['delay'] / 1000, 2) : null;
     $bonding = $bondingTypes[$item['bonding']] ?? null;
     $className = $classNames[$item['class']] ?? 'Unknown';
     $subclassName = $subclassNames[$item['class']][$item['subclass']] ?? null;
     $invType = $inventoryTypes[$item['InventoryType']] ?? null;
 
-    // Class restrictions
+    // Class restrictions with colors
     $requiredClasses = [];
     if (isset($item['AllowableClass']) && $item['AllowableClass'] > 0) {
         foreach ($classRestrictions as $bit => $class) {
             if ($item['AllowableClass'] & $bit) {
-                $requiredClasses[] = $class;
+                $color = $classColors[$bit] ?? '#ffffff';
+                $requiredClasses[] = "<span style='color:$color;'>$class</span>";
+                // Log class color for debugging
+                error_log("item_tooltip.php: Item {$item['entry']} class $class (bit $bit) assigned color $color");
             }
         }
     }
@@ -160,14 +196,13 @@ function generateTooltip($item) {
 
     // Fetch spell effects for Use, Equip, Chance on Hit, and Soulstone triggers
     $spellEffects = [];
-    // Check if armory_spell table exists
     $tableCheck = $world_db->query("SHOW TABLES LIKE 'armory_spell'");
     if ($tableCheck->num_rows > 0) {
         for ($i = 1; $i <= 5; $i++) {
             $spellId = $item["spellid_$i"];
             $trigger = $item["spelltrigger_$i"];
             if ($spellId > 0) {
-                if (in_array($trigger, [0, 1, 2, 4])) { // Use, Equip, Chance on Hit, or Soulstone
+                if (in_array($trigger, [0, 1, 2, 4])) {
                     $stmt = $world_db->prepare("SELECT id, Description_en_gb, ToolTip_1 FROM armory_spell WHERE id = ?");
                     if ($stmt === false) {
                         error_log("Failed to prepare query for spell ID $spellId in item " . ($item['entry'] ?? 'unknown') . ": " . $world_db->error);
@@ -206,12 +241,15 @@ function generateTooltip($item) {
             object-fit: contain;
             vertical-align: middle;
         }
+        .item-name {
+            color: <?= $itemColor ?> !important;
+        }
     </style>
 
     <div style="background:#1a1a1a;border:1px solid #444;padding:8px;width:300px;color:#ccc;font:12px Arial;border-radius:4px;font-family:FrizQuadrata,Arial,sans-serif;">
         <div style="display:flex;justify-content:space-between;gap:8px;">
             <div>
-                <div style="color:<?= $color ?>;font-weight:bold;font-size:14px;"><?= $name ?></div>
+                <div class="item-name" style="font-weight:bold;font-size:14px;"><?= $name ?></div>
                 <?php if ($level): ?><div style="color:#e0b802;">Item Level <?= $level ?></div><?php endif; ?>
             </div>
             <div style="text-align:right;">
@@ -239,7 +277,7 @@ function generateTooltip($item) {
             $type = $item["stat_type$i"];
             $value = $item["stat_value$i"];
             if ($type > 0 && $value != 0 && isset($normalStats[$type])): ?>
-                <div style="color:#00ff00;">+<?= $value ?> <?= $normalStats[$type] ?></div>
+                <div style="color:#ffffff;">+<?= $value ?> <?= $normalStats[$type] ?></div>
         <?php endif; endfor; ?>
 
         <?php
@@ -251,7 +289,7 @@ function generateTooltip($item) {
         <?php endif; endforeach; ?>
 
         <!-- Sockets -->
-      <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
             <?php for ($i = 1; $i <= 3; $i++): ?>
                 <?php
                 $colorCode = $item["socketColor_$i"] ?? null;
@@ -276,13 +314,13 @@ function generateTooltip($item) {
 
         <?php if ($dur > 0): ?><div>Durability <?= $dur ?>/<?= $dur ?></div><?php endif; ?>
         <?php if ($reqLevel): ?><div>Requires Level <?= $reqLevel ?></div><?php endif; ?>
-        <?php if ($requiredClassesText): ?><div style="color:#eb0505;"><?= $requiredClassesText ?></div><?php endif; ?>
+        <?php if ($requiredClassesText): ?><div><?= $requiredClassesText ?></div><?php endif; ?>
 
         <?php for ($i = 1; $i <= 10; $i++):
             $type = $item["stat_type$i"];
             $value = $item["stat_value$i"];
             if ($type > 0 && $value != 0 && isset($specialStats[$type])): ?>
-                <div style="color:#00ff00;">Equip: +<?= $value ?> <?= $specialStats[$type] ?></div>
+                <div style="color:#00ff00;">Equip: Increases +<?= $value ?> <?= $specialStats[$type] ?></div>
         <?php endif; endfor; ?>
 
         <?php foreach ($spellEffects as $effect): ?>
