@@ -5,6 +5,7 @@ $qualityColors = [
     3 => '#0070dd', 4 => '#a335ee', 5 => '#ff8000',
     6 => '#e6cc80', 7 => '#e6cc80'
 ];
+
 $bondingTypes = [
     0 => null,
     1 => 'Binds when picked up',
@@ -14,6 +15,7 @@ $bondingTypes = [
     5 => 'Quest Item',
     6 => 'Binds to account'
 ];
+
 $inventoryTypes = [
     0 => null,
     1 => 'Head', 2 => 'Neck', 3 => 'Shoulder', 4 => 'Shirt', 5 => 'Chest',
@@ -23,31 +25,91 @@ $inventoryTypes = [
     20 => 'Robe', 21 => 'Main Hand', 22 => 'Off Hand', 23 => 'Holdable',
     25 => 'Thrown', 26 => 'Ranged', 28 => 'Relic'
 ];
+
 $classNames = [
     0 => 'Consumable', 1 => 'Container', 2 => 'Weapon', 3 => 'Gem', 4 => 'Armor',
     5 => 'Reagent', 6 => 'Projectile', 7 => 'Trade Goods', 8 => 'Generic', 9 => 'Recipe',
     10 => 'Money', 11 => 'Quiver', 12 => 'Quest', 13 => 'Key', 14 => 'Permanent',
     15 => 'Miscellaneous', 16 => 'Glyph'
 ];
+
 $subclassNames = [
-    2 => [0 => 'Axe', 1 => 'Axe (2H)', 2 => 'Bow', 3 => 'Gun', 4 => 'Mace', 5 => 'Mace (2H)',
+    2 => [
+        0 => 'Axe', 1 => 'Axe (2H)', 2 => 'Bow', 3 => 'Gun', 4 => 'Mace', 5 => 'Mace (2H)',
         6 => 'Polearm', 7 => 'Sword', 8 => 'Sword (2H)', 10 => 'Staff', 13 => 'Fist Weapon',
         14 => 'Miscellaneous', 15 => 'Dagger', 16 => 'Thrown', 17 => 'Spear',
-        18 => 'Crossbow', 19 => 'Wand', 20 => 'Fishing Pole'],
-    4 => [0 => 'Miscellaneous', 1 => 'Cloth', 2 => 'Leather', 3 => 'Mail', 4 => 'Plate',
-        6 => 'Shield', 7 => 'Libram', 8 => 'Idol', 9 => 'Totem', 10 => 'Sigil']
+        18 => 'Crossbow', 19 => 'Wand', 20 => 'Fishing Pole'
+    ],
+    4 => [
+        0 => 'Miscellaneous', 1 => 'Cloth', 2 => 'Leather', 3 => 'Mail', 4 => 'Plate',
+        6 => 'Shield', 7 => 'Libram', 8 => 'Idol', 9 => 'Totem', 10 => 'Sigil'
+    ]
 ];
-$statTypes = [
-    3 => 'Agility', 4 => 'Strength', 5 => 'Intellect', 6 => 'Spirit', 7 => 'Stamina',
-    12 => 'Defense Rating', 13 => 'Dodge Rating', 14 => 'Parry Rating', 15 => 'Block Rating',
-    32 => 'Spell Power', 35 => 'Resilience', 36 => 'Haste Rating'
+
+$triggerFlags = [
+    0 => "Use",
+    1 => "Equip",
+    2 => "Chance on hit",
+    4 => "Soulstone"
 ];
+
+$normalStats = [
+    0 => "Mana",
+    1 => "Health",
+    3 => "Agility",
+    4 => "Strength",
+    5 => "Intellect",
+    6 => "Spirit",
+    7 => "Stamina"
+];
+
+$specialStats = [
+    12 => "Defense Rating",
+    13 => "Dodge Rating",
+    14 => "Parry Rating",
+    15 => "Block Rating",
+    16 => "Hit (Melee) Rating",
+    17 => "Hit (Ranged) Rating",
+    18 => "Hit (Spell) Rating",
+    19 => "Crit (Melee) Rating",
+    20 => "Crit (Ranged) Rating",
+    21 => "Crit (Spell) Rating",
+    22 => "Hit Taken (Melee) Rating",
+    23 => "Hit Taken (Ranged) Rating",
+    24 => "Hit Taken (Spell) Rating",
+    25 => "Crit Taken (Melee) Rating",
+    26 => "Crit Taken (Ranged) Rating",
+    27 => "Crit Taken (Spell) Rating",
+    28 => "Haste (Melee) Rating",
+    29 => "Haste (Ranged) Rating",
+    30 => "Haste (Spell) Rating",
+    31 => "Hit Rating",
+    32 => "Crit Rating",
+    33 => "Hit Taken Rating",
+    34 => "Crit Taken Rating",
+    35 => "Resilience Rating",
+    36 => "Haste Rating",
+    37 => "Expertise Rating",
+    38 => "Attack Power",
+    39 => "Ranged Attack Power",
+    40 => "Feral Attack Power",
+    41 => "Healing Power",
+    42 => "Spell Damage",
+    43 => "Mana Regen",
+    44 => "Armor Penetration Rating",
+    45 => "Spell Power",
+    46 => "Health Regen",
+    47 => "Spell Penetration",
+    48 => "Block Value"
+];
+
 $socketColors = [
     1 => ['name' => 'Meta', 'icon' => '/Sahtout/img/shopimg/items/socketicons/socket_meta.gif'],
     2 => ['name' => 'Red', 'icon' => '/Sahtout/img/shopimg/items/socketicons/socket_red.gif'],
     4 => ['name' => 'Yellow', 'icon' => '/Sahtout/img/shopimg/items/socketicons/socket_yellow.gif'],
     8 => ['name' => 'Blue', 'icon' => '/Sahtout/img/shopimg/items/socketicons/socket_blue.gif']
 ];
+
 $classRestrictions = [
     1 => 'Warrior', 2 => 'Paladin', 4 => 'Hunter', 8 => 'Rogue', 16 => 'Priest',
     32 => 'Death Knight', 64 => 'Shaman', 128 => 'Mage', 256 => 'Warlock',
@@ -70,7 +132,7 @@ function formatDPS($min, $max, $delay) {
 
 // Tooltip function
 function generateTooltip($item) {
-    global $qualityColors, $bondingTypes, $inventoryTypes, $classNames, $subclassNames, $statTypes, $socketColors, $classRestrictions;
+    global $qualityColors, $bondingTypes, $inventoryTypes, $classNames, $subclassNames, $normalStats, $specialStats, $socketColors, $classRestrictions, $triggerFlags, $world_db;
 
     $color = $qualityColors[$item['Quality']] ?? '#ffffff';
     $name = htmlspecialchars($item['name']);
@@ -85,7 +147,7 @@ function generateTooltip($item) {
     $subclassName = $subclassNames[$item['class']][$item['subclass']] ?? null;
     $invType = $inventoryTypes[$item['InventoryType']] ?? null;
 
-    // Class restrictions - only show if there are actual restrictions
+    // Class restrictions
     $requiredClasses = [];
     if (isset($item['AllowableClass']) && $item['AllowableClass'] > 0) {
         foreach ($classRestrictions as $bit => $class) {
@@ -96,12 +158,51 @@ function generateTooltip($item) {
     }
     $requiredClassesText = !empty($requiredClasses) ? 'Classes: ' . implode(', ', $requiredClasses) : null;
 
+    // Fetch spell effects for Use, Equip, Chance on Hit, and Soulstone triggers
+    $spellEffects = [];
+    // Check if armory_spell table exists
+    $tableCheck = $world_db->query("SHOW TABLES LIKE 'armory_spell'");
+    if ($tableCheck->num_rows > 0) {
+        for ($i = 1; $i <= 5; $i++) {
+            $spellId = $item["spellid_$i"];
+            $trigger = $item["spelltrigger_$i"];
+            if ($spellId > 0) {
+                if (in_array($trigger, [0, 1, 2, 4])) { // Use, Equip, Chance on Hit, or Soulstone
+                    $stmt = $world_db->prepare("SELECT id, Description_en_gb, ToolTip_1 FROM armory_spell WHERE id = ?");
+                    if ($stmt === false) {
+                        error_log("Failed to prepare query for spell ID $spellId in item " . ($item['entry'] ?? 'unknown') . ": " . $world_db->error);
+                        continue;
+                    }
+                    $stmt->bind_param("i", $spellId);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    if ($spell = $result->fetch_assoc()) {
+                        $triggerText = $triggerFlags[$trigger] ?? 'Unknown';
+                        $description = !empty($spell['Description_en_gb']) ? htmlspecialchars($spell['Description_en_gb']) : htmlspecialchars($spell['ToolTip_1'] ?? '');
+                        if (!empty($description)) {
+                            $spellEffects[] = "$triggerText: $description";
+                        } else {
+                            error_log("No description for spell ID $spellId (trigger $trigger) in item " . ($item['entry'] ?? 'unknown'));
+                        }
+                    } else {
+                        error_log("Spell ID $spellId not found in armory_spell for item " . ($item['entry'] ?? 'unknown'));
+                    }
+                    $stmt->close();
+                } else {
+                    error_log("Invalid or unhandled trigger $trigger for spell ID $spellId in item " . ($item['entry'] ?? 'unknown'));
+                }
+            }
+        }
+    } else {
+        error_log("Table 'armory_spell' does not exist in database for item " . ($item['entry'] ?? 'unknown'));
+    }
+
     ob_start();
     ?>
     <style>
         .socket-icon {
-            width: 16px;
-            height: 16px;
+            width: 10px;
+            height: 10px;
             object-fit: contain;
             vertical-align: middle;
         }
@@ -137,9 +238,8 @@ function generateTooltip($item) {
         <?php for ($i = 1; $i <= 10; $i++):
             $type = $item["stat_type$i"];
             $value = $item["stat_value$i"];
-            if ($type > 0 && $value != 0):
-                $stat = $statTypes[$type] ?? "Stat $type"; ?>
-                <div style="color:#00ff00;">+<?= $value ?> <?= $stat ?></div>
+            if ($type > 0 && $value != 0 && isset($normalStats[$type])): ?>
+                <div style="color:#00ff00;">+<?= $value ?> <?= $normalStats[$type] ?></div>
         <?php endif; endfor; ?>
 
         <?php
@@ -151,7 +251,7 @@ function generateTooltip($item) {
         <?php endif; endforeach; ?>
 
         <!-- Sockets -->
-        <div style="display: flex; align-items: center; gap: 8px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
             <?php for ($i = 1; $i <= 3; $i++): ?>
                 <?php
                 $colorCode = $item["socketColor_$i"] ?? null;
@@ -173,9 +273,22 @@ function generateTooltip($item) {
         <?php if (!empty($item['socketBonus'])): ?>
             <div style="color:#888;">Socket Bonus: Spell ID <?= htmlspecialchars($item['socketBonus']) ?></div>
         <?php endif; ?>
+
         <?php if ($dur > 0): ?><div>Durability <?= $dur ?>/<?= $dur ?></div><?php endif; ?>
-        <?php if ($requiredClassesText): ?><div style="color:#eb0505;"><?= $requiredClassesText ?></div><?php endif; ?>
         <?php if ($reqLevel): ?><div>Requires Level <?= $reqLevel ?></div><?php endif; ?>
+        <?php if ($requiredClassesText): ?><div style="color:#eb0505;"><?= $requiredClassesText ?></div><?php endif; ?>
+
+        <?php for ($i = 1; $i <= 10; $i++):
+            $type = $item["stat_type$i"];
+            $value = $item["stat_value$i"];
+            if ($type > 0 && $value != 0 && isset($specialStats[$type])): ?>
+                <div style="color:#00ff00;">Equip: +<?= $value ?> <?= $specialStats[$type] ?></div>
+        <?php endif; endfor; ?>
+
+        <?php foreach ($spellEffects as $effect): ?>
+            <div style="color:#00ff00;"><?= $effect ?></div>
+        <?php endforeach; ?>
+
         <?php if ($sell > 0): ?><div>Sell: <?= goldSilverCopper($sell) ?></div><?php endif; ?>
         <?php if ($desc): ?><div style="margin-top:6px;color:#eee;font-style:italic;"><?= $desc ?></div><?php endif; ?>
     </div>
