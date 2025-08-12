@@ -97,7 +97,11 @@ while ($row = $result->fetch_assoc()) {
         <h1 class="text-4xl font-bold text-center text-amber-400 mb-6">Top 50 3v3 Arena Teams</h1>
 
         <?php include_once '../../includes/arenanavbar.php'; ?>
-
+<style>
+    .nav-container {
+        border: 2px double #15803d;
+    }
+</style>
         <?php if (count($teams) == 0): ?>
             <div class="text-center text-lg text-amber-400 bg-gray-800 p-6 rounded-lg shadow-lg">
                 No 3v3 arena teams found.

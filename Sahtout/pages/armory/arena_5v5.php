@@ -97,7 +97,11 @@ while ($row = $result->fetch_assoc()) {
         <h1 class="text-4xl font-bold text-center text-amber-400 mb-6">Top 50 5v5 Arena Teams</h1>
 
         <?php include_once '../../includes/arenanavbar.php'; ?>
-
+<style>
+    .nav-container {
+        border: 2px double #8c1dadff;
+    }
+</style>
         <?php if (count($teams) == 0): ?>
             <div class="text-center text-lg text-amber-400 bg-gray-800 p-6 rounded-lg shadow-lg">
                 No 5v5 arena teams found.

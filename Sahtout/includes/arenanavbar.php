@@ -23,7 +23,7 @@
         background: linear-gradient(to right, #15803d, #064e3b);
     }
     .nav-button-5v5 {
-        background: linear-gradient(to right, #1e40af, #1e1b4b);
+        background: linear-gradient(to right, #8c1dadff, #36012dff);
     }
     .nav-button:hover,
     .nav-button-2v2:hover,

@@ -68,6 +68,10 @@ function classIcon($class) {
     <title>WoW Armory - Top 50 Players</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        .nav-container {
+        border: 2px double #056602ff;
+       margin-top: 20px;
+    }
         html, body {
             height: 100%;
         }
@@ -125,7 +129,11 @@ function classIcon($class) {
         <h1 class="text-4xl font-bold text-center text-amber-400 mb-6">Top 50 Players</h1>
 
         <?php include_once '../../includes/arenanavbar.php'; ?>
-
+<style>
+      .nav-container {
+        border: 2px double #4338ca;
+    }
+</style>
         <div class="table-container overflow-x-auto rounded-lg shadow-lg">
             <table class="w-full text-sm text-center bg-gray-800">
                 <thead class="bg-gray-700 text-amber-400 uppercase">
