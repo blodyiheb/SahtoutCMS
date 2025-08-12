@@ -62,6 +62,7 @@ while ($row = $result->fetch_assoc()) {
         .table-container {
             scrollbar-width: thin;
             scrollbar-color: #ffcc00 #1f2937;
+            font-family: 'Arial', sans-serif;
         }
         .table-container::-webkit-scrollbar {
             width: 8px;
@@ -76,6 +77,18 @@ while ($row = $result->fetch_assoc()) {
         .top3 {
             background: linear-gradient(to right, #f59e0b, #d97706) !important;
         }
+        tr {
+            cursor: pointer;
+        }
+        tr:not(.top3):hover {
+            background-color: #4b5563; /* Tailwind's gray-600 */
+            transition: background-color 0.2s ease-in-out;
+        }
+        tr.top3:hover {
+            filter: brightness(1.2); /* Slightly brighten the gradient */
+            transition: filter 0.2s ease-in-out;
+            cursor: url('/Sahtout/img/hover_wow.gif')16 16, auto;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -83,12 +96,7 @@ while ($row = $result->fetch_assoc()) {
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-4xl font-bold text-center text-amber-400 mb-6">Top 50 3v3 Arena Teams</h1>
 
-        <div class="flex justify-center space-x-4 mb-6">
-            <a href="pages/armory/solo_pvp.php" class="px-4 py-2 bg-gray-800 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition duration-300">SOLO PVP Ladder</a>
-            <a href="pages/armory/arena_2v2.php" class="px-4 py-2 bg-gray-800 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition duration-300">2v2 Arena</a>
-            <a href="pages/armory/arena_3v3.php" class="px-4 py-2 bg-gray-800 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition duration-300">3v3 Arena</a>
-            <a href="pages/armory/arena_5v5.php" class="px-4 py-2 bg-gray-800 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition duration-300">5v5 Arena</a>
-        </div>
+        <?php include_once '../../includes/arenanavbar.php'; ?>
 
         <?php if (count($teams) == 0): ?>
             <div class="text-center text-lg text-amber-400 bg-gray-800 p-6 rounded-lg shadow-lg">
@@ -113,9 +121,9 @@ while ($row = $result->fetch_assoc()) {
                         $rank = 1;
                         $teamCount = count($teams);
                         foreach ($teams as $team) {
-                            $rowClass = ($rank <= 3 && $teamCount >= 3) ? 'top3' : 'hover:bg-gray-700';
+                            $rowClass = ($rank <= 3 && $teamCount >= 3) ? 'top3' : '';
                             $faction = getFaction($team['race']);
-                            echo "<tr class='{$rowClass} transition duration-200'>
+                            echo "<tr class='{$rowClass} transition duration-200' onclick=\"window.location='/sahtout/pages/armory/arena/arenateam.php?arenaTeamId={$team['arenaTeamId']}';\">
                                 <td class='py-3 px-6'>{$rank}</td>
                                 <td class='py-3 px-6'>" . htmlspecialchars($team['team_name']) . "</td>
                                 <td class='py-3 px-6'>

@@ -118,6 +118,9 @@ header {
     border-bottom: 2px solid #ecf0f1;
     position: relative;
 }
+body{
+     cursor: url('/Sahtout/img/pointer_wow.gif')16 16, auto;
+}
 
 header img {
     height: 80px;
@@ -127,6 +130,7 @@ header img {
 header img:hover {
     transform: scale(1.05);
     filter: drop-shadow(0 0 8px rgba(52, 152, 219, 0.5));
+    cursor: url('/Sahtout/img/hover_wow.gif')16 16, auto;
 }
 
 header nav {
@@ -147,6 +151,7 @@ header nav a {
     transition: all 0.3s ease;
     position: relative;
     margin-right: 25px;
+    cursor: url('/Sahtout/img/hover_wow.gif')16 16, auto;
 }
 
 header nav a:hover {
@@ -546,6 +551,7 @@ header nav a.active {
             <a href="<?php echo $base_path; ?>pages/home.php">Home</a>
             <a href="<?php echo $base_path; ?>pages/how-to-play.php">How to Play</a>
             <a href="<?php echo $base_path; ?>pages/news.php">News</a>
+            <a href="<?php echo $base_path; ?>pages/armory">armory</a>
             <a href="<?php echo $base_path; ?>pages/shop.php">Shop</a>
             <?php if (empty($_SESSION['user_id'])): ?>
                 <a href="<?php echo $base_path; ?>pages/register.php">Register</a>

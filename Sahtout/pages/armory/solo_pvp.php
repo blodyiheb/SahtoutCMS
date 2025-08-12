@@ -81,7 +81,7 @@ function classIcon($class) {
         }
         .table-container {
             scrollbar-width: thin;
-            scrollbar-color: #ffcc00 #1f2937;
+            scrollbar-color: #ffcc00 #141f2eff;
             font-family: 'Arial', sans-serif;
         }
         .table-container::-webkit-scrollbar {
@@ -94,8 +94,28 @@ function classIcon($class) {
             background: #ffcc00;
             border-radius: 4px;
         }
+       
+        tr {
+            cursor: pointer;
+        }
         .top5 {
-            background: linear-gradient(to right, #229200ff, #043a9eff) !important;
+            background: linear-gradient(to right, #161616ff, #043a9eff) !important;
+        }
+        .top5:hover{
+            background: linear-gradient(to right, #5807dbff, #0609c79c) !important;
+            cursor: url('/Sahtout/img/hover_wow.gif')16 16, auto;
+        }
+        tr {
+            cursor: pointer;    
+        }
+        tr:not(.top5):hover {
+            background-color: #10369eff; /* Tailwind's gray-600 */
+            transition: background-color 0.2s ease-in-out;
+            
+        }
+        tr.top5:hover {
+            filter: brightness(1.2); /* Slightly brighten the gradient */
+            transition: filter 0.2s ease-in-out;
         }
     </style>
 </head>
@@ -104,12 +124,7 @@ function classIcon($class) {
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-4xl font-bold text-center text-amber-400 mb-6">Top 50 Players</h1>
 
-        <div class="flex justify-center space-x-4 mb-6">
-            <a href="pages/armory/solo_pvp.php" class="px-4 py-2 bg-gray-800 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition duration-300">SOLO PVP Ladder</a>
-            <a href="pages/armory/arena_2v2.php" class="px-4 py-2 bg-gray-800 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition duration-300">2v2 Arena</a>
-            <a href="pages/armory/arena_3v3.php" class="px-4 py-2 bg-gray-800 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition duration-300">3v3 Arena</a>
-            <a href="pages/armory/arena_5v5.php" class="px-4 py-2 bg-gray-800 text-amber-400 rounded-lg hover:bg-amber-400 hover:text-gray-900 transition duration-300">5v5 Arena</a>
-        </div>
+        <?php include_once '../../includes/arenanavbar.php'; ?>
 
         <div class="table-container overflow-x-auto rounded-lg shadow-lg">
             <table class="w-full text-sm text-center bg-gray-800">
@@ -134,8 +149,8 @@ function classIcon($class) {
                         $rank = 1;
                         $playerCount = count($players);
                         foreach ($players as $p) {
-                            $rowClass = ($rank <= 5 && $playerCount >= 5) ? 'top5' : 'hover:bg-gray-700';
-                            echo "<tr class='{$rowClass} transition duration-200'>
+                            $rowClass = ($rank <= 5 && $playerCount >= 5) ? 'top5' : '';
+                            echo "<tr class='{$rowClass} transition duration-200' onclick=\"window.location='/sahtout/pages/character.php?guid={$p['guid']}';\">
                                 <td class='py-3 px-6'>{$rank}</td>
                                 <td class='py-3 px-6'>" . htmlspecialchars($p['name']) . "</td>
                                 <td class='py-3 px-6'>
