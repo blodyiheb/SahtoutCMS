@@ -412,7 +412,6 @@ include '../includes/item_tooltip.php';
             }
             
             .member-details::before {
-                content: 'A, ';
                 display: inline;
             }
             
