@@ -69,9 +69,9 @@ function classIcon($class) {
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .nav-container {
-        border: 2px double #056602ff;
-       margin-top: 20px;
-    }
+            border: 2px double #056602ff;
+            margin-top: 20px;
+        }
         html, body {
             height: 100%;
         }
@@ -98,28 +98,30 @@ function classIcon($class) {
             background: #ffcc00;
             border-radius: 4px;
         }
-       
         tr {
             cursor: pointer;
         }
         .top5 {
             background: linear-gradient(to right, #161616ff, #043a9eff) !important;
         }
-        .top5:hover{
+        .top5:hover {
             background: linear-gradient(to right, #5807dbff, #0609c79c) !important;
-            cursor: url('/Sahtout/img/hover_wow.gif')16 16, auto;
-        }
-        tr {
-            cursor: pointer;    
+            cursor: url('/Sahtout/img/hover_wow.gif') 16 16, auto;
         }
         tr:not(.top5):hover {
             background-color: #10369eff; /* Tailwind's gray-600 */
             transition: background-color 0.2s ease-in-out;
-            
         }
         tr.top5:hover {
             filter: brightness(1.2); /* Slightly brighten the gradient */
             transition: filter 0.2s ease-in-out;
+        }
+        a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -129,11 +131,11 @@ function classIcon($class) {
         <h1 class="text-4xl font-bold text-center text-amber-400 mb-6">Top 50 Players</h1>
 
         <?php include_once '../../includes/arenanavbar.php'; ?>
-<style>
-      .nav-container {
-        border: 2px double #4338ca;
-    }
-</style>
+        <style>
+            .nav-container {
+                border: 2px double #4338ca;
+            }
+        </style>
         <div class="table-container overflow-x-auto rounded-lg shadow-lg">
             <table class="w-full text-sm text-center bg-gray-800">
                 <thead class="bg-gray-700 text-amber-400 uppercase">
@@ -158,9 +160,9 @@ function classIcon($class) {
                         $playerCount = count($players);
                         foreach ($players as $p) {
                             $rowClass = ($rank <= 5 && $playerCount >= 5) ? 'top5' : '';
-                            echo "<tr class='{$rowClass} transition duration-200' onclick=\"window.location='/sahtout/pages/character.php?guid={$p['guid']}';\">
+                            echo "<tr class='{$rowClass} transition duration-200' onclick=\"window.location='/sahtout/pages/character.php?guid={$p['guid']}';\"'>
                                 <td class='py-3 px-6'>{$rank}</td>
-                                <td class='py-3 px-6'>" . htmlspecialchars($p['name']) . "</td>
+                                <td class='py-3 px-6'><a href='/sahtout/pages/character.php?guid={$p['guid']}'>" . htmlspecialchars($p['name']) . "</a></td>
                                 <td class='py-3 px-6'>
                                     <img src='" . factionIcon($p['race']) . "' alt='Faction' class='inline-block w-6 h-6 rounded'>
                                 </td>
