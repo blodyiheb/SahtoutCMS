@@ -54,10 +54,9 @@ include '../includes/item_tooltip.php';
         }
         .character-image {
             width: 100%;
-            max-width: 280px;
-            height: 400px;
+            max-width: 380px;
+            height: 420px;
             margin: 20px 0;
-            border: 1px solid #444;
             position: relative;
             overflow: hidden;
         }
