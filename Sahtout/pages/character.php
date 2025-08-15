@@ -82,7 +82,44 @@ include '../includes/item_tooltip.php';
             width: 100%;
             padding-top: 20px;
         }
-        .pvp-info {
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 1280px;
+            margin: 20px auto;
+            background: linear-gradient(180deg, #141414e6 0%, #0a0a0ae6 100%);
+            border: 3px solid #666;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .tab-nav button {
+            flex: 1;
+            padding: 12px 20px;
+            background: #222222cc;
+            border: none;
+            border-right: 1px solid #666;
+            color: #ffcc00;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+        .tab-nav button:last-child {
+            border-right: none;
+        }
+        .tab-nav button:hover {
+            background: #333;
+            color: #ffee58;
+            cursor: url('/Sahtout/img/hover_wow.gif') 16 16, auto;
+        }
+        .tab-nav button.active {
+            background: #444;
+            color: #ffee58;
+            text-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
+        }
+        .tab-content {
             max-width: 1280px;
             margin-left: auto;
             margin-right: auto;
@@ -96,6 +133,45 @@ include '../includes/item_tooltip.php';
             color: #fff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
             animation: fadeIn 0.5s ease-in;
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 16px;
+        }
+        .stats-category {
+            background: #222222cc;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 12px;
+            width: 250px;
+            text-align: left;
+        }
+        .stats-category h3 {
+            font-size: 18px;
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+        .stats-item span:first-child {
+            color: #ccc;
+        }
+        .stats-item span:last-child {
+            color: #ffcc00;
+            font-weight: bold;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -336,12 +412,30 @@ include '../includes/item_tooltip.php';
                 margin-top: 60px;
                 padding-top: 10px;
             }
-            .pvp-info {
+            .tab-nav {
+                max-width: 100%;
+                margin: 10px auto;
+                padding: 4px;
+            }
+            .tab-nav button {
+                padding: 10px;
+                font-size: 14px;
+            }
+            .tab-content {
                 max-width: 100%;
                 margin: auto;
                 padding: 10px;
                 border: 2px solid #666;
                 box-shadow: none;
+            }
+            .stats-container {
+                flex-direction: row;
+                align-items: center;
+                padding: 10px;
+            }
+            .stats-category {
+                width: 100%;
+                max-width: 300px;
             }
             .pvp-team-item {
                 margin-bottom: 8px;
@@ -425,11 +519,28 @@ include '../includes/item_tooltip.php';
                 margin: 10px 0;
             }
             .weapons-container {
-                margin-top: 60px;
+                margin: auto;
+                padding-top: 10px;
             }
-            .pvp-info {
+            .tab-nav {
+                padding: 3px;
+            }
+            .tab-nav button {
+                padding: 8px;
+                font-size: 12px;
+            }
+            .tab-content {
                 padding: 8px;
                 border: 2px solid #666;
+            }
+            .stats-category {
+                padding: 8px;
+            }
+            .stats-category h3 {
+                font-size: 16px;
+            }
+            .stats-item {
+                font-size: 13px;
             }
             .pvp-team-item {
                 margin-bottom: 6px;
@@ -504,11 +615,28 @@ include '../includes/item_tooltip.php';
                 margin: 10px 0;
             }
             .weapons-container {
-                margin-top: 60px;
+                margin: auto;
+                padding-top: 10px;
             }
-            .pvp-info {
+            .tab-nav {
+                padding: 2px;
+            }
+            .tab-nav button {
+                padding: 6px;
+                font-size: 11px;
+            }
+            .tab-content {
                 padding: 6px;
                 border: 2px solid #666;
+            }
+            .stats-category {
+                padding: 6px;
+            }
+            .stats-category h3 {
+                font-size: 14px;
+            }
+            .stats-item {
+                font-size: 12px;
             }
             .pvp-team-item {
                 margin-bottom: 6px;
@@ -614,6 +742,18 @@ include '../includes/item_tooltip.php';
                     tooltip.style.top = `${window.innerHeight - rect.height - 10}px`;
                 }
             }
+
+            // Tab navigation
+            const tabs = document.querySelectorAll('.tab-nav button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+                });
+            });
         });
     </script>
 </head>
@@ -647,6 +787,10 @@ $classes = [
     1 => 'Warrior', 2 => 'Paladin', 3 => 'Hunter', 4 => 'Rogue', 5 => 'Priest',
     6 => 'Death Knight', 7 => 'Shaman', 8 => 'Mage', 9 => 'Warlock', 11 => 'Druid'
 ];
+$powerTypes = [
+    0 => 'Mana', 1 => 'Rage', 2 => 'Focus', 3 => 'Energy', 4 => 'Happiness',
+    5 => 'Runes', 6 => 'Runic Power'
+];
 $factions = [
     1 => 'Alliance', 3 => 'Alliance', 4 => 'Alliance', 7 => 'Alliance', 11 => 'Alliance',
     2 => 'Horde', 5 => 'Horde', 6 => 'Horde', 8 => 'Horde', 10 => 'Horde'
@@ -660,6 +804,7 @@ $guid = isset($_GET['guid']) ? (int)$_GET['guid'] : 0;
 $character = null;
 $items = [];
 $pvp_teams = [];
+$stats = null;
 $total_kills = 0;
 $error = '';
 if ($guid > 0) {
@@ -667,6 +812,7 @@ if ($guid > 0) {
         $error = 'Database connection ($char_db) is not available.';
         error_log("armory.php: Database connection ($char_db) not initialized for guid=$guid");
     } else {
+        // Fetch character data
         $stmt = $char_db->prepare("SELECT guid, name, race, class, level, totalKills, gender FROM characters WHERE guid = ?");
         if (!$stmt) {
             $error = 'Failed to prepare character query.';
@@ -688,6 +834,35 @@ if ($guid > 0) {
                 $stmt->close();
             }
         }
+        // Fetch stats data
+        if (!$error) {
+            $stmt = $char_db->prepare("
+                SELECT maxhealth, maxpower1, maxpower2, maxpower3, maxpower4, maxpower5, maxpower6, maxpower7,
+                       strength, agility, stamina, intellect, spirit, armor, resHoly, resFire, resNature,
+                       resFrost, resShadow, resArcane, blockPct, dodgePct, parryPct, critPct, rangedCritPct,
+                       spellCritPct, attackPower, rangedAttackPower, spellPower, resilience
+                FROM character_stats WHERE guid = ?
+            ");
+            if (!$stmt) {
+                $error = 'Failed to prepare stats query.';
+                error_log("armory.php: Failed to prepare stats query for guid=$guid: " . $char_db->error);
+            } else {
+                $stmt->bind_param("i", $guid);
+                if (!$stmt->execute()) {
+                    $error = 'Failed to execute stats query.';
+                    error_log("armory.php: Stats query execution failed for guid=$guid: " . $stmt->error);
+                } else {
+                    $result = $stmt->get_result();
+                    $stats = $result->fetch_assoc();
+                    if (!$stats) {
+                        $error = 'No stats found for GUID ' . $guid . '.';
+                        error_log("armory.php: No stats found for guid=$guid");
+                    }
+                    $stmt->close();
+                }
+            }
+        }
+        // Fetch arena team data
         if (!$error) {
             $stmt = $char_db->prepare("
                 SELECT at.arenaTeamId, at.name, at.type, at.rating
@@ -739,6 +914,7 @@ if ($guid > 0) {
                 }
             }
         }
+        // Fetch inventory data
         if (!$error) {
             $stmt = $char_db->prepare("
                 SELECT ci.slot, ii.itemEntry
@@ -1014,7 +1190,100 @@ if ($guid > 0) {
         </div>
     </div>
     <?php if (!$error): ?>
-        <div class="pvp-info">
+        <div class="tab-nav">
+            <button data-tab="stats-tab" class="active">Stats</button>
+            <button data-tab="talents-tab" class="">Talents</button>
+            <button data-tab="pvp-tab" class="">PVP</button>
+        </div>
+        <div id="stats-tab" class="tab-content active">
+            <?php if ($stats): ?>
+                <div class="stats-container">
+                    <div class="stats-category">
+                        <h3>Base Stats</h3>
+                        <div class="stats-item"><span>Health</span><span><?= number_format($stats['maxhealth']) ?></span></div>
+                        <?php
+                        // Always display Mana if available
+                        if ($stats['maxpower1'] > 0):
+                        ?>
+                            <div class="stats-item"><span>Mana</span><span><?= number_format($stats['maxpower1']) ?></span></div>
+                        <?php else: ?>
+                            <div class="stats-item"><span>Mana</span><span>Not Available</span></div>
+                        <?php endif; ?>
+                        <?php
+                        // Map class IDs to their primary power type indices (using PowerType IDs)
+                        $classPowerMap = [
+                            1 => 1,  // Warrior: Rage (maxpower2, PowerType 1)
+                            2 => 0,  // Paladin: Mana (maxpower1, PowerType 0)
+                            3 => 2,  // Hunter: Focus (maxpower3, PowerType 2)
+                            4 => 3,  // Rogue: Energy (maxpower4, PowerType 3)
+                            5 => 0,  // Priest: Mana (maxpower1, PowerType 0)
+                            6 => 6,  // Death Knight: Runic Power (maxpower7, PowerType 6)
+                            7 => 0,  // Shaman: Mana (maxpower1, PowerType 0)
+                            8 => 0,  // Mage: Mana (maxpower1, PowerType 0)
+                            9 => 0,  // Warlock: Mana (maxpower1, PowerType 0)
+                            11 => 0  // Druid: Mana (maxpower1, PowerType 0)
+                        ];
+                        $powerIndex = isset($classPowerMap[$character['class']]) ? $classPowerMap[$character['class']] : 0;
+                        // Adjust Rage and Runic Power for display (divide by 10)
+                        $displayPowerValue = $stats["maxpower" . ($powerIndex + 1)];
+                        if ($powerIndex == 1 && $stats['maxpower2'] > 0) { // Warrior: Rage
+                            $displayPowerValue = $stats['maxpower2'] / 10;
+                            if ($stats['maxpower2'] > 1000) {
+                                error_log("armory.php: High Rage value for Warrior guid=$guid: maxpower2={$stats['maxpower2']} (displayed as " . number_format($displayPowerValue) . ")");
+                            }
+                        } elseif ($powerIndex == 6 && $stats['maxpower7'] > 0) { // Death Knight: Runic Power
+                            $displayPowerValue = $stats['maxpower7'] / 10;
+                            if ($stats['maxpower7'] > 1000) {
+                                error_log("armory.php: High Runic Power value for Death Knight guid=$guid: maxpower7={$stats['maxpower7']} (displayed as " . number_format($displayPowerValue) . ")");
+                            }
+                        }
+                        // Only display class-specific power type if it's not Mana (to avoid duplication)
+                        if ($powerIndex > 0 && $stats["maxpower" . ($powerIndex + 1)] > 0):
+                        ?>
+                            <div class="stats-item"><span><?= htmlspecialchars($powerTypes[$powerIndex]) ?></span><span><?= number_format($displayPowerValue) ?></span></div>
+                        <?php endif; ?>
+                        <div class="stats-item"><span>Strength</span><span><?= number_format($stats['strength']) ?></span></div>
+                        <div class="stats-item"><span>Agility</span><span><?= number_format($stats['agility']) ?></span></div>
+                        <div class="stats-item"><span>Stamina</span><span><?= number_format($stats['stamina']) ?></span></div>
+                        <div class="stats-item"><span>Intellect</span><span><?= number_format($stats['intellect']) ?></span></div>
+                        <div class="stats-item"><span>Spirit</span><span><?= number_format($stats['spirit']) ?></span></div>
+                    </div>
+                    <div class="stats-category">
+                        <h3>Defense</h3>
+                        <div class="stats-item"><span>Armor</span><span><?= number_format($stats['armor']) ?></span></div>
+                        <div class="stats-item"><span>Block</span><span><?= number_format($stats['blockPct'], 2) ?>%</span></div>
+                        <div class="stats-item"><span>Dodge</span><span><?= number_format($stats['dodgePct'], 2) ?>%</span></div>
+                        <div class="stats-item"><span>Parry</span><span><?= number_format($stats['parryPct'], 2) ?>%</span></div>
+                        <div class="stats-item"><span>Resilience</span><span><?= number_format($stats['resilience']) ?></span></div>
+                    </div>
+                    <div class="stats-category">
+                        <h3>Melee</h3>
+                        <div class="stats-item"><span>Attack Power</span><span><?= number_format($stats['attackPower']) ?></span></div>
+                        <div class="stats-item"><span>Crit Chance</span><span><?= number_format($stats['critPct'], 2) ?>%</span></div>
+                    </div>
+                    <div class="stats-category">
+                        <h3>Ranged</h3>
+                        <div class="stats-item"><span>Attack Power</span><span><?= number_format($stats['rangedAttackPower']) ?></span></div>
+                        <div class="stats-item"><span>Crit Chance</span><span><?= number_format($stats['rangedCritPct'], 2) ?>%</span></div>
+                    </div>
+                    <div class="stats-category">
+                        <h3>Resistances</h3>
+                        <div class="stats-item"><span>Holy Resistance</span><span><?= number_format($stats['resHoly']) ?></span></div>
+                        <div class="stats-item"><span>Fire Resistance</span><span><?= number_format($stats['resFire']) ?></span></div>
+                        <div class="stats-item"><span>Nature Resistance</span><span><?= number_format($stats['resNature']) ?></span></div>
+                        <div class="stats-item"><span>Frost Resistance</span><span><?= number_format($stats['resFrost']) ?></span></div>
+                        <div class="stats-item"><span>Shadow Resistance</span><span><?= number_format($stats['resShadow']) ?></span></div>
+                        <div class="stats-item"><span>Arcane Resistance</span><span><?= number_format($stats['resArcane']) ?></span></div>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="pvp-team">No Stats Available</div>
+            <?php endif; ?>
+        </div>
+        <div id="talents-tab" class="tab-content">
+            <div class="pvp-team">Talents (Coming Soon)</div>
+        </div>
+        <div id="pvp-tab" class="tab-content">
             <?php if (!empty($pvp_teams)): ?>
                 <?php foreach ($pvp_teams as $team): ?>
                     <div class="pvp-team-item">
