@@ -1207,7 +1207,7 @@ if ($guid > 0) {
                         ?>
                             <div class="stats-item"><span>Mana</span><span><?= number_format($stats['maxpower1']) ?></span></div>
                         <?php else: ?>
-                            <div class="stats-item"><span>Mana</span><span>Not Available</span></div>
+                            <div class="stats-item"><span>Mana</span><span>N/A</span></div>
                         <?php endif; ?>
                         <?php
                         // Map class IDs to their primary power type indices (using PowerType IDs)
