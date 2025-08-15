@@ -54,6 +54,31 @@ $result = $site_db->query($query);
             box-sizing: border-box;
         }
 
+        /* Discord Widget */
+        .discord-widget {
+            position: fixed;
+            top: 150px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .discord-widget iframe {
+            border: none;
+        }
+
+        .discord-widget h2 {
+            text-align: center;
+            color: #5865F2;
+            font-family: 'UnifrakturCook', cursive;
+            margin: 10px 0;
+            font-size: 1.5rem;
+        }
+
         /* Intro Container */
         .intro-container {
             max-width: 800px;
@@ -134,7 +159,7 @@ $result = $site_db->query($query);
         }
 
         .youtube-button {
-            background: #FF0000; /* YouTube red */
+            background: #FF0000;
             box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
         }
 
@@ -145,7 +170,7 @@ $result = $site_db->query($query);
         }
 
         .discord-button {
-            background: #5865F2; /* Discord purple */
+            background: #5865F2;
             box-shadow: 0 0 10px rgba(88, 101, 242, 0.5);
         }
 
@@ -156,7 +181,7 @@ $result = $site_db->query($query);
         }
 
         .instagram-button {
-            background: #E1306C; /* Instagram pink */
+            background: #E1306C;
             box-shadow: 0 0 10px rgba(225, 48, 108, 0.5);
         }
 
@@ -455,6 +480,13 @@ $result = $site_db->query($query);
                 margin-top: 100px;
             }
 
+            .discord-widget {
+                position: static;
+                width: 100%;
+                max-width: 340px;
+                margin: 1rem auto;
+            }
+
             .intro-container {
                 max-width: 800px;
                 width: calc(100% - 2rem);
@@ -498,8 +530,6 @@ $result = $site_db->query($query);
                 margin: 1rem 0;
             }
 
-           
-
             .server-status {
                 position: static;
                 width: 100%;
@@ -515,6 +545,12 @@ $result = $site_db->query($query);
 </head>
 <body class="home">
     <main>
+        <!-- Discord Widget -->
+        <section class="discord-widget">
+            <h2>Join Our Discord</h2>
+            <iframe src="https://discord.com/widget?id=1405755152085815337&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+        </section>
+
         <!-- Intro Container -->
         <section class="intro-container">
             <h1 class="intro-title">Welcome to Sahtout</h1>
@@ -543,9 +579,9 @@ $result = $site_db->query($query);
         <!-- 🔁 Image Gallery Slider -->
         <section class="hero-gallery">
             <div class="slider" id="slider">
-                <div class="slide"><img src="img/homeimg/slide1.jpg" alt="World of Warcraft Scene 1"></div>
-                <div class="slide"><img src="img/homeimg/slide2.jpg" alt="World of Warcraft Scene 2"></div>
-                <div class="slide"><img src="img/homeimg/slide3.jpg" alt="World of Warcraft Scene 3"></div>
+                <div class="slide"><img src="/sahtout/img/homeimg/slide1.jpg" alt="World of Warcraft Scene 1"></div>
+                <div class="slide"><img src="/sahtout/img/homeimg/slide2.jpg" alt="World of Warcraft Scene 2"></div>
+                <div class="slide"><img src="/sahtout/img/homeimg/slide3.jpg" alt="World of Warcraft Scene 3"></div>
             </div>
             <button class="slider-nav prev" aria-label="Previous Slide">❮</button>
             <button class="slider-nav next" aria-label="Next Slide">❯</button>
