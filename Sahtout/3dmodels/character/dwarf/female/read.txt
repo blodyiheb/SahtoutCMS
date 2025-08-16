@@ -1,0 +1,9 @@
+put your files here:
+
+(change file name like the race name).gltf
+example bloodelf.gltf or human.gltf
+---------
+.gltf		
+.bin
+.png
+
