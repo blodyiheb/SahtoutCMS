@@ -1,5 +1,8 @@
 RewriteEngine On
 
-# Redirect /sahtout or /sahtout (with or without slash) to /sahtout/pages/home.php
-RewriteCond %{REQUEST_URI} ^/sahtout/?$ [NC]
-RewriteRule ^.*$ /sahtout/pages/home.php [L]
+# Ignore existing files and directories (important for CSS/JS/images)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rewrite everything to pages/ (supports nested folders)
+RewriteRule ^(.+)$ pages/$1.php [L]

@@ -1,8 +1,9 @@
 <?php
-require_once '../includes/session.php';
+define('ALLOWED_ACCESS', true);
+require_once 'includes/session.php';
 $page_class = "home";
 
-$header_file = "../includes/header.php";
+$header_file = "includes/header.php";
 // Ensure header file exists before including
 if (file_exists($header_file)) {
     include $header_file;
@@ -556,7 +557,7 @@ $result = $site_db->query($query);
             <h1 class="intro-title">Welcome to Sahtout</h1>
             <p class="intro-tagline">Join our epic World of Warcraft server adventure today!</p>
             <div class="intro-buttons">
-                <a href="/sahtout/pages/register.php" class="intro-button">Create Account</a>
+                <a href="/sahtout/register" class="intro-button">Create Account</a>
                 <a href="/sahtout/download" class="intro-button">Download</a>
             </div>
             <div class="social-container">
@@ -565,7 +566,7 @@ $result = $site_db->query($query);
                     <img src="/sahtout/img/homeimg/youtube-logo1.png" alt="YouTube" class="youtube-logo">
                 </a>
                 <hr class="social-line">
-                <a href="https://discord.gg/your-invite" class="discord-button">
+                <a href="https://discord.com/invite/JK4AHqX2" class="discord-button">
                     <img src="/sahtout/img/homeimg/discordlogo.png" alt="Discord" class="discord-logo">
                 </a>
                 <hr class="social-line">
@@ -600,7 +601,7 @@ $result = $site_db->query($query);
                 <?php else: ?>
                     <?php while ($news = $result->fetch_assoc()): ?>
                         <div class="news-item">
-                            <a href="<?php echo $base_url; ?>/pages/news.php?slug=<?php echo htmlspecialchars($news['slug']); ?>">
+                            <a href="<?php echo $base_url; ?>news?slug=<?php echo htmlspecialchars($news['slug']); ?>">
                                 <div class="news-image">
                                     <img src="<?php echo $base_url . htmlspecialchars($news['image_url']); ?>" 
                                          alt="<?php echo htmlspecialchars($news['title']); ?>">
@@ -630,7 +631,7 @@ $result = $site_db->query($query);
         <section class="realm-status">
         <div class="server-status">
             <?php
-            $realm_status_file = __DIR__ . "/../includes/realm_status.php";
+            $realm_status_file = "includes/realm_status.php";
             if (file_exists($realm_status_file)) {
                 include $realm_status_file;
             } else {
@@ -642,7 +643,7 @@ $result = $site_db->query($query);
     </main>
     
     <?php
-    $footer_file = __DIR__ . "/../includes/footer.php";
+    $footer_file = "includes/footer.php";
     if (file_exists($footer_file)) {
         include $footer_file;
     } else {

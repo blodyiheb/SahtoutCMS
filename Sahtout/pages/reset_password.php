@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
 require_once '../includes/config.cap.php';
 require_once '../includes/srp6.php';
@@ -7,7 +8,7 @@ $page_class = 'reset-password';
 require_once '../includes/header.php';
 
 if (isset($_SESSION['user_id'])) {
-    header("Location: /Sahtout/pages/account.php");
+    header("Location: /Sahtout/account");
     exit();
 }
 
@@ -331,7 +332,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
                             <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
                             <button type="submit">Reset Password</button>
                             <div class="login-link">
-                                <a href="/sahtout/pages/login.php">Back to Login</a>
+                                <a href="/sahtout/login">Back to Login</a>
                             </div>
                         </form>
                     <?php endif; ?>

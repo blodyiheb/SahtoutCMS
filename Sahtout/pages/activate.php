@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php'; // Includes config.php for database connections
 require_once '../includes/config.mail.php'; // For email sending
 
@@ -44,7 +45,7 @@ if (!$token) {
                             // Send confirmation email
                             sendActivationConfirmationEmail($account['username'], $account['email']);
                             $success = "Your account has been activated! You will be redirected to the login page shortly.";
-                            header("Refresh: 3; url=/Sahtout/pages/login.php"); // Redirect after 3 seconds
+                            header("Refresh: 3; url=/Sahtout/login"); // Redirect after 3 seconds
                         } else {
                             $errors[] = "Failed to delete pending account: " . $site_db->error;
                         }
@@ -234,7 +235,7 @@ if (file_exists($header_file)) {
             <?php elseif ($success): ?>
                 <div class="register-form">
                     <p class="success"><?php echo htmlspecialchars($success); ?></p>
-                    <p class="login-link-container"><a href="/sahtout/pages/login.php">Click here to login</a></p>
+                    <p class="login-link-container"><a href="/sahtout/login">Click here to login</a></p>
                 </div>
             <?php endif; ?>
         </section>

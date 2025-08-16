@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 require_once '../../includes/session.php';
 $page_class = "armory";
 require_once '../../includes/header.php';
@@ -127,7 +128,7 @@ while ($row = $result->fetch_assoc()) {
                         foreach ($teams as $team) {
                             $rowClass = ($rank <= 3 && $teamCount >= 3) ? 'top3' : '';
                             $faction = getFaction($team['race']);
-                            echo "<tr class='{$rowClass} transition duration-200' onclick=\"window.location='/sahtout/pages/armory/arena/arenateam.php?arenaTeamId={$team['arenaTeamId']}';\">
+                            echo "<tr class='{$rowClass} transition duration-200' onclick=\"window.location='/sahtout/armory/arenateam?arenaTeamId={$team['arenaTeamId']}';\">
                                 <td class='py-3 px-6'>{$rank}</td>
                                 <td class='py-3 px-6'>" . htmlspecialchars($team['team_name']) . "</td>
                                 <td class='py-3 px-6'>

@@ -1,4 +1,5 @@
 <?php 
+define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
 $page_class = "how-to-play";
 include("../includes/header.php"); 
@@ -16,7 +17,7 @@ include("../includes/header.php");
                 <div class="step-text">
                     <h2>Step 1: Create an Account</h2>
                     <p>Register a free account using our website:</p>
-                    <a class="btn" href="/sahtout/pages/register.php">Create Account</a>
+                    <a class="btn" href="/sahtout/register">Create Account</a>
                 </div>
                 <img src="img/howtoplay/down_register.jpg" alt="Create Account">
             </div>
@@ -30,8 +31,8 @@ include("../includes/header.php");
                     <h2>Step 2: Download the Game</h2>
                     <p>You need World of Warcraft: Wrath of the Lich King (3.3.5a). Choose your preferred download method:</p>
                     <div class="download-options">
-                        <a class="btn btn-primary" href="download.php?type=direct">Direct Download</a>
-                        <a class="btn btn-secondary" href="download.php?type=torrent">Torrent Download</a>
+                        <a class="btn btn-primary" href="download/">Direct Download</a>
+                        <a class="btn btn-secondary" href="download">Torrent Download</a>
                     </div>
                     <p><small>Direct downloads are faster for most users, while torrents may be more reliable for slower connections.</small></p>
                 </div>

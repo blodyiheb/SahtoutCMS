@@ -1,12 +1,13 @@
 <?php
+define('ALLOWED_ACCESS', true);
 // Include session and config
-require_once __DIR__ . '/../includes/session.php'; // Includes config.php
+require_once __DIR__ . '/../../includes/session.php'; // Includes config.php
 
 $page_class = 'characters';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /Sahtout/pages/login.php');
+    header('Location: /Sahtout/login');
     exit;
 }
 
@@ -31,7 +32,7 @@ $stmt->close();
 
 // Restrict access to admin or moderator only
 if (!in_array($_SESSION['role'], ['admin', 'moderator'])) {
-    header('Location: /Sahtout/pages/login.php');
+    header('Location: /Sahtout/login');
     exit;
 }
 
@@ -285,7 +286,7 @@ $types .= 'ii';
 $stmt = $char_db->prepare($chars_query);
 if (!$stmt) {
     $_SESSION['debug_errors'][] = "Failed to prepare query: " . $char_db->error;
-    header("Location: /Sahtout/pages/login.php?error=database_error");
+    header("Location: /Sahtout/pages/login?error=database_error");
     exit();
 }
 if (!empty($params)) {
@@ -458,11 +459,11 @@ if (empty($_SESSION['csrf_token'])) {
 </head>
 <body class="characters">
     <div class="wrapper">
-        <?php include dirname(__DIR__) . '/includes/header.php'; ?>
+        <?php include dirname(__DIR__) . '../../includes/header.php'; ?>
         <div class="dashboard-container">
             <div class="row">
                 <!-- Sidebar -->
-                <?php include dirname(__DIR__) . '/includes/admin_sidebar.php'; ?>
+                <?php include dirname(__DIR__) . '../../includes/admin_sidebar.php'; ?>
                 <!-- Main Content -->
                 <div class="col-md-9">
                     <h1 class="dashboard-title">Character Management</h1>
@@ -472,7 +473,7 @@ if (empty($_SESSION['csrf_token'])) {
                         Found <?php echo count($characters); ?> characters on this page (Total: <?php echo $total_chars; ?>).
                     </div>
                     <!-- Search and Sort Form -->
-                    <form class="search-form" method="GET" action="/Sahtout/admin/characters.php">
+                    <form class="search-form" method="GET" action="/Sahtout/admin/characters">
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <label for="search_char_name" class="form-label">Character Name</label>
@@ -510,7 +511,7 @@ if (empty($_SESSION['csrf_token'])) {
                             <div class="col-md-6 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary">Search</button>
                                 <?php if ($search_char_name || $search_username || $online_filter !== '' || $min_level !== '' || $max_level !== ''): ?>
-                                    <a href="/Sahtout/admin/characters.php" class="btn btn-secondary ms-2">Clear Filters</a>
+                                    <a href="/Sahtout/admin/characters" class="btn btn-secondary ms-2">Clear Filters</a>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -563,7 +564,7 @@ if (empty($_SESSION['csrf_token'])) {
                                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                             </div>
                                                             <div class="modal-body">
-                                                                <form method="POST" action="/Sahtout/admin/characters.php">
+                                                                <form method="POST" action="/Sahtout/admin/characters">
                                                                     <input type="hidden" name="action" value="manage_character">
                                                                     <input type="hidden" name="guid" value="<?php echo $char['guid']; ?>">
                                                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
@@ -652,7 +653,7 @@ if (empty($_SESSION['csrf_token'])) {
                                 <nav aria-label="Character pagination">
                                     <ul class="pagination">
                                         <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
-                                            <a class="page-link" href="/Sahtout/admin/characters.php?page=<?php echo $page - 1; ?>&search_char_name=<?php echo urlencode($search_char_name); ?>&search_username=<?php echo urlencode($search_username); ?>&online_filter=<?php echo urlencode($online_filter); ?>&min_level=<?php echo urlencode($min_level); ?>&max_level=<?php echo urlencode($max_level); ?>&sort_id=<?php echo $sort_id; ?>" aria-label="Previous">
+                                            <a class="page-link" href="/Sahtout/admin/characters?page=<?php echo $page - 1; ?>&search_char_name=<?php echo urlencode($search_char_name); ?>&search_username=<?php echo urlencode($search_username); ?>&online_filter=<?php echo urlencode($online_filter); ?>&min_level=<?php echo urlencode($min_level); ?>&max_level=<?php echo urlencode($max_level); ?>&sort_id=<?php echo $sort_id; ?>" aria-label="Previous">
                                                 <span aria-hidden="true">&laquo; Previous</span>
                                             </a>
                                         </li>
@@ -660,25 +661,25 @@ if (empty($_SESSION['csrf_token'])) {
                                         $start_page = max(1, $page - 2);
                                         $end_page = min($total_pages, $page + 2);
                                         if ($start_page > 1) {
-                                            echo '<li class="page-item"><a class="page-link" href="/Sahtout/admin/characters.php?page=1&search_char_name=' . urlencode($search_char_name) . '&search_username=' . urlencode($search_username) . '&online_filter=' . urlencode($online_filter) . '&min_level=' . urlencode($min_level) . '&max_level=' . urlencode($max_level) . '&sort_id=' . $sort_id . '">1</a></li>';
+                                            echo '<li class="page-item"><a class="page-link" href="/Sahtout/admin/characters?page=1&search_char_name=' . urlencode($search_char_name) . '&search_username=' . urlencode($search_username) . '&online_filter=' . urlencode($online_filter) . '&min_level=' . urlencode($min_level) . '&max_level=' . urlencode($max_level) . '&sort_id=' . $sort_id . '">1</a></li>';
                                             if ($start_page > 2) {
                                                 echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
                                             }
                                         }
                                         for ($i = $start_page; $i <= $end_page; $i++) {
                                             echo '<li class="page-item ' . ($i == $page ? 'active' : '') . '">';
-                                            echo '<a class="page-link" href="/Sahtout/admin/characters.php?page=' . $i . '&search_char_name=' . urlencode($search_char_name) . '&search_username=' . urlencode($search_username) . '&online_filter=' . urlencode($online_filter) . '&min_level=' . urlencode($min_level) . '&max_level=' . urlencode($max_level) . '&sort_id=' . $sort_id . '">' . $i . '</a>';
+                                            echo '<a class="page-link" href="/Sahtout/admin/characters?page=' . $i . '&search_char_name=' . urlencode($search_char_name) . '&search_username=' . urlencode($search_username) . '&online_filter=' . urlencode($online_filter) . '&min_level=' . urlencode($min_level) . '&max_level=' . urlencode($max_level) . '&sort_id=' . $sort_id . '">' . $i . '</a>';
                                             echo '</li>';
                                         }
                                         if ($end_page < $total_pages) {
                                             if ($end_page < $total_pages - 1) {
                                                 echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
                                             }
-                                            echo '<li class="page-item"><a class="page-link" href="/Sahtout/admin/characters.php?page=' . $total_pages . '&search_char_name=' . urlencode($search_char_name) . '&search_username=' . urlencode($search_username) . '&online_filter=' . urlencode($online_filter) . '&min_level=' . urlencode($min_level) . '&max_level=' . urlencode($max_level) . '&sort_id=' . $sort_id . '">' . $total_pages . '</a></li>';
+                                            echo '<li class="page-item"><a class="page-link" href="/Sahtout/admin/characters?page=' . $total_pages . '&search_char_name=' . urlencode($search_char_name) . '&search_username=' . urlencode($search_username) . '&online_filter=' . urlencode($online_filter) . '&min_level=' . urlencode($min_level) . '&max_level=' . urlencode($max_level) . '&sort_id=' . $sort_id . '">' . $total_pages . '</a></li>';
                                         }
                                         ?>
                                         <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
-                                            <a class="page-link" href="/Sahtout/admin/characters.php?page=<?php echo $page + 1; ?>&search_char_name=<?php echo urlencode($search_char_name); ?>&search_username=<?php echo urlencode($search_username); ?>&online_filter=<?php echo urlencode($online_filter); ?>&min_level=<?php echo urlencode($min_level); ?>&max_level=<?php echo urlencode($max_level); ?>&sort_id=<?php echo $sort_id; ?>" aria-label="Next">
+                                            <a class="page-link" href="/Sahtout/admin/characters?page=<?php echo $page + 1; ?>&search_char_name=<?php echo urlencode($search_char_name); ?>&search_username=<?php echo urlencode($search_username); ?>&online_filter=<?php echo urlencode($online_filter); ?>&min_level=<?php echo urlencode($min_level); ?>&max_level=<?php echo urlencode($max_level); ?>&sort_id=<?php echo $sort_id; ?>" aria-label="Next">
                                                 <span aria-hidden="true">Next &raquo;</span>
                                             </a>
                                         </li>
@@ -690,7 +691,7 @@ if (empty($_SESSION['csrf_token'])) {
                 </div>
             </div>
         </div>
-        <?php include dirname(__DIR__) . '/includes/footer.php'; ?>
+        <?php include dirname(__DIR__) . '../../includes/footer.php'; ?>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>

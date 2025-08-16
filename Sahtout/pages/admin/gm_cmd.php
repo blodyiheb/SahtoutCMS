@@ -1,9 +1,10 @@
 <?php
-require_once '../includes/session.php';
+define('ALLOWED_ACCESS', true);
+require_once '../../includes/session.php';
 
 // Restrict access to admin or moderator roles
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'moderator'])) {
-    header('Location: /sahtout/pages/login.php');
+    header('Location: /sahtout/login');
     exit;
 }
 
@@ -95,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['command'], $_POST['cs
     }
 }
 
-include dirname(__DIR__) . '/includes/header.php';
+include dirname(__DIR__) . '../../includes/header.php';
 ?>
 
 <!DOCTYPE html>
@@ -131,7 +132,7 @@ include dirname(__DIR__) . '/includes/header.php';
     <div class="wrapper">
         <div class="content-wrapper">
             <div class="row w-100">
-                <?php include dirname(__DIR__) . '/includes/admin_sidebar.php'; ?>
+                <?php include dirname(__DIR__) . '../../includes/admin_sidebar.php'; ?>
                 <div class="col-md-9 gm-content">
                     <h1><i class="fas fa-terminal me-2"></i>SOAP Command Executor</h1>
                     <form method="POST" class="mb-4">
@@ -177,7 +178,7 @@ include dirname(__DIR__) . '/includes/header.php';
                 </div>
             </div>
         </div>
-        <?php include dirname(__DIR__) . '/includes/footer.php'; ?>
+        <?php include dirname(__DIR__) . '../../includes/footer.php'; ?>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

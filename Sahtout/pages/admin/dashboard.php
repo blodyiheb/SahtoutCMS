@@ -1,12 +1,13 @@
 <?php
+define('ALLOWED_ACCESS', true);
 // Include session and config
-require_once __DIR__ . '/../includes/session.php'; // Includes config.php
+require_once __DIR__ . '/../../includes/session.php'; // Includes config.php
 
 $page_class = 'dashboard';
 
 // Check if user is admin or moderator
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'moderator'])) {
-    header('Location: /sahtout/pages/login.php');
+    header('Location: /sahtout/login');
     exit;
 }
 
@@ -337,11 +338,11 @@ $bans_result = $auth_db->query($bans_query);
 </head>
 <body class="dashboard">
     <div class="wrapper">
-        <?php include dirname(__DIR__) . '/includes/header.php'; ?>
+        <?php include dirname(__DIR__) . '../../includes/header.php'; ?>
         <div class="dashboard-container">
             <div class="row">
                 <!-- Sidebar -->
-                <?php include dirname(__DIR__) . '/includes/admin_sidebar.php'; ?>
+                <?php include dirname(__DIR__) . '../../includes/admin_sidebar.php'; ?>
                 <!-- Main Content -->
                 <div class="col-md-9">
                     <h1 class="dashboard-title">Admin & Moderator Dashboard</h1>
@@ -351,7 +352,7 @@ $bans_result = $auth_db->query($bans_query);
                         <div class="card-header">Server Status</div>
                         <div class="card-body">
                             <?php 
-                            include __DIR__ . '/../includes/realm_status.php'; 
+                            include __DIR__ . '/../../includes/realm_status.php'; 
                             ?>
                         </div>
                     </div>
@@ -376,7 +377,7 @@ $bans_result = $auth_db->query($bans_query);
                         <div class="card-header">Recent Admins & Moderators</div>
                         <div class="card-body">
                             <!-- Search and Filter Form -->
-                            <form class="search-form" method="GET" action="/Sahtout/admin/index.php">
+                            <form class="search-form" method="GET" action="/Sahtout/admin/dashboard">
                                 <div class="row mb-3">
                                     <div class="col-md-4">
                                         <input type="text" name="search_username" class="form-control" placeholder="Search by username" value="<?php echo htmlspecialchars($search_username); ?>">
@@ -467,7 +468,7 @@ $bans_result = $auth_db->query($bans_query);
                                                     <td><?php echo $ban['bandate'] ? date('M j, Y H:i', strtotime($ban['bandate'])) : 'N/A'; ?></td>
                                                     <td><?php echo $ban['unbandate'] ? date('M j, Y H:i', strtotime($ban['unbandate'])) : 'Permanent'; ?></td>
                                                     <td>
-                                                        <a href="/Sahtout/admin/users.php#user-<?php echo $ban['id']; ?>" class="btn">Manage</a>
+                                                        <a href="/Sahtout/admin/users#user-<?php echo $ban['id']; ?>" class="btn">Manage</a>
                                                     </td>
                                                 </tr>
                                             <?php endwhile; ?>
@@ -481,7 +482,7 @@ $bans_result = $auth_db->query($bans_query);
                 </div>
             </div>
         </div>
-        <?php include dirname(__DIR__) . '/includes/footer.php'; ?>
+        <?php include dirname(__DIR__) . '../../includes/footer.php'; ?>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

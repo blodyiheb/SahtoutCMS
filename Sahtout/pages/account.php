@@ -1,11 +1,12 @@
 <?php
 ob_start(); // Start output buffering to catch any unexpected output
+define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
 require_once '../includes/srp6.php';
 
 // Early session validation
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['username'])) {
-    header("Location: /Sahtout/pages/login.php?error=invalid_session");
+    header("Location: /Sahtout/login?error=invalid_session");
     exit();
 }
 
@@ -41,14 +42,14 @@ if (isset($_SESSION['debug_errors'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($auth_db->connect_error || $char_db->connect_error || $site_db->connect_error) {
         $_SESSION['error'] = "Database connection failed";
-        header("Location: /Sahtout/pages/account.php");
+        header("Location: /Sahtout/account");
         exit();
     }
 
     // Verify CSRF token
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         $_SESSION['error'] = "Invalid form submission";
-        header("Location: /Sahtout/pages/account.php");
+        header("Location: /Sahtout/account");
         exit();
     }
 
@@ -119,11 +120,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_log->close();
 
             $_SESSION['message'] = "Email updated successfully!";
-            header("Location: /Sahtout/pages/account.php");
+            header("Location: /Sahtout/account");
             exit();
         } catch (Exception $e) {
             $_SESSION['error'] = $e->getMessage();
-            header("Location: /Sahtout/pages/account.php");
+            header("Location: /Sahtout/account");
             exit();
         }
     }
@@ -177,11 +178,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_log->close();
 
             $_SESSION['message'] = "Password changed successfully!";
-            header("Location: /Sahtout/pages/account.php");
+            header("Location: /Sahtout/account");
             exit();
         } catch (Exception $e) {
             $_SESSION['error'] = $e->getMessage();
-            header("Location: /Sahtout/pages/account.php");
+            header("Location: /Sahtout/account");
             exit();
         }
     }
@@ -286,11 +287,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_log->close();
 
             $_SESSION['message'] = "Character teleported to " . ucfirst($destination) . "!";
-            header("Location: /Sahtout/pages/account.php");
+            header("Location: /Sahtout/account");
             exit();
         } catch (Exception $e) {
             $_SESSION['error'] = $e->getMessage();
-            header("Location: /Sahtout/pages/account.php");
+            header("Location: /Sahtout/account");
             exit();
         }
     }
@@ -336,11 +337,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_log->close();
 
             $_SESSION['message'] = "Avatar updated successfully!";
-            header("Location: /Sahtout/pages/account.php");
+            header("Location: /Sahtout/account");
             exit();
         } catch (Exception $e) {
             $_SESSION['error'] = $e->getMessage();
-            header("Location: /Sahtout/pages/account.php");
+            header("Location: /Sahtout/account");
             exit();
         }
     }
@@ -1033,7 +1034,7 @@ function getFactionIcon($race) {
                     <div>
                         <h3 class="h4 text-warning">Account Actions</h3>
                         <p class="text-center">
-                            <a href="/sahtout/pages/logout.php" class="text-warning">Logout</a> | 
+                            <a href="/sahtout/logout" class="text-warning">Logout</a> | 
                             <a href="#" class="text-danger">Request Account Deletion</a>
                         </p>
                     </div>

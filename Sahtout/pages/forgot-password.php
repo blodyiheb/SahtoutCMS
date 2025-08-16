@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
 require_once '../includes/config.cap.php';
 require_once '../includes/config.mail.php';
@@ -7,7 +8,7 @@ require_once '../includes/header.php';
 
 // Redirect to account if already logged in
 if (isset($_SESSION['user_id'])) {
-    header("Location: /Sahtout/pages/account.php");
+    header("Location: /Sahtout/account");
     exit();
 }
 
@@ -87,7 +88,7 @@ function sendResetEmail($username, $email, $token) {
         $mail->addAddress($email, $username);
         $mail->AddEmbeddedImage('logo.png', 'logo_cid');
         $mail->Subject = 'Password Reset Request';
-        $reset_link = $protocol . $_SERVER['HTTP_HOST'] . "/sahtout/pages/reset_password.php?token=$token";
+        $reset_link = $protocol . $_SERVER['HTTP_HOST'] . "/sahtout/reset_password?token=$token";
         $mail->Body = "<h2>Welcome, $username!</h2>
             <img src='cid:logo_cid' alt='Sahtout logo'>
             <p>You requested a password reset. Please click the button below to reset your password:</p>
@@ -132,7 +133,7 @@ function sendResetEmail($username, $email, $token) {
                     <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
                     <button type="submit">Send Reset Link</button>
                     <div class="login-link">
-                        Remembered your password? <a href="/sahtout/pages/login.php">Log in here</a>
+                        Remembered your password? <a href="/sahtout/login">Log in here</a>
                     </div>
                 </form>
             </div>

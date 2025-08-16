@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 include '../includes/session.php';
 $page_class = 'character';
 include '../includes/header.php';
@@ -1207,7 +1208,7 @@ if ($guid > 0) {
                         ?>
                             <div class="stats-item"><span>Mana</span><span><?= number_format($stats['maxpower1']) ?></span></div>
                         <?php else: ?>
-                            <div class="stats-item"><span>Mana</span><span>N/A</span></div>
+                            <div class="stats-item"><span>Mana</span><span>Not Available</span></div>
                         <?php endif; ?>
                         <?php
                         // Map class IDs to their primary power type indices (using PowerType IDs)
@@ -1312,7 +1313,7 @@ if ($guid > 0) {
                                         echo "<img src=\"$class_icon\" alt=\"$class\" title=\"$class\" class=\"inline-block\">";
                                         echo "</span></li>";
                                     } else {
-                                        echo "<a href=\"/Sahtout/pages/character.php?guid={$member['guid']}\" class=\"pvp-members-link\">";
+                                        echo "<a href=\"/Sahtout/character?guid={$member['guid']}\" class=\"pvp-members-link\">";
                                         echo "<li>";
                                         echo "$name <span class=\"member-details $faction\">";
                                         echo "<img src=\"$faction_icon\" alt=\"$faction\" title=\"$faction\" class=\"inline-block\">";

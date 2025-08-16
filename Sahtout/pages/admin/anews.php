@@ -1,9 +1,10 @@
 <?php
+define('ALLOWED_ACCESS', true);
 // Include session and config
-require_once __DIR__ . '/../includes/session.php'; // Includes config.php
+require_once __DIR__ . '/../../includes/session.php'; // Includes config.php
 // Check if user is admin or moderator
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'moderator'])) {
-    header('Location: /Sahtout/pages/login.php');
+    header('Location: /Sahtout/login');
     exit;
 }
 $page_class = 'anews'; // Set page class for sidebar highlighting
@@ -19,7 +20,7 @@ if (!isset($_SESSION['csrf_token'])) {
 }
 
 // Directory for image uploads
-$base_upload_dir = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'newsimg' . DIRECTORY_SEPARATOR;
+$base_upload_dir = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'newsimg' . DIRECTORY_SEPARATOR;
 $base_upload_url = 'img/newsimg/';
 $default_image_url = 'img/newsimg/news.png';
 
@@ -493,11 +494,11 @@ $news_result = $stmt->get_result();
 </head>
 <body class="news">
     <div class="wrapper">
-        <?php include dirname(__DIR__) . '/includes/header.php'; ?>
+        <?php include dirname(__DIR__) . '../../includes/header.php'; ?>
         <div class="dashboard-container">
             <div class="row">
                 <!-- Sidebar -->
-                <?php include dirname(__DIR__) . '/includes/admin_sidebar.php'; ?>
+                <?php include dirname(__DIR__) . '../../includes/admin_sidebar.php'; ?>
                 <!-- Main Content -->
                 <div class="col-md-9">
                     <h1 class="dashboard-title">News Management</h1>
@@ -571,7 +572,7 @@ $news_result = $stmt->get_result();
                                         <?php else: ?>
                                             <?php while ($news = $news_result->fetch_assoc()): ?>
                                                 <tr id="news-<?php echo $news['id']; ?>">
-                                                    <td><a href="/Sahtout/pages/news.php?slug=<?php echo urlencode(htmlspecialchars($news['slug'])); ?>" class="news-title-link"><?php echo htmlspecialchars($news['title']); ?></a></td>
+                                                    <td><a href="/Sahtout/news?slug=<?php echo urlencode(htmlspecialchars($news['slug'])); ?>" class="news-title-link"><?php echo htmlspecialchars($news['title']); ?></a></td>
                                                     <td><?php echo ucfirst(htmlspecialchars($news['category'])); ?></td>
                                                     <td><?php echo htmlspecialchars($news['posted_by']); ?></td>
                                                     <td><?php echo date('M j, Y H:i', strtotime($news['post_date'])); ?></td>
@@ -676,17 +677,17 @@ $news_result = $stmt->get_result();
                                 <nav aria-label="News pagination">
                                     <ul class="pagination">
                                         <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
-                                            <a class="page-link" href="admin/anews.php?page=<?php echo $page - 1; ?>" aria-label="Previous">
+                                            <a class="page-link" href="admin/anews?page=<?php echo $page - 1; ?>" aria-label="Previous">
                                                 <span aria-hidden="true">&laquo;</span>
                                             </a>
                                         </li>
                                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                                             <li class="page-item <?php echo $page === $i ? 'active' : ''; ?>">
-                                                <a class="page-link" href="admin/anews.php?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                                                <a class="page-link" href="admin/anews?page=<?php echo $i; ?>"><?php echo $i; ?></a>
                                             </li>
                                         <?php endfor; ?>
                                         <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
-                                            <a class="page-link" href="admin/anews.php?page=<?php echo $page + 1; ?>" aria-label="Next">
+                                            <a class="page-link" href="admin/anews?page=<?php echo $page + 1; ?>" aria-label="Next">
                                                 <span aria-hidden="true">&raquo;</span>
                                             </a>
                                         </li>
@@ -698,7 +699,7 @@ $news_result = $stmt->get_result();
                 </div>
             </div>
         </div>
-        <?php include dirname(__DIR__) . '/includes/footer.php'; ?>
+        <?php include dirname(__DIR__) . '../../includes/footer.php'; ?>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>

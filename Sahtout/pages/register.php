@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
 require_once '../includes/config.cap.php'; // reCAPTCHA keys
 require_once '../includes/config.mail.php'; // PHPMailer configuration
@@ -107,7 +108,7 @@ if (empty($errors)) {
         $host = $_SERVER['HTTP_HOST'];
 
         // Build activation link
-        $activation_link = $protocol . $host . "/sahtout/pages/activate.php?token=$token";
+        $activation_link = $protocol . $host . "/sahtout/activate?token=$token";
 
         // Send activation email
         try {
@@ -341,7 +342,7 @@ if (file_exists($header_file)) {
             <?php elseif ($success): ?>
                 <div class="register-form">
                     <p style="color:#00ff00;"><?php echo htmlspecialchars($success); ?></p>
-                    <p><a href="/sahtout/pages/login.php" style="color:#ffd700;">Click here to login</a></p>
+                    <p><a href="/sahtout/login" style="color:#ffd700;">Click here to login</a></p>
                 </div>
             <?php endif; ?>
 
@@ -356,7 +357,7 @@ if (file_exists($header_file)) {
                 <button type="submit" class="register-button">Register</button>
             </form>
 
-            <p class="login-link-container">Already have an account? <a href="/sahtout/pages/login.php">Login</a></p>
+            <p class="login-link-container">Already have an account? <a href="/sahtout/login">Login</a></p>
         </section>
     </main>
 

@@ -1,9 +1,9 @@
 <?php
+define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
-
 // Redirect to account if already logged in
 if (isset($_SESSION['user_id'])) {
-    header("Location: /Sahtout/pages/account.php");
+    header("Location: /Sahtout/account");
     exit();
 }
 
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $update->execute();
                     $update->close();
 
-                    header("Location: /Sahtout/pages/account.php");
+                    header("Location: /Sahtout/account");
                     exit();
                 } else {
                     $errors[] = "Invalid username or password";
@@ -200,11 +200,11 @@ include_once '../includes/header.php';
       font-size: 1.1rem;
       font-family: 'UnifrakturCook', sans-serif;
       color: #fff;
-      margin-top: 1.5rem;
+      margin-bottom: 1rem;
     }
 
     .form-section .resend-link a {
-      color: #ffd700;
+      color: #002fffff;
       text-decoration: none;
       transition: all 0.3s ease;
     }
@@ -278,7 +278,7 @@ include_once '../includes/header.php';
             <?php endforeach; ?>
             <?php if ($show_resend_button): ?>
               <div class="resend-link">
-                <a href="/sahtout/pages/resend-activation.php?username=<?php echo htmlspecialchars($username); ?>">Resend Activation Code</a>
+                <a href="/sahtout/resend-activation?username=<?php echo htmlspecialchars($username); ?>"> <p style="font-family: 'Courier New', Courier, monospace;">CLICK here :</p>Resend Activation Code</a>
               </div>
             <?php endif; ?>
           </div>
@@ -294,10 +294,10 @@ include_once '../includes/header.php';
           <button type="submit">Sign In</button>
 
           <div class="register-link">
-            Don't have an account? <a href="/sahtout/pages/register.php">Register now</a>
+            Don't have an account? <a href="/sahtout/register">Register now</a>
           </div>
           <div class="forgot-password-link">
-            Forgot your password? <a href="/sahtout/pages/forgot-password.php">Reset it here</a>
+            Forgot your password? <a href="/sahtout/forgot-password">Reset it here</a>
           </div>
         </form>
       </div>

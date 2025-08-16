@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 require_once '../../includes/session.php';
 $page_class = "armory";
 require_once '../../includes/header.php';
@@ -160,9 +161,9 @@ function classIcon($class) {
                         $playerCount = count($players);
                         foreach ($players as $p) {
                             $rowClass = ($rank <= 5 && $playerCount >= 5) ? 'top5' : '';
-                            echo "<tr class='{$rowClass} transition duration-200' onclick=\"window.location='/sahtout/pages/character.php?guid={$p['guid']}';\"'>
+                            echo "<tr class='{$rowClass} transition duration-200' onclick=\"window.location='/sahtout/character?guid={$p['guid']}';\"'>
                                 <td class='py-3 px-6'>{$rank}</td>
-                                <td class='py-3 px-6'><a href='/sahtout/pages/character.php?guid={$p['guid']}'>" . htmlspecialchars($p['name']) . "</a></td>
+                                <td class='py-3 px-6'><a href='/sahtout/character?guid={$p['guid']}'>" . htmlspecialchars($p['name']) . "</a></td>
                                 <td class='py-3 px-6'>
                                     <img src='" . factionIcon($p['race']) . "' alt='Faction' class='inline-block w-6 h-6 rounded'>
                                 </td>

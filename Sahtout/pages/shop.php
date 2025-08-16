@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
 require_once '../includes/item_tooltip.php'; // Include the tooltip file
 
@@ -128,7 +129,7 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
             <span class="tokens"><i class="fas fa-gem"></i> Tokens: <?php echo $tokens; ?></span>
         </div>
     <?php else: ?>
-        <p class="login-prompt">Please <a href="<?php echo $base_path; ?>pages/login.php">log in</a> to purchase items.</p>
+        <p class="login-prompt">Please <a href="<?php echo $base_path; ?>login">log in</a> to purchase items.</p>
     <?php endif; ?>
 
     <?php echo $status_message; ?>
@@ -218,7 +219,7 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                 <?php endif; ?>
                             </div>
                             <?php if (!empty($_SESSION['user_id'])): ?>
-                                <form action="<?php echo $base_path; ?>pages/buy_item.php" method="POST" class="purchase-form">
+                                <form action="<?php echo $base_path; ?>buy_item" method="POST" class="purchase-form">
                                     <input type="hidden" name="item_id" value="<?php echo $item['item_id']; ?>">
                                     <?php if (!empty($characters)): ?>
                                         <select name="character_id" class="character-select" required>
@@ -239,7 +240,7 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                     </button>
                                 </form>
                             <?php else: ?>
-                                <a href="<?php echo $base_path; ?>pages/login.php" class="buy-button">Log in to Buy</a>
+                                <a href="<?php echo $base_path; ?>login" class="buy-button">Log in to Buy</a>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>

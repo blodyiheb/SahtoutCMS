@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
 require_once '../includes/config.mail.php';
 require_once '../includes/config.cap.php'; // reCAPTCHA keys
@@ -263,7 +264,7 @@ function sendActivationEmail($username, $email, $token) {
                     <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
                     <button type="submit">Resend Activation Email</button>
                     <div class="login-link">
-                        Already activated? <a href="/sahtout/pages/login.php">Log in here</a>
+                        Already activated? <a href="/sahtout/login">Log in here</a>
                     </div>
                 </form>
             </div>

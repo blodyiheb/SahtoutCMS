@@ -1,4 +1,5 @@
 <?php
+define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
 $page_class = 'news';
 include dirname(__DIR__) . '/includes/header.php';
@@ -72,11 +73,11 @@ if ($is_single) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php if ($is_single): ?>
         <meta name="description" content="<?php echo htmlspecialchars(substr($news['content'], 0, 150)); ?>...">
-        <link rel="canonical" href="/sahtout/pages/news.php?slug=<?php echo htmlspecialchars($news['slug']); ?>">
+        <link rel="canonical" href="/sahtout/news?slug=<?php echo htmlspecialchars($news['slug']); ?>">
         <title><?php echo htmlspecialchars($news['title']); ?></title>
     <?php else: ?>
         <meta name="description" content="Latest news and updates for our World of Warcraft server.">
-        <link rel="canonical" href="/sahtout/pages/news.php?page=<?php echo $current_page; ?>">
+        <link rel="canonical" href="/sahtout/news?page=<?php echo $current_page; ?>">
         <title>News</title>
     <?php endif; ?>
     <meta name="robots" content="index">
@@ -109,7 +110,7 @@ if ($is_single) {
                     <div class="news-single-content">
                         <?php echo nl2br(htmlspecialchars($news['content'])); ?>
                     </div>
-                    <a href="/sahtout/pages/news.php" class="news-single-back">← Back to News</a>
+                    <a href="/sahtout/news" class="news-single-back">← Back to News</a>
                 </article>
             <?php else: ?>
                 <!-- News List -->
@@ -125,7 +126,7 @@ if ($is_single) {
                                 error_log("Suspicious image_url for news ID {$news['id']}: {$news['image_url']}", 3, $log_file);
                             }
                             ?>
-                            <a href="/sahtout/pages/news.php?slug=<?php echo htmlspecialchars($news['slug']); ?>" class="news-link">
+                            <a href="/sahtout/news?slug=<?php echo htmlspecialchars($news['slug']); ?>" class="news-link">
                                 <article class="news-item <?php echo $news['is_important'] ? 'important' : ''; ?>">
                                     <?php if (!empty($news['image_url'])): ?>
                                         <img src="<?php echo $base_url . htmlspecialchars($news['image_url']); ?>" 
@@ -157,19 +158,19 @@ if ($is_single) {
                     <?php if ($total_pages > 1): ?>
                         <div class="news-pagination">
                             <?php if ($current_page > 1): ?>
-                                <a href="/sahtout/pages/news.php?page=<?php echo $current_page - 1; ?>" 
+                                <a href="/sahtout/news?page=<?php echo $current_page - 1; ?>" 
                                    class="pagination-link" 
                                    aria-label="Previous page">« Prev</a>
                             <?php endif; ?>
                             <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                <a href="/sahtout/pages/news.php?page=<?php echo $i; ?>" 
+                                <a href="/sahtout/news?page=<?php echo $i; ?>" 
                                    class="pagination-link <?php echo $i == $current_page ? 'active' : ''; ?>" 
                                    aria-label="Go to page <?php echo $i; ?>">
                                     <?php echo $i; ?>
                                 </a>
                             <?php endfor; ?>
                             <?php if ($current_page < $total_pages): ?>
-                                <a href="/sahtout/pages/news.php?page=<?php echo $current_page + 1; ?>" 
+                                <a href="/sahtout/news?page=<?php echo $current_page + 1; ?>" 
                                    class="pagination-link" 
                                    aria-label="Next page">Next »</a>
                             <?php endif; ?>

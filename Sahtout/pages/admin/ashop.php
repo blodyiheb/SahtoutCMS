@@ -1,8 +1,9 @@
 <?php
-require_once '../includes/session.php';
+define('ALLOWED_ACCESS', true);
+require_once '../../includes/session.php';
 
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'moderator'])) {
-    header("Location: /Sahtout/pages/login.php");
+    header("Location: /Sahtout/login");
     exit;
 }
 
@@ -31,7 +32,7 @@ if ($stmt->execute()) {
 $stmt->close();
 
 // Directory for image uploads
-$base_upload_dir = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'shopimg' . DIRECTORY_SEPARATOR;
+$base_upload_dir = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'shopimg' . DIRECTORY_SEPARATOR;
 $base_upload_url = 'img/shopimg/';
 
 // Map categories to subdirectories
@@ -43,14 +44,18 @@ $category_dirs = [
     'Service' => 'services'
 ];
 
-// Ensure upload subdirectories exist
+// Ensure upload subdirectories exist and are writable
 foreach ($category_dirs as $dir) {
     $full_dir = $base_upload_dir . $dir;
     if (!file_exists($full_dir)) {
-        mkdir($full_dir, 0755, true);
+        if (!mkdir($full_dir, 0755, true)) {
+            error_log("Failed to create directory: $full_dir", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+        }
     }
     if (!is_writable($full_dir)) {
-        error_log("Directory not writable: $full_dir", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+        error_log("Directory not writable: $full_dir", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+        // Attempt to set permissions (Windows equivalent)
+        @chmod($full_dir, 0777);
     }
 }
 
@@ -76,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Validate category
             if (!in_array($category, $valid_categories)) {
-                header("Location: ashop.php?status=error&message=Invalid category&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                header("Location: ashop?status=error&message=Invalid category&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                 exit;
             }
 
@@ -90,14 +95,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->fetch();
                 $stmt->close();
                 if ($count == 0) {
-                    header("Location: ashop.php?status=error&message=Invalid entry ID&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    header("Location: ashop?status=error&message=Invalid entry ID&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 }
             }
 
             // Only validate level boost if category is Service
             if ($category === 'Service' && $level_boost !== null && ($level_boost < 2 || $level_boost > 255)) {
-                header("Location: ashop.php?status=error&message=Level boost must be between 2 and 255&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                header("Location: ashop?status=error&message=Level boost must be between 2 and 255&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                 exit;
             }
 
@@ -108,8 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Check upload directory permissions
             if (!is_writable($upload_dir)) {
-                error_log("Upload directory not writable: $upload_dir", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                header("Location: ashop.php?status=error&message=Upload directory is not writable&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                error_log("Upload directory not writable: $upload_dir", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                header("Location: ashop?status=error&message=Upload directory is not writable&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                 exit;
             }
 
@@ -120,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $file = $_FILES['image'];
 
                 // Log file details for debugging
-                error_log("File upload attempt: name={$file['name']}, type={$file['type']}, size={$file['size']}, error={$file['error']}, category=$category", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                error_log("File upload attempt: name={$file['name']}, type={$file['type']}, size={$file['size']}, error={$file['error']}, tmp_name={$file['tmp_name']}, category=$category", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
 
                 if ($file['error'] !== UPLOAD_ERR_OK) {
                     $error_messages = [
@@ -133,19 +138,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the upload'
                     ];
                     $error_message = isset($error_messages[$file['error']]) ? $error_messages[$file['error']] : 'Unknown upload error';
-                    error_log("Upload error: $error_message", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                    header("Location: ashop.php?status=error&message=" . urlencode($error_message) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    error_log("Upload error: $error_message", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                    header("Location: ashop?status=error&message=" . urlencode($error_message) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 }
 
                 if (!in_array($file['type'], $allowed_types)) {
-                    error_log("Invalid file type: {$file['type']}", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                    header("Location: ashop.php?status=error&message=Invalid file type. Only JPG, PNG, GIF allowed&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    error_log("Invalid file type: {$file['type']}", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                    header("Location: ashop?status=error&message=Invalid file type. Only JPG, PNG, GIF allowed&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 }
                 if ($file['size'] > $max_size) {
-                    error_log("File size exceeds limit: {$file['size']} bytes", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                    header("Location: ashop.php?status=error&message=File size exceeds 2MB limit&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    error_log("File size exceeds limit: {$file['size']} bytes", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                    header("Location: ashop?status=error&message=File size exceeds 2MB limit&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    exit;
+                }
+
+                // Validate temporary file
+                if (!file_exists($file['tmp_name']) || !is_readable($file['tmp_name'])) {
+                    error_log("Temporary file missing or unreadable: {$file['tmp_name']}", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                    header("Location: ashop?status=error&message=Temporary file is missing or unreadable&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 }
 
@@ -153,20 +165,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $filename = uniqid('shop_item_') . '.' . $ext;
                 $destination = $upload_dir . $filename;
 
+                // Log destination path
+                error_log("Destination path: $destination", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+
+                // Attempt to move the file
                 if (move_uploaded_file($file['tmp_name'], $destination)) {
-                    $image = $upload_url . $filename;
-                    error_log("File uploaded successfully: $image", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                    // Delete old image if editing
-                    if ($action === 'edit' && isset($_POST['existing_image']) && $_POST['existing_image']) {
-                        $old_image_path = str_replace($base_upload_url, $base_upload_dir, $_POST['existing_image']);
-                        if (file_exists($old_image_path)) {
-                            unlink($old_image_path);
-                            error_log("Deleted old image: $old_image_path", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                    // Verify file was actually written
+                    if (file_exists($destination)) {
+                        $image = $upload_url . $filename;
+                        error_log("File uploaded successfully: $image", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                        // Delete old image if editing
+                        if ($action === 'edit' && isset($_POST['existing_image']) && $_POST['existing_image']) {
+                            $old_image_path = str_replace($base_upload_url, $base_upload_dir, $_POST['existing_image']);
+                            if (file_exists($old_image_path)) {
+                                unlink($old_image_path);
+                                error_log("Deleted old image: $old_image_path", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                            }
                         }
+                    } else {
+                        error_log("File move reported success but file not found at: $destination", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                        header("Location: ashop?status=error&message=File move succeeded but file not found&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                        exit;
                     }
                 } else {
-                    error_log("Failed to move uploaded file to: $destination", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                    header("Location: ashop.php?status=error&message=Failed to move uploaded file&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    error_log("Failed to move uploaded file to: $destination, tmp_name exists: " . (file_exists($file['tmp_name']) ? 'Yes' : 'No'), 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                    header("Location: ashop?status=error&message=Failed to move uploaded file&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 }
             } elseif ($action === 'edit' && isset($_POST['existing_image'])) {
@@ -203,14 +226,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 
                 if ($stmt->execute()) {
-                    header("Location: ashop.php?status=success&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    header("Location: ashop?status=success&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 } else {
                     throw new Exception("Database error: " . $stmt->error);
                 }
             } catch (Exception $e) {
-                error_log("Database error: " . $e->getMessage(), 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                header("Location: ashop.php?status=error&message=" . urlencode($e->getMessage()) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                error_log("Database error: " . $e->getMessage(), 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                header("Location: ashop?status=error&message=" . urlencode($e->getMessage()) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                 exit;
             } finally {
                 if (isset($stmt)) $stmt->close();
@@ -229,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $file_path = str_replace($base_upload_url, $base_upload_dir, $row['image']);
                         if (file_exists($file_path)) {
                             unlink($file_path);
-                            error_log("Deleted image on item delete: $file_path", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                            error_log("Deleted image on item delete: $file_path", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
                         }
                     }
                 }
@@ -240,14 +263,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bind_param("i", $item_id);
                 
                 if ($stmt->execute()) {
-                    header("Location: ashop.php?status=success&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    header("Location: ashop?status=success&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 } else {
                     throw new Exception("Database error: " . $stmt->error);
                 }
             } catch (Exception $e) {
-                error_log("Delete error: " . $e->getMessage(), 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                header("Location: ashop.php?status=error&message=" . urlencode($e->getMessage()) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                error_log("Delete error: " . $e->getMessage(), 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+                header("Location: ashop?status=error&message=" . urlencode($e->getMessage()) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                 exit;
             } finally {
                 if (isset($stmt)) $stmt->close();
@@ -287,7 +310,7 @@ try {
     }
     $count_stmt->close();
 } catch (Exception $e) {
-    error_log("Error counting shop items: " . $e->getMessage(), 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+    error_log("Error counting shop items: " . $e->getMessage(), 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
 }
 
 // Fetch shop items for current page
@@ -323,7 +346,7 @@ try {
         $items[] = $row;
     }
 } catch (Exception $e) {
-    error_log("Error fetching shop items: " . $e->getMessage(), 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
+    error_log("Error fetching shop items: " . $e->getMessage(), 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
 } finally {
     if (isset($stmt)) $stmt->close();
 }
@@ -566,10 +589,10 @@ if (isset($_GET['status'])) {
 </head>
 <body class="shop">
     <div class="wrapper">
-        <?php include '../includes/header.php'; ?>
+        <?php include '../../includes/header.php'; ?>
         <div class="dashboard-container">
             <div class="row">
-                <?php include '../includes/admin_sidebar.php'; ?>
+                <?php include '../../includes/admin_sidebar.php'; ?>
                 <div class="col-md-9">
                     <h1 class="dashboard-title">Shop Management</h1>
                     <?php echo $status_message; ?>
@@ -776,17 +799,17 @@ if (isset($_GET['status'])) {
                                 <nav aria-label="Page navigation">
                                     <ul class="pagination">
                                         <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
-                                            <a class="page-link" href="admin/ashop.php?page=<?php echo $page - 1; ?><?php echo $category_filter ? '&category=' . urlencode($category_filter) : ''; ?><?php echo $search_query ? '&search=' . urlencode($search_query) : ''; ?>" aria-label="Previous">
+                                            <a class="page-link" href="admin/ashop?page=<?php echo $page - 1; ?><?php echo $category_filter ? '&category=' . urlencode($category_filter) : ''; ?><?php echo $search_query ? '&search=' . urlencode($search_query) : ''; ?>" aria-label="Previous">
                                                 <span aria-hidden="true">&laquo;</span>
                                             </a>
                                         </li>
                                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                                             <li class="page-item <?php echo $page == $i ? 'active' : ''; ?>">
-                                                <a class="page-link" href="admin/ashop.php?page=<?php echo $i; ?><?php echo $category_filter ? '&category=' . urlencode($category_filter) : ''; ?><?php echo $search_query ? '&search=' . urlencode($search_query) : ''; ?>"><?php echo $i; ?></a>
+                                                <a class="page-link" href="admin/ashop?page=<?php echo $i; ?><?php echo $category_filter ? '&category=' . urlencode($category_filter) : ''; ?><?php echo $search_query ? '&search=' . urlencode($search_query) : ''; ?>"><?php echo $i; ?></a>
                                             </li>
                                         <?php endfor; ?>
                                         <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
-                                            <a class="page-link" href="admin/ashop.php?page=<?php echo $page + 1; ?><?php echo $category_filter ? '&category=' . urlencode($category_filter) : ''; ?><?php echo $search_query ? '&search=' . urlencode($search_query) : ''; ?>" aria-label="Next">
+                                            <a class="page-link" href="admin/ashop?page=<?php echo $page + 1; ?><?php echo $category_filter ? '&category=' . urlencode($category_filter) : ''; ?><?php echo $search_query ? '&search=' . urlencode($search_query) : ''; ?>" aria-label="Next">
                                                 <span aria-hidden="true">&raquo;</span>
                                             </a>
                                         </li>
@@ -798,7 +821,7 @@ if (isset($_GET['status'])) {
                 </div>
             </div>
         </div>
-        <?php include '../includes/footer.php'; ?>
+        <?php include '../../includes/footer.php'; ?>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

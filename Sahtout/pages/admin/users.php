@@ -1,12 +1,13 @@
 <?php
+define('ALLOWED_ACCESS', true);
 // Include session and config
-require_once __DIR__ . '/../includes/session.php'; // Includes config.php
+require_once __DIR__ . '/../../includes/session.php'; // Includes config.php
 
 $page_class = 'users';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /Sahtout/pages/login.php');
+    header('Location: /Sahtout/login');
     exit;
 }
 
@@ -31,7 +32,7 @@ $stmt->close();
 
 // Restrict access to admin or moderator only
 if (!in_array($_SESSION['role'], ['admin', 'moderator'])) {
-    header('Location: /Sahtout/pages/login.php');
+    header('Location: /Sahtout/login');
     exit;
 }
 
@@ -686,17 +687,17 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
 </head>
 <body class="users">
     <div class="wrapper">
-        <?php include dirname(__DIR__) . '/includes/header.php'; ?>
+        <?php include dirname(__DIR__) . '../../includes/header.php'; ?>
         <div class="dashboard-container">
             <div class="row">
                 <!-- Sidebar -->
-                <?php include dirname(__DIR__) . '/includes/admin_sidebar.php'; ?>
+                <?php include dirname(__DIR__) . '../../includes/admin_sidebar.php'; ?>
                 <!-- Main Content -->
                 <div class="col-md-9">
                     <h1 class="dashboard-title">User Management</h1>
                     <?php echo $update_message; ?>
                     <!-- Search and Sort Form -->
-                    <form class="search-form" method="GET" action="/Sahtout/admin/users.php">
+                    <form class="search-form" method="GET" action="/Sahtout/admin/users">
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <input type="text" name="search_username" class="form-control" placeholder="Search by username" value="<?php echo htmlspecialchars($search_username); ?>">
@@ -805,7 +806,7 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                                     </div>
                                                                     <div class="modal-body">
-                                                                        <form method="POST" action="/Sahtout/admin/users.php">
+                                                                        <form method="POST" action="/Sahtout/admin/users">
                                                                             <input type="hidden" name="action" value="update">
                                                                             <input type="hidden" name="account_id" value="<?php echo $user['account_id']; ?>">
                                                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
@@ -854,17 +855,17 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                                         <nav aria-label="Website users pagination">
                                             <ul class="pagination">
                                                 <li class="page-item <?php echo $website_page <= 1 ? 'disabled' : ''; ?>">
-                                                    <a class="page-link" href="/Sahtout/admin/users.php?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'website_page=' . ($website_page - 1) . '&ingame_page=' . $ingame_page; ?>" aria-label="Previous">
+                                                    <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'website_page=' . ($website_page - 1) . '&ingame_page=' . $ingame_page; ?>" aria-label="Previous">
                                                         <span aria-hidden="true">&laquo;</span>
                                                     </a>
                                                 </li>
                                                 <?php for ($i = 1; $i <= $total_website_pages; $i++): ?>
                                                     <li class="page-item <?php echo $i === $website_page ? 'active' : ''; ?>">
-                                                        <a class="page-link" href="/Sahtout/admin/users.php?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'website_page=' . $i . '&ingame_page=' . $ingame_page; ?>"><?php echo $i; ?></a>
+                                                        <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'website_page=' . $i . '&ingame_page=' . $ingame_page; ?>"><?php echo $i; ?></a>
                                                     </li>
                                                 <?php endfor; ?>
                                                 <li class="page-item <?php echo $website_page >= $total_website_pages ? 'disabled' : ''; ?>">
-                                                    <a class="page-link" href="/Sahtout/admin/users.php?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'website_page=' . ($website_page + 1) . '&ingame_page=' . $ingame_page; ?>" aria-label="Next">
+                                                    <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'website_page=' . ($website_page + 1) . '&ingame_page=' . $ingame_page; ?>" aria-label="Next">
                                                         <span aria-hidden="true">&raquo;</span>
                                                     </a>
                                                 </li>
@@ -945,7 +946,7 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                                     </div>
                                                                     <div class="modal-body">
-                                                                        <form method="POST" action="/Sahtout/admin/users.php">
+                                                                        <form method="POST" action="/Sahtout/admin/users">
                                                                             <input type="hidden" name="action" value="manage_account">
                                                                             <input type="hidden" name="account_id" value="<?php echo $account['id']; ?>">
                                                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
@@ -1006,17 +1007,17 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                                         <nav aria-label="In-game accounts pagination">
                                             <ul class="pagination">
                                                 <li class="page-item <?php echo $ingame_page <= 1 ? 'disabled' : ''; ?>">
-                                                    <a class="page-link" href="/Sahtout/admin/users.php?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'ingame_page=' . ($ingame_page - 1) . '&website_page=' . $website_page; ?>" aria-label="Previous">
+                                                    <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'ingame_page=' . ($ingame_page - 1) . '&website_page=' . $website_page; ?>" aria-label="Previous">
                                                         <span aria-hidden="true">&laquo;</span>
                                                     </a>
                                                 </li>
                                                 <?php for ($i = 1; $i <= $total_ingame_pages; $i++): ?>
                                                     <li class="page-item <?php echo $i === $ingame_page ? 'active' : ''; ?>">
-                                                        <a class="page-link" href="/Sahtout/admin/users.php?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'ingame_page=' . $i . '&website_page=' . $website_page; ?>"><?php echo $i; ?></a>
+                                                        <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'ingame_page=' . $i . '&website_page=' . $website_page; ?>"><?php echo $i; ?></a>
                                                     </li>
                                                 <?php endfor; ?>
                                                 <li class="page-item <?php echo $ingame_page >= $total_ingame_pages ? 'disabled' : ''; ?>">
-                                                    <a class="page-link" href="/Sahtout/admin/users.php?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'ingame_page=' . ($ingame_page + 1) . '&website_page=' . $website_page; ?>" aria-label="Next">
+                                                    <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'ingame_page=' . ($ingame_page + 1) . '&website_page=' . $website_page; ?>" aria-label="Next">
                                                         <span aria-hidden="true">&raquo;</span>
                                                     </a>
                                                 </li>
@@ -1030,7 +1031,7 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                 </div>
             </div>
         </div>
-        <?php include dirname(__DIR__) . '/includes/footer.php'; ?>
+        <?php include dirname(__DIR__) . '../../includes/footer.php'; ?>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
