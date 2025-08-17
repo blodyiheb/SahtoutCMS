@@ -23,13 +23,13 @@ if (!defined('ALLOWED_ACCESS')) {
     <div class="footer-socials">
       <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
       <a href="https://www.youtube.com/@Blodyone" target="_blank"><i class="fab fa-youtube"></i></a>
-      <a href="https://discord.gg" target="_blank"><i class="fab fa-discord"></i></a>
+      <a href="https://discord.gg/chxXTXXQ6M" target="_blank"><i class="fab fa-discord"></i></a>
       <a href="https://twitch.tv" target="_blank"><i class="fab fa-twitch"></i></a>
       <a href="https://kick.com" target="_blank">
         <img src="img/icons/kick-logo.svg" alt="Kick" class="kick-icon">
       </a>
       <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
-      <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+      <a href="https://github.com/blodyiheb/SahtoutCMS" target="_blank"><i class="fab fa-github"></i></a>
       <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin-in"></i></a>
     </div>
   </div>

@@ -1,4 +1,10 @@
 <?php
+if (!defined('ALLOWED_ACCESS')) {
+    header('HTTP/1.1 403 Forbidden');
+    exit('Direct access to this file is not allowed.');
+}
+?>
+<?php
 // Data definitions
 $qualityColors = [
     0 => '#9d9d9d', // Poor (Grey)

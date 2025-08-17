@@ -1,4 +1,10 @@
 <?php
+if (!defined('ALLOWED_ACCESS')) {
+    header('HTTP/1.1 403 Forbidden');
+    exit('Direct access to this file is not allowed.');
+}
+?>
+<?php
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'moderator'])) {
     exit;
 }
@@ -13,37 +19,37 @@ $page_class = $page_class ?? '';
         <div class="card-body p-2">
             <ul class="nav flex-column admin-sidebar-nav">
                 <li class="nav-item">
-                    <a class="nav-link <?php echo $page_class === 'dashboard' ? 'active' : ''; ?>" href="/Sahtout/admin/index.php">
+                    <a class="nav-link <?php echo $page_class === 'dashboard' ? 'active' : ''; ?>" href="/Sahtout/admin/dashboard">
                         <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo $page_class === 'users' ? 'active' : ''; ?>" href="/Sahtout/admin/users.php">
+                    <a class="nav-link <?php echo $page_class === 'users' ? 'active' : ''; ?>" href="/Sahtout/admin/users">
                         <i class="fas fa-users me-2"></i> User Management
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo $page_class === 'anews' ? 'active' : ''; ?>" href="/Sahtout/admin/anews.php">
+                    <a class="nav-link <?php echo $page_class === 'anews' ? 'active' : ''; ?>" href="/Sahtout/admin/anews">
                         <i class="fas fa-newspaper me-2"></i> News Management
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo $page_class === 'characters' ? 'active' : ''; ?>" href="/Sahtout/admin/characters.php">
+                    <a class="nav-link <?php echo $page_class === 'characters' ? 'active' : ''; ?>" href="/Sahtout/admin/characters">
                         <i class="fas fa-user-edit me-2"></i> Character Management
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo $page_class === 'shop' ? 'active' : ''; ?>" href="/Sahtout/admin/ashop.php">
+                    <a class="nav-link <?php echo $page_class === 'shop' ? 'active' : ''; ?>" href="/Sahtout/admin/ashop">
                         <i class="fas fa-shopping-cart me-2"></i> Shop Management
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo $page_class === 'gm_cmd' ? 'active' : ''; ?>" href="/Sahtout/admin/gm_cmd.php">
+                    <a class="nav-link <?php echo $page_class === 'gm_cmd' ? 'active' : ''; ?>" href="/Sahtout/admin/gm_cmd">
                         <i class="fas fa-terminal me-2"></i> GM Commands
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-danger" href="/Sahtout/pages/logout.php">
+                    <a class="nav-link text-danger" href="/Sahtout/logout">
                         <i class="fas fa-sign-out-alt me-2"></i> Logout
                     </a>
                 </li>

@@ -1,3 +1,9 @@
+<?php
+if (!defined('ALLOWED_ACCESS')) {
+    header('HTTP/1.1 403 Forbidden');
+    exit('Direct access to this file is not allowed.');
+}
+?>
 <style>
     .nav-container {
         border: 2px double #fcd34d;
@@ -45,10 +51,10 @@
 <div class="flex justify-center mb-10">
     <div class="nav-container bg-gray-900/75 rounded-xl shadow-lg p-4 sm:p-4 max-w-6xl mx-auto">
         <div class="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-8 justify-center">
-            <a href="pages/armory/solo_pvp.php" class="nav-button px-4 py-2 sm:px-8 sm:py-4 text-gold-300 rounded-xl"><img src="/Sahtout/img/armory/sword.webp" alt="Solo PVP" class="nav-icon inline-block">SOLO PVP Ladder</a>
-            <a href="pages/armory/arena_2v2.php" class="nav-button nav-button-2v2 px-4 py-2 sm:px-8 sm:py-4 text-gold-300 rounded-xl"><img src="/Sahtout/img/armory/arena.webp" alt="Arena" class="nav-icon inline-block">2v2 Arena</a>
-            <a href="pages/armory/arena_3v3.php" class="nav-button nav-button-3v3 px-4 py-2 sm:px-8 sm:py-4 text-gold-300 rounded-xl"><img src="/Sahtout/img/armory/arena.webp" alt="Arena" class="nav-icon inline-block">3v3 Arena</a>
-            <a href="pages/armory/arena_5v5.php" class="nav-button nav-button-5v5 px-4 py-2 sm:px-8 sm:py-4 text-gold-300 rounded-xl"><img src="/Sahtout/img/armory/arena.webp" alt="Arena" class="nav-icon inline-block">5v5 Arena</a>
+            <a href="armory/solo_pvp" class="nav-button px-4 py-2 sm:px-8 sm:py-4 text-gold-300 rounded-xl"><img src="/Sahtout/img/armory/sword.webp" alt="Solo PVP" class="nav-icon inline-block">SOLO PVP Ladder</a>
+            <a href="armory/arena_2v2" class="nav-button nav-button-2v2 px-4 py-2 sm:px-8 sm:py-4 text-gold-300 rounded-xl"><img src="/Sahtout/img/armory/arena.webp" alt="Arena" class="nav-icon inline-block">2v2 Arena</a>
+            <a href="armory/arena_3v3" class="nav-button nav-button-3v3 px-4 py-2 sm:px-8 sm:py-4 text-gold-300 rounded-xl"><img src="/Sahtout/img/armory/arena.webp" alt="Arena" class="nav-icon inline-block">3v3 Arena</a>
+            <a href="armory/arena_5v5" class="nav-button nav-button-5v5 px-4 py-2 sm:px-8 sm:py-4 text-gold-300 rounded-xl"><img src="/Sahtout/img/armory/arena.webp" alt="Arena" class="nav-icon inline-block">5v5 Arena</a>
         </div>
     </div>
 </div>

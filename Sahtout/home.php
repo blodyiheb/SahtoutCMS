@@ -566,7 +566,7 @@ $result = $site_db->query($query);
                     <img src="/sahtout/img/homeimg/youtube-logo1.png" alt="YouTube" class="youtube-logo">
                 </a>
                 <hr class="social-line">
-                <a href="https://discord.com/invite/JK4AHqX2" class="discord-button">
+                <a href="https://discord.gg/chxXTXXQ6M" class="discord-button">
                     <img src="/sahtout/img/homeimg/discordlogo.png" alt="Discord" class="discord-logo">
                 </a>
                 <hr class="social-line">

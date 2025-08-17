@@ -74,7 +74,7 @@ if (isset($_SESSION['user_id'])) {
         }
         $stmt->close();
     } else {
-        error_log("Failed to prepare statement for fetching user data in header.php.");
+        error_log("Failed to prepare statement for fetching user data in header.");
     }
 
     // Fetch GM level
@@ -89,7 +89,7 @@ if (isset($_SESSION['user_id'])) {
         }
         $stmt->close();
     } else {
-        error_log("Failed to prepare statement for fetching gmlevel in header.php.");
+        error_log("Failed to prepare statement for fetching gmlevel in header.");
     }
 }
 ?>
@@ -542,22 +542,22 @@ header nav a.active {
 </style>
 <body class="<?php echo $page_class; ?>">
     <header>
-        <a href="<?php echo $base_path; ?>pages/home.php"><img src="<?php echo $base_path; ?>img/logo.png" alt="Sahtout Server Logo" height="80"></a>
+        <a href="<?php echo $base_path; ?>"><img src="<?php echo $base_path; ?>img/logo.png" alt="Sahtout Server Logo" height="80"></a>
         <button class="nav-toggle" aria-label="Toggle navigation">
             <span class="hamburger"></span>
         </button>
         <nav>
             <button class="nav-close" aria-label="Close navigation">✖</button>
-            <a href="<?php echo $base_path; ?>pages/home.php">Home</a>
-            <a href="<?php echo $base_path; ?>pages/how-to-play.php">How to Play</a>
-            <a href="<?php echo $base_path; ?>pages/news.php">News</a>
-            <a href="<?php echo $base_path; ?>pages/armory">armory</a>
-            <a href="<?php echo $base_path; ?>pages/shop.php">Shop</a>
+            <a href="">Home</a>
+            <a href="<?php echo $base_path; ?>how-to-play">How to Play</a>
+            <a href="<?php echo $base_path; ?>news">News</a>
+            <a href="<?php echo $base_path; ?>armory/solo_pvp">armory</a>
+            <a href="<?php echo $base_path; ?>shop">Shop</a>
             <?php if (empty($_SESSION['user_id'])): ?>
-                <a href="<?php echo $base_path; ?>pages/register.php">Register</a>
-                <a href="<?php echo $base_path; ?>pages/login.php">Login</a>
+                <a href="<?php echo $base_path; ?>register">Register</a>
+                <a href="<?php echo $base_path; ?>login">Login</a>
             <?php else: ?>
-                <a href="<?php echo $base_path; ?>pages/account.php">Account</a>
+                <a href="<?php echo $base_path; ?>account">Account</a>
             <?php endif; ?>
         </nav>
         <?php if (!empty($_SESSION['user_id'])): ?>
@@ -583,16 +583,16 @@ header nav a.active {
                             </div>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <a style="color: #8c17beff;" href="<?php echo $base_path; ?>pages/account.php" class="dropdown-item">
+                        <a style="color: #8c17beff;" href="<?php echo $base_path; ?>account" class="dropdown-item">
                             <i class="fas fa-user-circle"></i> Account Settings
                         </a>
                         <?php if ($gmlevel > 0 || $role === 'admin' || $role === 'moderator'): ?>
-                            <a href="<?php echo $base_path; ?>admin/" class="dropdown-item admin-panel">
+                            <a href="<?php echo $base_path; ?>admin/dashboard" class="dropdown-item admin-panel">
                                 <i class="fas fa-cogs"></i> Admin Panel
                             </a>
                         <?php endif; ?>
                         <div class="dropdown-divider"></div>
-                        <a href="<?php echo $base_path; ?>pages/logout.php" class="dropdown-item logout">
+                        <a href="<?php echo $base_path; ?>logout" class="dropdown-item logout">
                             <i class="fas fa-sign-out-alt"></i> Logout
                         </a>
                     </div>

@@ -1,7 +1,4 @@
 <?php
-// Define constant to indicate legitimate access
-define('ALLOWED_ACCESS', true);
-
 // Start session with secure settings
 ini_set('session.cookie_httponly', 1); // Prevent JavaScript access to session cookie
 ini_set('session.use_only_cookies', 1); // Use cookies only for session ID
@@ -37,7 +34,7 @@ if (in_array($current_page, $protected_pages) || in_array($current_page, $admin_
         $_SESSION['debug_errors'][] = "No user session detected. Ensure login script sets \$_SESSION['user_id'] and \$_SESSION['username'].";
         session_unset();
         session_destroy();
-        header('Location: /Sahtout/pages/login.php?error=invalid_session');
+        header('Location: /Sahtout/login?error=invalid_session');
         exit();
     }
 
@@ -51,7 +48,7 @@ if (in_array($current_page, $protected_pages) || in_array($current_page, $admin_
         $_SESSION['debug_errors'] = ["Invalid session data. User ID or username mismatch."];
         session_unset();
         session_destroy();
-        header('Location: /Sahtout/pages/login.php?error=invalid_session');
+        header('Location: /Sahtout/login?error=invalid_session');
         exit();
     }
     $stmt->close();
@@ -77,7 +74,7 @@ if (in_array($current_page, $protected_pages) || in_array($current_page, $admin_
     // Restrict admin pages to admin or moderator
     if (in_array($current_page, $admin_pages) && !in_array($_SESSION['role'], ['admin', 'moderator'])) {
         $_SESSION['debug_errors'] = ["Unauthorized access to admin page."];
-        header('Location: /Sahtout/pages/login.php?error=unauthorized');
+        header('Location: /Sahtout/login?error=unauthorized');
         exit();
     }
 }
@@ -91,7 +88,7 @@ if (in_array($current_page, $public_pages) && !empty($_SESSION['user_id']) && !e
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows === 1) {
-        header('Location: /Sahtout/pages/account.php');
+        header('Location: /Sahtout/account');
         exit();
     }
     $_SESSION['debug_errors'] = ["Invalid session data on public page."];
