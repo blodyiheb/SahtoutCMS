@@ -80,7 +80,7 @@ include __DIR__ . '/header.inc.php';
                 Prepare your database credentials and your server, for the journey begins now.
             </p>
             <p style="margin-top:20px; font-size:0.9em; color:#fff; font-style:italic;">
-                ⚔️ Note from the developer: I created this project alone for fun, learning, and testing. 
+                ⚔️ Note: I created this project alone for fun, learning, and testing. 
                 While I’ve tried to make it look and feel professional, it’s not a team project, 
                 and some bugs may still exist. Enjoy exploring and give feedback if you find issues!
             </p>
