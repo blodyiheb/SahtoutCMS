@@ -12,9 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $command = trim($_POST['command']);
 
     if (!empty($command)) {
-        $url = "http://127.0.0.1:7878"; // SOAP port (from AzerothCore config)
-        $username = "topadmin"; // your SOAP account
-        $password = "123456";   // your SOAP password
+        include dirname(__DIR__) . '../../includes/soap.conf.php';
 
         $xml = '<?xml version="1.0" encoding="utf-8"?>'
             . '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">'
@@ -26,9 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             . '</SOAP-ENV:Envelope>';
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_URL, $soap_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_USERPWD, "$username:$password");
+        curl_setopt($ch, CURLOPT_USERPWD, "$soap_user:$soap_pass");
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             "Content-Type: text/xml",

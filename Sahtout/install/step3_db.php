@@ -2,10 +2,14 @@
 define('ALLOWED_ACCESS', true);
 include __DIR__ . '/header.inc.php';
 
-// step3_db.php – Database setup step
+// step3_db.php – Database and reCAPTCHA setup step
 $errors = [];
 $success = false;
 $configFile = realpath(__DIR__ . '/../includes/config.php');
+$configCapFile = realpath(__DIR__ . '/../includes/config.cap.php');
+// Default reCAPTCHA keys (used if user leaves input fields empty)
+$default_site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+$default_secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
 
 // Force mysqli to throw exceptions instead of silent fails
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -18,6 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dbWorld = trim($_POST['db_world'] ?? '');
     $dbChar  = trim($_POST['db_char'] ?? '');
     $dbSite  = trim($_POST['db_site'] ?? 'sahtout_site');
+    // Use default keys if reCAPTCHA inputs are empty
+    $recaptcha_site_key = trim($_POST['recaptcha_site_key'] ?? '') ?: $default_site_key;
+    $recaptcha_secret_key = trim($_POST['recaptcha_secret_key'] ?? '') ?: $default_secret_key;
 
     // Validate required fields
     if (empty($dbHost)) $errors[] = "Database host is required";
@@ -28,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($dbSite)) $errors[] = "Site database name is required";
 
     if (empty($errors)) {
-        // Test connections individually with more detailed error checking
+        // Test database connections individually with more detailed error checking
         $dbConns = [
             'Auth DB' => [$dbAuth, null, 'auth'],
             'World DB' => [$dbWorld, null, 'world'],
@@ -71,8 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // If all OK → write config file
+        // If all OK → write config files
         if (empty($errors)) {
+            // Write database config file
             $configContent = "<?php
 if (!defined('ALLOWED_ACCESS')) exit('Direct access not allowed.');
 \$db_host = '".addslashes($dbHost)."';
@@ -95,13 +103,29 @@ if (\$char_db->connect_error) die('Char DB Connection failed: ' . \$char_db->con
 if (\$site_db->connect_error) die('Site DB Connection failed: ' . \$site_db->connect_error);
 ?>";
 
-            // Verify directory is writable
+            // Write reCAPTCHA config file with default keys if none provided
+            $capConfigContent = "<?php
+if (!defined('ALLOWED_ACCESS')) exit('Direct access not allowed.');
+\$recaptcha_site_key = '".addslashes($recaptcha_site_key)."';
+\$recaptcha_secret_key = '".addslashes($recaptcha_secret_key)."';
+define('RECAPTCHA_SITE_KEY', \$recaptcha_site_key);
+define('RECAPTCHA_SECRET_KEY', \$recaptcha_secret_key);
+?>";
+
+            // Verify directories are writable
             $configDir = dirname($configFile);
+            $capConfigDir = dirname($configCapFile);
+            
             if (!is_writable($configDir)) {
                 $errors[] = "⚠️ Config directory is not writable: {$configDir}";
+            } elseif (!is_writable($capConfigDir)) {
+                $errors[] = "⚠️ reCAPTCHA config directory is not writable: {$capConfigDir}";
             } else {
                 if (file_put_contents($configFile, $configContent) === false) {
                     $errors[] = "⚠️ Failed to write config file: {$configFile}";
+                }
+                if (file_put_contents($configCapFile, $capConfigContent) === false) {
+                    $errors[] = "⚠️ Failed to write reCAPTCHA config file: {$configCapFile}";
                 }
                 
                 if (empty($errors)) {
@@ -153,7 +177,7 @@ input {width:100%; padding:10px; border-radius:6px; border:1px solid #6b4226; ba
 <div class="overlay">
 <div class="container">
 <h1>⚔️ SahtoutCMS Installer</h1>
-<h2 class="section-title">Step 3: Database Setup</h2>
+<h2 class="section-title">Step 3: Database & reCAPTCHA Setup</h2>
 
 <?php if(!empty($errors)): ?>
     <div class="error-box">
@@ -168,9 +192,9 @@ input {width:100%; padding:10px; border-radius:6px; border:1px solid #6b4226; ba
 <?php elseif($success): ?>
     <div class="db-status">
         <span class="db-status-icon db-status-success">✔</span>
-        <span class="success">All databases connected successfully! Config file created.</span>
+        <span class="success">All databases connected successfully! Config and reCAPTCHA files created.</span>
     </div>
-    <a href="step4_realm.php" class="btn">Proceed to Step 4 Realm configuration➡️</a>
+    <a href="step4_realm.php" class="btn">Proceed to Step 4 Realm configuration ➡️</a>
 <?php endif; ?>
 
 <?php if(!$success): ?>
@@ -198,7 +222,15 @@ input {width:100%; padding:10px; border-radius:6px; border:1px solid #6b4226; ba
     <input type="text" id="db_site" name="db_site" value="<?= htmlspecialchars($_POST['db_site'] ?? 'sahtout_site') ?>" required>
     <p class="note">"sahtout_site" is recommended for the site database name</p>
 
-    <button type="submit" class="btn">Test & Save Database Settings</button>
+    <div class="section-title">reCAPTCHA V2 Checkbox Keys (Optional)</div>
+    <label for="recaptcha_site_key">Site Key</label>
+    <input type="text" id="recaptcha_site_key" name="recaptcha_site_key" placeholder="Leave empty for default" value="<?= htmlspecialchars($_POST['recaptcha_site_key'] ?? '') ?>">
+
+    <label for="recaptcha_secret_key">Secret Key</label>
+    <input type="text" id="recaptcha_secret_key" name="recaptcha_secret_key" placeholder="Leave empty for default" value="<?= htmlspecialchars($_POST['recaptcha_secret_key'] ?? '') ?>">
+    <p class="note">Leave reCAPTCHA fields empty to use default keys</p>
+
+    <button type="submit" class="btn">Test & Save Database and reCAPTCHA Settings</button>
 </form>
 <?php endif; ?>
 

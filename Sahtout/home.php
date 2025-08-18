@@ -59,7 +59,7 @@ $result = $site_db->query($query);
         .discord-widget {
             position: fixed;
             top: 150px;
-            left: 15px;
+            left: 5px;
             background: rgba(0, 0, 0, 0.7);
             border: 2px solid #ffd700;
             border-radius: 10px;
@@ -464,7 +464,54 @@ $result = $site_db->query($query);
             padding: 1rem 0;
             box-sizing: border-box;
         }
+        @media (max-width: 1200px) and (min-width: 769px) {
+        .discord-widget {
+            position: static;
+            width: 100%;
+            max-width: 300px;
+            margin: 1rem auto;
+        }
 
+        .discord-widget iframe {
+            width: 100%;
+            height: 400px;
+        }
+
+        .server-status {
+            position: static;
+            width: 100%;
+            max-width: 300px;
+            margin: 1rem auto;
+        }
+
+        main {
+            padding-bottom: 2rem;
+        }
+    }
+@media (max-width: 1400px) and (min-width: 1200px) {
+        .discord-widget {
+            position: fixed;
+            width: 100%;
+            max-width: 235px;
+            margin: 1rem auto;
+        }
+
+        .discord-widget iframe {
+            width: 100%;
+            height: 400px;
+        }
+
+        .server-status {
+            position: fixed;
+            width: 100%;
+            max-width: 235px;
+            margin: 1rem auto;
+        }
+
+        main {
+            padding-bottom: 2rem;
+        }
+    }
         /* Responsive Design */
         @media (max-width: 768px) {
             html, body {
@@ -549,7 +596,7 @@ $result = $site_db->query($query);
         <!-- Discord Widget -->
         <section class="discord-widget">
             <h2>Join Our Discord</h2>
-            <iframe src="https://discord.com/widget?id=1405755152085815337&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+            <iframe src="https://discord.com/widget?id=1405755152085815337&theme=dark" width="350" height="400" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
         </section>
 
         <!-- Intro Container -->
