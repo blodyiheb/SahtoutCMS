@@ -2,31 +2,44 @@
 // install/step2_check.php
 define('ALLOWED_ACCESS', true);
 include __DIR__ . '/header.inc.php';
+
 // Required PHP extensions
 $requiredExtensions = ["mysqli", "curl", "openssl", "soap", "gd", "gmp", "mbstring", "xml"];
+
 // Optional PHP extensions
 $optionalExtensions = ["intl", "zip", "json"];
-// Apache modules to check
-$apacheModules = ["mod_rewrite", "mod_headers", "mod_expires", "mod_deflate"];
+
+// Apache modules
+$requiredApacheModules = ["mod_rewrite", "mod_headers"];
+$optionalApacheModules = ["mod_expires", "mod_deflate"];
 
 // Functions
 function isApacheModuleEnabled($module) {
     if (function_exists('apache_get_modules')) return in_array($module, apache_get_modules());
-    return null;
+    return null; // Unknown if not Apache
 }
 
 // Checks
 $phpVersionPass = version_compare(PHP_VERSION, '8.0.0', '>=');
 
 // PHP extensions
-$requiredExtResults = []; foreach ($requiredExtensions as $ext) $requiredExtResults[$ext] = extension_loaded($ext);
-$optionalExtResults = []; foreach ($optionalExtensions as $ext) $optionalExtResults[$ext] = extension_loaded($ext);
+$requiredExtResults = [];
+foreach ($requiredExtensions as $ext) $requiredExtResults[$ext] = extension_loaded($ext);
+
+$optionalExtResults = [];
+foreach ($optionalExtensions as $ext) $optionalExtResults[$ext] = extension_loaded($ext);
 
 // Apache modules
-$apacheResults = []; foreach ($apacheModules as $mod) $apacheResults[$mod] = isApacheModuleEnabled($mod);
+$requiredApacheResults = [];
+foreach ($requiredApacheModules as $mod) $requiredApacheResults[$mod] = isApacheModuleEnabled($mod);
+
+$optionalApacheResults = [];
+foreach ($optionalApacheModules as $mod) $optionalApacheResults[$mod] = isApacheModuleEnabled($mod);
 
 // Can proceed?
-$allRequiredPass = $phpVersionPass && !in_array(false, $requiredExtResults, true) && !in_array(false, $apacheResults, true);
+$allRequiredPass = $phpVersionPass 
+    && !in_array(false, $requiredExtResults, true) 
+    && !in_array(false, $requiredApacheResults, true);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -35,7 +48,7 @@ $allRequiredPass = $phpVersionPass && !in_array(false, $requiredExtResults, true
 <title>SahtoutCMS Installer - Step 2</title>
 <style>
 body {margin:0;padding:0;font-family:'Cinzel', serif;background:#0a0a0a;color:#f0e6d2;}
-.overlay {background: rgba(0,0,0,0.9);  inset:0; display:flex; align-items:center; justify-content:center; padding:20px;}
+.overlay {background: rgba(0,0,0,0.9); inset:0; display:flex; align-items:center; justify-content:center; padding:20px;}
 .container {text-align:center; max-width:900px; width:100%; max-height:90vh; overflow-y:auto; padding:30px 20px; border:2px solid #6b4226; background: rgba(20,10,5,0.95); border-radius:12px; box-shadow:0 0 30px #6b4226;}
 h1 {font-size:2.5em; margin-bottom:20px; color:#d4af37; text-shadow:0 0 10px #000;}
 table {width:100%; border-collapse: collapse; margin:20px 0; font-size:1.1em;}
@@ -87,11 +100,19 @@ function toggleHelp() {
         <?php endforeach; ?>
     </table>
 
-    <div class="section-title">Apache Modules</div>
+    <div class="section-title">Required Apache Modules</div>
     <table>
         <tr><th>Module</th><th>Status</th></tr>
-        <?php foreach ($apacheResults as $mod => $status): ?>
+        <?php foreach ($requiredApacheResults as $mod => $status): ?>
             <tr><td><?= $mod ?></td><td><?= $status===true ? "<span class='ok'>✔ Enabled</span>" : ($status===false ? "<span class='fail'>✘ Missing</span>" : "<span class='warn'>⚠ Unknown</span>") ?></td></tr>
+        <?php endforeach; ?>
+    </table>
+
+    <div class="section-title">Optional Apache Modules</div>
+    <table>
+        <tr><th>Module</th><th>Status</th></tr>
+        <?php foreach ($optionalApacheResults as $mod => $status): ?>
+            <tr><td><?= $mod ?></td><td><?= $status===true ? "<span class='ok'>✔ Enabled</span>" : ($status===false ? "<span class='warn'>⚠ Missing</span>" : "<span class='warn'>⚠ Unknown</span>") ?></td></tr>
         <?php endforeach; ?>
     </table>
 

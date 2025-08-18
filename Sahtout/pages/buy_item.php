@@ -1,10 +1,11 @@
 <?php
+define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
 
 // Ensure user is logged in
 if (!isset($_SESSION['user_id'])) {
     error_log("Purchase attempt without login. Session: " . print_r($_SESSION, true));
-    header("Location: /Sahtout/pages/login.php");
+    header("Location: /Sahtout/login");
     exit;
 }
 
@@ -12,14 +13,14 @@ if (!isset($_SESSION['user_id'])) {
 $cooldown_duration = 5; // 5 seconds
 if (isset($_SESSION['last_purchase_time']) && (time() - $_SESSION['last_purchase_time']) < $cooldown_duration) {
     error_log("Purchase blocked due to cooldown: User ID: {$_SESSION['user_id']}");
-    header("Location: /Sahtout/pages/shop.php?category=All&status=cooldown_active");
+    header("Location: /Sahtout/shop?category=All&status=cooldown_active");
     exit;
 }
 
 // Validate POST data
 if (!isset($_POST['item_id'], $_POST['character_id']) || !is_numeric($_POST['item_id']) || !is_numeric($_POST['character_id'])) {
     error_log("Invalid POST data: " . print_r($_POST, true));
-    header("Location: /Sahtout/pages/shop.php?category=All&status=error");
+    header("Location: /Sahtout/shop?category=All&status=error");
     exit;
 }
 
@@ -32,7 +33,7 @@ error_log("Buy Item Form Submitted: Item ID: $item_id, Character GUID: $characte
 // Verify database connections
 if ($site_db->connect_error || $char_db->connect_error || $world_db->connect_error) {
     error_log("Database connection failed: Site DB: {$site_db->connect_error}, Char DB: {$char_db->connect_error}, World DB: {$world_db->connect_error}");
-    header("Location: /Sahtout/pages/shop.php?category=All&status=Database%20query%20error");
+    header("Location: /Sahtout/shop?category=All&status=Database%20query%20error");
     exit;
 }
 
@@ -275,7 +276,7 @@ try {
     error_log("Transaction Committed");
 
     // Redirect to success
-    header("Location: /Sahtout/pages/shop.php?category=All&status=success");
+    header("Location: /Sahtout/shop?category=All&status=success");
     exit;
 
 } catch (Exception $e) {
@@ -286,7 +287,7 @@ try {
     error_log("Purchase Error: $error, Item ID: $item_id, Character GUID: $character_guid, User ID: $account_id");
     $status = in_array($error, ['out_of_stock', 'insufficient_funds', 'character_not_found', 'Database query error', 'Gold amount too large', 'Total money exceeds limit', 'character_online', 'level_too_high']) ? $error : 'error';
     error_log("Redirecting to shop with status: $status");
-    header("Location: /Sahtout/pages/shop.php?category=All&status=$status");
+    header("Location: /Sahtout/shop?category=All&status=$status");
     exit;
 }
 ?>

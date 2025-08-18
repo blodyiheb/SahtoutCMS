@@ -1,0 +1,8 @@
+/* Full-page layout */
+
+       body.resend {
+    background: url('/sahtout/img/backgrounds/bg-resend.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'UnifrakturCook', 'Arial', sans-serif;
+}
+

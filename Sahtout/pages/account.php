@@ -190,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle character teleport
     if (isset($_POST['teleport_character'])) {
         $guid = filter_var($_POST['guid'], FILTER_VALIDATE_INT);
-        $destination = filter_var($_POST['destination'], FILTER_SANITIZE_STRING);
+        $destination = filter_var($_POST['destination']);
         
         try {
             if (!$guid) {
@@ -820,7 +820,7 @@ function getFactionIcon($race) {
                                         <p><strong>Email:</strong> <?php echo htmlspecialchars($accountInfo['email'] ?? 'Not set'); ?></p>
                                         <p><strong class="text-warning">Expansion:</strong> <?php echo htmlspecialchars($accountInfo['expansion'] ?? 2) == 2 ? 'Wrath of the Lich King' : ($accountInfo['expansion'] == 1 ? 'The Burning Crusade' : 'Classic'); ?></p>
                                         <?php if ($role === 'admin' || $role === 'moderator' || $gmlevel > 0): ?>
-                                            <a href="/Sahtout/admin/" class="btn btn-account mt-3">Admin Panel</a>
+                                            <a href="/Sahtout/admin/dashboard" class="btn btn-account mt-3">Admin Panel</a>
                                         <?php endif; ?>
                                     </div>
                                 </div>

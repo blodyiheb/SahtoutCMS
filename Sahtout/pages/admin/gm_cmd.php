@@ -1,185 +1,147 @@
 <?php
 define('ALLOWED_ACCESS', true);
 require_once '../../includes/session.php';
-
 // Restrict access to admin or moderator roles
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'moderator'])) {
     header('Location: /sahtout/login');
     exit;
 }
+$page_class = 'gm_cmd';
+include dirname(__DIR__) . '../../includes/header.php';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $command = trim($_POST['command']);
 
-$page_class ='gm_cmd';
+    if (!empty($command)) {
+        $url = "http://127.0.0.1:7878"; // SOAP port (from AzerothCore config)
+        $username = "topadmin"; // your SOAP account
+        $password = "123456";   // your SOAP password
 
-// CSRF token generation
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+        $xml = '<?xml version="1.0" encoding="utf-8"?>'
+            . '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">'
+            . '<SOAP-ENV:Body>'
+            . '<ns1:executeCommand xmlns:ns1="urn:AC">'
+            . '<command>' . htmlspecialchars($command, ENT_QUOTES) . '</command>'
+            . '</ns1:executeCommand>'
+            . '</SOAP-ENV:Body>'
+            . '</SOAP-ENV:Envelope>';
 
-// SOAP configuration
-$soap_url = 'http://127.0.0.1:7878';
-$soap_user = 'topadmin'; // Replace with secure username in production
-$soap_pass = '123456';   // Replace with secure password in production
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERPWD, "$username:$password");
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: text/xml",
+            "Content-Length: " . strlen($xml)
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
 
-// Process form submission
-$result = null;
-$error = null;
-$success = false;
-$show_help = false;
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['command'], $_POST['csrf_token'])) {
-    // Verify CSRF token
-    if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        $error = 'Invalid CSRF token.';
-    } else {
-        $command = trim($_POST['command']);
-        if (!empty($command)) {
-            // Build SOAP XML
-            $xml = '
-            <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-               <SOAP-ENV:Body>
-                  <ns1:executeCommand xmlns:ns1="urn:AC">
-                     <command>' . htmlspecialchars($command, ENT_QUOTES, 'UTF-8') . '</command>
-                  </ns1:executeCommand>
-               </SOAP-ENV:Body>
-            </SOAP-ENV:Envelope>';
-
-            // Send via cURL
-            $ch = curl_init();
-            curl_setopt_array($ch, [
-                CURLOPT_URL => $soap_url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: text/xml',
-                    'Authorization: Basic ' . base64_encode("$soap_user:$soap_pass")
-                ],
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => $xml
-            ]);
-
-            $response = curl_exec($ch);
-            $curl_error = curl_error($ch);
-            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            // Parse response
-            if ($response) {
-                $xmlResponse = simplexml_load_string($response);
-                
-                // Check if it's a SOAP fault (incomplete command response)
-                if (isset($xmlResponse->Body->Fault)) {
-                    $fault_string = (string)$xmlResponse->Body->Fault->faultstring;
-                    $detail = (string)$xmlResponse->Body->Fault->detail;
-                    
-                    // Clean up the help text
-                    $help_text = str_replace("### USAGE:", "<strong>Usage:</strong>", $detail);
-                    $help_text = str_replace("Possible subcommands:", "<strong>Possible subcommands:</strong>", $help_text);
-                    $help_text = nl2br(htmlspecialchars($help_text));
-                    
-                    $result = $help_text;
-                    $show_help = true;
-                } else {
-                    // Normal successful response
-                    $result = $xmlResponse ? ($xmlResponse->xpath('//result')[0] ?? 'Command executed successfully (no output).') : $response;
-                    $success = true;
-                }
-            } else {
-                $error = $curl_error ?: "HTTP Error: $http_code";
-                // Log error
-                $log_message = "[" . date('Y-m-d H:i:s') . "] Error: $error\nRequest: " . htmlentities($xml) . "\nResponse: " . ($response ?: 'None') . "\n";
-                file_put_contents('../logs/soap_errors.log', $log_message, FILE_APPEND);
-            }
+        $response = curl_exec($ch);
+        if (curl_errno($ch)) {
+            $result = "cURL Error: " . curl_error($ch);
         } else {
-            $error = 'Command cannot be empty.';
+            $result = htmlspecialchars($response);
         }
-        // Regenerate CSRF token
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        curl_close($ch);
+    } else {
+        $result = "No command entered.";
     }
 }
-
-include dirname(__DIR__) . '../../includes/header.php';
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Game Master Commands for Sahtout WoW Server">
-    <meta name="robots" content="noindex">
-    <title>GM Commands</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/sahtout/assets/css/footer.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>SOAP Command Executor</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; }
-        .wrapper { display: flex; flex-direction: column; min-height: 100vh; }
-        .content-wrapper { flex: 1 0 auto; }
-        .gm-content { max-width: 800px; }
-        .gm-content textarea { width: 100%; height: 100px; }
-        .gm-content pre { background: #f5f5f5; padding: 10px; border-radius: 5px; }
-        .gm-content pre.error { color: red; }
-        .gm-content .command-help { 
-            background: #e7f1ff; 
-            padding: 15px; 
-            border-radius: 5px; 
-            border-left: 4px solid #0d6efd;
-            margin-bottom: 20px;
+        body {
+            font-family: Arial, sans-serif;
+            color: #eee;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        footer { flex-shrink: 0; }
+        .sidebar {
+            width: 250px;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+        pre {
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #eee;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .admin-sidebar-nav .nav-link {
+            color: #333;
+            border-radius: 4px;
+            margin-bottom: 0.25rem;
+        }
+        .admin-sidebar-nav .nav-link:hover,
+        .admin-sidebar-nav .nav-link.active {
+            color: #fff;
+        }
+        .admin-sidebar-nav .nav-link.active {
+            background: #0d6efd;
+        }
+        .admin-sidebar-nav .nav-link.text-danger:hover {
+            background: #dc3545;
+            color: #fff !important;
+        }
     </style>
 </head>
 <body>
-    <div class="wrapper">
-        <div class="content-wrapper">
-            <div class="row w-100">
-                <?php include dirname(__DIR__) . '../../includes/admin_sidebar.php'; ?>
-                <div class="col-md-9 gm-content">
-                    <h1><i class="fas fa-terminal me-2"></i>SOAP Command Executor</h1>
-                    <form method="POST" class="mb-4">
-                        <div class="mb-3">
-                            <label for="command" class="form-label">GM Command:</label>
-                            <textarea name="command" id="command" class="form-control" placeholder=".server info" required><?php if (isset($_POST['command'])) echo htmlspecialchars($_POST['command'], ENT_QUOTES, 'UTF-8'); ?></textarea>
-                            <div class="form-text">Enter commands like .kick playername, .server info, or .character rename playername.</div>
-                        </div>
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-play me-2"></i>Execute</button>
-                    </form>
-
-                    <?php if ($show_help): ?>
-                        <div class="alert alert-info" role="alert">
-                            <i class="fas fa-info-circle me-2"></i>Command help displayed below
-                        </div>
-                        <div class="command-help">
-                            <?php echo $result; ?>
-                        </div>
-                    <?php elseif ($success): ?>
-                        <div class="alert alert-success" role="alert">
-                            <i class="fas fa-check-circle me-2"></i>Command executed successfully.
-                        </div>
-                        <h2>Result:</h2>
-                        <pre><?php echo htmlspecialchars($result, ENT_QUOTES, 'UTF-8'); ?></pre>
-                    <?php elseif (isset($error)): ?>
-                        <div class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-circle me-2"></i>Error occurred
-                        </div>
-                        <h2>Error:</h2>
-                        <pre class="error"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></pre>
-                    <?php endif; ?>
-
-                    <h3>Command Examples:</h3>
-                    <ul>
-                        <li><code>.character level [$playername] [#level]</code> (character level sahtout 80)</li>
-                        <li><code>.send money #playername "#subject" "#text" #money</code> (send money sahtout admin test 10000)=1 gold</li>
-                        <li><code>.teleport name [#playername] #location</code> (teleport name sors gmisland)</li>
-                        <li><code>.server info</code> (Show server status)</li>
-                        <li><code>.account set gmlevel AccountName 3 -1</code> (Make account GM)</li>
-                        <li><code>.character rename [$name] [reserveName] [$newName]</code> (character rename sahtout blody)</li>
-                    </ul>
+    <div class="d-flex flex-grow-1">
+        <!-- Sidebar/Navbar -->
+        <?php include dirname(__DIR__) . '../../includes/admin_sidebar.php'; ?>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 form-container">
+                        <h1 class="text-center mb-4">Execute SOAP Command</h1>
+                        
+                        <form method="post" class="mb-4">
+                            <div class="input-group">
+                                <input type="text" name="command"  style="color: #000000ff;background:#eee" placeholder=".character name level 80" required>
+                                <button type="submit" class="btn btn-primary">Run</button>
+                            </div>
+                        </form>
+                        
+                        <?php if (isset($result)): ?>
+                            <div class="card bg-dark border-secondary">
+                                <div class="card-header">
+                                    <h2 class="h5 mb-0">Response:</h2>
+                                </div>
+                                <div class="card-body p-0">
+                                    <pre class="m-0 p-3"><?= $result ?></pre>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
-        <?php include dirname(__DIR__) . '../../includes/footer.php'; ?>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Footer -->
+    <?php include dirname(__DIR__) . '../../includes/footer.php'; ?>
+    
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
