@@ -1,13 +1,16 @@
 <?php
 define('ALLOWED_ACCESS', true);
 require_once '../../includes/session.php';
+
 // Restrict access to admin or moderator roles
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'moderator'])) {
     header('Location: /sahtout/login');
     exit;
 }
+
 $page_class = 'gm_cmd';
 include dirname(__DIR__) . '../../includes/header.php';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $command = trim($_POST['command']);
 
@@ -50,11 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SOAP Command Executor</title>
+    
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -63,26 +70,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: flex;
             flex-direction: column;
         }
+        .d-flex { flex-wrap: wrap; } /* Ensure flex wraps on small screens */
+
+        /* Sidebar */
         .sidebar {
             width: 250px;
             background: #f8f9fa;
             min-height: 100vh;
         }
+
+        /* Main content */
         .main-content {
             flex: 1;
             padding: 20px;
         }
+
+        /* Preformatted SOAP response */
         pre {
             padding: 15px;
             border-radius: 5px;
             white-space: pre-wrap;
             word-wrap: break-word;
             color: #eee;
+            overflow-x: auto; /* Scroll horizontally if needed */
         }
+
         .form-container {
             max-width: 600px;
             margin: 0 auto;
         }
+
+        /* Sidebar links */
         .admin-sidebar-nav .nav-link {
             color: #333;
             border-radius: 4px;
@@ -99,13 +117,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: #dc3545;
             color: #fff !important;
         }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                min-height: auto;
+            }
+            .main-content {
+                padding: 10px;
+            }
+            .form-container {
+                max-width: 100%;
+                margin: 0 5px;
+            }
+            input[type="text"] {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="d-flex flex-grow-1">
         <!-- Sidebar/Navbar -->
         <?php include dirname(__DIR__) . '../../includes/admin_sidebar.php'; ?>
-        
+
         <!-- Main Content -->
         <div class="main-content">
             <div class="container-fluid">
@@ -115,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         <form method="post" class="mb-4">
                             <div class="input-group">
-                                <input type="text" name="command"  style="color: #000000ff;background:#eee" placeholder=".character name level 80" required>
+                                <input type="text" name="command" style="color: #000000ff; background:#eee" placeholder=".character name level 80" required>
                                 <button type="submit" class="btn btn-primary">Run</button>
                             </div>
                         </form>
@@ -135,10 +172,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
-    
+
     <!-- Footer -->
     <?php include dirname(__DIR__) . '../../includes/footer.php'; ?>
-    
+
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
