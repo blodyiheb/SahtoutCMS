@@ -11,8 +11,6 @@ include '../includes/item_tooltip.php';
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Character Equipment</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <?php include_once '../includes/arenanavbar.php'; ?>
     <style>
         .nav-container {
             border: 2px double #056602ff;
@@ -382,11 +380,18 @@ include '../includes/item_tooltip.php';
             margin-left: auto;
             margin-right: auto;
         }
+         @media (max-width: 900px) {
+            .character-container {
+                max-width: 100%;
+                margin: auto;
+                padding: 4px;
+                min-height: unset;
+            }
+        }
         @media (max-width: 768px) {
             .character-container {
                 max-width: 100%;
-                margin-left: 0;
-                margin-right: auto;
+               margin: auto;
                 padding: 4px;
                 min-height: unset;
             }
