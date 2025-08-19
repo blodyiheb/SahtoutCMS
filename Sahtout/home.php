@@ -394,9 +394,10 @@ $result = $site_db->query($query);
         /* Realm Status */
         .server-status {
             position: fixed;
-            top: 150px;
+            top: 125px;
             right: 15px;
             width: 300px;
+            height: 500px;
             background: rgba(0, 0, 0, 0.7);
             border: 2px solid #ffd700;
             border-radius: 10px;
