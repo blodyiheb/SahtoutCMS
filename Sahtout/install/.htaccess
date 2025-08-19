@@ -1,0 +1,9 @@
+# Enable URL rewriting
+RewriteEngine On
+
+# Only rewrite if the requested file or folder doesn't exist
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rewrite URLs to add .php automatically
+RewriteRule ^([a-zA-Z0-9_-]+)/?$ $1.php [L]

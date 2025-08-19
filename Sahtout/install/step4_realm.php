@@ -172,7 +172,7 @@ input {width:100%; padding:10px; border-radius:6px; border:1px solid #6b4226; ba
         <span class="db-status-icon db-status-success">✔</span>
         <span class="success">Realm configuration saved successfully!</span>
     </div>
-    <a href="step5_mail.php" class="btn">Proceed to Email Setup ➡️</a>
+    <a href="step5_mail" class="btn">Proceed to Email Setup ➡️</a>
 <?php endif; ?>
 
 <?php if (!$success): ?>

@@ -83,7 +83,7 @@ input {width:100%; padding:10px; border-radius:6px; border:1px solid #6b4226; ba
     <?php elseif ($success): ?>
         <p class="success">✔ SOAP configuration saved! GM account verified.</p>
         <p>Make sure its gm</p>
-        <a href="finish.php" class="btn">Proceed to Finish Installation ➡️</a>
+        <a href="finish" class="btn">Proceed to Finish Installation ➡️</a>
     <?php else: ?>
        <form method="post">
            <div class="section-title">SOAP Configuration</div>

@@ -84,7 +84,7 @@ include __DIR__ . '/header.inc.php';
                 While I’ve tried to make it look and feel professional, it’s not a team project, 
                 and some bugs may still exist. Enjoy exploring and give feedback if you find issues!
             </p>
-            <a href="step2_check.php" class="btn">Begin Installation</a>
+            <a href="step2_check" class="btn">Begin Installation</a>
         </div>
     </main>
 

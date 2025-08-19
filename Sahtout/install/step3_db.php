@@ -194,7 +194,7 @@ input {width:100%; padding:10px; border-radius:6px; border:1px solid #6b4226; ba
         <span class="db-status-icon db-status-success">✔</span>
         <span class="success">All databases connected successfully! Config and reCAPTCHA files created.</span>
     </div>
-    <a href="step4_realm.php" class="btn">Proceed to Step 4 Realm configuration ➡️</a>
+    <a href="step4_realm" class="btn">Proceed to Step 4 Realm configuration ➡️</a>
 <?php endif; ?>
 
 <?php if(!$success): ?>

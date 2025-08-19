@@ -138,7 +138,7 @@ function toggleHelp() {
     </div>
 
     <?php if ($allRequiredPass): ?>
-        <a href="step3_db.php" class="btn">Proceed to Database Setup ➡️</a>
+        <a href="step3_db" class="btn">Proceed to Database Setup ➡️</a>
     <?php else: ?>
         <p class="fail">❌ Some required checks failed. Fix them before continuing.</p>
     <?php endif; ?>

@@ -112,7 +112,7 @@ function toggleHelper(el){
         <p class="error"><?= htmlspecialchars($error) ?></p>
     <?php elseif ($success): ?>
         <p class="success">✔ Email configuration saved! Test email sent successfully.</p>
-        <a href="step6_soap.php" class="btn">Proceed to Soap Configuration ➡️</a>
+        <a href="step6_soap" class="btn">Proceed to Soap Configuration ➡️</a>
     <?php else: ?>
        <form method="post">
            <div class="section-title">SMTP Configuration</div>
