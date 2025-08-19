@@ -48,7 +48,7 @@ SahtoutCMS is a World of Warcraft website for AzerothCore WOLTK 3.3.5 (with SRP6
 1. Download SahtoutCMS
 2. Copie sahtout folder From SahtoutCMS to htdocs if you are using xampp
 3. Run the Sahtoutsite Sql First then the other sqls
-4. Run the installer to set up database,recaptcha,realmstatus,mail,soap(create account from your database gm level 3 -1). configuration.
+4. Run the installer to set up database,recaptcha,realmstatus,mail,soap(create account from your database gm level 3 -1). configuration.(url:http://localhost/Sahtout/install/)
 5. Remove the installer Folder if you completed everything
 6. Log in as admin and start managing your server.
 
