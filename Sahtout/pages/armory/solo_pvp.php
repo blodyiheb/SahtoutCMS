@@ -4,10 +4,12 @@ require_once '../../includes/session.php';
 $page_class = "armory";
 require_once '../../includes/header.php';
 
-// Query top 50 characters sorted by level and PvP kills
+// Query top 50 characters sorted by level and PvP kills, including guild name
 $sql = "
-SELECT c.guid, c.name, c.race, c.class, c.level, c.gender, c.totalKills
+SELECT c.guid, c.name, c.race, c.class, c.level, c.gender, c.totalKills, g.name AS guild_name
 FROM characters c
+LEFT JOIN guild_member gm ON c.guid = gm.guid
+LEFT JOIN guild g ON gm.guildid = g.guildid
 ORDER BY c.level DESC, c.totalKills DESC
 LIMIT 50
 ";
@@ -25,6 +27,7 @@ while ($row = $result->fetch_assoc()) {
         'gender' => $row['gender'],
         'level' => $row['level'],
         'kills' => $row['totalKills'],
+        'guild_name' => $row['guild_name'] ?? 'No Guild' // Default to 'No Guild' if null
     ];
 }
 
@@ -153,6 +156,7 @@ function classIcon($class) {
                         <tr>
                             <th class="tw-py-3 tw-px-6">Rank</th>
                             <th class="tw-py-3 tw-px-6">Name</th>
+                            <th class="tw-py-3 tw-px-6">Guild</th>
                             <th class="tw-py-3 tw-px-6">Faction</th>
                             <th class="tw-py-3 tw-px-6">Race</th>
                             <th class="tw-py-3 tw-px-6">Class</th>
@@ -163,7 +167,7 @@ function classIcon($class) {
                     <tbody>
                         <?php if (count($players) == 0): ?>
                             <tr>
-                                <td colspan="7" class="tw-py-3 tw-px-6 tw-text-lg tw-text-amber-400">No players found.</td>
+                                <td colspan="8" class="tw-py-3 tw-px-6 tw-text-lg tw-text-amber-400">No players found.</td>
                             </tr>
                         <?php else: ?>
                             <?php
@@ -174,6 +178,7 @@ function classIcon($class) {
                                 echo "<tr class='{$rowClass} tw-transition tw-duration-200' onclick=\"window.location='/sahtout/character?guid={$p['guid']}';\"'>
                                     <td class='tw-py-3 tw-px-6'>{$rank}</td>
                                     <td class='tw-py-3 tw-px-6'><a href='/sahtout/character?guid={$p['guid']}' class='tw-text-white tw-no-underline hover:tw-underline'>" . htmlspecialchars($p['name']) . "</a></td>
+                                    <td class='tw-py-3 tw-px-6'>" . htmlspecialchars($p['guild_name']) . "</td>
                                     <td class='tw-py-3 tw-px-6'>
                                         <img src='" . factionIcon($p['race']) . "' alt='Faction' class='tw-inline-block tw-w-6 tw-h-6 tw-rounded'>
                                     </td>

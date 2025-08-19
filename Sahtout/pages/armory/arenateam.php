@@ -122,7 +122,16 @@ $orderedMembers = array_merge($orderedMembers, $members);
 <html>
 <head>
     <title>WoW Armory - Arena Team Details</title>
+    <!-- Load Tailwind CSS with a custom configuration -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            prefix: 'tw-', // Prefix all Tailwind classes
+            corePlugins: {
+                preflight: false // Disable Tailwind's reset
+            }
+        }
+    </script>
     <style>
         html, body {
             height: 100%;
@@ -131,11 +140,16 @@ $orderedMembers = array_merge($orderedMembers, $members);
             display: flex;
             flex-direction: column;
         }
-        .main-content {
+        .arena-content {
             flex: 1 0 auto;
             min-height: calc(100vh - 200px); /* Adjust based on header/footer height */
+            margin-top: 120px; /* Increased for dropdown clearance */
+            overflow: visible !important;
         }
-        .table-container {
+        .arena-content .tw-container {
+            overflow: visible !important;
+        }
+        .arena-content .table-container {
             scrollbar-width: thin;
             scrollbar-color: #ffcc00 #1f2937;
             font-family: 'Arial', sans-serif;
@@ -144,44 +158,44 @@ $orderedMembers = array_merge($orderedMembers, $members);
             border-bottom: 1px solid #ffffff;
             box-shadow: 0 0 10px rgba(252, 211, 77, 0.5);
         }
-        .table-container::-webkit-scrollbar {
+        .arena-content .table-container::-webkit-scrollbar {
             width: 8px;
         }
-        .table-container::-webkit-scrollbar-track {
+        .arena-content .table-container::-webkit-scrollbar-track {
             background: #1f2937;
         }
-        .table-container::-webkit-scrollbar-thumb {
+        .arena-content .table-container::-webkit-scrollbar-thumb {
             background: #ffcc00;
             border-radius: 4px;
         }
-        tr {
+        .arena-content tr {
             cursor: pointer;
         }
-        tr:not(.captain-row):hover {
+        .arena-content tr:not(.captain-row):hover {
             background-color: #0078c9; /* Matches navbar hover */
             transition: background-color 0.2s ease-in-out;
         }
-        tr.captain-row {
+        .arena-content tr.captain-row {
             background: linear-gradient(to right, #fcd34d, #d97706);
         }
-        tr.captain-row:hover {
+        .arena-content tr.captain-row:hover {
             filter: brightness(1.2);
             transition: filter 0.2s ease-in-out;
         }
-        .arena-icon, .leader-icon {
+        .arena-content .arena-icon, .arena-content .leader-icon {
             width: 24px;
             height: 24px;
             vertical-align: middle;
             margin-right: 4px;
         }
-        .team-header {
+        .arena-content .team-header {
             background: linear-gradient(to right, #4338ca, #1e1b4b);
             border: 2px double #fcd34d;
             border-top: 1px solid #ffffff;
             border-bottom: 1px solid #ffffff;
             text-shadow: 0 0 8px rgba(252, 211, 77, 0.8);
         }
-        .summary-container {
+        .arena-content .summary-container {
             background: linear-gradient(to right, #4338ca, #1e1b4b);
             border: 2px double #fcd34d;
             border-top: 1px solid #ffffff;
@@ -189,135 +203,147 @@ $orderedMembers = array_merge($orderedMembers, $members);
             box-shadow: 0 0 10px rgba(252, 211, 77, 0.5);
             transition: all 0.3s ease-in-out;
         }
-        .summary-container:hover {
+        .arena-content .summary-container:hover {
             border-color: #4dd0e1;
             transform: scale(1.02);
         }
-        .summary-item-2v2 {
+        .arena-content .summary-item-2v2 {
             background: linear-gradient(to right, #dc2626, #7f1d1d);
         }
-        .summary-item-3v3 {
+        .arena-content .summary-item-3v3 {
             background: linear-gradient(to right, #15803d, #064e3b);
         }
-        .summary-item-5v5 {
+        .arena-content .summary-item-5v5 {
             background: linear-gradient(to right, #1e40af, #1e1b4b);
         }
-        .summary-item-default {
+        .arena-content .summary-item-default {
             background: linear-gradient(to right, #4338ca, #1e1b4b);
         }
-        .summary-item {
+        .arena-content .summary-item {
             box-shadow: 0 0 5px rgba(252, 211, 77, 0.3);
             transition: filter 0.2s ease-in-out;
         }
-        .summary-item:hover {
+        .arena-content .summary-item:hover {
             filter: brightness(1.2);
         }
-        .summary-value {
+        .arena-content .summary-value {
             text-shadow: 0 0 5px rgba(252, 211, 77, 0.6);
+        }
+
+        /* Scope nav-container override to arena-nav-wrapper */
+        .arena-nav-wrapper .nav-container {
+            border: 2px double #4338ca;
+            margin-top: 20px;
+        }
+        .arena-content a {
+            color: #ffffff;
+            text-decoration: none;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white">
-<div class="main-content">
-    <div class="container max-w-6xl mx-auto ml-0 mr-auto sm:mx-auto px-2 py-4 sm:px-4 sm:py-8">
-        <?php if (!$team): ?>
-            <div class="text-center text-base sm:text-lg text-amber-400 bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg max-w-6xl mx-auto">
-                No arena team found.
-            </div>
-        <?php else: ?>
-            <h1 class="team-header text-[2rem] sm:text-[2.5rem] font-bold text-center text-gold-300 mb-6 p-2 sm:p-4 rounded-xl max-w-6xl mx-auto">
-                <img src="/Sahtout/img/armory/arena.webp" alt="Arena Team" title="Arena Team" class="arena-icon inline-block">
-                <?php echo htmlspecialchars($team['team_name']); ?> - <?php echo getTeamTypeName($team['type']); ?> Arena Team
-            </h1>
+<body class="tw-bg-gray-900 tw-text-white">
+    <div class="arena-content">
+        <div class="tw-container tw-max-w-6xl tw-mx-auto tw-ml-0 tw-mr-auto sm:tw-mx-auto tw-px-2 tw-py-4 sm:tw-px-4 sm:tw-py-8">
+            <?php if (!$team): ?>
+                <div class="tw-text-center tw-text-base sm:tw-text-lg tw-text-amber-400 tw-bg-gray-800 tw-p-4 sm:tw-p-6 tw-rounded-lg tw-shadow-lg tw-max-w-6xl tw-mx-auto">
+                    No arena team found.
+                </div>
+            <?php else: ?>
+                <h1 class="team-header tw-text-[2rem] sm:tw-text-[2.5rem] tw-font-bold tw-text-center tw-text-gold-300 tw-mb-6 tw-p-2 sm:tw-p-4 tw-rounded-xl tw-max-w-6xl tw-mx-auto">
+                    <img src="/Sahtout/img/armory/arena.webp" alt="Arena Team" title="Arena Team" class="arena-icon inline-block">
+                    <?php echo htmlspecialchars($team['team_name']); ?> - <?php echo getTeamTypeName($team['type']); ?> Arena Team
+                </h1>
 
-            <?php include_once '../../includes/arenanavbar.php'; ?>
+                <div class="arena-nav-wrapper">
+                    <?php include_once '../../includes/arenanavbar.php'; ?>
+                </div>
 
-            <!-- Team Summary -->
-            <div class="summary-container p-4 sm:p-6 rounded-lg shadow-lg mb-8 max-w-6xl mx-auto">
-                <h2 class="text-xl sm:text-2xl font-bold text-amber-400 mb-4">Team Summary</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                    <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> p-2 sm:p-3 rounded-lg">
-                        <p class="text-base sm:text-lg text-gray-300">Rating</p>
-                        <p class="text-lg sm:text-xl font-semibold text-gold-300 summary-value"><?php echo $team['rating']; ?></p>
-                    </div>
-                    <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> p-2 sm:p-3 rounded-lg">
-                        <p class="text-base sm:text-lg text-gray-300">Winrate</p>
-                        <p class="text-lg sm:text-xl font-semibold text-gold-300 summary-value"><?php echo $team['winrate']; ?>%</p>
-                    </div>
-                    <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> p-2 sm:p-3 rounded-lg">
-                        <p class="text-base sm:text-lg text-gray-300">Season Games</p>
-                        <p class="text-lg sm:text-xl font-semibold text-gold-300 summary-value"><?php echo $team['seasonGames']; ?></p>
-                    </div>
-                    <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> p-2 sm:p-3 rounded-lg">
-                        <p class="text-base sm:text-lg text-gray-300">Season Wins</p>
-                        <p class="text-lg sm:text-xl font-semibold text-gold-300 summary-value"><?php echo $team['seasonWins']; ?></p>
-                    </div>
-                    <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> p-2 sm:p-3 rounded-lg">
-                        <p class="text-base sm:text-lg text-gray-300">Season Losses</p>
-                        <p class="text-lg sm:text-xl font-semibold text-gold-300 summary-value"><?php echo $team['seasonLosses']; ?></p>
-                    </div>
-                    <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> p-2 sm:p-3 rounded-lg">
-                        <p class="text-base sm:text-lg text-gray-300">Week Games</p>
-                        <p class="text-lg sm:text-xl font-semibold text-gold-300 summary-value"><?php echo $team['weekGames'] ?? 'N/A'; ?></p>
-                    </div>
-                    <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> p-2 sm:p-3 rounded-lg">
-                        <p class="text-base sm:text-lg text-gray-300">Week Wins</p>
-                        <p class="text-lg sm:text-xl font-semibold text-gold-300 summary-value"><?php echo $team['weekWins'] ?? 'N/A'; ?></p>
-                    </div>
-                    <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> p-2 sm:p-3 rounded-lg">
-                        <p class="text-base sm:text-lg text-gray-300">Week Losses</p>
-                        <p class="text-lg sm:text-xl font-semibold text-gold-300 summary-value"><?php echo $team['weekLosses'] ?? 'N/A'; ?></p>
+                <!-- Team Summary -->
+                <div class="summary-container tw-p-4 sm:tw-p-6 tw-rounded-lg tw-shadow-lg tw-mb-8 tw-max-w-6xl tw-mx-auto">
+                    <h2 class="tw-text-xl sm:tw-text-2xl tw-font-bold tw-text-amber-400 tw-mb-4">Team Summary</h2>
+                    <div class="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 tw-gap-4 tw-text-center">
+                        <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Rating</p>
+                            <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['rating']; ?></p>
+                        </div>
+                        <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Winrate</p>
+                            <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['winrate']; ?>%</p>
+                        </div>
+                        <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Season Games</p>
+                            <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['seasonGames']; ?></p>
+                        </div>
+                        <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Season Wins</p>
+                            <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['seasonWins']; ?></p>
+                        </div>
+                        <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Season Losses</p>
+                            <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['seasonLosses']; ?></p>
+                        </div>
+                        <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Week Games</p>
+                            <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['weekGames'] ?? 'N/A'; ?></p>
+                        </div>
+                        <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Week Wins</p>
+                            <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['weekWins'] ?? 'N/A'; ?></p>
+                        </div>
+                        <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Week Losses</p>
+                            <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['weekLosses'] ?? 'N/A'; ?></p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Team Members -->
-            <h2 class="text-xl sm:text-2xl font-bold text-amber-400 mb-4 max-w-6xl mx-auto">Team Members</h2>
-            <div class="table-container overflow-x-auto rounded-lg shadow-lg max-w-6xl mx-auto">
-                <table class="w-full text-xs sm:text-sm text-center bg-gray-900/90">
-                    <thead class="text-gold-300 uppercase" style="background: linear-gradient(to right, #4338ca, #1e1b4b);">
-                        <tr>
-                            <th class="py-2 px-4 sm:py-3 sm:px-6">Name</th>
-                            <th class="py-2 px-4 sm:py-3 sm:px-6">Faction</th>
-                            <th class="py-2 px-4 sm:py-3 sm:px-6">Race</th>
-                            <th class="py-2 px-4 sm:py-3 sm:px-6">Class</th>
-                            <th class="py-2 px-4 sm:py-3 sm:px-6">Personal Rating</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (count($orderedMembers) == 0): ?>
+                <!-- Team Members -->
+                <h2 class="tw-text-xl sm:tw-text-2xl tw-font-bold tw-text-amber-400 tw-mb-4 tw-max-w-6xl tw-mx-auto">Team Members</h2>
+                <div class="table-container tw-overflow-x-auto tw-rounded-lg tw-shadow-lg tw-max-w-6xl tw-mx-auto">
+                    <table class="tw-w-full tw-text-xs sm:tw-text-sm tw-text-center tw-bg-gray-900/90">
+                        <thead class="tw-text-gold-300 tw-uppercase" style="background: linear-gradient(to right, #4338ca, #1e1b4b);">
                             <tr>
-                                <td colspan="5" class="py-2 px-4 sm:py-3 sm:px-6 text-base sm:text-lg text-amber-400">No members found.</td>
+                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">Name</th>
+                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">Faction</th>
+                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">Race</th>
+                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">Class</th>
+                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">Personal Rating</th>
                             </tr>
-                        <?php else: ?>
-                            <?php foreach ($orderedMembers as $member): ?>
-                                <?php $faction = getFaction($member['race']); ?>
-                                <tr class="<?php echo $member['guid'] == $team['captainGuid'] ? 'captain-row' : ''; ?> transition duration-200" onclick="window.location='/sahtout/pages/character.php?guid=<?php echo $member['guid']; ?>';">
-                                    <td class="py-2 px-4 sm:py-3 sm:px-6">
-                                        <?php if ($member['guid'] == $team['captainGuid']): ?>
-                                            <img src="/Sahtout/img/armory/leader.png" alt="Team Captain" title="Team Captain" class="leader-icon inline-block">
-                                        <?php endif; ?>
-                                        <?php echo htmlspecialchars($member['name']); ?>
-                                    </td>
-                                    <td class="py-2 px-4 sm:py-3 sm:px-6">
-                                        <img src="<?php echo factionIconByName($faction); ?>" alt="<?php echo $faction; ?>" title="<?php echo $faction; ?>" class="inline-block w-5 h-5 sm:w-6 sm:h-6 rounded">
-                                    </td>
-                                    <td class="py-2 px-4 sm:py-3 sm:px-6">
-                                        <img src="<?php echo raceIcon($member['race'], $member['gender']); ?>" alt="Race" class="inline-block w-5 h-5 sm:w-6 sm:h-6 rounded">
-                                    </td>
-                                    <td class="py-2 px-4 sm:py-3 sm:px-6">
-                                        <img src="<?php echo classIcon($member['class']); ?>" alt="Class" class="inline-block w-5 h-5 sm:w-6 sm:h-6 rounded">
-                                    </td>
-                                    <td class="py-2 px-4 sm:py-3 sm:px-6"><?php echo $member['personal_rating']; ?></td>
+                        </thead>
+                        <tbody>
+                            <?php if (count($orderedMembers) == 0): ?>
+                                <tr>
+                                    <td colspan="5" class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6 tw-text-base sm:tw-text-lg tw-text-amber-400">No members found.</td>
                                 </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
+                            <?php else: ?>
+                                <?php foreach ($orderedMembers as $member): ?>
+                                    <?php $faction = getFaction($member['race']); ?>
+                                    <tr class="<?php echo $member['guid'] == $team['captainGuid'] ? 'captain-row' : ''; ?> tw-transition tw-duration-200" onclick="window.location='/sahtout/pages/character.php?guid=<?php echo $member['guid']; ?>';">
+                                        <td class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">
+                                            <?php if ($member['guid'] == $team['captainGuid']): ?>
+                                                <img src="/Sahtout/img/armory/leader.png" alt="Team Captain" title="Team Captain" class="leader-icon inline-block">
+                                            <?php endif; ?>
+                                            <?php echo htmlspecialchars($member['name']); ?>
+                                        </td>
+                                        <td class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">
+                                            <img src="<?php echo factionIconByName($faction); ?>" alt="<?php echo $faction; ?>" title="<?php echo $faction; ?>" class="tw-inline-block tw-w-5 tw-h-5 sm:tw-w-6 sm:tw-h-6 tw-rounded">
+                                        </td>
+                                        <td class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">
+                                            <img src="<?php echo raceIcon($member['race'], $member['gender']); ?>" alt="Race" class="tw-inline-block tw-w-5 tw-h-5 sm:tw-w-6 sm:tw-h-6 tw-rounded">
+                                        </td>
+                                        <td class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">
+                                            <img src="<?php echo classIcon($member['class']); ?>" alt="Class" class="tw-inline-block tw-w-5 tw-h-5 sm:tw-w-6 sm:tw-h-6 tw-rounded">
+                                        </td>
+                                        <td class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6"><?php echo $member['personal_rating']; ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
-</div>
-<?php include_once '../../includes/footer.php'; ?>
+    <?php include_once '../../includes/footer.php'; ?>
 </body>
 </html>

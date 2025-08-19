@@ -98,6 +98,10 @@ while ($row = $result->fetch_assoc()) {
             transition: filter 0.2s ease-in-out;
             cursor: url('/Sahtout/img/hover_wow.gif') 16 16, auto;
         }
+        .arena-content a {
+            color: #ffffff;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body class="<?php echo $page_class; ?>">

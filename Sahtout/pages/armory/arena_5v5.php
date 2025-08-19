@@ -104,6 +104,10 @@ while ($row = $result->fetch_assoc()) {
         .arena-nav-wrapper .nav-container {
             border: 2px double #8c1dad;
         }
+        .arena-content a {
+            color: #ffffff;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body class="<?php echo $page_class; ?>">
