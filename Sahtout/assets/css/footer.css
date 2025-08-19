@@ -18,7 +18,7 @@ footer {
 }
 
 .footer-logo-img {
-    height: 60px;
+    width: 120px;
 }
 
 .footer-center {
@@ -121,7 +121,7 @@ footer {
 
 @media (max-width: 480px) {
     .footer-logo-img {
-        height: 50px;
+        height: 70px;
     }
 
     .footer-socials i,
