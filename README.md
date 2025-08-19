@@ -1,7 +1,7 @@
 <div align="center">
   <img width="612" height="408" alt="logo" src="https://github.com/user-attachments/assets/54293d96-03eb-4dda-9f22-e1c013d6053b" />
 </div>
-# SahtoutCMS
+#SahtoutCMS
 
 SahtoutCMS is a World of Warcraft website for AzerothCore WOLTK 3.3.5 (with SRP6 authentication), featuring an installer, dynamic shop & news, account management, admin panel, and armory pages.
 
@@ -45,11 +45,12 @@ SahtoutCMS is a World of Warcraft website for AzerothCore WOLTK 3.3.5 (with SRP6
   
 ## Installation
 
-1. **Upload files** to your web server.
-2. Run the Sahtoutsite Sql First then the other sqls
-3. Run the installer to set up database,recaptcha,realmstatus,mail,soap(create account from your database gm level 3 -1). configuration.
-4. Remove the installer Folder if you completed everything
-5. Log in as admin and start managing your server.
+1. Download SahtoutCMS
+2. Copie sahtout folder From SahtoutCMS to htdocs if you are using xampp
+3. Run the Sahtoutsite Sql First then the other sqls
+4. Run the installer to set up database,recaptcha,realmstatus,mail,soap(create account from your database gm level 3 -1). configuration.
+5. Remove the installer Folder if you completed everything
+6. Log in as admin and start managing your server.
 
 ---
 
@@ -69,6 +70,8 @@ MIT License — see [LICENSE](LICENSE) for details.
 ---
 
 ## Screenshots
+<img width="1917" height="936" alt="image" src="https://github.com/user-attachments/assets/96d0fb22-935f-4ffb-a317-55db039096d7" />
+<img width="569" height="851" alt="image" src="https://github.com/user-attachments/assets/8a16c3c2-f161-4369-b81c-a47732b7c18f" />
 <img width="1903" height="853" alt="image" src="https://github.com/user-attachments/assets/13b6e254-51cf-47fd-813c-cad8aa2e381b" />
 <img width="1900" height="941" alt="image" src="https://github.com/user-attachments/assets/1a4685f8-f3aa-4ab5-aaeb-134a115bdfcb" />
 <img width="946" height="873" alt="image" src="https://github.com/user-attachments/assets/1c236a07-df59-4707-90ec-9b68a6ecae1a" />
