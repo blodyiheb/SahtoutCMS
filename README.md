@@ -8,7 +8,7 @@ SahtoutCMS is a World of Warcraft website for AzerothCore WOLTK 3.3.5 (with SRP6
 ⚡ This project was created for fun and learning, but it’s fully usable if you want to run it on your own server.
 ---
 > ⚠️ **WARNING**  
-> Always **backup your databases (auth, characters, world, and site)** before installing or updating **SahtoutCMS**.
+> Always **backup your databases (auth, characters, world)** before installing **SahtoutCMS**.
 
 ## Features
 
