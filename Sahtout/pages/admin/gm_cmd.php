@@ -152,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         <form method="post" class="mb-4">
                             <div class="input-group">
-                                <input type="text" name="command" style="color: #000000ff; background:#eee" placeholder=".character name level 80" required>
+                                <input type="text" name="command" style="color: #000000ff; background:#eee" placeholder=".character level name 80" required>
                                 <button type="submit" class="btn btn-primary">Run</button>
                             </div>
                         </form>
