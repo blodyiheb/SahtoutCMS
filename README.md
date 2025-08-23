@@ -5,7 +5,7 @@
 
 **Name:** SahtoutCMS
 
-**Author:** blodyiheb
+**Author:** blodyiheb                                                                                                                                                                             
 **Repository:** [GitHub Link](https://github.com/blodyiheb/SahtoutCMS)  
 **Download:** [Download .zip](https://github.com/blodyiheb/SahtoutCMS/archive/refs/heads/main.zip)  
 SahtoutCMS is a World of Warcraft website for AzerothCore WOLTK 3.3.5 (with SRP6 authentication), featuring an installer, dynamic shop & news, account management, admin panel, and armory pages.
