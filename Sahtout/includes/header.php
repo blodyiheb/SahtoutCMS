@@ -120,11 +120,12 @@ if (isset($_SESSION['user_id'])) {
 $current_lang = $_SESSION['lang'] ?? 'en';
 $languages = [
     'en' => ['name' => 'English', 'flag' => $base_path . 'languages/flags/en.png'],
-    'fr' => ['name' => 'French', 'flag' => $base_path . 'languages/flags/fr.png'],
-    'es' => ['name' => 'Spanish', 'flag' => $base_path . 'languages/flags/es.png'],
-    'de' => ['name' => 'German', 'flag' => $base_path . 'languages/flags/de.png'],
-    'ru' => ['name' => 'Russian', 'flag' => $base_path . 'languages/flags/ru.png'],
+    'fr' => ['name' => 'Français', 'flag' => $base_path . 'languages/flags/fr.png'],
+    'es' => ['name' => 'Español', 'flag' => $base_path . 'languages/flags/es.png'],
+    'de' => ['name' => 'Deutsch', 'flag' => $base_path . 'languages/flags/de.png'],
+    'ru' => ['name' => 'Русский', 'flag' => $base_path . 'languages/flags/ru.png'],
 ];
+
 $current_lang_name = $languages[$current_lang]['name'];
 $current_lang_code = $current_lang;
 

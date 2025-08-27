@@ -26,26 +26,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $realmConfig = "<?php
 if (!defined('ALLOWED_ACCESS')) {
     header('HTTP/1.1 403 Forbidden');
-    exit('Direct access to this file is not allowed.');
+    exit(translate('error_direct_access', 'Direct access to this file is not allowed.'));
 }
 
 if (basename(\$_SERVER['PHP_SELF']) == basename(__FILE__)) {
-    exit('Access denied.');
+    exit(translate('error_access_denied', 'Access denied.'));
 }
 
 require_once 'config.php';
+require_once __DIR__ . '/../languages/language.php'; // Include language detection
 
 \$realmlist = [
     [
         'id' => 1,
-        'name' => '" . addslashes($realmName) . "',
+        'name' => translate('realm_sahtout_name', '" . addslashes($realmName) . "'),
         'address' => '" . addslashes($realmIP) . "',
         'port' => $realmPort,
         'logo' => '" . addslashes($defaultLogo) . "'
     ],
     [
         'id' => 2,
-        'name' => 'MySQL database Test',
+        'name' => translate('realm_mysql_test_name', 'MySQL database Test'),
         'address' => '127.0.0.1',
         'port' => 3306,
         'logo' => 'img/logos/realm2_logo.webp'
@@ -77,29 +78,33 @@ function getServerUptime(mysqli \$auth_db, int \$realmId = 1): string {
         \$days = floor(\$uptimeSeconds / 86400);
         \$hours = floor((\$uptimeSeconds % 86400) / 3600);
         \$minutes = floor((\$uptimeSeconds % 3600) / 60);
-        return \"\$days days, \$hours hours, \$minutes minutes\";
+        return sprintf(\"%d %s, %d %s, %d %s\", 
+            \$days, translate('uptime_days', 'days'), 
+            \$hours, translate('uptime_hours', 'hours'), 
+            \$minutes, translate('uptime_minutes', 'minutes')
+        );
     }
-    return \"Unknown\";
+    return translate('uptime_unknown', 'Unknown');
 }
 ?>
 
 <div class=\"server-status\">
-    <h2>" . translate('server_status_title', 'Server Status') . "</h2>
+    <h2><?php echo translate('server_status_title', 'Server Status'); ?></h2>
     <ul>
         <?php foreach (\$realmlist as \$realm): ?>
             <li>
-                <img src=\"<?php echo \$realm['logo']; ?>\" alt=\"Realm Logo\" height=\"40\"><br>
-                <strong><?php echo htmlspecialchars(\$realm['name']); ?>:</strong><br>
+                <img src=\"<?php echo \$realm['logo']; ?>\" alt=\"<?php echo translate('realm_logo_alt', 'Realm Logo'); ?>\" height=\"40\"><br>
+                <strong><?php echo htmlspecialchars(\$realm['name'], ENT_QUOTES, 'UTF-8'); ?>:</strong><br>
                 <?php if (isRealmOnline(\$realm['address'], \$realm['port'])): ?>
-                    <span class=\"online\">🟢 " . translate('status_online', 'Online') . "</span><br>
-                    <span class=\"players\">👥 " . translate('players_online', 'Players Online') . ": <?php echo getOnlinePlayers(\$char_db); ?></span><br>
-                    <span class=\"uptime\">⏱️ " . translate('uptime', 'Uptime') . ": <?php echo getServerUptime(\$auth_db, \$realm['id']); ?></span><br>
+                    <span class=\"online\"><?php echo translate('status_online', '🟢 Online'); ?></span><br>
+                    <span class=\"players\"><?php echo sprintf(translate('players_online', '👥 Players Online: %s'), getOnlinePlayers(\$char_db)); ?></span><br>
+                    <span class=\"uptime\"><?php echo sprintf(translate('uptime', '⏱️ Uptime: %s'), getServerUptime(\$auth_db, \$realm['id'])); ?></span><br>
                 <?php else: ?>
-                    <span class=\"offline\">🔴 " . translate('status_offline', 'Offline') . "</span><br>
-                    <span class=\"players\">👥 " . translate('players_online', 'Players Online') . ": 0</span><br>
-                    <span class=\"uptime\">⏱️ " . translate('uptime', 'Uptime') . ": " . translate('uptime_unknown', 'Unknown') . "</span><br>
+                    <span class=\"offline\"><?php echo translate('status_offline', '🔴 Offline'); ?></span><br>
+                    <span class=\"players\"><?php echo translate('players_online_none', '👥 Players Online: 0'); ?></span><br>
+                    <span class=\"uptime\"><?php echo translate('uptime_none', '⏱️ Uptime: Unknown'); ?></span><br>
                 <?php endif; ?>
-                <span class=\"realm-ip\">🌐 " . translate('realmlist', 'Realmlist') . ": <?php echo htmlspecialchars(\$realm['address']); ?></span>
+                <span class=\"realm-ip\"><?php echo sprintf(translate('realmlist', '🌐 Realmlist: %s'), htmlspecialchars(\$realm['address'], ENT_QUOTES, 'UTF-8')); ?></span>
             </li>
         <?php endforeach; ?>
     </ul>
@@ -108,9 +113,9 @@ function getServerUptime(mysqli \$auth_db, int \$realmId = 1): string {
 
         $configDir = dirname($realmsFile);
         if (!is_writable($configDir)) {
-            $errors[] = "⚠️ " . translate('err_config_dir_not_writable', 'Config directory is not writable:') . " {$configDir}";
+            $errors[] = "⚠️ " . sprintf(translate('err_config_dir_not_writable', 'Config directory is not writable: %s'), $configDir);
         } elseif (file_put_contents($realmsFile, $realmConfig) === false) {
-            $errors[] = "⚠️ " . translate('err_write_realm_config', 'Cannot write realm configuration file:') . " {$realmsFile}";
+            $errors[] = "⚠️ " . sprintf(translate('err_write_realm_config', 'Cannot write realm configuration file: %s'), $realmsFile);
         } else {
             $success = true;
         }
@@ -122,7 +127,7 @@ function getServerUptime(mysqli \$auth_db, int \$realmId = 1): string {
 <html lang="<?= htmlspecialchars($langCode ?? 'en') ?>">
 <head>
     <meta charset="UTF-8">
-    <title><?= translate('installer_title') ?> - <?= translate('step4_title', 'Step 4: Realm Setup') ?></title>
+    <title><?= translate('installer_title', 'Sahtout Installer') ?> - <?= translate('step4_title', 'Step 4: Realm Setup') ?></title>
     <style>
         body {margin:0;padding:0;font-family:'Cinzel', serif;background:#0a0a0a;color:#f0e6d2;}
         .overlay {background: rgba(0,0,0,0.9); inset:0; display:flex; align-items:center; justify-content:center; padding:20px;}
@@ -147,12 +152,12 @@ function getServerUptime(mysqli \$auth_db, int \$realmId = 1): string {
 <body>
 <div class="overlay">
     <div class="container">
-        <h1>⚔️ <?= translate('installer_name') ?></h1>
+        <h1><?= translate('installer_name', '⚔️ Sahtout Installer') ?></h1>
         <h2 class="section-title"><?= translate('step4_title', 'Step 4: Realm Setup') ?></h2>
 
         <?php if (!empty($errors)): ?>
             <div class="error-box">
-                <strong><?= translate('err_fix_errors') ?></strong>
+                <strong><?= translate('err_fix_errors', 'Please fix the following errors:') ?></strong>
                 <?php foreach ($errors as $err): ?>
                     <div class="db-status">
                         <span class="db-status-icon db-status-error">❌</span>
