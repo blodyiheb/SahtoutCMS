@@ -1,0 +1,31 @@
+<?php
+return [
+    'page_title' => 'Créer un compte',
+    'meta_description' => 'Créez un compte pour rejoindre l\'aventure sur notre serveur World of Warcraft !',
+    'register_title' => 'Créer votre compte',
+    'username_placeholder' => 'Nom d\'utilisateur',
+    'email_placeholder' => 'Email',
+    'password_placeholder' => 'Mot de passe',
+    'password_confirm_placeholder' => 'Confirmer le mot de passe',
+    'register_button' => 'S\'inscrire',
+    'login_link_text' => 'Cliquez ici pour vous connecter',
+    'login_link_text_alt' => 'Vous avez déjà un compte ? <a href="/sahtout/login">Connexion</a>',
+    'email_subject' => 'Activez votre compte',
+    'email_greeting' => 'Bienvenue, {username} !',
+    'email_body' => 'Merci de vous être inscrit. Veuillez cliquer sur le bouton ci-dessous pour activer votre compte :',
+    'email_activate_button' => 'Activer le compte',
+    'email_ignore' => 'Si vous ne vous êtes pas inscrit, veuillez ignorer cet email.',
+    'error_recaptcha_empty' => 'Veuillez compléter le CAPTCHA.',
+    'error_recaptcha_failed' => 'La vérification du CAPTCHA a échoué.',
+    'error_username_invalid_length' => 'Le nom d\'utilisateur doit comporter entre 3 et 16 caractères.',
+    'error_username_invalid_chars' => 'Le nom d\'utilisateur ne peut contenir que des lettres et des chiffres.',
+    'error_email_invalid' => 'Adresse email invalide.',
+    'error_password_short' => 'Le mot de passe doit comporter au moins 6 caractères.',
+    'error_password_mismatch' => 'Les mots de passe ne correspondent pas.',
+    'error_account_pending' => 'Un compte avec ce nom d\'utilisateur ou cet email est déjà en attente ou enregistré. Veuillez utiliser un autre nom d\'utilisateur ou email, ou activer votre compte existant.',
+    'error_username_exists' => 'Le nom d\'utilisateur existe déjà. Veuillez choisir un autre nom d\'utilisateur.',
+    'error_email_exists' => 'L\'email est déjà utilisé. Veuillez choisir un autre email.',
+    'error_registration_failed' => 'Échec de l\'enregistrement du compte en attente.',
+    'error_email_failed' => 'Échec de l\'envoi de l\'email d\'activation. Veuillez contacter le support.'
+];
+?>

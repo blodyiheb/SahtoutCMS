@@ -1,7 +1,8 @@
 <?php
 define('ALLOWED_ACCESS', true);
-// Include session and config
+// Include session, language, and config
 require_once __DIR__ . '/../../includes/session.php'; // Includes config.php
+require_once __DIR__ . '/../../languages/language.php'; // Include translation system
 
 $page_class = 'characters';
 
@@ -114,9 +115,9 @@ $predefined_locations = [
 $update_message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'manage_character') {
     if (!isset($_POST['csrf_token'])) {
-        $update_message = '<div class="alert alert-danger">CSRF token is missing.</div>';
+        $update_message = '<div class="alert alert-danger">' . translate('admin_chars_csrf_missing', 'CSRF token is missing.') . '</div>';
     } elseif ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        $update_message = '<div class="alert alert-danger">CSRF token validation failed.</div>';
+        $update_message = '<div class="alert alert-danger">' . translate('admin_chars_csrf_error', 'CSRF token validation failed.') . '</div>';
     } else {
         $guid = (int)$_POST['guid'];
         $char_action = $_POST['char_action'] ?? '';
@@ -130,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $stmt->close();
 
         if (!$char) {
-            $update_message = '<div class="alert alert-danger">Character not found.</div>';
+            $update_message = '<div class="alert alert-danger">' . translate('admin_chars_not_found', 'Character not found.') . '</div>';
         } else {
             $char_name = $char['name'];
 
@@ -143,16 +144,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         $stmt->bind_param("ii", $gold_in_copper, $guid);
                         if ($stmt->execute()) {
                             $success = true;
-                            $update_message = '<div class="alert alert-success">Added ' . $gold . ' gold to ' . htmlspecialchars($char_name) . ' successfully.</div>';
+                            $update_message = '<div class="alert alert-success">' . sprintf(translate('admin_chars_add_gold_success', 'Added %d gold to %s successfully.'), $gold, htmlspecialchars($char_name)) . '</div>';
                         } else {
-                            $update_message = '<div class="alert alert-danger">Failed to add gold to ' . htmlspecialchars($char_name) . '.</div>';
+                            $update_message = '<div class="alert alert-danger">' . sprintf(translate('admin_chars_add_gold_failed', 'Failed to add gold to %s.'), htmlspecialchars($char_name)) . '</div>';
                         }
                         $stmt->close();
                     } else {
-                        $update_message = '<div class="alert alert-danger">Gold amount must be a non-negative number.</div>';
+                        $update_message = '<div class="alert alert-danger">' . translate('admin_chars_gold_negative', 'Gold amount must be a non-negative number.') . '</div>';
                     }
                 } else {
-                    $update_message = '<div class="alert alert-danger">Cannot add gold to ' . htmlspecialchars($char_name) . ': Character is online.</div>';
+                    $update_message = '<div class="alert alert-danger">' . sprintf(translate('admin_chars_gold_online', 'Cannot add gold to %s: Character is online.'), htmlspecialchars($char_name)) . '</div>';
                 }
             } elseif ($char_action === 'change_level') {
                 $level = isset($_POST['level']) ? (int)$_POST['level'] : 0;
@@ -161,13 +162,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     $stmt->bind_param("ii", $level, $guid);
                     if ($stmt->execute()) {
                         $success = true;
-                        $update_message = '<div class="alert alert-success">Level changed to ' . $level . ' for ' . htmlspecialchars($char_name) . ' successfully.</div>';
+                        $update_message = '<div class="alert alert-success">' . sprintf(translate('admin_chars_level_success', 'Level changed to %d for %s successfully.'), $level, htmlspecialchars($char_name)) . '</div>';
                     } else {
-                        $update_message = '<div class="alert alert-danger">Failed to change level for ' . htmlspecialchars($char_name) . '.</div>';
+                        $update_message = '<div class="alert alert-danger">' . sprintf(translate('admin_chars_level_failed', 'Failed to change level for %s.'), htmlspecialchars($char_name)) . '</div>';
                     }
                     $stmt->close();
                 } else {
-                    $update_message = '<div class="alert alert-danger">Level must be between 1 and 255.</div>';
+                    $update_message = '<div class="alert alert-danger">' . translate('admin_chars_level_invalid', 'Level must be between 1 and 255.') . '</div>';
                 }
             } elseif ($char_action === 'teleport') {
                 $map = isset($_POST['map']) ? (int)$_POST['map'] : 0;
@@ -182,13 +183,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     if ($stmt->execute()) {
                         $success = true;
                         $map_name = isset($map_names[$map]) ? $map_names[$map] : $map;
-                        $update_message = '<div class="alert alert-success">Teleported ' . htmlspecialchars($char_name) . ' to ' . htmlspecialchars($map_name) . ' ('.$x.', '.$y.', '.$z.').</div>';
+                        $update_message = '<div class="alert alert-success">' . sprintf(translate('admin_chars_teleport_success', 'Teleported %s to %s (%.2f, %.2f, %.2f).'), htmlspecialchars($char_name), htmlspecialchars($map_name), $x, $y, $z) . '</div>';
                     } else {
-                        $update_message = '<div class="alert alert-danger">Failed to teleport ' . htmlspecialchars($char_name) . '.</div>';
+                        $update_message = '<div class="alert alert-danger">' . sprintf(translate('admin_chars_teleport_failed', 'Failed to teleport %s.'), htmlspecialchars($char_name)) . '</div>';
                     }
                     $stmt->close();
                 } else {
-                    $update_message = '<div class="alert alert-danger">Invalid coordinates. Map must be ≥ 0 and X/Y cannot be 0.</div>';
+                    $update_message = '<div class="alert alert-danger">' . translate('admin_chars_teleport_invalid', 'Invalid coordinates. Map must be ≥ 0 and X/Y cannot be 0.') . '</div>';
                 }
             } elseif ($char_action === 'teleport_directly') {
                 $location = $_POST['predefined_location'] ?? '';
@@ -198,13 +199,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     $stmt->bind_param("iddddi", $loc['map'], $loc['x'], $loc['y'], $loc['z'], $loc['o'], $guid);
                     if ($stmt->execute()) {
                         $success = true;
-                        $update_message = '<div class="alert alert-success">Teleported ' . htmlspecialchars($char_name) . ' to ' . htmlspecialchars($loc['name']) . '.</div>';
+                        $update_message = '<div class="alert alert-success">' . sprintf(translate('admin_chars_teleport_direct_success', 'Teleported %s to %s.'), htmlspecialchars($char_name), htmlspecialchars($loc['name'])) . '</div>';
                     } else {
-                        $update_message = '<div class="alert alert-danger">Failed to teleport ' . htmlspecialchars($char_name) . '.</div>';
+                        $update_message = '<div class="alert alert-danger">' . sprintf(translate('admin_chars_teleport_failed', 'Failed to teleport %s.'), htmlspecialchars($char_name)) . '</div>';
                     }
                     $stmt->close();
                 } else {
-                    $update_message = '<div class="alert alert-danger">Invalid location selected.</div>';
+                    $update_message = '<div class="alert alert-danger">' . translate('admin_chars_location_invalid', 'Invalid location selected.') . '</div>';
                 }
             }
         }
@@ -285,7 +286,7 @@ $params[] = $offset;
 $types .= 'ii';
 $stmt = $char_db->prepare($chars_query);
 if (!$stmt) {
-    $_SESSION['debug_errors'][] = "Failed to prepare query: " . $char_db->error;
+    $_SESSION['debug_errors'][] = translate('admin_chars_db_error', 'Failed to prepare query: ') . $char_db->error;
     header("Location: /Sahtout/pages/login?error=database_error");
     exit();
 }
@@ -395,7 +396,7 @@ function getRaceIcon($race, $gender) {
     $gender_folder = ($gender == 1) ? 'female' : 'male';
     $race_name = $races[$race] ?? 'default';
     $image = $race_name . '.png';
-    return '<img src="/sahtout/img/accountimg/race/' . $gender_folder . '/' . $image . '" alt="Race Icon" class="account-sahtout-icon">';
+    return '<img src="/sahtout/img/accountimg/race/' . $gender_folder . '/' . $image . '" alt="' . translate('admin_chars_race_icon_alt', 'Race Icon') . '" class="account-sahtout-icon">';
 }
 
 function getClassIcon($class) {
@@ -404,17 +405,17 @@ function getClassIcon($class) {
         5 => 'priest.webp', 6 => 'deathknight.webp', 7 => 'shaman.webp', 8 => 'mage.webp',
         9 => 'warlock.webp', 11 => 'druid.webp'
     ];
-    return '<img src="/sahtout/img/accountimg/class/' . ($icons[$class] ?? 'default.jpg') . '" alt="Class Icon" class="account-sahtout-icon">';
+    return '<img src="/sahtout/img/accountimg/class/' . ($icons[$class] ?? 'default.jpg') . '" alt="' . translate('admin_chars_class_icon_alt', 'Class Icon') . '" class="account-sahtout-icon">';
 }
 
 function getFactionIcon($race) {
     $allianceRaces = [1, 3, 4, 7, 11];
     $faction = in_array($race, $allianceRaces) ? 'alliance.png' : 'horde.png';
-    return '<img src="/sahtout/img/accountimg/faction/' . $faction . '" alt="Faction Icon" class="account-sahtout-icon">';
+    return '<img src="/sahtout/img/accountimg/faction/' . $faction . '" alt="' . translate('admin_chars_faction_icon_alt', 'Faction Icon') . '" class="account-sahtout-icon">';
 }
 
 function getOnlineStatus($online) {
-    return $online ? "<span style='color: #55ff55'>Online</span>" : "<span style='color: #ff5555'>Offline</span>";
+    return $online ? "<span style='color: #55ff55'>" . translate('admin_chars_status_online', 'Online') . "</span>" : "<span style='color: #ff5555'>" . translate('admin_chars_status_offline', 'Offline') . "</span>";
 }
 
 // Generate CSRF token if not exists
@@ -424,13 +425,13 @@ if (empty($_SESSION['csrf_token'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Character Management for Sahtout WoW Server">
+    <meta name="description" content="<?php echo translate('admin_chars_meta_description', 'Character Management for Sahtout WoW Server'); ?>">
     <meta name="robots" content="noindex">
-    <title>Character Management</title>
+    <title><?php echo translate('admin_chars_page_title', 'Character Management'); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .account-sahtout-icon {
@@ -466,79 +467,79 @@ if (empty($_SESSION['csrf_token'])) {
                 <?php include dirname(__DIR__) . '../../includes/admin_sidebar.php'; ?>
                 <!-- Main Content -->
                 <div class="col-md-9">
-                    <h1 class="dashboard-title">Character Management</h1>
+                    <h1 class="dashboard-title"><?php echo translate('admin_chars_title', 'Character Management'); ?></h1>
                     <?php echo $update_message; ?>
                     <!-- Debug Output: Display number of characters fetched -->
                     <div class="alert alert-info">
-                        Found <?php echo count($characters); ?> characters on this page (Total: <?php echo $total_chars; ?>).
+                        <?php echo sprintf(translate('admin_chars_found_chars', 'Found %d characters on this page (Total: %d).'), count($characters), $total_chars); ?>
                     </div>
                     <!-- Search and Sort Form -->
                     <form class="search-form" method="GET" action="/Sahtout/admin/characters">
                         <div class="row mb-3">
                             <div class="col-md-3">
-                                <label for="search_char_name" class="form-label">Character Name</label>
-                                <input type="text" name="search_char_name" id="search_char_name" class="form-control" value="<?php echo htmlspecialchars($search_char_name); ?>" placeholder="Enter character name">
+                                <label for="search_char_name" class="form-label"><?php echo translate('admin_chars_label_char_name', 'Character Name'); ?></label>
+                                <input type="text" name="search_char_name" id="search_char_name" class="form-control" value="<?php echo htmlspecialchars($search_char_name); ?>" placeholder="<?php echo translate('admin_chars_placeholder_char_name', 'Enter character name'); ?>">
                             </div>
                             <div class="col-md-3">
-                                <label for="search_username" class="form-label">Username</label>
-                                <input type="text" name="search_username" id="search_username" class="form-control" value="<?php echo htmlspecialchars($search_username); ?>" placeholder="Enter username">
+                                <label for="search_username" class="form-label"><?php echo translate('admin_chars_label_username', 'Username'); ?></label>
+                                <input type="text" name="search_username" id="search_username" class="form-control" value="<?php echo htmlspecialchars($search_username); ?>" placeholder="<?php echo translate('admin_chars_placeholder_username', 'Enter username'); ?>">
                             </div>
                             <div class="col-md-3">
-                                <label for="min_level" class="form-label">Min Level</label>
-                                <input type="number" name="min_level" id="min_level" class="form-control" value="<?php echo htmlspecialchars($min_level); ?>" placeholder="e.g., 1" min="1" max="255">
+                                <label for="min_level" class="form-label"><?php echo translate('admin_chars_label_min_level', 'Min Level'); ?></label>
+                                <input type="number" name="min_level" id="min_level" class="form-control" value="<?php echo htmlspecialchars($min_level); ?>" placeholder="<?php echo translate('admin_chars_placeholder_min_level', 'e.g., 1'); ?>" min="1" max="255">
                             </div>
                             <div class="col-md-3">
-                                <label for="max_level" class="form-label">Max Level</label>
-                                <input type="number" name="max_level" id="max_level" class="form-control" value="<?php echo htmlspecialchars($max_level); ?>" placeholder="e.g., 255" min="1" max="255">
+                                <label for="max_level" class="form-label"><?php echo translate('admin_chars_label_max_level', 'Max Level'); ?></label>
+                                <input type="number" name="max_level" id="max_level" class="form-control" value="<?php echo htmlspecialchars($max_level); ?>" placeholder="<?php echo translate('admin_chars_placeholder_max_level', 'e.g., 255'); ?>" min="1" max="255">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-3">
-                                <label for="online_filter" class="form-label">Online Status</label>
+                                <label for="online_filter" class="form-label"><?php echo translate('admin_chars_label_online_status', 'Online Status'); ?></label>
                                 <select name="online_filter" id="online_filter" class="form-select">
-                                    <option value="" <?php echo $online_filter === '' ? 'selected' : ''; ?>>All</option>
-                                    <option value="online" <?php echo $online_filter === 'online' ? 'selected' : ''; ?>>Online</option>
-                                    <option value="offline" <?php echo $online_filter === 'offline' ? 'selected' : ''; ?>>Offline</option>
+                                    <option value="" <?php echo $online_filter === '' ? 'selected' : ''; ?>><?php echo translate('admin_chars_option_all', 'All'); ?></option>
+                                    <option value="online" <?php echo $online_filter === 'online' ? 'selected' : ''; ?>><?php echo translate('admin_chars_option_online', 'Online'); ?></option>
+                                    <option value="offline" <?php echo $online_filter === 'offline' ? 'selected' : ''; ?>><?php echo translate('admin_chars_option_offline', 'Offline'); ?></option>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label for="sort_id" class="form-label">Sort by ID</label>
+                                <label for="sort_id" class="form-label"><?php echo translate('admin_chars_label_sort_id', 'Sort by ID'); ?></label>
                                 <select name="sort_id" id="sort_id" class="form-select">
-                                    <option value="asc" <?php echo $sort_id === 'asc' ? 'selected' : ''; ?>>Ascending</option>
-                                    <option value="desc" <?php echo $sort_id === 'desc' ? 'selected' : ''; ?>>Descending</option>
+                                    <option value="asc" <?php echo $sort_id === 'asc' ? 'selected' : ''; ?>><?php echo translate('admin_chars_option_sort_asc', 'Ascending'); ?></option>
+                                    <option value="desc" <?php echo $sort_id === 'desc' ? 'selected' : ''; ?>><?php echo translate('admin_chars_option_sort_desc', 'Descending'); ?></option>
                                 </select>
                             </div>
                             <div class="col-md-6 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary">Search</button>
+                                <button type="submit" class="btn btn-primary"><?php echo translate('admin_chars_search_button', 'Search'); ?></button>
                                 <?php if ($search_char_name || $search_username || $online_filter !== '' || $min_level !== '' || $max_level !== ''): ?>
-                                    <a href="/Sahtout/admin/characters" class="btn btn-secondary ms-2">Clear Filters</a>
+                                    <a href="/Sahtout/admin/characters" class="btn btn-secondary ms-2"><?php echo translate('admin_chars_clear_filters', 'Clear Filters'); ?></a>
                                 <?php endif; ?>
                             </div>
                         </div>
                     </form>
                     <!-- Characters Table -->
                     <div class="card">
-                        <div class="card-header">Characters</div>
+                        <div class="card-header"><?php echo translate('admin_chars_table_header', 'Characters'); ?></div>
                         <div class="card-body">
                             <div class="table-wrapper">
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>Character ID</th>
-                                            <th>Name</th>
-                                            <th>Username</th>
-                                            <th>Race</th>
-                                            <th>Class</th>
-                                            <th>Map</th>
-                                            <th>Level</th>
-                                            <th>Online</th>
-                                            <th>Action</th>
+                                            <th><?php echo translate('admin_chars_table_char_id', 'Character ID'); ?></th>
+                                            <th><?php echo translate('admin_chars_table_name', 'Name'); ?></th>
+                                            <th><?php echo translate('admin_chars_table_username', 'Username'); ?></th>
+                                            <th><?php echo translate('admin_chars_table_race', 'Race'); ?></th>
+                                            <th><?php echo translate('admin_chars_table_class', 'Class'); ?></th>
+                                            <th><?php echo translate('admin_chars_table_map', 'Map'); ?></th>
+                                            <th><?php echo translate('admin_chars_table_level', 'Level'); ?></th>
+                                            <th><?php echo translate('admin_chars_table_online', 'Online'); ?></th>
+                                            <th><?php echo translate('admin_chars_table_action', 'Action'); ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php if (empty($characters)): ?>
                                             <tr>
-                                                <td colspan="9" class="text-center">No characters found.</td>
+                                                <td colspan="9" class="text-center"><?php echo translate('admin_chars_no_chars_found', 'No characters found.'); ?></td>
                                             </tr>
                                         <?php else: ?>
                                             <?php foreach ($characters as $char): ?>
@@ -552,7 +553,7 @@ if (empty($_SESSION['csrf_token'])) {
                                                     <td><?php echo htmlspecialchars($char['level']); ?></td>
                                                     <td><?php echo getOnlineStatus($char['online']); ?></td>
                                                     <td>
-                                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#manageModal-<?php echo $char['guid']; ?>">Manage</button>
+                                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#manageModal-<?php echo $char['guid']; ?>"><?php echo translate('admin_chars_manage_button', 'Manage'); ?></button>
                                                     </td>
                                                 </tr>
                                                 <!-- Manage Character Modal -->
@@ -560,8 +561,8 @@ if (empty($_SESSION['csrf_token'])) {
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
-                                                                <h5 class="modal-title" id="manageModalLabel-<?php echo $char['guid']; ?>">Manage Character: <?php echo htmlspecialchars($char['name']); ?></h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                <h5 class="modal-title" id="manageModalLabel-<?php echo $char['guid']; ?>"><?php echo translate('admin_chars_manage_modal_title', 'Manage Character: ') . htmlspecialchars($char['name']); ?></h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo translate('admin_chars_close_button', 'Close'); ?>"></button>
                                                             </div>
                                                             <div class="modal-body">
                                                                 <form method="POST" action="/Sahtout/admin/characters">
@@ -569,29 +570,29 @@ if (empty($_SESSION['csrf_token'])) {
                                                                     <input type="hidden" name="guid" value="<?php echo $char['guid']; ?>">
                                                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                                                     <div class="mb-3">
-                                                                        <label class="form-label">Action</label>
+                                                                        <label class="form-label"><?php echo translate('admin_chars_label_action', 'Action'); ?></label>
                                                                         <select name="char_action" class="form-select" id="charAction-<?php echo $char['guid']; ?>" onchange="toggleActionFields(this)">
-                                                                            <option value="add_gold">Add Gold</option>
-                                                                            <option value="change_level">Change Level</option>
-                                                                            <option value="teleport">Teleport (Custom)</option>
-                                                                            <option value="teleport_directly">Teleport Directly</option>
+                                                                            <option value="add_gold"><?php echo translate('admin_chars_action_add_gold', 'Add Gold'); ?></option>
+                                                                            <option value="change_level"><?php echo translate('admin_chars_action_change_level', 'Change Level'); ?></option>
+                                                                            <option value="teleport"><?php echo translate('admin_chars_action_teleport', 'Teleport (Custom)'); ?></option>
+                                                                            <option value="teleport_directly"><?php echo translate('admin_chars_action_teleport_direct', 'Teleport Directly'); ?></option>
                                                                         </select>
                                                                     </div>
                                                                     <div id="goldFields-<?php echo $char['guid']; ?>">
                                                                         <div class="mb-3">
-                                                                            <label class="form-label">Gold Amount (in gold)</label>
-                                                                            <input type="number" name="gold" class="form-control" placeholder="Enter gold amount (e.g., 100)" min="0" required>
+                                                                            <label class="form-label"><?php echo translate('admin_chars_label_gold', 'Gold Amount (in gold)'); ?></label>
+                                                                            <input type="number" name="gold" class="form-control" placeholder="<?php echo translate('admin_chars_placeholder_gold', 'Enter gold amount (e.g., 100)'); ?>" min="0" required>
                                                                         </div>
                                                                     </div>
                                                                     <div id="levelFields-<?php echo $char['guid']; ?>" style="display: none;">
                                                                         <div class="mb-3">
-                                                                            <label class="form-label">Level (1-255)</label>
-                                                                            <input type="number" name="level" class="form-control" placeholder="Enter level (e.g., 80)" min="1" max="255" required>
+                                                                            <label class="form-label"><?php echo translate('admin_chars_label_level', 'Level (1-255)'); ?></label>
+                                                                            <input type="number" name="level" class="form-control" placeholder="<?php echo translate('admin_chars_placeholder_level', 'Enter level (e.g., 80)'); ?>" min="1" max="255" required>
                                                                         </div>
                                                                     </div>
                                                                     <div id="teleportFields-<?php echo $char['guid']; ?>" style="display: none;">
                                                                         <div class="mb-3">
-                                                                            <label class="form-label">Map ID</label>
+                                                                            <label class="form-label"><?php echo translate('admin_chars_label_map', 'Map ID'); ?></label>
                                                                             <select name="map" class="form-select">
                                                                                 <?php foreach ($map_names as $id => $name): ?>
                                                                                     <option value="<?php echo $id; ?>"><?php echo $id . ' - ' . htmlspecialchars($name); ?></option>
@@ -601,30 +602,30 @@ if (empty($_SESSION['csrf_token'])) {
                                                                         <div class="row">
                                                                             <div class="col-md-4">
                                                                                 <div class="mb-3">
-                                                                                    <label class="form-label">X Coordinate</label>
-                                                                                    <input type="number" step="0.000001" name="x" class="form-control" placeholder="X coordinate" required>
+                                                                                    <label class="form-label"><?php echo translate('admin_chars_label_x_coord', 'X Coordinate'); ?></label>
+                                                                                    <input type="number" step="0.000001" name="x" class="form-control" placeholder="<?php echo translate('admin_chars_placeholder_x_coord', 'X coordinate'); ?>" required>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="col-md-4">
                                                                                 <div class="mb-3">
-                                                                                    <label class="form-label">Y Coordinate</label>
-                                                                                    <input type="number" step="0.000001" name="y" class="form-control" placeholder="Y coordinate" required>
+                                                                                    <label class="form-label"><?php echo translate('admin_chars_label_y_coord', 'Y Coordinate'); ?></label>
+                                                                                    <input type="number" step="0.000001" name="y" class="form-control" placeholder="<?php echo translate('admin_chars_placeholder_y_coord', 'Y coordinate'); ?>" required>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="col-md-4">
                                                                                 <div class="mb-3">
-                                                                                    <label class="form-label">Z Coordinate</label>
-                                                                                    <input type="number" step="0.000001" name="z" class="form-control" placeholder="Z coordinate" required>
+                                                                                    <label class="form-label"><?php echo translate('admin_chars_label_z_coord', 'Z Coordinate'); ?></label>
+                                                                                    <input type="number" step="0.000001" name="z" class="form-control" placeholder="<?php echo translate('admin_chars_placeholder_z_coord', 'Z coordinate'); ?>" required>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                         <div class="alert alert-info">
-                                                                            Tip: Look up coordinates in the game using .gps command.
+                                                                            <?php echo translate('admin_chars_teleport_tip', 'Tip: Look up coordinates in the game using .gps command.'); ?>
                                                                         </div>
                                                                     </div>
                                                                     <div id="teleportDirectlyFields-<?php echo $char['guid']; ?>" style="display: none;">
                                                                         <div class="mb-3">
-                                                                            <label class="form-label">Destination</label>
+                                                                            <label class="form-label"><?php echo translate('admin_chars_label_destination', 'Destination'); ?></label>
                                                                             <select name="predefined_location" class="form-select">
                                                                                 <option value="stormwind">Stormwind City</option>
                                                                                 <option value="orgrimmar">Orgrimmar</option>
@@ -635,8 +636,8 @@ if (empty($_SESSION['csrf_token'])) {
                                                                         </div>
                                                                     </div>
                                                                     <div class="modal-footer">
-                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                        <button type="submit" class="btn btn-primary">Apply</button>
+                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo translate('admin_chars_cancel_button', 'Cancel'); ?></button>
+                                                                        <button type="submit" class="btn btn-primary"><?php echo translate('admin_chars_apply_button', 'Apply'); ?></button>
                                                                     </div>
                                                                 </form>
                                                             </div>
@@ -650,11 +651,11 @@ if (empty($_SESSION['csrf_token'])) {
                             </div>
                             <!-- Pagination -->
                             <?php if ($total_pages > 1): ?>
-                                <nav aria-label="Character pagination">
+                                <nav aria-label="<?php echo translate('admin_chars_pagination_aria', 'Character pagination'); ?>">
                                     <ul class="pagination">
                                         <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
-                                            <a class="page-link" href="/Sahtout/admin/characters?page=<?php echo $page - 1; ?>&search_char_name=<?php echo urlencode($search_char_name); ?>&search_username=<?php echo urlencode($search_username); ?>&online_filter=<?php echo urlencode($online_filter); ?>&min_level=<?php echo urlencode($min_level); ?>&max_level=<?php echo urlencode($max_level); ?>&sort_id=<?php echo $sort_id; ?>" aria-label="Previous">
-                                                <span aria-hidden="true">&laquo; Previous</span>
+                                            <a class="page-link" href="/Sahtout/admin/characters?page=<?php echo $page - 1; ?>&search_char_name=<?php echo urlencode($search_char_name); ?>&search_username=<?php echo urlencode($search_username); ?>&online_filter=<?php echo urlencode($online_filter); ?>&min_level=<?php echo urlencode($min_level); ?>&max_level=<?php echo urlencode($max_level); ?>&sort_id=<?php echo $sort_id; ?>" aria-label="<?php echo translate('admin_chars_previous', 'Previous'); ?>">
+                                                <span aria-hidden="true">&laquo; <?php echo translate('admin_chars_previous', 'Previous'); ?></span>
                                             </a>
                                         </li>
                                         <?php
@@ -679,8 +680,8 @@ if (empty($_SESSION['csrf_token'])) {
                                         }
                                         ?>
                                         <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
-                                            <a class="page-link" href="/Sahtout/admin/characters?page=<?php echo $page + 1; ?>&search_char_name=<?php echo urlencode($search_char_name); ?>&search_username=<?php echo urlencode($search_username); ?>&online_filter=<?php echo urlencode($online_filter); ?>&min_level=<?php echo urlencode($min_level); ?>&max_level=<?php echo urlencode($max_level); ?>&sort_id=<?php echo $sort_id; ?>" aria-label="Next">
-                                                <span aria-hidden="true">Next &raquo;</span>
+                                            <a class="page-link" href="/Sahtout/admin/characters?page=<?php echo $page + 1; ?>&search_char_name=<?php echo urlencode($search_char_name); ?>&search_username=<?php echo urlencode($search_username); ?>&online_filter=<?php echo urlencode($online_filter); ?>&min_level=<?php echo urlencode($min_level); ?>&max_level=<?php echo urlencode($max_level); ?>&sort_id=<?php echo $sort_id; ?>" aria-label="<?php echo translate('admin_chars_next', 'Next'); ?>">
+                                                <span aria-hidden="true"><?php echo translate('admin_chars_next', 'Next'); ?> &raquo;</span>
                                             </a>
                                         </li>
                                     </ul>

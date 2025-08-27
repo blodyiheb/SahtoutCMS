@@ -1,6 +1,10 @@
 <?php
 define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
+require_once '../languages/language.php'; // Add this to define translate()
+require_once '../includes/config.cap.php'; // reCAPTCHA keys
+require_once '../includes/srp6.php';
+
 // Redirect to account if already logged in
 if (isset($_SESSION['user_id'])) {
     header("Location: /Sahtout/account");
@@ -8,8 +12,6 @@ if (isset($_SESSION['user_id'])) {
 }
 
 $page_class = 'login';
-require_once '../includes/config.cap.php'; // reCAPTCHA keys
-require_once '../includes/srp6.php';
 
 $errors = [];
 $username = '';
@@ -17,7 +19,7 @@ $show_resend_button = false;
 
 // Check for error query parameter
 if (isset($_GET['error']) && $_GET['error'] === 'invalid_session') {
-    $errors[] = "Invalid session, please log in again.";
+    $errors[] = translate('error_invalid_session', 'Invalid session, please log in again.');
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -26,10 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Basic field validation
     if (empty($username)) {
-        $errors[] = "Username is required";
+        $errors[] = translate('error_username_required', 'Username is required');
     }
     if (empty($password)) {
-        $errors[] = "Password is required";
+        $errors[] = translate('error_password_required', 'Password is required');
     }
 
     // Google reCAPTCHA validation
@@ -37,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $verify = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . RECAPTCHA_SECRET_KEY . '&response=' . $recaptchaResponse);
     $responseData = json_decode($verify);
     if (!$responseData->success) {
-        $errors[] = "reCAPTCHA verification failed.";
+        $errors[] = translate('error_recaptcha_failed', 'reCAPTCHA verification failed.');
     }
 
     if (empty($errors)) {
@@ -48,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $result = $stmt->get_result();
         if ($result->num_rows > 0) {
-            $errors[] = "Your account is not activated. Please check your email to activate your account.";
+            $errors[] = translate('error_account_not_activated', 'Your account is not activated. Please check your email to activate your account.');
             $show_resend_button = true; // Show resend button
         }
         $stmt->close();
@@ -65,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $stmt->get_result();
 
             if ($result->num_rows === 0) {
-                $errors[] = "Invalid username or password";
+                $errors[] = translate('error_invalid_credentials', 'Invalid username or password');
             } else {
                 $account = $result->fetch_assoc();
 
@@ -81,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     header("Location: /Sahtout/account");
                     exit();
                 } else {
-                    $errors[] = "Invalid username or password";
+                    $errors[] = translate('error_invalid_credentials', 'Invalid username or password');
                 }
             }
 
@@ -95,16 +97,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include_once '../includes/header.php';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login</title>
+  <meta name="description" content="<?php echo translate('meta_description', 'Log in to your account to join our World of Warcraft server adventure!'); ?>">
+  <title><?php echo translate('page_title', 'Login'); ?></title>
   <style>
+    * {
+      box-sizing: border-box; /* Prevent padding/margins from causing overflow */
+    }
+
     html, body {
       width: 100%;
       overflow-x: hidden;
       margin: 0;
+      background: url('/sahtout/img/backgrounds/bg-login.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'UnifrakturCook', 'Arial', sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    body::before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5); /* Dark overlay with blur */
+      backdrop-filter: blur(5px); /* Subtle blur effect */
+      z-index: 1;
     }
 
     .wrapper {
@@ -114,16 +140,29 @@ include_once '../includes/header.php';
       align-items: center;
       padding: 1rem;
       width: 100%;
+      position: relative;
+      z-index: 2;
     }
 
     .form-container {
-      max-width: 500px;
+      max-width: 480px;
       width: calc(100% - 2rem);
-      background: rgba(0, 0, 0, 0.7);
-      border: 2px solid #ffd700;
-      border-radius: 8px;
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-      padding: 2.5rem;
+      background: #1a1a1a88; /* Darker WoW-style background */
+      border: 3px solid #f1c40f; /* Vibrant gold border */
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(241, 196, 15, 0.4), 0 0 40px rgba(0, 0, 0, 0.8);
+      padding: 2rem;
+      animation: pulse 3s infinite ease-in-out;
+      transition: transform 0.3s ease;
+    }
+
+    .form-container:hover {
+      transform: translateY(-5px) rotate(1deg); /* Subtle 3D hover effect */
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 8px 24px rgba(241, 196, 15, 0.4), 0 0 40px rgba(0, 0, 0, 0.8); }
+      50% { box-shadow: 0 8px 32px rgba(241, 196, 15, 0.6), 0 0 48px rgba(0, 0, 0, 0.9); }
     }
 
     .form-section {
@@ -133,66 +172,76 @@ include_once '../includes/header.php';
     }
 
     .form-section h2 {
-      font-size: 2.8rem;
+      font-size: 3rem;
       font-family: 'UnifrakturCook', sans-serif;
-      color: #ffd700;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-      margin-bottom: 1.2rem;
+      color: #f1c40f;
+      text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+      margin-bottom: 1.5rem;
       text-align: center;
+      letter-spacing: 1px;
     }
 
     .form-section form {
       display: flex;
       flex-direction: column;
-      gap: 1.2rem;
+      gap: 0.8rem;
     }
 
     .form-section input {
       width: 100%;
-      padding: 1rem;
+      padding: 0.9rem;
       font-size: 1.1rem;
       font-family: 'Arial', sans-serif;
-      background: #333;
+      background: #2c2c2c;
       color: #fff;
-      border: 1px solid #ffd700;
-      border-radius: 4px;
+      border: 2px solid #f1c40f;
+      border-radius: 6px;
       outline: none;
-      transition: border-color 0.3s ease;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
 
     .form-section input:focus {
       border-color: #ffe600;
-      box-shadow: 0 0 5px rgba(255, 230, 0, 0.5);
+      box-shadow: 0 0 8px rgba(255, 230, 0, 0.6);
     }
 
     .form-section input::placeholder {
-      color: #ccc;
+      color: #999;
+      font-size: 1rem;
+    }
+
+    .g-recaptcha {
+      margin: 1.2rem auto;
+      display: flex;
+      justify-content: center;
     }
 
     .form-section button {
-      background: #333;
-      color: #ffd700;
-      border: 2px solid #ffd700;
-      padding: 1rem 2rem;
-      font-family: 'UnifrakturCook', sans-serif;
-      font-size: 1.2rem;
-      border-radius: 4px;
-      cursor: pointer;
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); /* Fiery orange-red gradient */
+      color: #fff;
+      border: 2px solid #f1c40f;
+      padding: 0.9rem 1.8rem;
+      font-size: 1.3rem;
+      border-radius: 6px;
+      cursor: url('/Sahtout/img/hover_wow.gif') 16 16, auto;
       transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .form-section button:hover {
-      background: #ffd700;
-      color: #000;
+      background: linear-gradient(135deg, #0e65d6ff 0%, #26a938ff 100%);
       transform: scale(1.05);
+      box-shadow: 0 4px 16px rgba(230, 247, 3, 0.6);
     }
 
     .form-section .error {
-      color: #ff0000;
+      color: #e74c3c;
       font-size: 1.1rem;
-      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
       text-align: center;
-      margin: 0.5rem 0 0;
+      margin: 0.6rem 0 0;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
     }
 
     .form-section .resend-link {
@@ -200,11 +249,11 @@ include_once '../includes/header.php';
       font-size: 1.1rem;
       font-family: 'UnifrakturCook', sans-serif;
       color: #fff;
-      margin-bottom: 1rem;
+      margin-bottom: 1.2rem;
     }
 
     .form-section .resend-link a {
-      color: #002fffff;
+      color: #f1c40f;
       text-decoration: none;
       transition: all 0.3s ease;
     }
@@ -214,16 +263,23 @@ include_once '../includes/header.php';
       text-decoration: underline;
     }
 
+    .form-section .resend-link p {
+      font-family: 'Courier New', Courier, monospace;
+      display: inline;
+      margin-right: 0.6rem;
+      color: #fff;
+    }
+
     .form-section .register-link, .form-section .forgot-password-link {
       text-align: center;
       font-size: 1.1rem;
       font-family: 'UnifrakturCook', sans-serif;
       color: #fff;
-      margin-top: 1.5rem;
+      margin-top: 1.2rem;
     }
 
     .form-section .register-link a, .form-section .forgot-password-link a {
-      color: #ffd700;
+      color: #f1c40f;
       text-decoration: none;
       transition: all 0.3s ease;
     }
@@ -234,18 +290,30 @@ include_once '../includes/header.php';
     }
 
     @media (max-width: 767px) {
+      html, body {
+        width: 100%;
+        overflow-x: hidden;
+      }
+
       .wrapper {
         padding: 0;
-        margin-top: 100px;
+        margin-top: 80px;
       }
 
       .form-container {
-        max-width: 90%;
+        max-width: 100%;
+        width: calc(100% - 1.5rem);
         padding: 1.5rem;
+        margin: 1.5rem auto;
+        box-shadow: 0 6px 16px rgba(241, 196, 15, 0.3);
+      }
+
+      .form-container:hover {
+        transform: translateY(-3px) rotate(0.5deg); /* Reduced for mobile */
       }
 
       .form-section h2 {
-        font-size: 2.2rem;
+        font-size: 2.4rem;
       }
 
       .form-section input {
@@ -254,13 +322,50 @@ include_once '../includes/header.php';
       }
 
       .form-section button {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         padding: 0.8rem 1.5rem;
+      }
+
+      .g-recaptcha {
+        transform: scale(0.85);
+        transform-origin: center;
       }
 
       .form-section .resend-link, .form-section .register-link, .form-section .forgot-password-link {
         font-size: 1rem;
         margin-top: 1rem;
+      }
+
+      .form-section .error {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .form-section h2 {
+        font-size: 2rem;
+      }
+
+      .form-section input {
+        font-size: 0.95rem;
+        padding: 0.7rem;
+      }
+
+      .form-section button {
+        font-size: 1.1rem;
+        padding: 0.7rem 1.2rem;
+      }
+
+      .g-recaptcha {
+        transform: scale(0.77);
+      }
+
+      .form-section .resend-link, .form-section .register-link, .form-section .forgot-password-link {
+        font-size: 0.95rem;
+      }
+
+      .form-section .error {
+        font-size: 0.95rem;
       }
     }
   </style>
@@ -269,7 +374,7 @@ include_once '../includes/header.php';
   <div class="wrapper">
     <div class="form-container">
       <div class="form-section">
-        <h2>Login</h2>
+        <h2><?php echo translate('login_title', 'Login'); ?></h2>
 
         <?php if (!empty($errors)): ?>
           <div class="error">
@@ -278,35 +383,33 @@ include_once '../includes/header.php';
             <?php endforeach; ?>
             <?php if ($show_resend_button): ?>
               <div class="resend-link">
-                <a href="/sahtout/resend-activation?username=<?php echo htmlspecialchars($username); ?>"> <p style="font-family: 'Courier New', Courier, monospace;">CLICK here :</p>Resend Activation Code</a>
+                <p><?php echo translate('resend_activation_prompt', 'CLICK here:'); ?></p>
+                <a href="/sahtout/resend_activation?username=<?php echo htmlspecialchars($username); ?>">
+                  <?php echo translate('resend_activation_link', 'Resend Activation Code'); ?>
+                </a>
               </div>
             <?php endif; ?>
           </div>
         <?php endif; ?>
 
         <form method="POST">
-          <input type="text" name="username" placeholder="Username" required value="<?php echo htmlspecialchars($username); ?>">
-          <input type="password" name="password" placeholder="Password" required>
-
-          <!-- Google reCAPTCHA Widget -->
+          <input type="text" name="username" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required value="<?php echo htmlspecialchars($username); ?>">
+          <br>
+          <input type="password" name="password" placeholder="<?php echo translate('password_placeholder', 'Password'); ?>" required>
           <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
-
-          <button type="submit">Sign In</button>
-
+          <button type="submit"><?php echo translate('login_button', 'Sign In'); ?></button>
           <div class="register-link">
-            Don't have an account? <a href="/sahtout/register">Register now</a>
+            <?php echo translate('register_link_text', 'Don\'t have an account? <a href="/sahtout/register">Register now</a>'); ?>
           </div>
           <div class="forgot-password-link">
-            Forgot your password? <a href="/sahtout/forgot-password">Reset it here</a>
+            <?php echo translate('forgot_password_link_text', 'Forgot your password? <a href="/sahtout/forgot_password">Reset it here</a>'); ?>
           </div>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- reCAPTCHA Script -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-  
 </body>
 </html>
 

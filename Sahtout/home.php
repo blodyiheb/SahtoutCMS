@@ -1,6 +1,7 @@
 <?php
 define('ALLOWED_ACCESS', true);
 require_once 'includes/session.php';
+require_once 'languages/language.php'; // Include language file for translations
 $page_class = "home";
 
 $header_file = "includes/header.php";
@@ -8,7 +9,7 @@ $header_file = "includes/header.php";
 if (file_exists($header_file)) {
     include $header_file;
 } else {
-    die("Error: Header file not found.");
+    die(translate('error_header_not_found', 'Error: Header file not found.'));
 }
 
 // Include database configuration
@@ -22,13 +23,13 @@ $query = "SELECT id, title, slug, image_url, post_date
 $result = $site_db->query($query);
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Welcome to our World of Warcraft server. Join our Discord, YouTube, Instagram, create an account, or download the game now!">
+    <meta name="description" content="<?php echo translate('home_meta_description', 'Welcome to our World of Warcraft server. Join our Discord, YouTube, Instagram, create an account, or download the game now!'); ?>">
     <meta name="robots" content="index">
-    <title>Home</title>
+    <title><?php echo translate('home_page_title', 'Home'); ?></title>
     <style>
         html, body {
             width: 100%;
@@ -391,28 +392,59 @@ $result = $site_db->query($query);
             text-decoration: underline;
         }
 
-        /* Realm Status */
+        /* Server Status */
         .server-status {
             position: fixed;
             top: 125px;
             right: 15px;
             width: 300px;
-            height: 500px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 2px solid #ffd700;
+            background: #0a0e14;
+            border: 2px solid #00f7ff;
             border-radius: 10px;
             padding: 15px;
-            font-family: 'Friz Quadrata', serif;
-            color: #fff;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            font-family: 'Orbitron', 'Arial', sans-serif;
+            color: #e0e0e0;
+            box-shadow: 0 0 20px rgba(0, 247, 255, 0.5), 0 0 10px rgba(255, 0, 255, 0.3);
             box-sizing: border-box;
+            text-align: center;
+            max-height: calc(100vh - 150px); /* Prevent touching footer */
+            overflow-y: auto; /* Enable scrollbar if content overflows */
+            z-index: 900; /* Below discord-widget (z-index: 1000) */
+        }
+
+        /* Custom Scrollbar Styling */
+        .server-status::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .server-status::-webkit-scrollbar-track {
+            background: #1a1e2a;
+            border-radius: 5px;
+            box-shadow: inset 0 0 5px rgba(0, 247, 255, 0.3);
+        }
+
+        .server-status::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #00f7ff, #ff00ff);
+            border-radius: 5px;
+            box-shadow: 0 0 8px rgba(0, 247, 255, 0.8), 0 0 8px rgba(255, 0, 255, 0.8);
+        }
+
+        .server-status::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #00ccff, #cc00cc);
+        }
+
+        .server-status:hover {
+            box-shadow: 0 0 25px rgba(0, 247, 255, 0.7), 0 0 15px rgba(255, 0, 255, 0.5);
         }
 
         .server-status h2 {
-            text-align: center;
-            color: #ff2600;
-            font-family: 'UnifrakturCook', cursive;
+            color: #00f7ff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
             margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 247, 255, 0.8);
         }
 
         .server-status ul {
@@ -422,40 +454,62 @@ $result = $site_db->query($query);
         }
 
         .server-status li {
-            margin-bottom: 20px;
+            background: rgba(20, 20, 30, 0.8);
+            border: 1px solid #ff00ff;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
             text-align: center;
+            transition: box-shadow 0.3s ease, background 0.3s ease;
+        }
+
+        .server-status li:hover {
+            box-shadow: 0 0 10px rgba(0, 247, 255, 0.8);
+            background: rgba(30, 30, 50, 0.9);
         }
 
         .server-status img {
-            border-radius: 8px;
-            margin-bottom: 8px;
+            display: block;
+            margin: 0 auto 10px;
             max-width: 50%;
             height: auto;
+            border-radius: 6px;
+            filter: drop-shadow(0 0 5px rgba(0, 247, 255, 0.5));
         }
 
         .server-status strong {
-            font-size: 18px;
-            color: #0cc3f0ff;
+            font-size: 1rem;
+            color: #ff00ff;
+            display: block;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .server-status .online {
             color: #00ff00;
             font-weight: bold;
-            font-family: 'UnifrakturCook', cursive;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
         }
 
         .server-status .offline {
             color: #ff0000;
             font-weight: bold;
-            font-family: 'UnifrakturCook', cursive;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.8);
         }
 
         .server-status .players,
+        .server-status .uptime,
         .server-status .realm-ip {
             display: block;
-            font-size: 14px;
-            margin-top: 4px;
-            color: #ccc;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            color: #e0e0e0;
+            font-family: 'Orbitron', sans-serif;
         }
 
         /* Footer adjustments */
@@ -465,55 +519,60 @@ $result = $site_db->query($query);
             padding: 1rem 0;
             box-sizing: border-box;
         }
-        @media (max-width: 1200px) and (min-width: 769px) {
-        .discord-widget {
-            position: static;
-            width: 100%;
-            max-width: 300px;
-            margin: 1rem auto;
-        }
 
-        .discord-widget iframe {
-            width: 100%;
-            height: 400px;
-        }
-
-        .server-status {
-            position: static;
-            width: 100%;
-            max-width: 300px;
-            margin: 1rem auto;
-        }
-
-        main {
-            padding-bottom: 2rem;
-        }
-    }
-@media (max-width: 1400px) and (min-width: 1200px) {
-        .discord-widget {
-            position: fixed;
-            width: 100%;
-            max-width: 235px;
-            margin: 1rem auto;
-        }
-
-        .discord-widget iframe {
-            width: 100%;
-            height: 400px;
-        }
-
-        .server-status {
-            position: fixed;
-            width: 100%;
-            max-width: 235px;
-            margin: 1rem auto;
-        }
-
-        main {
-            padding-bottom: 2rem;
-        }
-    }
         /* Responsive Design */
+        @media (max-width: 1400px) and (min-width: 1200px) {
+            .discord-widget {
+                position: fixed;
+                width: 100%;
+                max-width: 235px;
+                margin: 1rem auto;
+            }
+
+            .discord-widget iframe {
+                width: 100%;
+                height: 400px;
+            }
+
+            .server-status {
+                width: 100%;
+                max-width: 235px;
+                max-height: calc(100vh - 150px); /* Prevent touching footer */
+                overflow-y: auto;
+            }
+
+            main {
+                padding-bottom: 2rem;
+            }
+        }
+
+        @media (max-width: 1200px) and (min-width: 769px) {
+            .discord-widget {
+                position: static;
+                width: 100%;
+                max-width: 300px;
+                margin: 1rem auto;
+            }
+
+            .discord-widget iframe {
+                width: 100%;
+                height: 400px;
+            }
+
+            .server-status {
+                position: static;
+                width: 100%;
+                max-width: 300px;
+                margin: 1rem auto;
+                max-height: calc(100vh - 150px); /* Adjusted for smaller screens */
+                overflow-y: auto;
+            }
+
+            main {
+                padding-bottom: 2rem;
+            }
+        }
+
         @media (max-width: 768px) {
             html, body {
                 width: 100%;
@@ -584,6 +643,8 @@ $result = $site_db->query($query);
                 width: 100%;
                 max-width: 300px;
                 margin: 1rem auto;
+                max-height: calc(100vh - 150px); /* Adjusted for mobile */
+                overflow-y: auto;
             }
 
             footer {
@@ -596,30 +657,30 @@ $result = $site_db->query($query);
     <main>
         <!-- Discord Widget -->
         <section class="discord-widget">
-            <h2>Join Our Discord</h2>
+            <h2><?php echo translate('home_discord_title', 'Join Our Discord'); ?></h2>
             <iframe src="https://discord.com/widget?id=1405755152085815337&theme=dark" width="350" height="400" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
         </section>
 
         <!-- Intro Container -->
         <section class="intro-container">
-            <h1 class="intro-title">Welcome to Sahtout</h1>
-            <p class="intro-tagline">Join our epic World of Warcraft server adventure today!</p>
+            <h1 class="intro-title"><?php echo translate('home_intro_title', 'Welcome to Sahtout'); ?></h1>
+            <p class="intro-tagline"><?php echo translate('home_intro_tagline', 'Join our epic World of Warcraft server adventure today!'); ?></p>
             <div class="intro-buttons">
-                <a href="/sahtout/register" class="intro-button">Create Account</a>
-                <a href="/sahtout/download" class="intro-button">Download</a>
+                <a href="/sahtout/register" class="intro-button"><?php echo translate('home_create_account', 'Create Account'); ?></a>
+                <a href="/sahtout/download" class="intro-button"><?php echo translate('home_download', 'Download'); ?></a>
             </div>
             <div class="social-container">
                 <hr class="social-line">
                 <a href="https://www.youtube.com/@Blodyone" class="youtube-button">
-                    <img src="/sahtout/img/homeimg/youtube-logo1.png" alt="YouTube" class="youtube-logo">
+                    <img src="/sahtout/img/homeimg/youtube-logo1.png" alt="<?php echo translate('youtube_alt', 'YouTube'); ?>" class="youtube-logo">
                 </a>
                 <hr class="social-line">
                 <a href="https://discord.gg/chxXTXXQ6M" class="discord-button">
-                    <img src="/sahtout/img/homeimg/discordlogo.png" alt="Discord" class="discord-logo">
+                    <img src="/sahtout/img/homeimg/discordlogo.png" alt="<?php echo translate('discord_alt', 'Discord'); ?>" class="discord-logo">
                 </a>
                 <hr class="social-line">
                 <a href="https://instagram.com/your-profile" class="instagram-button">
-                    <img src="/sahtout/img/homeimg/insta-logo.png" alt="Instagram" class="instagram-logo">
+                    <img src="/sahtout/img/homeimg/insta-logo.png" alt="<?php echo translate('instagram_alt', 'Instagram'); ?>" class="instagram-logo">
                 </a>
                 <hr class="social-line">
             </div>
@@ -628,12 +689,12 @@ $result = $site_db->query($query);
         <!-- 🔁 Image Gallery Slider -->
         <section class="hero-gallery">
             <div class="slider" id="slider">
-                <div class="slide"><img src="/sahtout/img/homeimg/slide1.jpg" alt="World of Warcraft Scene 1"></div>
-                <div class="slide"><img src="/sahtout/img/homeimg/slide2.jpg" alt="World of Warcraft Scene 2"></div>
-                <div class="slide"><img src="/sahtout/img/homeimg/slide3.jpg" alt="World of Warcraft Scene 3"></div>
+                <div class="slide"><img src="/sahtout/img/homeimg/slide1.jpg" alt="<?php echo translate('slider_alt_1', 'World of Warcraft Scene 1'); ?>"></div>
+                <div class="slide"><img src="/sahtout/img/homeimg/slide2.jpg" alt="<?php echo translate('slider_alt_2', 'World of Warcraft Scene 2'); ?>"></div>
+                <div class="slide"><img src="/sahtout/img/homeimg/slide3.jpg" alt="<?php echo translate('slider_alt_3', 'World of Warcraft Scene 3'); ?>"></div>
             </div>
-            <button class="slider-nav prev" aria-label="Previous Slide">❮</button>
-            <button class="slider-nav next" aria-label="Next Slide">❯</button>
+            <button class="slider-nav prev" aria-label="<?php echo translate('slider_prev', 'Previous Slide'); ?>">❮</button>
+            <button class="slider-nav next" aria-label="<?php echo translate('slider_next', 'Next Slide'); ?>">❯</button>
             <div class="slider-dots">
                 <span class="dot active" data-slide="0"></span>
                 <span class="dot" data-slide="1"></span>
@@ -645,7 +706,7 @@ $result = $site_db->query($query);
         <section class="news-preview">
             <div class="news-grid">
                 <?php if ($result->num_rows === 0): ?>
-                    <p>No news available at this time.</p>
+                    <p><?php echo translate('home_no_news', 'No news available at the time.'); ?></p>
                 <?php else: ?>
                     <?php while ($news = $result->fetch_assoc()): ?>
                         <div class="news-item">
@@ -666,28 +727,26 @@ $result = $site_db->query($query);
         <!-- 🔲 Menubar Tabs -->
         <section class="tabs-container">
             <div class="tabs">
-                <button class="tab active" data-tab="bugtracker">Bugtracker</button>
-                <button class="tab" data-tab="stream">Stream</button>
+                <button class="tab active" data-tab="bugtracker"><?php echo translate('home_tab_bugtracker', 'Bugtracker'); ?></button>
+                <button class="tab" data-tab="stream"><?php echo translate('home_tab_stream', 'Stream'); ?></button>
             </div>
             <div class="tab-content" id="tab-content">
-                <h2>Bugtracker</h2>
-                <p>View and report issues with the server to help us improve your experience.</p>
+                <h2><?php echo translate('home_bugtracker_title', 'Bugtracker'); ?></h2>
+                <p><?php echo translate('home_bugtracker_content', 'View and report issues with the server to help us improve your experience.'); ?></p>
             </div>
         </section>
 
-        <!-- Realm Status -->
-        <section class="realm-status">
+        <!-- Server Status -->
         <div class="server-status">
             <?php
             $realm_status_file = "includes/realm_status.php";
             if (file_exists($realm_status_file)) {
                 include $realm_status_file;
             } else {
-                echo "<p>Error: Realm status unavailable.</p>";
+                echo "<p>" . translate('home_realm_status_error', 'Error: Realm status unavailable.') . "</p>";
             }
             ?>
         </div>
-        </section>
     </main>
     
     <?php
@@ -695,7 +754,7 @@ $result = $site_db->query($query);
     if (file_exists($footer_file)) {
         include $footer_file;
     } else {
-        die("Error: Footer file not found.");
+        die(translate('error_footer_not_found', 'Error: Footer file not found.'));
     }
     ?>
     <script src="assets/js/home.js"></script>

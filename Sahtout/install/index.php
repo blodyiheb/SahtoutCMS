@@ -3,10 +3,10 @@ define('ALLOWED_ACCESS', true);
 include __DIR__ . '/header.inc.php';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($langCode ?? 'en') ?>">
 <head>
     <meta charset="UTF-8">
-    <title>SahtoutCMS Installer</title>
+    <title><?= translate('installer_title', 'SahtoutCMS Installer') ?></title>
     <style>
         html, body {
             height: 100%;
@@ -17,12 +17,12 @@ include __DIR__ . '/header.inc.php';
             background-size: cover;
             color: #f0e6d2;
             display: flex;
-            flex-direction: column; /* stack header, content, footer */
+            flex-direction: column;
         }
         main {
-            flex: 1; /* pushes footer down */
+            flex: 1;
             display: flex;
-            align-items: center; /* vertical center */
+            align-items: center;
             justify-content: center;
             padding: 40px 20px;
         }
@@ -65,26 +65,22 @@ include __DIR__ . '/header.inc.php';
             box-shadow: 0 0 25px #d4af37;
         }
     </style>
-    <!-- Fantasy font -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap" rel="stylesheet">
 </head>
 <body>
     <main>
         <div class="container">
-            <h1>SahtoutCMS Installer</h1>
+            <h1><?= translate('installer_name', 'SahtoutCMS Installer') ?></h1>
             <h1>⚔️</h1>
             <p>
-                Welcome, adventurer. <br>
-                This installer will guide you through the setup of <strong>SahtoutCMS</strong>, 
-                for World of Warcraft private servers. <br><br>
-                Prepare your database credentials and your server, for the journey begins now.
+                <?= translate('welcome_message_line1', 'Welcome, adventurer.') ?><br>
+                <?= translate('welcome_message_line2', 'This installer will guide you through the setup of <strong>SahtoutCMS</strong>, for World of Warcraft private servers.') ?><br><br>
+                <?= translate('welcome_message_line3', 'Prepare your database credentials and your server, for the journey begins now.') ?>
             </p>
             <p style="margin-top:20px; font-size:0.9em; color:#fff; font-style:italic;">
-                ⚔️ Note: I created this project alone for fun, learning, and testing. 
-                While I’ve tried to make it look and feel professional, it’s not a team project, 
-                and some bugs may still exist. Enjoy exploring and give feedback if you find issues!
+                ⚔️ <?= translate('note_dev_info', 'Note: I created this project alone for fun, learning, and testing. While I’ve tried to make it look and feel professional, it’s not a team project, and some bugs may still exist. Enjoy exploring and give feedback if you find issues!') ?>
             </p>
-            <a href="step2_check" class="btn">Begin Installation</a>
+            <a href="step2_check" class="btn"><?= translate('btn_begin_install', 'Begin Installation') ?></a>
         </div>
     </main>
 

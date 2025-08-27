@@ -1,7 +1,7 @@
 <?php 
 define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
-$page_class = "how-to-play";
+$page_class = "how_to_play";
 require_once '../includes/header.php'; 
 ?>
 

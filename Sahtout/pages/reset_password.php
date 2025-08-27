@@ -4,11 +4,12 @@ require_once '../includes/session.php';
 require_once '../includes/config.cap.php';
 require_once '../includes/srp6.php';
 require_once '../includes/config.mail.php';
-$page_class = 'reset-password';
+require_once '../languages/language.php'; // Add for translate()
+$page_class = 'reset_password'; // Use underscore for URL consistency
 require_once '../includes/header.php';
 
 if (isset($_SESSION['user_id'])) {
-    header("Location: /Sahtout/account");
+    header("Location: /sahtout/account");
     exit();
 }
 
@@ -19,13 +20,6 @@ $valid_token = false;
 $email = '';
 $username = '';
 
-// Debug logging function
-function debug_log($message) {
-    $log_file = 'C:/xampp/htdocs/Sahtout/logs/reset_password.log';
-    $timestamp = date('Y-m-d H:i:s');
-    file_put_contents($log_file, "[$timestamp] $message\n", FILE_APPEND);
-}
-
 // Function to send confirmation email
 function sendResetConfirmationEmail($username, $email) {
     global $errors;
@@ -33,21 +27,16 @@ function sendResetConfirmationEmail($username, $email) {
         $mail = getMailer();
         $mail->addAddress($email, $username);
         $mail->AddEmbeddedImage('logo.png', 'logo_cid');
-        $mail->Subject = '[Password Reset] Confirmation';
-        $mail->Body = "<h2>Password Reset Confirmation</h2>
+        $mail->Subject = translate('email_subject_confirmation', 'Password Reset Confirmation');
+        $mail->Body = "<h2>" . str_replace('{username}', htmlspecialchars($username), translate('email_greeting', 'Welcome, {username}!')) . "</h2>
             <img src='cid:logo_cid' alt='Sahtout logo'>
-            <p>Dear $username,</p>
-            <p>Your password has been successfully reset.</p>
-            <p>If you did not perform this action, please contact support immediately.</p>";
+            <p>" . translate('email_success', 'Your password has been successfully reset.') . "</p>
+            <p>" . translate('email_contact_support', 'If you did not perform this action, please contact support immediately.') . "</p>";
         if (!$mail->send()) {
-            $errors[] = "Failed to send confirmation email: " . $mail->ErrorInfo;
-            debug_log("Failed to send confirmation email: " . $mail->ErrorInfo);
-        } else {
-            debug_log("Confirmation email sent to: $email");
+            $errors[] = translate('error_email_failed', 'Failed to send confirmation email: ') . $mail->ErrorInfo;
         }
     } catch (Exception $e) {
-        $errors[] = "Email error: " . $e->getMessage();
-        debug_log("Confirmation email error: " . $e->getMessage());
+        $errors[] = translate('error_email_failed', 'Email error: ') . $e->getMessage();
     }
 }
 
@@ -63,7 +52,6 @@ if ($token) {
         $current_time = time();
         if ($row['used'] == 0 && $expires_at > $current_time) {
             $email = $row['email'];
-            debug_log("Token valid, email found: $email");
 
             // Check account table first
             $stmt2 = $auth_db->prepare("SELECT username FROM account WHERE LOWER(email) = LOWER(?)");
@@ -73,7 +61,6 @@ if ($token) {
             if ($result2->num_rows > 0) {
                 $username = $result2->fetch_assoc()['username'];
                 $valid_token = true;
-                debug_log("Username found in account: $username");
             } else {
                 // Check pending_accounts table
                 $stmt3 = $site_db->prepare("SELECT username FROM pending_accounts WHERE LOWER(email) = LOWER(?)");
@@ -81,27 +68,22 @@ if ($token) {
                 $stmt3->execute();
                 $result3 = $stmt3->get_result();
                 if ($result3->num_rows > 0) {
-                    $errors[] = "Your account is not active yet. Please activate your account to reset your password.";
-                    debug_log("Email found in pending_accounts, not active: $email");
+                    $errors[] = translate('error_account_not_active', 'Your account is not active yet. Please activate your account to reset your password.');
                 } else {
-                    $errors[] = "Account does not exist.";
-                    debug_log("No account found for email: $email");
+                    $errors[] = translate('error_account_not_exist', 'Account does not exist.');
                 }
                 $stmt3->close();
             }
             $stmt2->close();
         } else {
-            $errors[] = "The reset link is invalid or has expired.";
-            debug_log("Token invalid or expired for token: $token");
+            $errors[] = translate('error_token_invalid', 'The reset link is invalid or has expired.');
         }
     } else {
-        $errors[] = "Invalid reset token.";
-        debug_log("No token found: $token");
+        $errors[] = translate('error_token_missing', 'Invalid reset token.');
     }
     $stmt->close();
 } else {
-    $errors[] = "No reset token provided.";
-    debug_log("No token provided in URL");
+    $errors[] = translate('error_no_token', 'No reset token provided.');
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
@@ -110,11 +92,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
 
     // Validate password
     if (empty($password)) {
-        $errors[] = "Password is required.";
+        $errors[] = translate('error_password_required', 'Password is required.');
     } elseif (strlen($password) < 8) {
-        $errors[] = "Password must be at least 8 characters long.";
+        $errors[] = translate('error_password_short', 'Password must be at least 8 characters long.');
     } elseif ($password !== $confirm_password) {
-        $errors[] = "Passwords do not match.";
+        $errors[] = translate('error_password_mismatch', 'Passwords do not match.');
     }
 
     // Google reCAPTCHA validation
@@ -122,14 +104,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
     $verify = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . RECAPTCHA_SECRET_KEY . '&response=' . $recaptchaResponse);
     $responseData = json_decode($verify);
     if (!$responseData->success) {
-        $errors[] = "reCAPTCHA verification failed.";
+        $errors[] = translate('error_recaptcha_failed', 'reCAPTCHA verification failed.');
     }
 
     if (empty($errors)) {
         // Generate new SRP-6a salt and verifier
         $salt = SRP6::GenerateSalt();
         $verifier = SRP6::calculateVerifier($username, $password, $salt);
-        debug_log("Generated new salt and verifier for username: $username");
 
         // Update account table
         $stmt = $auth_db->prepare("UPDATE account SET salt = ?, verifier = ? WHERE email = ?");
@@ -143,10 +124,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
             // Send confirmation email
             sendResetConfirmationEmail($username, $email);
             $success = "Your password has been successfully reset. You can now log in.";
-            debug_log("Password reset successful for email: $email");
         } else {
-            $errors[] = "Failed to update password.";
-            debug_log("Password update failed for email: $email");
+            $errors[] = translate('error_password_update_failed', 'Failed to update password.');
         }
         $stmt->close();
     }
@@ -154,23 +133,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Reset Password</title>
+    <meta name="description" content="<?php echo translate('meta_description', 'Reset your password for our World of Warcraft server.'); ?>">
+    <title><?php echo translate('page_title', 'Reset Password'); ?></title>
     <style>
-        body.reset-password {
+        body.reset_password {
             color: #fff;
             margin: 0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            background: url('/sahtout/img/backgrounds/bg-login.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'UnifrakturCook', 'Arial', sans-serif;
+            position: relative;
         }
         html, body {
             width: 100%;
             overflow-x: hidden;
             margin: 0;
+        }
+        body::before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1;
         }
         .wrapper {
             flex: 1;
@@ -179,6 +173,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
             align-items: center;
             padding: 1rem;
             width: 100%;
+            position: relative;
+            z-index: 2;
         }
         .form-container {
             max-width: 500px;
@@ -218,6 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
             border-radius: 4px;
             outline: none;
             transition: border-color 0.3s ease;
+            margin-bottom: 0.5rem; /* Add for extra spacing */
         }
         .form-section input:focus {
             border-color: #ffe600;
@@ -225,6 +222,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
         }
         .form-section input::placeholder {
             color: #ccc;
+        }
+        .g-recaptcha {
+            margin: 0 auto 0.5rem; /* Add margin-bottom for spacing */
+            display: flex;
+            justify-content: center;
         }
         .form-section button {
             background: #333;
@@ -280,6 +282,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
             color: #fff;
             font-family: 'Arial', sans-serif;
             font-size: 0.9rem;
+            position: relative;
+            z-index: 2;
         }
         @media (max-width: 767px) {
             .wrapper {
@@ -308,11 +312,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
         }
     </style>
 </head>
-<body class="reset-password">
+<body class="reset_password">
     <div class="wrapper">
         <div class="form-container">
             <div class="form-section">
-                <h2>Reset Password</h2>
+                <h2><?php echo translate('reset_title', 'Reset Password'); ?></h2>
                 <?php if (!empty($errors)): ?>
                     <div class="error">
                         <?php foreach ($errors as $error): ?>
@@ -327,12 +331,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
                 <?php else: ?>
                     <?php if ($valid_token): ?>
                         <form method="POST">
-                            <input type="password" name="password" placeholder="New Password" required>
-                            <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+                            <input type="password" name="password" placeholder="<?php echo translate('password_placeholder', 'New Password'); ?>" required>
+                            <input type="password" name="confirm_password" placeholder="<?php echo translate('confirm_password_placeholder', 'Confirm Password'); ?>" required>
                             <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
-                            <button type="submit">Reset Password</button>
+                            <button type="submit"><?php echo translate('reset_button', 'Reset Password'); ?></button>
                             <div class="login-link">
-                                <a href="/sahtout/login">Back to Login</a>
+                                <a href="/sahtout/login"><?php echo translate('login_link', 'Back to Login'); ?></a>
                             </div>
                         </form>
                     <?php endif; ?>

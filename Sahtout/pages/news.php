@@ -1,21 +1,12 @@
 <?php
 define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
+require_once '../languages/language.php'; // Include language file for translations
 $page_class = 'news';
 include dirname(__DIR__) . '/includes/header.php';
 
 $base_url = '/sahtout/';
 $default_image_url = 'img/newsimg/news.png';
-$log_dir = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR;
-$log_file = $log_dir . 'image_errors.log';
-
-// Ensure log directory exists
-if (!file_exists($log_dir)) {
-    mkdir($log_dir, 0755, true);
-}
-if (!is_writable($log_dir)) {
-    error_log("Log directory not writable: $log_dir");
-}
 
 $items_per_page = 5;
 $slug = isset($_GET['slug']) ? trim($_GET['slug']) : '';
@@ -34,15 +25,10 @@ if ($is_single) {
 
     if (!$news) {
         header('HTTP/1.0 404 Not Found');
-        echo '<h1>404 - News Not Found</h1>';
-        echo '<p>The news article you are looking for does not exist.</p>';
+        echo '<h1>' . translate('error_404_title', '404 - News Not Found') . '</h1>';
+        echo '<p>' . translate('error_404_message', 'The news article you are looking for does not exist.') . '</p>';
         include dirname(__DIR__) . '/includes/footer.php';
         exit;
-    }
-
-    // Log if image_url is suspicious
-    if (!empty($news['image_url']) && !preg_match('/^img\/newsimg\/.*\.(jpg|png|gif)$/i', $news['image_url'])) {
-        error_log("Suspicious image_url for news ID {$news['id']}: {$news['image_url']}", 3, $log_file);
     }
 } else {
     $current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
@@ -67,7 +53,7 @@ if ($is_single) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -76,9 +62,9 @@ if ($is_single) {
         <link rel="canonical" href="/sahtout/news?slug=<?php echo htmlspecialchars($news['slug']); ?>">
         <title><?php echo htmlspecialchars($news['title']); ?></title>
     <?php else: ?>
-        <meta name="description" content="Latest news and updates for our World of Warcraft server.">
+        <meta name="description" content="<?php echo translate('meta_description_list', 'Latest news and updates for our World of Warcraft server.'); ?>">
         <link rel="canonical" href="/sahtout/news?page=<?php echo $current_page; ?>">
-        <title>News</title>
+        <title><?php echo translate('page_title_list', 'News'); ?></title>
     <?php endif; ?>
     <meta name="robots" content="index">
     <link rel="stylesheet" href="<?php echo $base_url; ?>assets/css/news.css">
@@ -102,30 +88,24 @@ if ($is_single) {
                     <h1 class="news-single-title"><?php echo htmlspecialchars($news['title']); ?></h1>
                     <div class="news-single-meta">
                         <span class="category <?php echo htmlspecialchars($news['category']); ?>">
-                            <?php echo ucfirst(htmlspecialchars($news['category'])); ?>
+                            <?php echo translate('category_' . $news['category'], ucfirst(htmlspecialchars($news['category']))); ?>
                         </span>
                         <span class="date"><?php echo date('M j, Y', strtotime($news['post_date'])); ?></span>
-                        <span class="author">Posted by <?php echo htmlspecialchars($news['posted_by']); ?></span>
+                        <span class="author"><?php echo sprintf(translate('posted_by', 'Posted by %s'), htmlspecialchars($news['posted_by'])); ?></span>
                     </div>
                     <div class="news-single-content">
                         <?php echo nl2br(htmlspecialchars($news['content'])); ?>
                     </div>
-                    <a href="/sahtout/news" class="news-single-back">← Back to News</a>
+                    <a href="/sahtout/news" class="news-single-back"><?php echo translate('back_to_news', '← Back to News'); ?></a>
                 </article>
             <?php else: ?>
                 <!-- News List -->
-                <h1 class="wow-news-title">Sahtout News</h1>
+                <h1 class="wow-news-title"><?php echo translate('page_title_list', 'Sahtout News'); ?></h1>
                 <?php if ($result->num_rows === 0): ?>
-                    <div class="no-news">No news available at this time.</div>
+                    <div class="no-news"><?php echo translate('no_news', 'No news available at this time.'); ?></div>
                 <?php else: ?>
                     <div class="news-list">
                         <?php while ($news = $result->fetch_assoc()): ?>
-                            <?php
-                            // Log suspicious image_url
-                            if (!empty($news['image_url']) && !preg_match('/^img\/newsimg\/.*\.(jpg|png|gif)$/i', $news['image_url'])) {
-                                error_log("Suspicious image_url for news ID {$news['id']}: {$news['image_url']}", 3, $log_file);
-                            }
-                            ?>
                             <a href="/sahtout/news?slug=<?php echo htmlspecialchars($news['slug']); ?>" class="news-link">
                                 <article class="news-item <?php echo $news['is_important'] ? 'important' : ''; ?>">
                                     <?php if (!empty($news['image_url'])): ?>
@@ -142,10 +122,10 @@ if ($is_single) {
                                         <h2><?php echo htmlspecialchars($news['title']); ?></h2>
                                         <div class="news-meta">
                                             <span class="category <?php echo htmlspecialchars($news['category']); ?>">
-                                                <?php echo ucfirst(htmlspecialchars($news['category'])); ?>
+                                                <?php echo translate('category_' . $news['category'], ucfirst(htmlspecialchars($news['category']))); ?>
                                             </span>
                                             <span class="date"><?php echo date('M j, Y', strtotime($news['post_date'])); ?></span>
-                                            <span class="author">Posted by <?php echo htmlspecialchars($news['posted_by']); ?></span>
+                                            <span class="author"><?php echo sprintf(translate('posted_by', 'Posted by %s'), htmlspecialchars($news['posted_by'])); ?></span>
                                         </div>
                                         <p class="news-excerpt"><?php echo htmlspecialchars($news['excerpt']); ?>...</p>
                                     </div>
@@ -160,19 +140,19 @@ if ($is_single) {
                             <?php if ($current_page > 1): ?>
                                 <a href="/sahtout/news?page=<?php echo $current_page - 1; ?>" 
                                    class="pagination-link" 
-                                   aria-label="Previous page">« Prev</a>
+                                   aria-label="<?php echo translate('pagination_previous', 'Previous page'); ?>">« <?php echo translate('pagination_prev', 'Prev'); ?></a>
                             <?php endif; ?>
                             <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                                 <a href="/sahtout/news?page=<?php echo $i; ?>" 
                                    class="pagination-link <?php echo $i == $current_page ? 'active' : ''; ?>" 
-                                   aria-label="Go to page <?php echo $i; ?>">
+                                   aria-label="<?php echo sprintf(translate('pagination_go_to_page', 'Go to page %s'), $i); ?>">
                                     <?php echo $i; ?>
                                 </a>
                             <?php endfor; ?>
                             <?php if ($current_page < $total_pages): ?>
                                 <a href="/sahtout/news?page=<?php echo $current_page + 1; ?>" 
                                    class="pagination-link" 
-                                   aria-label="Next page">Next »</a>
+                                   aria-label="<?php echo translate('pagination_next_label', 'Next page'); ?>"><?php echo translate('pagination_next', 'Next'); ?> »</a>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>

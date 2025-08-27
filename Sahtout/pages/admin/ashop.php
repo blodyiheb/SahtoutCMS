@@ -1,6 +1,7 @@
 <?php
 define('ALLOWED_ACCESS', true);
-require_once '../../includes/session.php';
+require_once __DIR__ . '/../../includes/session.php';
+require_once __DIR__ . '/../../languages/language.php'; // Include translation system
 
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'moderator'])) {
     header("Location: /Sahtout/login");
@@ -54,7 +55,6 @@ foreach ($category_dirs as $dir) {
     }
     if (!is_writable($full_dir)) {
         error_log("Directory not writable: $full_dir", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-        // Attempt to set permissions (Windows equivalent)
         @chmod($full_dir, 0777);
     }
 }
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Validate category
             if (!in_array($category, $valid_categories)) {
-                header("Location: ashop?status=error&message=Invalid category&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                header("Location: ashop?status=error&message=" . urlencode(translate('admin_shop_invalid_category', 'Invalid category')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                 exit;
             }
 
@@ -95,14 +95,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->fetch();
                 $stmt->close();
                 if ($count == 0) {
-                    header("Location: ashop?status=error&message=Invalid entry ID&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    header("Location: ashop?status=error&message=" . urlencode(translate('admin_shop_invalid_entry_id', 'Invalid entry ID')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 }
             }
 
             // Only validate level boost if category is Service
             if ($category === 'Service' && $level_boost !== null && ($level_boost < 2 || $level_boost > 255)) {
-                header("Location: ashop?status=error&message=Level boost must be between 2 and 255&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                header("Location: ashop?status=error&message=" . urlencode(translate('admin_shop_invalid_level_boost', 'Level boost must be between 2 and 255')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                 exit;
             }
 
@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Check upload directory permissions
             if (!is_writable($upload_dir)) {
                 error_log("Upload directory not writable: $upload_dir", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                header("Location: ashop?status=error&message=Upload directory is not writable&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                header("Location: ashop?status=error&message=" . urlencode(translate('admin_shop_upload_dir_not_writable', 'Upload directory is not writable')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                 exit;
             }
 
@@ -129,15 +129,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($file['error'] !== UPLOAD_ERR_OK) {
                     $error_messages = [
-                        UPLOAD_ERR_INI_SIZE => 'File size exceeds server limit (upload_max_filesize)',
-                        UPLOAD_ERR_FORM_SIZE => 'File size exceeds form limit',
-                        UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
-                        UPLOAD_ERR_NO_FILE => 'No file was uploaded',
-                        UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary directory',
-                        UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
-                        UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the upload'
+                        UPLOAD_ERR_INI_SIZE => translate('admin_shop_upload_err_ini_size', 'File size exceeds server limit (upload_max_filesize)'),
+                        UPLOAD_ERR_FORM_SIZE => translate('admin_shop_upload_err_form_size', 'File size exceeds form limit'),
+                        UPLOAD_ERR_PARTIAL => translate('admin_shop_upload_err_partial', 'File was only partially uploaded'),
+                        UPLOAD_ERR_NO_FILE => translate('admin_shop_upload_err_no_file', 'No file was uploaded'),
+                        UPLOAD_ERR_NO_TMP_DIR => translate('admin_shop_upload_err_no_tmp_dir', 'Missing temporary directory'),
+                        UPLOAD_ERR_CANT_WRITE => translate('admin_shop_upload_err_cant_write', 'Failed to write file to disk'),
+                        UPLOAD_ERR_EXTENSION => translate('admin_shop_upload_err_extension', 'A PHP extension stopped the upload')
                     ];
-                    $error_message = isset($error_messages[$file['error']]) ? $error_messages[$file['error']] : 'Unknown upload error';
+                    $error_message = isset($error_messages[$file['error']]) ? $error_messages[$file['error']] : translate('admin_shop_upload_err_unknown', 'Unknown upload error');
                     error_log("Upload error: $error_message", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
                     header("Location: ashop?status=error&message=" . urlencode($error_message) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
@@ -145,19 +145,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if (!in_array($file['type'], $allowed_types)) {
                     error_log("Invalid file type: {$file['type']}", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                    header("Location: ashop?status=error&message=Invalid file type. Only JPG, PNG, GIF allowed&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    header("Location: ashop?status=error&message=" . urlencode(translate('admin_shop_invalid_file_type', 'Invalid file type. Only JPG, PNG, GIF allowed')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 }
                 if ($file['size'] > $max_size) {
                     error_log("File size exceeds limit: {$file['size']} bytes", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                    header("Location: ashop?status=error&message=File size exceeds 2MB limit&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    header("Location: ashop?status=error&message=" . urlencode(translate('admin_shop_file_size_exceeded', 'File size exceeds 2MB limit')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 }
 
                 // Validate temporary file
                 if (!file_exists($file['tmp_name']) || !is_readable($file['tmp_name'])) {
                     error_log("Temporary file missing or unreadable: {$file['tmp_name']}", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                    header("Location: ashop?status=error&message=Temporary file is missing or unreadable&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    header("Location: ashop?status=error&message=" . urlencode(translate('admin_shop_tmp_file_missing', 'Temporary file is missing or unreadable')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 }
 
@@ -184,12 +184,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     } else {
                         error_log("File move reported success but file not found at: $destination", 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                        header("Location: ashop?status=error&message=File move succeeded but file not found&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                        header("Location: ashop?status=error&message=" . urlencode(translate('admin_shop_file_move_failed', 'File move succeeded but file not found')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                         exit;
                     }
                 } else {
                     error_log("Failed to move uploaded file to: $destination, tmp_name exists: " . (file_exists($file['tmp_name']) ? 'Yes' : 'No'), 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
-                    header("Location: ashop?status=error&message=Failed to move uploaded file&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    header("Location: ashop?status=error&message=" . urlencode(translate('admin_shop_upload_failed', 'Failed to move uploaded file')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 }
             } elseif ($action === 'edit' && isset($_POST['existing_image'])) {
@@ -226,10 +226,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 
                 if ($stmt->execute()) {
-                    header("Location: ashop?status=success&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    header("Location: ashop?status=success&message=" . urlencode(translate('admin_shop_operation_success', 'Operation successful!')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 } else {
-                    throw new Exception("Database error: " . $stmt->error);
+                    throw new Exception(sprintf(translate('admin_shop_db_error', 'Database error: %s'), $stmt->error));
                 }
             } catch (Exception $e) {
                 error_log("Database error: " . $e->getMessage(), 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
@@ -263,10 +263,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bind_param("i", $item_id);
                 
                 if ($stmt->execute()) {
-                    header("Location: ashop?status=success&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    header("Location: ashop?status=success&message=" . urlencode(translate('admin_shop_operation_success', 'Operation successful!')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
                     exit;
                 } else {
-                    throw new Exception("Database error: " . $stmt->error);
+                    throw new Exception(sprintf(translate('admin_shop_db_error', 'Database error: %s'), $stmt->error));
                 }
             } catch (Exception $e) {
                 error_log("Delete error: " . $e->getMessage(), 3, __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . 'upload_errors.log');
@@ -356,20 +356,20 @@ $status_message = '';
 if (isset($_GET['status'])) {
     $status_class = $_GET['status'] === 'success' ? 'success' : 'danger';
     $message = isset($_GET['message']) ? htmlspecialchars($_GET['message']) : 
-              ($_GET['status'] === 'success' ? 'Operation successful!' : 'An error occurred.');
+              translate($_GET['status'] === 'success' ? 'admin_shop_operation_success' : 'admin_shop_operation_error', $_GET['status'] === 'success' ? 'Operation successful!' : 'An error occurred.');
     
     $status_message = '<div class="alert alert-' . $status_class . '">' . $message . '</div>';
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Shop Management for Sahtout WoW Server">
+    <meta name="description" content="<?php echo translate('admin_shop_meta_description', 'Shop Management for Sahtout WoW Server'); ?>">
     <meta name="robots" content="noindex">
-    <title>Shop Management - Admin Panel</title>
+    <title><?php echo translate('admin_shop_page_title', 'Shop Management - Admin Panel'); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/Sahtout/assets/css/footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -589,16 +589,16 @@ if (isset($_GET['status'])) {
 </head>
 <body class="shop">
     <div class="wrapper">
-        <?php include '../../includes/header.php'; ?>
+        <?php include __DIR__ . '/../../includes/header.php'; ?>
         <div class="dashboard-container">
             <div class="row">
-                <?php include '../../includes/admin_sidebar.php'; ?>
+                <?php include __DIR__ . '/../../includes/admin_sidebar.php'; ?>
                 <div class="col-md-9">
-                    <h1 class="dashboard-title">Shop Management</h1>
+                    <h1 class="dashboard-title"><?php echo translate('admin_shop_title', 'Shop Management'); ?></h1>
                     <?php echo $status_message; ?>
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="mb-0">Add/Edit Shop Item</h5>
+                            <h5 class="mb-0"><?php echo translate('admin_shop_add_edit_header', 'Add/Edit Shop Item'); ?></h5>
                         </div>
                         <div class="card-body">
                             <form method="POST" class="mb-4" id="itemForm" enctype="multipart/form-data">
@@ -608,40 +608,40 @@ if (isset($_GET['status'])) {
                                 
                                 <div class="row g-3">
                                     <div class="col-md-4">
-                                        <label for="category" class="form-label required-field">Category</label>
+                                        <label for="category" class="form-label required-field"><?php echo translate('admin_shop_label_category', 'Category'); ?></label>
                                         <select name="category" id="category" class="form-select" required>
-                                            <option value="Mount">Mount</option>
-                                            <option value="Pet">Pet</option>
-                                            <option value="Gold">Gold</option>
-                                            <option value="Service">Service</option>
-                                            <option value="Stuff">Stuff</option>
+                                            <option value="Mount"><?php echo translate('admin_shop_category_mount', 'Mount'); ?></option>
+                                            <option value="Pet"><?php echo translate('admin_shop_category_pet', 'Pet'); ?></option>
+                                            <option value="Gold"><?php echo translate('admin_shop_category_gold', 'Gold'); ?></option>
+                                            <option value="Service"><?php echo translate('admin_shop_category_service', 'Service'); ?></option>
+                                            <option value="Stuff"><?php echo translate('admin_shop_category_stuff', 'Stuff'); ?></option>
                                         </select>
                                     </div>
                                     
                                     <div class="col-md-4 form-group name-group active">
-                                        <label for="name" class="form-label required-field">Name</label>
-                                        <input type="text" name="name" id="name" class="form-control" required maxlength="100">
+                                        <label for="name" class="form-label required-field"><?php echo translate('admin_shop_label_name', 'Name'); ?></label>
+                                        <input type="text" name="name" id="name" class="form-control" required maxlength="100" placeholder="<?php echo translate('admin_shop_placeholder_name', 'Enter item name'); ?>">
                                     </div>
                                     
                                     <div class="col-md-4 form-group point-cost-group active">
-                                        <label for="point_cost" class="form-label required-field">Point Cost</label>
-                                        <input type="number" name="point_cost" id="point_cost" class="form-control" min="0" required>
+                                        <label for="point_cost" class="form-label required-field"><?php echo translate('admin_shop_label_point_cost', 'Point Cost'); ?></label>
+                                        <input type="number" name="point_cost" id="point_cost" class="form-control" min="0" required placeholder="<?php echo translate('admin_shop_placeholder_point_cost', 'Enter point cost'); ?>">
                                     </div>
                                     
                                     <div class="col-md-4 form-group token-cost-group active">
-                                        <label for="token_cost" class="form-label required-field">Token Cost</label>
-                                        <input type="number" name="token_cost" id="token_cost" class="form-control" min="0" required>
+                                        <label for="token_cost" class="form-label required-field"><?php echo translate('admin_shop_label_token_cost', 'Token Cost'); ?></label>
+                                        <input type="number" name="token_cost" id="token_cost" class="form-control" min="0" required placeholder="<?php echo translate('admin_shop_placeholder_token_cost', 'Enter token cost'); ?>">
                                     </div>
                                     
                                     <div class="col-md-4 form-group stock-group active">
-                                        <label for="stock" class="form-label">Stock (leave empty for unlimited)</label>
-                                        <input type="number" name="stock" id="stock" class="form-control" min="0">
+                                        <label for="stock" class="form-label"><?php echo translate('admin_shop_label_stock', 'Stock'); ?></label>
+                                        <input type="number" name="stock" id="stock" class="form-control" min="0" placeholder="<?php echo translate('admin_shop_placeholder_stock', 'Leave empty for unlimited'); ?>">
                                     </div>
                                     
                                     <div class="col-md-4 form-group entry-group">
-                                        <label for="entry" class="form-label">Item Entry (Optional)</label>
+                                        <label for="entry" class="form-label"><?php echo translate('admin_shop_label_entry', 'Item Entry'); ?></label>
                                         <select name="entry" id="entry" class="form-select">
-                                            <option value="">Select Entry</option>
+                                            <option value=""><?php echo translate('admin_shop_select_entry', 'Select Entry'); ?></option>
                                             <?php foreach ($site_items as $item): ?>
                                                 <option value="<?php echo $item['entry']; ?>">
                                                     <?php echo htmlspecialchars($item['entry'] . ' - ' . $item['name']); ?>
@@ -651,53 +651,53 @@ if (isset($_GET['status'])) {
                                     </div>
                                     
                                     <div class="col-md-4 form-group gold-amount-group">
-                                        <label for="gold_amount" class="form-label">Gold Amount</label>
-                                        <input type="number" name="gold_amount" id="gold_amount" class="form-control" min="0" value="0">
+                                        <label for="gold_amount" class="form-label"><?php echo translate('admin_shop_label_gold_amount', 'Gold Amount'); ?></label>
+                                        <input type="number" name="gold_amount" id="gold_amount" class="form-control" min="0" value="0" placeholder="<?php echo translate('admin_shop_placeholder_gold_amount', 'Enter gold amount'); ?>">
                                     </div>
                                     
                                     <div class="col-md-4 form-group level-boost-group">
-                                        <label for="level_boost" class="form-label">Level Boost (2-255)</label>
-                                        <input type="number" name="level_boost" id="level_boost" class="form-control" min="2" max="255">
+                                        <label for="level_boost" class="form-label"><?php echo translate('admin_shop_label_level_boost', 'Level Boost (2-255)'); ?></label>
+                                        <input type="number" name="level_boost" id="level_boost" class="form-control" min="2" max="255" placeholder="<?php echo translate('admin_shop_placeholder_level_boost', 'Enter level boost'); ?>">
                                     </div>
                                     
                                     <div class="col-md-4 form-group at-login-flags-group">
-                                        <label for="at_login_flags" class="form-label">Login Flags</label>
+                                        <label for="at_login_flags" class="form-label"><?php echo translate('admin_shop_label_at_login_flags', 'Login Flags'); ?></label>
                                         <select name="at_login_flags" id="at_login_flags" class="form-select">
-                                            <option value="0">None</option>
-                                            <option value="1">Force character to change name</option>
-                                            <option value="2">Reset spells (professions as well)</option>
-                                            <option value="4">Reset Talents</option>
-                                            <option value="8">Customize Character</option>
-                                            <option value="16">Reset Pet Talents</option>
-                                            <option value="32">First Login</option>
-                                            <option value="64">Faction Change</option>
-                                            <option value="128">Race Change</option>
+                                            <option value="0"><?php echo translate('admin_shop_at_login_none', 'None'); ?></option>
+                                            <option value="1"><?php echo translate('admin_shop_at_login_force_name', 'Force character to change name'); ?></option>
+                                            <option value="2"><?php echo translate('admin_shop_at_login_reset_spells', 'Reset spells (professions as well)'); ?></option>
+                                            <option value="4"><?php echo translate('admin_shop_at_login_reset_talents', 'Reset Talents'); ?></option>
+                                            <option value="8"><?php echo translate('admin_shop_at_login_customize', 'Customize Character'); ?></option>
+                                            <option value="16"><?php echo translate('admin_shop_at_login_reset_pet', 'Reset Pet Talents'); ?></option>
+                                            <option value="32"><?php echo translate('admin_shop_at_login_first_login', 'First Login'); ?></option>
+                                            <option value="64"><?php echo translate('admin_shop_at_login_faction_change', 'Faction Change'); ?></option>
+                                            <option value="128"><?php echo translate('admin_shop_at_login_race_change', 'Race Change'); ?></option>
                                         </select>
                                     </div>
                                     
                                     <div class="col-md-4 form-group is-item-group">
-                                        <label for="is_item" class="form-label">Is Item?</label>
+                                        <label for="is_item" class="form-label"><?php echo translate('admin_shop_label_is_item', 'Is Item?'); ?></label>
                                         <select name="is_item" id="is_item" class="form-select">
-                                            <option value="0">No</option>
-                                            <option value="1">Yes</option>
+                                            <option value="0"><?php echo translate('admin_shop_no', 'No'); ?></option>
+                                            <option value="1"><?php echo translate('admin_shop_yes', 'Yes'); ?></option>
                                         </select>
                                     </div>
                                     
                                     <div class="col-md-8 form-group image-group active">
-                                        <label for="image" class="form-label">Image Upload (JPG, PNG, GIF, max 2MB)</label>
+                                        <label for="image" class="form-label"><?php echo translate('admin_shop_label_image', 'Image Upload (JPG, PNG, GIF, max 2MB)'); ?></label>
                                         <input type="file" name="image" id="image" class="form-control" accept="image/jpeg,image/png,image/gif">
-                                        <small class="form-text text-muted">Leave blank to keep existing image when editing.</small>
-                                        <img id="image_preview" class="image-preview" src="" alt="Image Preview">
+                                        <small class="form-text text-muted"><?php echo translate('admin_shop_image_help', 'Leave blank to keep existing image when editing.'); ?></small>
+                                        <img id="image_preview" class="image-preview" src="" alt="<?php echo translate('admin_shop_image_preview_alt', 'Image Preview'); ?>">
                                     </div>
                                     
                                     <div class="col-12 form-group description-group">
-                                        <label for="description" class="form-label">Description</label>
-                                        <textarea name="description" id="description" class="form-control" rows="4"></textarea>
+                                        <label for="description" class="form-label"><?php echo translate('admin_shop_label_description', 'Description'); ?></label>
+                                        <textarea name="description" id="description" class="form-control" rows="4" placeholder="<?php echo translate('admin_shop_placeholder_description', 'Enter description'); ?>"></textarea>
                                     </div>
                                     
                                     <div class="col-12">
-                                        <button type="submit" class="btn btn-primary" id="submitBtn">Add Item</button>
-                                        <button type="button" id="cancelEdit" class="btn btn-secondary" style="display:none;">Cancel</button>
+                                        <button type="submit" class="btn btn-primary" id="submitBtn"><?php echo translate('admin_shop_add_button', 'Add Item'); ?></button>
+                                        <button type="button" id="cancelEdit" class="btn btn-secondary" style="display:none;"><?php echo translate('admin_shop_cancel_button', 'Cancel'); ?></button>
                                     </div>
                                 </div>
                             </form>
@@ -705,28 +705,28 @@ if (isset($_GET['status'])) {
                     </div>
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="mb-0">Shop Items</h5>
+                            <h5 class="mb-0"><?php echo translate('admin_shop_list_header', 'Shop Items'); ?></h5>
                         </div>
                         <div class="card-body">
                             <form method="GET" class="filter-search-form mb-4">
                                 <div class="row g-3">
                                     <div class="col-md-4">
-                                        <label for="category_filter" class="form-label">Filter by Category</label>
+                                        <label for="category_filter" class="form-label"><?php echo translate('admin_shop_label_category_filter', 'Filter by Category'); ?></label>
                                         <select name="category" id="category_filter" class="form-select">
-                                            <option value="">All Categories</option>
+                                            <option value=""><?php echo translate('admin_shop_all_categories', 'All Categories'); ?></option>
                                             <?php foreach ($valid_categories as $cat): ?>
                                                 <option value="<?php echo $cat; ?>" <?php echo $category_filter === $cat ? 'selected' : ''; ?>>
-                                                    <?php echo $cat; ?>
+                                                    <?php echo translate('admin_shop_category_' . strtolower($cat), $cat); ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label for="search" class="form-label">Search by Name</label>
-                                        <input type="text" name="search" id="search" class="form-control" value="<?php echo htmlspecialchars($search_query); ?>" placeholder="Enter item name">
+                                        <label for="search" class="form-label"><?php echo translate('admin_shop_label_search', 'Search by Name'); ?></label>
+                                        <input type="text" name="search" id="search" class="form-control" value="<?php echo htmlspecialchars($search_query); ?>" placeholder="<?php echo translate('admin_shop_placeholder_search', 'Enter item name'); ?>">
                                     </div>
                                     <div class="col-md-4 d-flex align-items-end">
-                                        <button type="submit" class="btn btn-primary w-100">Apply</button>
+                                        <button type="submit" class="btn btn-primary w-100"><?php echo translate('admin_shop_apply_button', 'Apply'); ?></button>
                                     </div>
                                 </div>
                             </form>
@@ -734,34 +734,34 @@ if (isset($_GET['status'])) {
                                 <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Category</th>
-                                            <th>Name</th>
-                                            <th>Points</th>
-                                            <th>Tokens</th>
-                                            <th>Stock</th>
-                                            <th>Image</th>
-                                            <th>Actions</th>
+                                            <th><?php echo translate('admin_shop_table_id', 'ID'); ?></th>
+                                            <th><?php echo translate('admin_shop_table_category', 'Category'); ?></th>
+                                            <th><?php echo translate('admin_shop_table_name', 'Name'); ?></th>
+                                            <th><?php echo translate('admin_shop_table_points', 'Points'); ?></th>
+                                            <th><?php echo translate('admin_shop_table_tokens', 'Tokens'); ?></th>
+                                            <th><?php echo translate('admin_shop_table_stock', 'Stock'); ?></th>
+                                            <th><?php echo translate('admin_shop_table_image', 'Image'); ?></th>
+                                            <th><?php echo translate('admin_shop_table_actions', 'Actions'); ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php if (empty($items)): ?>
                                             <tr>
-                                                <td colspan="8" class="text-center">No items found</td>
+                                                <td colspan="8" class="text-center"><?php echo translate('admin_shop_no_items', 'No items found'); ?></td>
                                             </tr>
                                         <?php else: ?>
                                             <?php foreach ($items as $row): ?>
                                                 <tr>
                                                     <td><?php echo $row['item_id']; ?></td>
-                                                    <td><?php echo htmlspecialchars($row['category']); ?></td>
+                                                    <td><?php echo translate('admin_shop_category_' . strtolower($row['category']), $row['category']); ?></td>
                                                     <td>
                                                         <?php echo htmlspecialchars($row['name']); ?>
                                                         <?php if (!empty($row['entry_name'])): ?>
-                                                            <br><small class="text-muted">Item: <?php echo htmlspecialchars($row['entry_name']); ?></small>
+                                                            <br><small class="text-muted"><?php echo translate('admin_shop_item_label', 'Item:') . ' ' . htmlspecialchars($row['entry_name']); ?></small>
                                                         <?php elseif ($row['gold_amount'] > 0): ?>
-                                                            <br><small class="text-muted">Gold: <?php echo number_format($row['gold_amount']); ?></small>
+                                                            <br><small class="text-muted"><?php echo translate('admin_shop_gold_label', 'Gold:') . ' ' . number_format($row['gold_amount']); ?></small>
                                                         <?php elseif ($row['level_boost']): ?>
-                                                            <br><small class="text-muted">Level: +<?php echo $row['level_boost']; ?></small>
+                                                            <br><small class="text-muted"><?php echo translate('admin_shop_level_label', 'Level:') . ' +' . $row['level_boost']; ?></small>
                                                         <?php endif; ?>
                                                     </td>
                                                     <td><?php echo $row['point_cost']; ?></td>
@@ -769,9 +769,9 @@ if (isset($_GET['status'])) {
                                                     <td><?php echo $row['stock'] ?? '∞'; ?></td>
                                                     <td>
                                                         <?php if ($row['image']): ?>
-                                                            <img src="<?php echo htmlspecialchars($row['image']); ?>" alt="Item Image" style="max-width: 50px; max-height: 50px;">
+                                                            <img src="<?php echo htmlspecialchars($row['image']); ?>" alt="<?php echo translate('admin_shop_image_alt', 'Item Image'); ?>" style="max-width: 50px; max-height: 50px;">
                                                         <?php else: ?>
-                                                            No Image
+                                                            <?php echo translate('admin_shop_no_image', 'No Image'); ?>
                                                         <?php endif; ?>
                                                     </td>
                                                     <td>
@@ -783,7 +783,7 @@ if (isset($_GET['status'])) {
                                                             <input type="hidden" name="action" value="delete">
                                                             <input type="hidden" name="item_id" value="<?php echo $row['item_id']; ?>">
                                                             <button type="submit" class="btn btn-sm btn-danger" 
-                                                                    onclick="return confirm('Are you sure you want to delete this item?');">
+                                                                    onclick="return confirm('<?php echo translate('admin_shop_delete_confirm', 'Are you sure you want to delete this item?'); ?>');">
                                                                 <i class="fas fa-trash-alt"></i>
                                                             </button>
                                                         </form>
@@ -796,10 +796,10 @@ if (isset($_GET['status'])) {
                             </div>
                             <!-- Pagination Controls -->
                             <?php if ($total_pages > 1): ?>
-                                <nav aria-label="Page navigation">
+                                <nav aria-label="<?php echo translate('admin_shop_pagination_aria', 'Page navigation'); ?>">
                                     <ul class="pagination">
                                         <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
-                                            <a class="page-link" href="admin/ashop?page=<?php echo $page - 1; ?><?php echo $category_filter ? '&category=' . urlencode($category_filter) : ''; ?><?php echo $search_query ? '&search=' . urlencode($search_query) : ''; ?>" aria-label="Previous">
+                                            <a class="page-link" href="admin/ashop?page=<?php echo $page - 1; ?><?php echo $category_filter ? '&category=' . urlencode($category_filter) : ''; ?><?php echo $search_query ? '&search=' . urlencode($search_query) : ''; ?>" aria-label="<?php echo translate('admin_shop_previous', 'Previous'); ?>">
                                                 <span aria-hidden="true">&laquo;</span>
                                             </a>
                                         </li>
@@ -809,7 +809,7 @@ if (isset($_GET['status'])) {
                                             </li>
                                         <?php endfor; ?>
                                         <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
-                                            <a class="page-link" href="admin/ashop?page=<?php echo $page + 1; ?><?php echo $category_filter ? '&category=' . urlencode($category_filter) : ''; ?><?php echo $search_query ? '&search=' . urlencode($search_query) : ''; ?>" aria-label="Next">
+                                            <a class="page-link" href="admin/ashop?page=<?php echo $page + 1; ?><?php echo $category_filter ? '&category=' . urlencode($category_filter) : ''; ?><?php echo $search_query ? '&search=' . urlencode($search_query) : ''; ?>" aria-label="<?php echo translate('admin_shop_next', 'Next'); ?>">
                                                 <span aria-hidden="true">&raquo;</span>
                                             </a>
                                         </li>
@@ -821,7 +821,7 @@ if (isset($_GET['status'])) {
                 </div>
             </div>
         </div>
-        <?php include '../../includes/footer.php'; ?>
+        <?php include __DIR__ . '/../../includes/footer.php'; ?>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -897,14 +897,14 @@ if (isset($_GET['status'])) {
                     const maxSize = 2 * 1024 * 1024; // 2MB
                     
                     if (!allowedTypes.includes(file.type)) {
-                        alert('Invalid file type. Only JPG, PNG, or GIF allowed.');
+                        alert('<?php echo translate('admin_shop_js_invalid_file_type', 'Invalid file type. Only JPG, PNG, or GIF allowed.'); ?>');
                         this.value = '';
                         imagePreview.classList.remove('active');
                         imagePreview.src = '';
                         return;
                     }
                     if (file.size > maxSize) {
-                        alert('File size exceeds 2MB limit.');
+                        alert('<?php echo translate('admin_shop_js_file_size_exceeded', 'File size exceeds 2MB limit.'); ?>');
                         this.value = '';
                         imagePreview.classList.remove('active');
                         imagePreview.src = '';
@@ -948,7 +948,7 @@ if (isset($_GET['status'])) {
                     imageInput.value = ''; // Clear file input
                     
                     // Update UI
-                    submitBtn.textContent = 'Update Item';
+                    submitBtn.textContent = '<?php echo translate('admin_shop_update_button', 'Update Item'); ?>';
                     cancelBtn.style.display = 'inline-block';
                     
                     // Update form fields based on selected category
@@ -967,7 +967,7 @@ if (isset($_GET['status'])) {
                 existingImageInput.value = '';
                 imagePreview.classList.remove('active');
                 imagePreview.src = '';
-                submitBtn.textContent = 'Add Item';
+                submitBtn.textContent = '<?php echo translate('admin_shop_add_button', 'Add Item'); ?>';
                 this.style.display = 'none';
                 updateFormFields();
             });
@@ -981,7 +981,7 @@ if (isset($_GET['status'])) {
                 
                 if (!name || pointCost === '' || tokenCost === '') {
                     e.preventDefault();
-                    alert('Please fill in all required fields.');
+                    alert('<?php echo translate('admin_shop_js_required_fields', 'Please fill in all required fields.'); ?>');
                     return;
                 }
                 
@@ -990,7 +990,7 @@ if (isset($_GET['status'])) {
                     const levelBoost = document.getElementById('level_boost').value;
                     if (levelBoost && (levelBoost < 2 || levelBoost > 255)) {
                         e.preventDefault();
-                        alert('Level boost must be between 2 and 255.');
+                        alert('<?php echo translate('admin_shop_js_invalid_level_boost', 'Level boost must be between 2 and 255.'); ?>');
                         return;
                     }
                 }

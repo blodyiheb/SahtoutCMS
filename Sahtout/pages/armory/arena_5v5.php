@@ -46,7 +46,7 @@ while ($row = $result->fetch_assoc()) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WoW Armory - Top 50 5v5 Arena Teams</title>
+    <title><?php echo translate('arena_5v5_page_title', 'WoW Armory - Top 50 5v5 Arena Teams'); ?></title>
     <!-- Load Tailwind CSS with a custom configuration -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -113,26 +113,26 @@ while ($row = $result->fetch_assoc()) {
 <body class="<?php echo $page_class; ?>">
     <div class="arena-content tw-bg-900 tw-text-white">
         <div class="tw-container tw-mx-auto tw-px-4 tw-py-8">
-            <h1 class="tw-text-4xl tw-font-bold tw-text-center tw-text-amber-400 tw-mb-6">Top 50 5v5 Arena Teams</h1>
+            <h1 class="tw-text-4xl tw-font-bold tw-text-center tw-text-amber-400 tw-mb-6"><?php echo translate('arena_5v5_title', 'Top 50 5v5 Arena Teams'); ?></h1>
 
             <?php include_once '../../includes/arenanavbar.php'; ?>
 
             <?php if (count($teams) == 0): ?>
                 <div class="tw-text-center tw-text-lg tw-text-amber-400 tw-bg-gray-800 tw-p-6 tw-rounded-lg tw-shadow-lg">
-                    No 5v5 arena teams found.
+                    <?php echo translate('arena_5v5_no_teams', 'No 5v5 arena teams found.'); ?>
                 </div>
             <?php else: ?>
                 <div class="table-container tw-overflow-x-auto tw-rounded-lg tw-shadow-lg">
                     <table class="tw-w-full tw-text-sm tw-text-center tw-bg-gray-800">
                         <thead class="tw-bg-gray-700 tw-text-amber-400 tw-uppercase">
                             <tr>
-                                <th class="tw-py-3 tw-px-6">Rank</th>
-                                <th class="tw-py-3 tw-px-6">Name</th>
-                                <th class="tw-py-3 tw-px-6">Faction</th>
-                                <th class="tw-py-3 tw-px-6">Wins</th>
-                                <th class="tw-py-3 tw-px-6">Losses</th>
-                                <th class="tw-py-3 tw-px-6">Winrate</th>
-                                <th class="tw-py-3 tw-px-6">Rating</th>
+                                <th class="tw-py-3 tw-px-6"><?php echo translate('arena_5v5_rank', 'Rank'); ?></th>
+                                <th class="tw-py-3 tw-px-6"><?php echo translate('arena_5v5_name', 'Name'); ?></th>
+                                <th class="tw-py-3 tw-px-6"><?php echo translate('arena_5v5_faction', 'Faction'); ?></th>
+                                <th class="tw-py-3 tw-px-6"><?php echo translate('arena_5v5_wins', 'Wins'); ?></th>
+                                <th class="tw-py-3 tw-px-6"><?php echo translate('arena_5v5_losses', 'Losses'); ?></th>
+                                <th class="tw-py-3 tw-px-6"><?php echo translate('arena_5v5_winrate', 'Winrate'); ?></th>
+                                <th class="tw-py-3 tw-px-6"><?php echo translate('arena_5v5_rating', 'Rating'); ?></th>
                             </tr>
                         </thead>
                         <tbody>

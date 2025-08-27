@@ -40,13 +40,13 @@ function classIcon($class) {
 function getTeamTypeName($type) {
     switch ($type) {
         case 2:
-            return '2v2';
+            return translate('arenateam_type_2v2', '2v2');
         case 3:
-            return '3v3';
+            return translate('arenateam_type_3v3', '3v3');
         case 5:
-            return '5v5';
+            return translate('arenateam_type_5v5', '5v5');
         default:
-            return 'Unknown';
+            return translate('arenateam_type_unknown', 'Unknown');
     }
 }
 
@@ -121,7 +121,7 @@ $orderedMembers = array_merge($orderedMembers, $members);
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WoW Armory - Arena Team Details</title>
+    <title><?php echo translate('arenateam_page_title', 'WoW Armory - Arena Team Details'); ?></title>
     <!-- Load Tailwind CSS with a custom configuration -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -246,12 +246,12 @@ $orderedMembers = array_merge($orderedMembers, $members);
         <div class="tw-container tw-max-w-6xl tw-mx-auto tw-ml-0 tw-mr-auto sm:tw-mx-auto tw-px-2 tw-py-4 sm:tw-px-4 sm:tw-py-8">
             <?php if (!$team): ?>
                 <div class="tw-text-center tw-text-base sm:tw-text-lg tw-text-amber-400 tw-bg-gray-800 tw-p-4 sm:tw-p-6 tw-rounded-lg tw-shadow-lg tw-max-w-6xl tw-mx-auto">
-                    No arena team found.
+                    <?php echo translate('arenateam_no_team', 'No arena team found.'); ?>
                 </div>
             <?php else: ?>
                 <h1 class="team-header tw-text-[2rem] sm:tw-text-[2.5rem] tw-font-bold tw-text-center tw-text-gold-300 tw-mb-6 tw-p-2 sm:tw-p-4 tw-rounded-xl tw-max-w-6xl tw-mx-auto">
                     <img src="/Sahtout/img/armory/arena.webp" alt="Arena Team" title="Arena Team" class="arena-icon inline-block">
-                    <?php echo htmlspecialchars($team['team_name']); ?> - <?php echo getTeamTypeName($team['type']); ?> Arena Team
+                    <?php echo htmlspecialchars($team['team_name']); ?> - <?php echo getTeamTypeName($team['type']); ?> <?php echo translate('arenateam_suffix', 'Arena Team'); ?>
                 </h1>
 
                 <div class="arena-nav-wrapper">
@@ -260,60 +260,60 @@ $orderedMembers = array_merge($orderedMembers, $members);
 
                 <!-- Team Summary -->
                 <div class="summary-container tw-p-4 sm:tw-p-6 tw-rounded-lg tw-shadow-lg tw-mb-8 tw-max-w-6xl tw-mx-auto">
-                    <h2 class="tw-text-xl sm:tw-text-2xl tw-font-bold tw-text-amber-400 tw-mb-4">Team Summary</h2>
+                    <h2 class="tw-text-xl sm:tw-text-2xl tw-font-bold tw-text-amber-400 tw-mb-4"><?php echo translate('arenateam_team_summary', 'Team Summary'); ?></h2>
                     <div class="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 tw-gap-4 tw-text-center">
                         <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
-                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Rating</p>
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300"><?php echo translate('arenateam_rating', 'Rating'); ?></p>
                             <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['rating']; ?></p>
                         </div>
                         <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
-                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Winrate</p>
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300"><?php echo translate('arenateam_winrate', 'Winrate'); ?></p>
                             <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['winrate']; ?>%</p>
                         </div>
                         <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
-                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Season Games</p>
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300"><?php echo translate('arenateam_season_games', 'Season Games'); ?></p>
                             <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['seasonGames']; ?></p>
                         </div>
                         <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
-                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Season Wins</p>
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300"><?php echo translate('arenateam_season_wins', 'Season Wins'); ?></p>
                             <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['seasonWins']; ?></p>
                         </div>
                         <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
-                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Season Losses</p>
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300"><?php echo translate('arenateam_season_losses', 'Season Losses'); ?></p>
                             <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['seasonLosses']; ?></p>
                         </div>
                         <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
-                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Week Games</p>
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300"><?php echo translate('arenateam_week_games', 'Week Games'); ?></p>
                             <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['weekGames'] ?? 'N/A'; ?></p>
                         </div>
                         <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
-                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Week Wins</p>
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300"><?php echo translate('arenateam_week_wins', 'Week Wins'); ?></p>
                             <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['weekWins'] ?? 'N/A'; ?></p>
                         </div>
                         <div class="summary-item summary-item-<?php echo $team['type'] == 2 ? '2v2' : ($team['type'] == 3 ? '3v3' : ($team['type'] == 5 ? '5v5' : 'default')); ?> tw-p-2 sm:tw-p-3 tw-rounded-lg">
-                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300">Week Losses</p>
+                            <p class="tw-text-base sm:tw-text-lg tw-text-gray-300"><?php echo translate('arenateam_week_losses', 'Week Losses'); ?></p>
                             <p class="tw-text-lg sm:tw-text-xl tw-font-semibold tw-text-gold-300 summary-value"><?php echo $team['weekLosses'] ?? 'N/A'; ?></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Team Members -->
-                <h2 class="tw-text-xl sm:tw-text-2xl tw-font-bold tw-text-amber-400 tw-mb-4 tw-max-w-6xl tw-mx-auto">Team Members</h2>
+                <h2 class="tw-text-xl sm:tw-text-2xl tw-font-bold tw-text-amber-400 tw-mb-4 tw-max-w-6xl tw-mx-auto"><?php echo translate('arenateam_team_members', 'Team Members'); ?></h2>
                 <div class="table-container tw-overflow-x-auto tw-rounded-lg tw-shadow-lg tw-max-w-6xl tw-mx-auto">
                     <table class="tw-w-full tw-text-xs sm:tw-text-sm tw-text-center tw-bg-gray-900/90">
                         <thead class="tw-text-gold-300 tw-uppercase" style="background: linear-gradient(to right, #4338ca, #1e1b4b);">
                             <tr>
-                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">Name</th>
-                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">Faction</th>
-                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">Race</th>
-                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">Class</th>
-                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6">Personal Rating</th>
+                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6"><?php echo translate('arenateam_name', 'Name'); ?></th>
+                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6"><?php echo translate('arenateam_faction', 'Faction'); ?></th>
+                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6"><?php echo translate('arenateam_race', 'Race'); ?></th>
+                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6"><?php echo translate('arenateam_class', 'Class'); ?></th>
+                                <th class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6"><?php echo translate('arenateam_personal_rating', 'Personal Rating'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (count($orderedMembers) == 0): ?>
                                 <tr>
-                                    <td colspan="5" class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6 tw-text-base sm:tw-text-lg tw-text-amber-400">No members found.</td>
+                                    <td colspan="5" class="tw-py-2 tw-px-4 sm:tw-py-3 sm:tw-px-6 tw-text-base sm:tw-text-lg tw-text-amber-400"><?php echo translate('arenateam_no_members', 'No members found.'); ?></td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($orderedMembers as $member): ?>

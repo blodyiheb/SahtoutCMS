@@ -3,7 +3,8 @@ define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
 require_once '../includes/config.mail.php';
 require_once '../includes/config.cap.php'; // reCAPTCHA keys
-$page_class = 'resend';
+require_once '../languages/language.php'; // Add for translate()
+$page_class = 'resend_activation'; // Underscore for URL consistency
 require_once '../includes/header.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -18,16 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $test_email = trim($_POST['email'] ?? '');
 
     // Basic validation
-    if (empty($test_username)) $errors[] = "Username is required";
-    if (empty($test_email)) $errors[] = "Email is required";
-    elseif (!filter_var($test_email, FILTER_VALIDATE_EMAIL)) $errors[] = "Invalid email address";
+    if (empty($test_username)) $errors[] = translate('error_username_required', 'Username is required');
+    if (empty($test_email)) $errors[] = translate('error_email_required', 'Email is required');
+    elseif (!filter_var($test_email, FILTER_VALIDATE_EMAIL)) $errors[] = translate('error_email_invalid', 'Invalid email address');
 
     // Google reCAPTCHA validation
     $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
     $verify = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . RECAPTCHA_SECRET_KEY . '&response=' . $recaptchaResponse);
     $responseData = json_decode($verify);
     if (!$responseData->success) {
-        $errors[] = "reCAPTCHA verification failed.";
+        $errors[] = translate('error_recaptcha_failed', 'reCAPTCHA verification failed.');
     }
 
     if (empty($errors)) {
@@ -42,18 +43,18 @@ function updateToken($db, $username, $email, $new_token) {
     global $errors;
     $stmt = $db->prepare("UPDATE pending_accounts SET token = ?, created_at = NOW() WHERE username = ? AND email = ? AND activated = 0");
     if (!$stmt) {
-        $errors[] = "Database error: " . $db->error;
+        $errors[] = translate('error_database', 'Database error: ') . $db->error;
         return false;
     }
     $stmt->bind_param('sss', $new_token, $username, $email);
     if ($stmt->execute()) {
         if ($stmt->affected_rows === 0) {
-            $errors[] = "No matching unactivated account found";
+            $errors[] = translate('error_no_account', 'No matching unactivated account found');
             return false;
         }
         return true;
     } else {
-        $errors[] = "Update failed: " . $stmt->error;
+        $errors[] = translate('error_update_failed', 'Update failed: ') . $stmt->error;
         return false;
     }
 }
@@ -68,34 +69,34 @@ function sendActivationEmail($username, $email, $token) {
         $mail = getMailer();
         $mail->addAddress($email, $username);
         $mail->AddEmbeddedImage('logo.png', 'logo_cid');
-        $mail->Subject = '[RESEND] Activate Your Account';
+        $mail->Subject = translate('email_subject', '[RESEND] Activate Your Account');
 
-        $activation_link = $protocol . $_SERVER['HTTP_HOST'] . "/sahtout/pages/activate.php?token=$token";
+        $activation_link = $protocol . $_SERVER['HTTP_HOST'] . "/sahtout/activate?token=$token";
 
-        $mail->Body = "<h2>Welcome, $username!</h2>
+        $mail->Body = "<h2>" . str_replace('{username}', htmlspecialchars($username), translate('email_greeting', 'Welcome, {username}!')) . "</h2>
             <img src='cid:logo_cid' alt='Sahtout logo'>
-            <p>Thank you for registering. Please click the button below to activate your account:</p>
-            <p><a href='$activation_link' style='background-color:#ffd700;color:#000;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;'>Activate Account</a></p>
-            <p>If you didn't request this, please ignore this email.</p>";
+            <p>" . translate('email_thanks', 'Thank you for registering. Please click the button below to activate your account:') . "</p>
+            <p><a href='$activation_link' style='background-color:#ffd700;color:#000;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;'>" . translate('email_button', 'Activate Account') . "</a></p>
+            <p>" . translate('email_ignore', 'If you didn\'t request this, please ignore this email.') . "</p>";
 
         if ($mail->send()) {
             $success = "Activation email sent successfully to $email";
         } else {
-            $errors[] = "Failed to send email: " . $mail->ErrorInfo;
+            $errors[] = translate('error_email_failed', 'Failed to send email: ') . $mail->ErrorInfo;
         }
     } catch (Exception $e) {
-        $errors[] = "Email error: " . $e->getMessage();
+        $errors[] = translate('error_email_failed', 'Email error: ') . $e->getMessage();
     }
 }
-
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Resend Activation Email</title>
+    <meta name="description" content="<?php echo translate('meta_description', 'Resend the activation email for your World of Warcraft server account.'); ?>">
+    <title><?php echo translate('page_title', 'Resend Activation Email'); ?></title>
     <style>
         html, body {
             width: 100%;
@@ -241,11 +242,11 @@ function sendActivationEmail($username, $email, $token) {
         }
     </style>
 </head>
-<body>
+<body class="resend_activation">
     <div class="wrapper">
         <div class="form-container">
             <div class="form-section">
-                <h2>Resend Activation Email</h2>
+                <h2><?php echo translate('resend_title', 'Resend Activation Email'); ?></h2>
                 <?php if (!empty($errors)): ?>
                     <div class="error">
                         <?php foreach ($errors as $error): ?>
@@ -259,12 +260,12 @@ function sendActivationEmail($username, $email, $token) {
                     </div>
                 <?php endif; ?>
                 <form method="POST">
-                    <input type="text" name="username" placeholder="Username" required value="<?php echo htmlspecialchars($test_username); ?>">
-                    <input type="email" name="email" placeholder="Email" required value="<?php echo htmlspecialchars($test_email); ?>">
+                    <input type="text" name="username" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required value="<?php echo htmlspecialchars($test_username); ?>">
+                    <input type="email" name="email" placeholder="<?php echo translate('email_placeholder', 'Email'); ?>" required value="<?php echo htmlspecialchars($test_email); ?>">
                     <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
-                    <button type="submit">Resend Activation Email</button>
+                    <button type="submit"><?php echo translate('resend_button', 'Resend Activation Email'); ?></button>
                     <div class="login-link">
-                        Already activated? <a href="/sahtout/login">Log in here</a>
+                        <?php echo translate('login_link', 'Already activated?'); ?> <a href="/sahtout/login"><?php echo translate('login_link_text', 'Log in here'); ?></a>
                     </div>
                 </form>
             </div>

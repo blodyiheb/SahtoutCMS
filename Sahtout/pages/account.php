@@ -3,6 +3,7 @@ ob_start(); // Start output buffering to catch any unexpected output
 define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
 require_once '../includes/srp6.php';
+require_once '../languages/language.php'; // Include language file for translations
 
 // Early session validation
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['username'])) {
@@ -41,14 +42,14 @@ if (isset($_SESSION['debug_errors'])) {
 // Handle form submissions before any output
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($auth_db->connect_error || $char_db->connect_error || $site_db->connect_error) {
-        $_SESSION['error'] = "Database connection failed";
+        $_SESSION['error'] = translate('error_database_connection', 'Database connection failed');
         header("Location: /Sahtout/account");
         exit();
     }
 
     // Verify CSRF token
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-        $_SESSION['error'] = "Invalid form submission";
+        $_SESSION['error'] = translate('error_invalid_form_submission', 'Invalid form submission');
         header("Location: /Sahtout/account");
         exit();
     }
@@ -60,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         try {
             if (!filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
-                throw new Exception("Invalid email format");
+                throw new Exception(translate('error_invalid_email_format', 'Invalid email format'));
             }
 
             // Fetch current email to check if it's the same
@@ -81,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt_check_email->execute();
                 $result = $stmt_check_email->get_result();
                 if ($result->num_rows > 0) {
-                    throw new Exception("Email already in use by another account");
+                    throw new Exception(translate('error_email_in_use', 'Email already in use by another account'));
                 }
                 $stmt_check_email->close();
             }
@@ -94,12 +95,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $stmt_verify->get_result();
             
             if ($result->num_rows !== 1) {
-                throw new Exception("Account not found");
+                throw new Exception(translate('error_account_not_found', 'Account not found'));
             }
             
             $row = $result->fetch_assoc();
             if (!SRP6::VerifyPassword($_SESSION['username'], $current_password, $row['salt'], $row['verifier'])) {
-                throw new Exception("Incorrect current password");
+                throw new Exception(translate('error_incorrect_password', 'Incorrect current password'));
             }
             $stmt_verify->close();
 
@@ -108,18 +109,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_update = $auth_db->prepare("UPDATE account SET email = ?, reg_mail = ? WHERE id = ?");
             $stmt_update->bind_param('ssi', $new_email, $new_email, $_SESSION['user_id']);
             if (!$stmt_update->execute()) {
-                throw new Exception("Error updating email");
+                throw new Exception(translate('error_updating_email', 'Error updating email'));
             }
             $stmt_update->close();
 
             // Log action
             /** @var \mysqli_stmt|false $stmt_log */
-            $stmt_log = $site_db->prepare("INSERT INTO website_activity_log (account_id, character_name, action, timestamp, details) VALUES (?, NULL, 'Email Changed', UNIX_TIMESTAMP(), ?)");
-            $stmt_log->bind_param('is', $_SESSION['user_id'], $new_email);
+            $stmt_log = $site_db->prepare("INSERT INTO website_activity_log (account_id, character_name, action, timestamp, details) VALUES (?, NULL, ?, UNIX_TIMESTAMP(), ?)");
+            $action = translate('action_email_changed', 'Email Changed');
+            $stmt_log->bind_param('iss', $_SESSION['user_id'], $action, $new_email);
             $stmt_log->execute();
             $stmt_log->close();
 
-            $_SESSION['message'] = "Email updated successfully!";
+            $_SESSION['message'] = translate('message_email_updated', 'Email updated successfully!');
             header("Location: /Sahtout/account");
             exit();
         } catch (Exception $e) {
@@ -137,10 +139,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         try {
             if ($new_password !== $confirm_password) {
-                throw new Exception("New passwords don't match");
+                throw new Exception(translate('error_passwords_dont_match', 'New passwords don\'t match'));
             }
             if (strlen($new_password) < 6) {
-                throw new Exception("Password must be at least 6 characters");
+                throw new Exception(translate('error_password_too_short', 'Password must be at least 6 characters'));
             }
 
             /** @var \mysqli_stmt|false $stmt */
@@ -150,12 +152,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $stmt->get_result();
             
             if ($result->num_rows !== 1) {
-                throw new Exception("Account not found");
+                throw new Exception(translate('error_account_not_found', 'Account not found'));
             }
             
             $row = $result->fetch_assoc();
             if (!SRP6::VerifyPassword($_SESSION['username'], $current_password, $row['salt'], $row['verifier'])) {
-                throw new Exception("Current password is incorrect");
+                throw new Exception(translate('error_incorrect_password', 'Current password is incorrect'));
             }
             $stmt->close();
 
@@ -166,18 +168,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $update = $auth_db->prepare("UPDATE account SET salt = ?, verifier = ? WHERE id = ?");
             $update->bind_param('ssi', $new_salt, $new_verifier, $_SESSION['user_id']);
             if (!$update->execute()) {
-                throw new Exception("Error updating password");
+                throw new Exception(translate('error_updating_password', 'Error updating password'));
             }
             $update->close();
 
             // Log action
             /** @var \mysqli_stmt|false $stmt_log */
-            $stmt_log = $site_db->prepare("INSERT INTO website_activity_log (account_id, character_name, action, timestamp) VALUES (?, NULL, 'Password Changed', UNIX_TIMESTAMP())");
-            $stmt_log->bind_param('i', $_SESSION['user_id']);
+            $stmt_log = $site_db->prepare("INSERT INTO website_activity_log (account_id, character_name, action, timestamp) VALUES (?, NULL, ?, UNIX_TIMESTAMP())");
+            $action = translate('action_password_changed', 'Password Changed');
+            $stmt_log->bind_param('is', $_SESSION['user_id'], $action);
             $stmt_log->execute();
             $stmt_log->close();
 
-            $_SESSION['message'] = "Password changed successfully!";
+            $_SESSION['message'] = translate('message_password_changed', 'Password changed successfully!');
             header("Location: /Sahtout/account");
             exit();
         } catch (Exception $e) {
@@ -194,19 +197,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         try {
             if (!$guid) {
-                throw new Exception("Invalid character ID");
+                throw new Exception(translate('error_invalid_character_id', 'Invalid character ID'));
             }
 
             // Prevent rapid resubmissions
             if (isset($_SESSION['last_teleport_attempt']) && (time() - $_SESSION['last_teleport_attempt']) < 5) {
-                throw new Exception("Please wait a few seconds before trying again");
+                throw new Exception(translate('error_rapid_submission', 'Please wait a few seconds before trying again'));
             }
             $_SESSION['last_teleport_attempt'] = time();
 
             // Check session-based cooldown
             if (isset($_SESSION['teleport_cooldowns'][$guid]) && ($_SESSION['teleport_cooldowns'][$guid] + 900) > time()) {
                 $minutes = ceil(($_SESSION['teleport_cooldowns'][$guid] + 900 - time()) / 60);
-                throw new Exception("Teleport on cooldown. Please wait $minutes minute" . ($minutes > 1 ? 's' : ''));
+                throw new Exception(sprintf(translate('error_teleport_cooldown', 'Teleport on cooldown. Please wait %s minute%s'), $minutes, $minutes > 1 ? 's' : ''));
             }
 
             // Fetch character name and online status
@@ -216,13 +219,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_check->execute();
             $result = $stmt_check->get_result();
             if ($result->num_rows !== 1) {
-                throw new Exception("Character not found");
+                throw new Exception(translate('error_character_not_found', 'Character not found'));
             }
             
             $char = $result->fetch_assoc();
             $character_name = $char['name'];
             if ($char['online'] == 1) {
-                throw new Exception("Character must be offline to teleport");
+                throw new Exception(translate('error_character_online', 'Character must be offline to teleport'));
             }
             $stmt_check->close();
 
@@ -245,7 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $cooldown_remaining = ($last_teleport + $cooldown_duration) - $current_time;
             if ($cooldown_remaining > 0) {
                 $minutes = ceil($cooldown_remaining / 60);
-                throw new Exception("Teleport on cooldown. Please wait $minutes minute" . ($minutes > 1 ? 's' : ''));
+                throw new Exception(sprintf(translate('error_teleport_cooldown', 'Teleport on cooldown. Please wait %s minute%s'), $minutes, $minutes > 1 ? 's' : ''));
             }
 
             $teleportData = [
@@ -254,7 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ];
             
             if (!isset($teleportData[$destination])) {
-                throw new Exception("Invalid teleport destination");
+                throw new Exception(translate('error_invalid_destination', 'Invalid teleport destination'));
             }
             
             $data = $teleportData[$destination];
@@ -262,7 +265,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_teleport = $char_db->prepare("UPDATE characters SET map = ?, position_x = ?, position_y = ?, position_z = ?, orientation = ? WHERE guid = ?");
             $stmt_teleport->bind_param('iddddi', $data['map'], $data['x'], $data['y'], $data['z'], $data['o'], $guid);
             if (!$stmt_teleport->execute()) {
-                throw new Exception("Error teleporting character");
+                throw new Exception(translate('error_teleporting_character', 'Error teleporting character'));
             }
             $stmt_teleport->close();
 
@@ -271,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_cooldown = $site_db->prepare("INSERT INTO character_teleport_log (account_id, character_guid, character_name, teleport_timestamp) VALUES (?, ?, ?, UNIX_TIMESTAMP()) ON DUPLICATE KEY UPDATE teleport_timestamp = UNIX_TIMESTAMP(), character_name = ?");
             $stmt_cooldown->bind_param('iiss', $_SESSION['user_id'], $guid, $character_name, $character_name);
             if (!$stmt_cooldown->execute()) {
-                throw new Exception("Error logging teleport");
+                throw new Exception(translate('error_logging_teleport', 'Error logging teleport'));
             }
             $stmt_cooldown->close();
 
@@ -280,13 +283,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Log action in sahtout_site.website_activity_log
             /** @var \mysqli_stmt|false $stmt_log */
-            $stmt_log = $site_db->prepare("INSERT INTO website_activity_log (account_id, character_name, action, timestamp, details) VALUES (?, ?, 'Teleport', UNIX_TIMESTAMP(), ?)");
-            $details = "To $destination";
-            $stmt_log->bind_param('iss', $_SESSION['user_id'], $character_name, $details);
+            $stmt_log = $site_db->prepare("INSERT INTO website_activity_log (account_id, character_name, action, timestamp, details) VALUES (?, ?, ?, UNIX_TIMESTAMP(), ?)");
+            $action = translate('action_teleport', 'Teleport');
+            $details = sprintf(translate('teleport_details', 'To %s'), ucfirst($destination));
+            $stmt_log->bind_param('isss', $_SESSION['user_id'], $character_name, $action, $details);
             $stmt_log->execute();
             $stmt_log->close();
 
-            $_SESSION['message'] = "Character teleported to " . ucfirst($destination) . "!";
+            $_SESSION['message'] = sprintf(translate('message_character_teleported', 'Character teleported to %s!'), ucfirst($destination));
             header("Location: /Sahtout/account");
             exit();
         } catch (Exception $e) {
@@ -314,14 +318,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $valid_avatar = $avatar === NULL || in_array($avatar, $valid_avatars);
             if (!$valid_avatar) {
-                throw new Exception("Invalid avatar selected");
+                throw new Exception(translate('error_invalid_avatar', 'Invalid avatar selected'));
             }
 
             /** @var \mysqli_stmt|false $stmt */
             $stmt = $site_db->prepare("UPDATE user_currencies SET avatar = ? WHERE account_id = ?");
             $stmt->bind_param('si', $avatar, $_SESSION['user_id']);
             if (!$stmt->execute()) {
-                throw new Exception("Error updating avatar");
+                throw new Exception(translate('error_updating_avatar', 'Error updating avatar'));
             }
             $stmt->close();
 
@@ -330,13 +334,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Log action
             /** @var \mysqli_stmt|false $stmt_log */
-            $stmt_log = $site_db->prepare("INSERT INTO website_activity_log (account_id, character_name, action, timestamp, details) VALUES (?, NULL, 'Avatar Changed', UNIX_TIMESTAMP(), ?)");
-            $details = $avatar !== NULL ? $avatar : 'Default avatar';
-            $stmt_log->bind_param('is', $_SESSION['user_id'], $details);
+            $stmt_log = $site_db->prepare("INSERT INTO website_activity_log (account_id, character_name, action, timestamp, details) VALUES (?, NULL, ?, UNIX_TIMESTAMP(), ?)");
+            $action = translate('action_avatar_changed', 'Avatar Changed');
+            $details = $avatar !== NULL ? $avatar : translate('avatar_default', 'Default avatar');
+            $stmt_log->bind_param('iss', $_SESSION['user_id'], $action, $details);
             $stmt_log->execute();
             $stmt_log->close();
 
-            $_SESSION['message'] = "Avatar updated successfully!";
+            $_SESSION['message'] = translate('message_avatar_updated', 'Avatar updated successfully!');
             header("Location: /Sahtout/account");
             exit();
         } catch (Exception $e) {
@@ -353,7 +358,7 @@ include_once '../includes/header.php';
 
 // Database queries for page content
 if ($auth_db->connect_error || $char_db->connect_error || $site_db->connect_error) {
-    $error = "Database connection failed";
+    $error = translate('error_database_connection', 'Database connection failed');
 } else {
     // Get account info
     /** @var \mysqli_stmt|false $stmt */
@@ -444,14 +449,14 @@ $site_db->close();
 // Helper functions
 function getAccountStatus($locked, $banInfo) {
     if (!empty($banInfo)) {
-        $reason = htmlspecialchars($banInfo['banreason'] ?? 'No reason provided');
-        $unbanDate = $banInfo['unbandate'] ? date('Y-m-d H:i:s', $banInfo['unbandate']) : 'Permanent';
-        return "<span class='text-danger'>Banned (Reason: $reason, Until: $unbanDate)</span>";
+        $reason = htmlspecialchars($banInfo['banreason'] ?? translate('ban_no_reason', 'No reason provided'));
+        $unbanDate = $banInfo['unbandate'] ? date('Y-m-d H:i:s', $banInfo['unbandate']) : translate('ban_permanent', 'Permanent');
+        return sprintf('<span class="text-danger">%s (Reason: %s, Until: %s)</span>', translate('status_banned', 'Banned'), $reason, $unbanDate);
     }
     switch ($locked) {
-        case 1: return "<span class='text-danger'>Banned</span>";
-        case 2: return "<span class='text-info'>Frozen</span>";
-        default: return "<span class='text-success'>Active</span>";
+        case 1: return sprintf('<span class="text-danger">%s</span>', translate('status_banned', 'Banned'));
+        case 2: return sprintf('<span class="text-info">%s</span>', translate('status_frozen', 'Frozen'));
+        default: return sprintf('<span class="text-success">%s</span>', translate('status_active', 'Active'));
     }
 }
 
@@ -462,24 +467,24 @@ function getGMStatus($gmlevel, $role) {
     if ($gmlevel > 0) {
         $suffix = '';
         if ($role === 'admin') {
-            $suffix = ' (S)';
+            $suffix = translate('gm_suffix_admin', ' (S)');
         } elseif ($role === 'moderator') {
-            $suffix = ($gmlevel == 1) ? ' (M)' : ' (A)';
+            $suffix = ($gmlevel == 1) ? translate('gm_suffix_moderator', ' (M)') : translate('gm_suffix_administrator', ' (A)');
         }
-        $rank = "Game Master Level $gmlevel" . $suffix;
+        $rank = sprintf(translate('gm_rank_gm', 'Game Master Level %s%s'), $gmlevel, $suffix);
     } elseif ($role === 'admin') {
-        $rank = 'Admin';
+        $rank = translate('gm_rank_admin', 'Admin');
     } elseif ($role === 'moderator') {
-        $rank = 'Moderator';
+        $rank = translate('gm_rank_moderator', 'Moderator');
     } else {
-        $rank = 'Player';
+        $rank = translate('gm_rank_player', 'Player');
     }
     
-    return '<img src="/sahtout/img/accountimg/' . $icon . '" alt="Status Icon" class="account-icon"> <span style="color: ' . $color . '">' . $rank . '</span>';
+    return sprintf('<img src="/sahtout/img/accountimg/%s" alt="%s" class="account-icon"> <span style="color: %s">%s</span>', $icon, translate('status_icon', 'Status Icon'), $color, $rank);
 }
 
 function getOnlineStatus($online) {
-    return $online ? "<span class='text-success'>Online</span>" : "<span class='text-danger'>Offline</span>";
+    return $online ? sprintf('<span class="text-success">%s</span>', translate('status_online', 'Online')) : sprintf('<span class="text-danger">%s</span>', translate('status_offline', 'Offline'));
 }
 
 function getRaceIcon($race, $gender) {
@@ -491,7 +496,7 @@ function getRaceIcon($race, $gender) {
     $gender_folder = ($gender == 1) ? 'female' : 'male';
     $race_name = $races[$race] ?? 'default';
     $image = $race_name . '.png';
-    return '<img src="/sahtout/img/accountimg/race/' . $gender_folder . '/' . $image . '" alt="Race Icon" class="account-icon">';
+    return sprintf('<img src="/sahtout/img/accountimg/race/%s/%s" alt="%s" class="account-icon">', $gender_folder, $image, translate('race_icon', 'Race Icon'));
 }
 
 function getClassIcon($class) {
@@ -500,21 +505,26 @@ function getClassIcon($class) {
         5 => 'priest.webp', 6 => 'deathknight.webp', 7 => 'shaman.webp', 8 => 'mage.webp',
         9 => 'warlock.webp', 11 => 'druid.webp'
     ];
-    return '<img src="/sahtout/img/accountimg/class/' . ($icons[$class] ?? 'default.jpg') . '" alt="Class Icon" class="account-icon">';
+    return sprintf('<img src="/sahtout/img/accountimg/class/%s" alt="%s" class="account-icon">', ($icons[$class] ?? 'default.jpg'), translate('class_icon', 'Class Icon'));
 }
 
 function getFactionIcon($race) {
     $allianceRaces = [1, 3, 4, 7, 11]; // Human, Dwarf, Night Elf, Gnome, Draenei
     $faction = in_array($race, $allianceRaces) ? 'alliance.png' : 'horde.png';
-    return '<img src="/sahtout/img/accountimg/faction/' . $faction . '" alt="Faction Icon" class="account-icon">';
+    return sprintf('<img src="/sahtout/img/accountimg/faction/%s" alt="%s" class="account-icon">', $faction, translate('faction_icon', 'Faction Icon'));
+}
+
+// Helper function to get avatar display name translation
+function getAvatarDisplayName($filename) {
+    return translate('avatar_' . str_replace('.', '_', $filename), $filename);
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Account - <?php echo htmlspecialchars($accountInfo['username'] ?? ''); ?></title>
+    <title><?php echo sprintf(translate('page_title', 'My Account - %s'), htmlspecialchars($accountInfo['username'] ?? '')); ?></title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
@@ -762,7 +772,7 @@ function getFactionIcon($race) {
     <?php include_once '../includes/header.php'; ?>
     <main>
         <div class="account-container">
-            <h1 class="account-title mb-4">Account Dashboard</h1>
+            <h1 class="account-title mb-4"><?php echo translate('dashboard_title', 'Account Dashboard'); ?></h1>
 
             <?php if ($message): ?>
                 <div class="alert alert-success account-message"><?php echo htmlspecialchars($message); ?></div>
@@ -772,55 +782,55 @@ function getFactionIcon($race) {
             <?php endif; ?>
             <?php if (!empty($debug_errors) && ($role === 'admin' || $gmlevel > 0)): ?>
                 <div class="alert alert-warning account-message">
-                    <strong>Debug Warnings:</strong><br>
+                    <strong><?php echo translate('debug_warnings', 'Debug Warnings'); ?>:</strong><br>
                     <?php echo htmlspecialchars(implode('<br>', array_unique($debug_errors))); ?>
                 </div>
             <?php endif; ?>
 
             <ul class="nav nav-tabs account-tabs mb-4 justify-content-center" id="accountTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">Overview</button>
+                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab"><?php echo translate('tab_overview', 'Overview'); ?></button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters" type="button" role="tab">Characters</button>
+                    <button class="nav-link" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters" type="button" role="tab"><?php echo translate('tab_characters', 'Characters'); ?></button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" type="button" role="tab">Activity</button>
+                    <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" type="button" role="tab"><?php echo translate('tab_activity', 'Activity'); ?></button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">Security</button>
+                    <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab"><?php echo translate('tab_security', 'Security'); ?></button>
                 </li>
             </ul>
 
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="overview" role="tabpanel">
                     <div class="mb-4">
-                        <h2 class="h3 text-warning">Account Information</h2>
+                        <h2 class="h3 text-warning"><?php echo translate('section_account_info', 'Account Information'); ?></h2>
                         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                             <div class="col">
                                 <div class="card account-card h-100">
                                     <div class="card-body text-center">
-                                        <h3 class="card-title">Basic Info</h3>
+                                        <h3 class="card-title"><?php echo translate('card_basic_info', 'Basic Info'); ?></h3>
                                         <?php
                                         $avatar_display = !empty($currencies['avatar']) ? $currencies['avatar'] : 'user.jpg';
                                         ?>
-                                        <img src="/sahtout/img/accountimg/profile_pics/<?php echo htmlspecialchars($avatar_display); ?>" alt="Avatar" class="account-profile-pic mb-3">
-                                        <p><strong>Username:</strong> <?php echo htmlspecialchars($accountInfo['username'] ?? 'N/A'); ?></p>
-                                        <p><strong>Account ID:</strong> <?php echo $accountInfo['id'] ?? 'N/A'; ?></p>
-                                        <p><strong>Status:</strong> <?php echo getAccountStatus($accountInfo['locked'] ?? 0, $banInfo); ?></p>
-                                        <p><strong>Rank:</strong> <?php echo getGMStatus($gmlevel, $role); ?></p>
-                                        <p><strong>Online:</strong> <?php echo getOnlineStatus($accountInfo['online'] ?? 0); ?></p>
+                                        <img src="/sahtout/img/accountimg/profile_pics/<?php echo htmlspecialchars($avatar_display); ?>" alt="<?php echo translate('avatar_alt', 'Avatar'); ?>" class="account-profile-pic mb-3">
+                                        <p><strong><?php echo translate('label_username', 'Username'); ?>:</strong> <?php echo htmlspecialchars($accountInfo['username'] ?? 'N/A'); ?></p>
+                                        <p><strong><?php echo translate('label_account_id', 'Account ID'); ?>:</strong> <?php echo $accountInfo['id'] ?? 'N/A'; ?></p>
+                                        <p><strong><?php echo translate('label_status', 'Status'); ?>:</strong> <?php echo getAccountStatus($accountInfo['locked'] ?? 0, $banInfo); ?></p>
+                                        <p><strong><?php echo translate('label_rank', 'Rank'); ?>:</strong> <?php echo getGMStatus($gmlevel, $role); ?></p>
+                                        <p><strong><?php echo translate('label_online', 'Online'); ?>:</strong> <?php echo getOnlineStatus($accountInfo['online'] ?? 0); ?></p>
                                     </div>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="card account-card h-100">
                                     <div class="card-body text-center">
-                                        <h3 class="card-title">Contact</h3>
-                                        <p><strong>Email:</strong> <?php echo htmlspecialchars($accountInfo['email'] ?? 'Not set'); ?></p>
-                                        <p><strong class="text-warning">Expansion:</strong> <?php echo htmlspecialchars($accountInfo['expansion'] ?? 2) == 2 ? 'Wrath of the Lich King' : ($accountInfo['expansion'] == 1 ? 'The Burning Crusade' : 'Classic'); ?></p>
+                                        <h3 class="card-title"><?php echo translate('card_contact', 'Contact'); ?></h3>
+                                        <p><strong><?php echo translate('label_email', 'Email'); ?>:</strong> <?php echo htmlspecialchars($accountInfo['email'] ?? translate('email_not_set', 'Not set')); ?></p>
+                                        <p><strong class="text-warning"><?php echo translate('label_expansion', 'Expansion'); ?>:</strong> <?php echo translate('expansion_' . ($accountInfo['expansion'] ?? 2), ($accountInfo['expansion'] ?? 2) == 2 ? 'Wrath of the Lich King' : ($accountInfo['expansion'] == 1 ? 'The Burning Crusade' : 'Classic')); ?></p>
                                         <?php if ($role === 'admin' || $role === 'moderator' || $gmlevel > 0): ?>
-                                            <a href="/Sahtout/admin/dashboard" class="btn btn-account mt-3">Admin Panel</a>
+                                            <a href="/Sahtout/admin/dashboard" class="btn btn-account mt-3"><?php echo translate('button_admin_panel', 'Admin Panel'); ?></a>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -828,23 +838,23 @@ function getFactionIcon($race) {
                             <div class="col">
                                 <div class="card account-card h-100">
                                     <div class="card-body text-center">
-                                        <h3 class="card-title">Activity</h3>
-                                        <p><strong>Join Date:</strong> <?php echo $accountInfo['joindate'] ?? 'N/A'; ?></p>
-                                        <p><strong>Last Login:</strong> <?php echo $accountInfo['last_login'] ?? 'Never'; ?></p>
+                                        <h3 class="card-title"><?php echo translate('card_activity', 'Activity'); ?></h3>
+                                        <p><strong><?php echo translate('label_join_date', 'Join Date'); ?>:</strong> <?php echo $accountInfo['joindate'] ?? 'N/A'; ?></p>
+                                        <p><strong><?php echo translate('label_last_login', 'Last Login'); ?>:</strong> <?php echo $accountInfo['last_login'] ?? translate('never', 'Never'); ?></p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <h2 class="h3 text-warning">Quick Stats</h2>
+                        <h2 class="h3 text-warning"><?php echo translate('section_quick_stats', 'Quick Stats'); ?></h2>
                         <div class="row row-cols-1 row-cols-md-2 g-4">
                             <div class="col">
                                 <div class="card account-card h-100">
                                     <div class="card-body text-center">
-                                        <h3 class="card-title">Characters</h3>
-                                        <p><strong>Total:</strong> <?php echo count($characters); ?></p>
-                                        <p><strong>Highest Level:</strong> 
+                                        <h3 class="card-title"><?php echo translate('card_characters', 'Characters'); ?></h3>
+                                        <p><strong><?php echo translate('label_total_characters', 'Total'); ?>:</strong> <?php echo count($characters); ?></p>
+                                        <p><strong><?php echo translate('label_highest_level', 'Highest Level'); ?>:</strong> 
                                             <?php 
                                                 $maxLevel = 0;
                                                 foreach ($characters as $char) {
@@ -859,19 +869,19 @@ function getFactionIcon($race) {
                             <div class="col">
                                 <div class="card account-card h-100">
                                     <div class="card-body text-center">
-                                        <h3 class="card-title">Wealth</h3>
-                                        <p><strong>Total Gold:</strong> 
+                                        <h3 class="card-title"><?php echo translate('card_wealth', 'Wealth'); ?></h3>
+                                        <p><strong><?php echo translate('label_total_gold', 'Total Gold'); ?>:</strong> 
                                             <?php 
                                                 $totalGold = 0;
                                                 foreach ($characters as $char) {
                                                     $totalGold += $char['money'];
                                                 }
-                                                echo '<span class="account-gold">' . number_format($totalGold / 10000, 2) . 'g</span>';
+                                                echo sprintf('<span class="account-gold">%.2fg</span>', number_format($totalGold / 10000, 2));
                                             ?>
-                                            <img src="/sahtout/img/accountimg/gold_coin.png" alt="Gold Icon" class="account-icon">
+                                            <img src="/sahtout/img/accountimg/gold_coin.png" alt="<?php echo translate('gold_icon', 'Gold Icon'); ?>" class="account-icon">
                                         </p>
-                                        <p><strong>Points:</strong> <?php echo $currencies['points']; ?> P</p>
-                                        <p><strong>Tokens:</strong> <?php echo $currencies['tokens']; ?> T</p>
+                                        <p><strong><?php echo translate('label_points', 'Points'); ?>:</strong> <?php echo $currencies['points']; ?> P</p>
+                                        <p><strong><?php echo translate('label_tokens', 'Tokens'); ?>:</strong> <?php echo $currencies['tokens']; ?> T</p>
                                     </div>
                                 </div>
                             </div>
@@ -880,7 +890,7 @@ function getFactionIcon($race) {
                 </div>
 
                 <div class="tab-pane fade" id="characters" role="tabpanel">
-                    <h2 class="h3 text-warning mb-4">Your Characters</h2>
+                    <h2 class="h3 text-warning mb-4"><?php echo translate('section_your_characters', 'Your Characters'); ?></h2>
                     <?php if (!empty($characters)): ?>
                         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                             <?php foreach ($characters as $char): ?>
@@ -892,30 +902,31 @@ function getFactionIcon($race) {
                                                 <span><?php echo getRaceIcon($char['race'], $char['gender']); ?></span>
                                                 <span class="fw-bold text-warning"><?php echo htmlspecialchars($char['name']); ?></span>
                                             </div>
-                                            <p><?php echo getClassIcon($char['class']); ?> Level <?php echo $char['level']; ?></p>
-                                            <p>Gold: <span class="account-gold"><?php echo number_format($char['money'] / 10000, 2); ?>g</span></p>
-                                            <p>Status: <?php echo getOnlineStatus($char['online']); ?></p>
+                                            <p><?php echo getClassIcon($char['class']); ?> <?php echo translate('label_level', 'Level'); ?> <?php echo $char['level']; ?></p>
+                                            <p><?php echo translate('label_gold', 'Gold'); ?>: <span class="account-gold"><?php echo number_format($char['money'] / 10000, 2); ?>g</span></p>
+                                            <p><?php echo translate('label_status', 'Status'); ?>: <?php echo getOnlineStatus($char['online']); ?></p>
                                             <?php
                                             $cooldown_remaining = max(
                                                 isset($teleport_cooldowns[$char['guid']]) ? ($teleport_cooldowns[$char['guid']] + 900 - time()) : 0,
                                                 isset($_SESSION['teleport_cooldowns'][$char['guid']]) ? ($_SESSION['teleport_cooldowns'][$char['guid']] + 900 - time()) : 0
                                             );
                                             $is_on_cooldown = $cooldown_remaining > 0;
+                                            $minutes = ceil($cooldown_remaining / 60);
                                             ?>
-                                            <form method="post" class="mt-3" onsubmit="return confirm('Teleport this character?');">
+                                            <form method="post" class="mt-3" onsubmit="return confirm('<?php echo translate('confirm_teleport', 'Teleport this character?'); ?>');">
                                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                                 <input type="hidden" name="guid" value="<?php echo $char['guid']; ?>">
                                                 <div class="mb-3 form-group">
-                                                    <label class="form-label" for="destination-<?php echo $char['guid']; ?>">Select a city</label>
+                                                    <label class="form-label" for="destination-<?php echo $char['guid']; ?>"><?php echo translate('label_select_city', 'Select a city'); ?></label>
                                                     <select class="form-select" id="destination-<?php echo $char['guid']; ?>" name="destination" required>
-                                                        <option style="color: #000;" value="" selected>Select a city</option>
-                                                        <option style="color: #000;" value="shattrath">Shattrath</option>
-                                                        <option style="color: #000;" value="dalaran">Dalaran</option>
+                                                        <option style="color: #000;" value="" selected><?php echo translate('select_city_placeholder', 'Select a city'); ?></option>
+                                                        <option style="color: #000;" value="shattrath"><?php echo translate('city_shattrath', 'Shattrath'); ?></option>
+                                                        <option style="color: #000;" value="dalaran"><?php echo translate('city_dalaran', 'Dalaran'); ?></option>
                                                     </select>
                                                 </div>
-                                                <button class="btn btn-account" type="submit" name="teleport_character" <?php echo $is_on_cooldown ? 'disabled' : ''; ?>>Teleport</button>
+                                                <button class="btn btn-account" type="submit" name="teleport_character" <?php echo $is_on_cooldown ? 'disabled' : ''; ?>><?php echo translate('button_teleport', 'Teleport'); ?></button>
                                                 <?php if ($is_on_cooldown): ?>
-                                                    <p class="mt-2 teleport-cooldown" data-cooldown="<?php echo $cooldown_remaining; ?>">Teleport Cooldown: <?php echo ceil($cooldown_remaining / 60); ?> minute<?php echo ceil($cooldown_remaining / 60) > 1 ? 's' : ''; ?></p>
+                                                    <p class="mt-2 teleport-cooldown" data-cooldown="<?php echo $cooldown_remaining; ?>"><?php echo sprintf(translate('teleport_cooldown', 'Teleport Cooldown: %s minute%s'), $minutes, $minutes > 1 ? 's' : ''); ?></p>
                                                 <?php endif; ?>
                                             </form>
                                         </div>
@@ -924,118 +935,118 @@ function getFactionIcon($race) {
                             <?php endforeach; ?>
                         </div>
                     <?php else: ?>
-                        <p class="text-center">You have no characters yet.</p>
+                        <p class="text-center"><?php echo translate('no_characters', 'You have no characters yet.'); ?></p>
                     <?php endif; ?>
                 </div>
 
                 <div class="tab-pane fade" id="activity" role="tabpanel">
-                    <h2 class="h3 text-warning mb-4">Account Activity</h2>
+                    <h2 class="h3 text-warning mb-4"><?php echo translate('section_account_activity', 'Account Activity'); ?></h2>
                     <?php if (!empty($activityLog)): ?>
                         <div class="table-responsive">
                             <table class="table account-table">
                                 <thead>
                                     <tr>
-                                        <th>Action</th>
-                                        <th>Character</th>
-                                        <th>Timestamp</th>
-                                        <th>Details</th>
+                                        <th><?php echo translate('table_action', 'Action'); ?></th>
+                                        <th><?php echo translate('table_character', 'Character'); ?></th>
+                                        <th><?php echo translate('table_timestamp', 'Timestamp'); ?></th>
+                                        <th><?php echo translate('table_details', 'Details'); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($activityLog as $log): ?>
                                         <tr>
-                                            <td data-label="Action"><?php echo htmlspecialchars($log['action']); ?></td>
-                                            <td data-label="Character"><?php echo htmlspecialchars($log['character_name'] ?? 'N/A'); ?></td>
-                                            <td data-label="Timestamp"><?php echo date('Y-m-d H:i:s', $log['timestamp']); ?></td>
-                                            <td data-label="Details"><?php echo htmlspecialchars($log['details'] ?? 'None'); ?></td>
+                                            <td data-label="<?php echo translate('table_action', 'Action'); ?>"><?php echo htmlspecialchars($log['action']); ?></td>
+                                            <td data-label="<?php echo translate('table_character', 'Character'); ?>"><?php echo htmlspecialchars($log['character_name'] ?? translate('none', 'N/A')); ?></td>
+                                            <td data-label="<?php echo translate('table_timestamp', 'Timestamp'); ?>"><?php echo date('Y-m-d H:i:s', $log['timestamp']); ?></td>
+                                            <td data-label="<?php echo translate('table_details', 'Details'); ?>"><?php echo htmlspecialchars($log['details'] ?? translate('none', 'None')); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
                     <?php else: ?>
-                        <p class="text-center">No recent activity.</p>
+                        <p class="text-center"><?php echo translate('no_activity', 'No recent activity.'); ?></p>
                     <?php endif; ?>
                 </div>
 
                 <div class="tab-pane fade" id="security" role="tabpanel">
                     <div class="mb-4">
-                        <h3 class="h4 text-warning">Change Email</h3>
+                        <h3 class="h4 text-warning"><?php echo translate('section_change_email', 'Change Email'); ?></h3>
                         <form method="post" class="row g-3 justify-content-center">
                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                             <div class="col-12 col-md-6 form-group">
-                                <label class="form-label" for="current-password-email">Current Password</label>
-                                <input class="form-control" type="password" id="current-password-email" name="current_password" required placeholder="Enter current password">
+                                <label class="form-label" for="current-password-email"><?php echo translate('label_current_password', 'Current Password'); ?></label>
+                                <input class="form-control" type="password" id="current-password-email" name="current_password" required placeholder="<?php echo translate('placeholder_current_password', 'Enter current password'); ?>">
                             </div>
                             <div class="col-12 col-md-6 form-group">
-                                <label class="form-label" for="new-email">New Email</label>
-                                <input class="form-control" type="email" id="new-email" name="new_email" required minlength="3" maxlength="36" value="<?php echo htmlspecialchars($accountInfo['email'] ?? ''); ?>" placeholder="Enter new email">
+                                <label class="form-label" for="new-email"><?php echo translate('label_new_email', 'New Email'); ?></label>
+                                <input class="form-control" type="email" id="new-email" name="new_email" required minlength="3" maxlength="36" value="<?php echo htmlspecialchars($accountInfo['email'] ?? ''); ?>" placeholder="<?php echo translate('placeholder_new_email', 'Enter new email'); ?>">
                             </div>
                             <div class="col-12 text-center">
-                                <button class="btn btn-account" type="submit" name="change_email">Update Email</button>
+                                <button class="btn btn-account" type="submit" name="change_email"><?php echo translate('button_update_email', 'Update Email'); ?></button>
                             </div>
                         </form>
                     </div>
 
                     <div class="mb-4">
-                        <h3 class="h4 text-warning">Change Password</h3>
+                        <h3 class="h4 text-warning"><?php echo translate('section_change_password', 'Change Password'); ?></h3>
                         <form method="post" class="row g-3 justify-content-center">
                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                             <div class="col-12 col-md-6 form-group">
-                                <label class="form-label" for="current-password">Current Password</label>
-                                <input class="form-control" type="password" id="current-password" name="current_password" required placeholder="Enter current password">
+                                <label class="form-label" for="current-password"><?php echo translate('label_current_password', 'Current Password'); ?></label>
+                                <input class="form-control" type="password" id="current-password" name="current_password" required placeholder="<?php echo translate('placeholder_current_password', 'Enter current password'); ?>">
                             </div>
                             <div class="col-12 col-md-6 form-group">
-                                <label class="form-label" for="new-password">New Password</label>
-                                <input class="form-control" type="password" id="new-password" name="new_password" required minlength="6" maxlength="32" placeholder="Enter new password">
+                                <label class="form-label" for="new-password"><?php echo translate('label_new_password', 'New Password'); ?></label>
+                                <input class="form-control" type="password" id="new-password" name="new_password" required minlength="6" maxlength="32" placeholder="<?php echo translate('placeholder_new_password', 'Enter new password'); ?>">
                             </div>
                             <div class="col-12 col-md-6 form-group">
-                                <label class="form-label" for="confirm-password">Confirm New Password</label>
-                                <input class="form-control" type="password" id="confirm-password" name="confirm_password" required minlength="6" maxlength="32" placeholder="Confirm new password">
+                                <label class="form-label" for="confirm-password"><?php echo translate('label_confirm_password', 'Confirm New Password'); ?></label>
+                                <input class="form-control" type="password" id="confirm-password" name="confirm_password" required minlength="6" maxlength="32" placeholder="<?php echo translate('placeholder_confirm_password', 'Confirm new password'); ?>">
                             </div>
                             <div class="col-12 text-center">
-                                <button class="btn btn-account" type="submit" name="change_password">Change Password</button>
+                                <button class="btn btn-account" type="submit" name="change_password"><?php echo translate('button_change_password', 'Change Password'); ?></button>
                             </div>
                         </form>
                     </div>
 
                     <div class="mb-4">
-                        <h3 class="h4 text-warning">Change Avatar</h3>
+                        <h3 class="h4 text-warning"><?php echo translate('section_change_avatar', 'Change Avatar'); ?></h3>
                         <form method="post" class="row g-3 justify-content-center">
                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                             <div class="col-12">
-                                <label class="form-label">Select Avatar</label>
+                                <label class="form-label"><?php echo translate('label_select_avatar', 'Select Avatar'); ?></label>
                                 <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-2 account-gallery">
                                     <?php foreach ($available_avatars as $avatar): ?>
                                         <div class="col text-center">
                                             <img src="/sahtout/img/accountimg/profile_pics/<?php echo htmlspecialchars($avatar['filename']); ?>" 
                                                  class="<?php echo $currencies['avatar'] === $avatar['filename'] ? 'selected' : ''; ?>" 
                                                  onclick="selectAvatar('<?php echo htmlspecialchars($avatar['filename']); ?>')" 
-                                                 alt="<?php echo htmlspecialchars($avatar['display_name'] ?? $avatar['filename']); ?>">
-                                            <span><?php echo htmlspecialchars($avatar['display_name'] ?? $avatar['filename']); ?></span>
+                                                 alt="<?php echo htmlspecialchars(getAvatarDisplayName($avatar['filename'])); ?>">
+                                            <span><?php echo htmlspecialchars(getAvatarDisplayName($avatar['filename'])); ?></span>
                                         </div>
                                     <?php endforeach; ?>
                                     <div class="col text-center">
                                         <img src="/sahtout/img/accountimg/profile_pics/user.jpg" 
                                              class="<?php echo empty($currencies['avatar']) ? 'selected' : ''; ?>" 
                                              onclick="selectAvatar('')" 
-                                             alt="Default Avatar">
-                                        <span>Default Avatar</span>
+                                             alt="<?php echo translate('avatar_default', 'Default Avatar'); ?>">
+                                        <span><?php echo translate('avatar_default', 'Default Avatar'); ?></span>
                                     </div>
                                 </div>
                                 <input type="hidden" name="avatar" id="avatar" value="<?php echo htmlspecialchars($currencies['avatar'] ?? ''); ?>">
                             </div>
                             <div class="col-12 text-center">
-                                <button class="btn btn-account" type="submit" name="change_avatar">Update Avatar</button>
+                                <button class="btn btn-account" type="submit" name="change_avatar"><?php echo translate('button_update_avatar', 'Update Avatar'); ?></button>
                             </div>
                         </form>
                     </div>
 
                     <div>
-                        <h3 class="h4 text-warning">Account Actions</h3>
+                        <h3 class="h4 text-warning"><?php echo translate('section_account_actions', 'Account Actions'); ?></h3>
                         <p class="text-center">
-                            <a href="/sahtout/logout" class="text-warning">Logout</a> | 
-                            <a href="#" class="text-danger">Request Account Deletion</a>
+                            <a href="/sahtout/logout" class="text-warning"><?php echo translate('action_logout', 'Logout'); ?></a> | 
+                            <a href="#" class="text-danger"><?php echo translate('action_request_deletion', 'Request Account Deletion'); ?></a>
                         </p>
                     </div>
                 </div>
@@ -1064,7 +1075,8 @@ function getFactionIcon($race) {
                 let timer = setInterval(function() {
                     seconds--;
                     let minutes = Math.ceil(seconds / 60);
-                    element.textContent = `Teleport Cooldown: ${minutes} minute${minutes > 1 ? 's' : ''}`;
+                    let plural = minutes > 1 ? 's' : '';
+                    element.textContent = '<?php echo translate('teleport_cooldown', 'Teleport Cooldown: %s minute%s'); ?>'.replace('%s', minutes).replace('%s', plural);
                     if (seconds <= 0) {
                         clearInterval(timer);
                         element.remove();

@@ -1,6 +1,7 @@
 <?php
 define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
+require_once '../languages/language.php'; // Add for translate()
 require_once '../includes/config.cap.php'; // reCAPTCHA keys
 require_once '../includes/config.mail.php'; // PHPMailer configuration
 require_once 'C:/xampp/htdocs/Sahtout/includes/srp6.php';
@@ -11,6 +12,8 @@ $page_class = 'register';
 
 $errors = [];
 $success = '';
+$username = '';
+$email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
@@ -21,30 +24,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Verify reCAPTCHA
     if (empty($recaptcha_response)) {
-        $errors[] = 'Please complete the CAPTCHA.';
+        $errors[] = translate('error_recaptcha_empty', 'Please complete the CAPTCHA.');
     } else {
         $verify = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . RECAPTCHA_SECRET_KEY . '&response=' . $recaptcha_response);
         $captcha_result = json_decode($verify);
         if (!$captcha_result->success) {
-            $errors[] = 'CAPTCHA verification failed.';
+            $errors[] = translate('error_recaptcha_failed', 'CAPTCHA verification failed.');
         }
     }
 
     // Validation
     if (strlen($username) < 3 || strlen($username) > 16) {
-        $errors[] = "Username must be between 3 and 16 characters.";
+        $errors[] = translate('error_username_invalid_length', 'Username must be between 3 and 16 characters.');
     }
     if (!preg_match('/^[a-zA-Z0-9]+$/', $username)) {
-        $errors[] = "Username can only contain letters and numbers.";
+        $errors[] = translate('error_username_invalid_chars', 'Username can only contain letters and numbers.');
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Invalid email address.";
+        $errors[] = translate('error_email_invalid', 'Invalid email address.');
     }
     if (strlen($password) < 6) {
-        $errors[] = "Password must be at least 6 characters.";
+        $errors[] = translate('error_password_short', 'Password must be at least 6 characters.');
     }
     if ($password !== $confirm_password) {
-        $errors[] = "Passwords do not match.";
+        $errors[] = translate('error_password_mismatch', 'Passwords do not match.');
     }
 
     // Check for existing username and email in pending_accounts
@@ -55,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $result = $stmt->get_result();
         if ($result->num_rows > 0) {
-            $errors[] = "An account with this username or email is already pending or registered. Please use a different username or email, or activate your existing account.";
+            $errors[] = translate('error_account_pending', 'An account with this username or email is already pending or registered. Please use a different username or email, or activate your existing account.');
         }
         $stmt->close();
     }
@@ -72,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $result = $stmt->get_result();
         if ($result->num_rows > 0) {
-            $errors[] = "Username already exists. Please choose a different username.";
+            $errors[] = translate('error_username_exists', 'Username already exists. Please choose a different username.');
         }
         $stmt->close();
 
@@ -82,191 +85,240 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $result = $stmt->get_result();
         if ($result->num_rows > 0) {
-            $errors[] = "Email already in use. Please choose a different email.";
+            $errors[] = translate('error_email_exists', 'Email already in use. Please choose a different email.');
         }
         $stmt->close();
     }
 
     // Proceed with pending account creation and email sending
-    // Proceed with pending account creation and email sending
-if (empty($errors)) {
-    $salt = SRP6::GenerateSalt();
-    $verifier = SRP6::CalculateVerifier($username, $password, $salt);
-    $token = bin2hex(random_bytes(32)); // Activation token
+    if (empty($errors)) {
+        $salt = SRP6::GenerateSalt();
+        $verifier = SRP6::CalculateVerifier($username, $password, $salt);
+        $token = bin2hex(random_bytes(32)); // Activation token
 
-    // Insert into sahtout_site.pending_accounts
-    $stmt = null; // Initialize the variable
- try {
-    $stmt = $site_db->prepare("INSERT INTO pending_accounts (username, email, salt, verifier, token) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssss", $upper_username, $email, $salt, $verifier, $token);
-
-    if ($stmt->execute()) {
-        // Detect protocol dynamically
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
-
-        // Get host dynamically from $_SERVER
-        $host = $_SERVER['HTTP_HOST'];
-
-        // Build activation link
-        $activation_link = $protocol . $host . "/sahtout/activate?token=$token";
-
-        // Send activation email
+        // Insert into sahtout_site.pending_accounts
+        $stmt = null; // Initialize the variable
         try {
-            $mail = getMailer();
-            $mail->addAddress($email, $username);
-            $mail->AddEmbeddedImage('logo.png', 'logo_cid');
-            $mail->Subject = 'Activate Your Account';
-            $mail->Body = "
-                <h2>Welcome, $username!</h2>
-                <img src='cid:logo_cid' alt='Sahtout logo'>
-                <p>Thank you for registering. Please click the button below to activate your account:</p>
-                <p><a href='$activation_link' style='background-color:#6e4d15;color:white;padding:10px 20px;text-decoration:none;'>Activate Account</a></p>
-                <p>If you did not register, please ignore this email.</p>
-            ";
+            $stmt = $site_db->prepare("INSERT INTO pending_accounts (username, email, salt, verifier, token) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssss", $upper_username, $email, $salt, $verifier, $token);
 
-            if ($mail->send()) {
-                $success = "Account created. Check your email to activate your account.";
+            if ($stmt->execute()) {
+                // Detect protocol dynamically
+                $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+
+                // Get host dynamically from $_SERVER
+                $host = $_SERVER['HTTP_HOST'];
+
+                // Build activation link
+                $activation_link = $protocol . $host . "/sahtout/activate?token=$token";
+
+                // Send activation email
+                try {
+                    $mail = getMailer();
+                    $mail->addAddress($email, $username);
+                    $mail->AddEmbeddedImage('logo.png', 'logo_cid');
+                    $mail->Subject = translate('email_subject', 'Activate Your Account');
+                    $mail->Body = "
+                        <h2>" . str_replace('{username}', htmlspecialchars($username), translate('email_greeting', 'Welcome, {username}!')) . "</h2>
+                        <img src='cid:logo_cid' alt='Sahtout logo'>
+                        <p>" . translate('email_body', 'Thank you for registering. Please click the button below to activate your account:') . "</p>
+                        <p><a href='$activation_link' style='background-color:#6e4d15;color:white;padding:10px 20px;text-decoration:none;'>" . translate('email_activate_button', 'Activate Account') . "</a></p>
+                        <p>" . translate('email_ignore', 'If you did not register, please ignore this email.') . "</p>
+                    ";
+
+                    if ($mail->send()) {
+                        $success = "Account created. Check your email to activate your account.";
+                    } else {
+                        $errors[] = translate('error_email_failed', 'Failed to send activation email. Please contact support.');
+                    }
+                } catch (Exception $e) {
+                    $errors[] = translate('error_email_failed', 'Failed to send activation email: ') . $mail->ErrorInfo;
+                }
             } else {
-                $errors[] = "Failed to send activation email. Please contact support.";
+                $errors[] = translate('error_registration_failed', 'Failed to store pending account.');
             }
-        } catch (Exception $e) {
-            $errors[] = "Failed to send activation email: {$mail->ErrorInfo}";
+        } catch (mysqli_sql_exception $e) {
+            $errors[] = translate('error_account_pending', 'An account with this username or email is already pending or registered. Please use a different username or email, or activate your existing account.');
+        } finally {
+            if ($stmt instanceof mysqli_stmt) {
+                $stmt->close();
+            }
         }
-    } else {
-        $errors[] = "Failed to store pending account.";
     }
-} catch (mysqli_sql_exception $e) {
-    $errors[] = "An account with this username or email is already pending or registered. Please use a different username or email, or activate your existing account.";
-} finally {
-    if ($stmt instanceof mysqli_stmt) {
-        $stmt->close();
-    }
-}
-
-}
 }
 
 // Include header
-$header_file = "../includes/header.php";
-if (file_exists($header_file)) {
-    include $header_file;
-} else {
-    die("Error: Header file not found.");
-}
+require_once '../includes/header.php';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Create an account to join our World of Warcraft server adventure!">
+    <meta name="description" content="<?php echo translate('meta_description', 'Create an account to join our World of Warcraft server adventure!'); ?>">
     <meta name="robots" content="index">
-    <title>Create Account</title>
+    <title><?php echo translate('page_title', 'Create Account'); ?></title>
     <style>
+        * {
+            box-sizing: border-box; /* Prevent padding/margins from causing overflow */
+        }
+
         html, body {
             width: 100%;
             overflow-x: hidden;
             margin: 0;
-        }
-
-        body.register {
             background: url('/sahtout/img/backgrounds/bg-register.jpg') no-repeat center center fixed;
             background-size: cover;
             font-family: 'UnifrakturCook', 'Arial', sans-serif;
             color: #fff;
-            margin: 0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+
+        body::before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Dark overlay with blur */
+            backdrop-filter: blur(5px); /* Subtle blur effect */
+            z-index: 1;
         }
 
         main {
             flex: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0;
-            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            width: 100%;
+            position: relative;
+            z-index: 2;
         }
 
         .register-container {
-            max-width: 500px; /* Changed from 700px */
+            max-width: 480px;
             width: calc(100% - 2rem);
-            margin: 2rem auto;
-            background: rgba(0, 0, 0, 0.7);
-            border: 2px solid #ffd700;
-            border-radius: 8px;
-            padding: 2.5rem;
-            text-align: center;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            background: #1a1a1a7c; /* Darker WoW-style background */
+            border: 3px solid #f1c40f; /* Vibrant gold border */
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(241, 196, 15, 0.4), 0 0 40px rgba(0, 0, 0, 0.8);
+            padding: 2rem;
+            animation: pulse 3s infinite ease-in-out;
+            transition: transform 0.3s ease;
         }
 
-        .register-title {
-            color: #ffd700;
-            font-size: 2.8rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-            margin-bottom: 1.2rem;
+        .register-container:hover {
+            transform: translateY(-5px) rotate(1deg); /* Subtle 3D hover effect */
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 8px 24px rgba(241, 196, 15, 0.4), 0 0 40px rgba(0, 0, 0, 0.8); }
+            50% { box-shadow: 0 8px 32px rgba(241, 196, 15, 0.6), 0 0 48px rgba(0, 0, 0, 0.9); }
         }
 
         .register-form {
             display: flex;
             flex-direction: column;
-            gap: 1.2rem;
+            justify-content: center;
+        }
+
+        .register-title {
+            font-size: 3rem;
+            font-family: 'UnifrakturCook', sans-serif;
+            color: #f1c40f;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .register-form form {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem; /* Increased from 1.2rem for more vertical space */
         }
 
         .register-form input {
-            padding: 1rem;
+            width: 100%;
+            padding: 0.9rem;
             font-size: 1.1rem;
             font-family: 'Arial', sans-serif;
-            background: #333;
+            background: #2c2c2c;
             color: #fff;
-            border: 1px solid #ffd700;
-            border-radius: 4px;
+            border: 2px solid #f1c40f;
+            border-radius: 6px;
             outline: none;
-            transition: border-color 0.3s ease;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 0.7rem; /* Add margin for extra spacing */
         }
 
         .register-form input:focus {
             border-color: #ffe600;
-            box-shadow: 0 0 5px rgba(255, 230, 0, 0.5);
+            box-shadow: 0 0 8px rgba(255, 230, 0, 0.6);
         }
 
         .register-form input::placeholder {
-            color: #ccc;
+            color: #999;
+            font-size: 1rem;
+        }
+
+        .g-recaptcha {
+            margin: 1.2rem auto 0.5rem; /* Add margin-bottom for spacing below reCAPTCHA */
+            display: flex;
+            justify-content: center;
         }
 
         .register-button {
-            background: #333;
-            color: #ffd700;
-            border: 2px solid #ffd700;
-            padding: 1rem 2rem;
-            font-family: 'UnifrakturCook', sans-serif;
-            font-size: 1.2rem;
-            border-radius: 4px;
-            cursor: pointer;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); /* Fiery orange-red gradient */
+            color: #fff;
+            border: 2px solid #f1c40f;
+            padding: 0.9rem 1.8rem;
+            font-size: 1.3rem;
+            border-radius: 6px;
+            cursor: url('/Sahtout/img/hover_wow.gif') 16 16, auto;
             transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .register-button:hover {
-            background: #ffd700;
-            color: #000;
+            background: linear-gradient(135deg, #0e65d6ff 0%, #26a938ff 100%);
             transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(231, 76, 60, 0.6);
         }
 
-        .register-form p.error {
-            color: #ff0000;
-            font-family: 'Arial', sans-serif;
+        .register-form .error {
+            color: #e74c3c;
             font-size: 1.1rem;
-            margin: 0.5rem 0 0;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 0.6rem 0 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .register-form .success {
+            color: #2ecc71;
+            font-size: 1.1rem;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 0.6rem 0 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
 
         .login-link-container {
-            margin-top: 1.5rem;
+            text-align: center;
             font-size: 1.1rem;
             font-family: 'UnifrakturCook', sans-serif;
+            color: #fff;
+            margin-top: 1.2rem;
         }
 
         .login-link-container a {
-            color: #ffd700;
+            color: #f1c40f;
             text-decoration: none;
             transition: all 0.3s ease;
         }
@@ -276,35 +328,31 @@ if (file_exists($header_file)) {
             text-decoration: underline;
         }
 
-        footer {
-            width: 100%;
-            margin: 0;
-            padding: 1rem 0;
-            box-sizing: border-box;
-        }
-
-        @media (max-width: 768px) {
+        @media (max-width: 767px) {
             html, body {
                 width: 100%;
                 overflow-x: hidden;
             }
 
-            header {
-                padding: 1rem 0;
-            }
-
             main {
                 padding: 0;
-                margin-top: 100px;
+                margin-top: 80px;
             }
 
             .register-container {
-                max-width: 100%; /* Ensure responsiveness on smaller screens */
+                max-width: 100%;
+                width: calc(100% - 1.5rem);
                 padding: 1.5rem;
+                margin: 1.5rem auto;
+                box-shadow: 0 6px 16px rgba(241, 196, 15, 0.3);
+            }
+
+            .register-container:hover {
+                transform: translateY(-3px) rotate(0.5deg); /* Reduced for mobile */
             }
 
             .register-title {
-                font-size: 2.2rem;
+                font-size: 2.4rem;
             }
 
             .register-form input {
@@ -313,8 +361,13 @@ if (file_exists($header_file)) {
             }
 
             .register-button {
-                font-size: 1.1rem;
+                font-size: 1.2rem;
                 padding: 0.8rem 1.5rem;
+            }
+
+            .g-recaptcha {
+                transform: scale(0.85);
+                transform-origin: center;
             }
 
             .login-link-container {
@@ -322,8 +375,36 @@ if (file_exists($header_file)) {
                 margin-top: 1rem;
             }
 
-            footer {
-                padding: 1rem 0;
+            .register-form .error, .register-form .success {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .register-title {
+                font-size: 2rem;
+            }
+
+            .register-form input {
+                font-size: 0.95rem;
+                padding: 0.7rem;
+            }
+
+            .register-button {
+                font-size: 1.1rem;
+                padding: 0.7rem 1.2rem;
+            }
+
+            .g-recaptcha {
+                transform: scale(0.77);
+            }
+
+            .login-link-container {
+                font-size: 0.95rem;
+            }
+
+            .register-form .error, .register-form .success {
+                font-size: 0.95rem;
             }
         }
     </style>
@@ -331,7 +412,7 @@ if (file_exists($header_file)) {
 <body class="register">
     <main>
         <section class="register-container">
-            <h1 class="register-title">Create Your Account</h1>
+            <h1 class="register-title"><?php echo translate('register_title', 'Create Your Account'); ?></h1>
 
             <?php if (!empty($errors)): ?>
                 <div class="register-form">
@@ -341,34 +422,26 @@ if (file_exists($header_file)) {
                 </div>
             <?php elseif ($success): ?>
                 <div class="register-form">
-                    <p style="color:#00ff00;"><?php echo htmlspecialchars($success); ?></p>
-                    <p><a href="/sahtout/login" style="color:#ffd700;">Click here to login</a></p>
+                    <p class="success"><?php echo htmlspecialchars($success); ?></p>
+                    <p class="login-link-container"><a href="/sahtout/login"><?php echo translate('login_link_text', 'Click here to login'); ?></a></p>
                 </div>
             <?php endif; ?>
 
             <form class="register-form" method="POST" action="">
-                <input type="text" name="username" placeholder="Username" required
-                    value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>">
-                <input type="email" name="email" placeholder="Email" required minlength="3" maxlength="36"
-                    value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
-                <input type="password" name="password" placeholder="Password" required minlength="6" maxlength="32">
-                <input type="password" name="confirm_password" placeholder="Confirm Password" required minlength="6" maxlength="32">
+                <input type="text" name="username" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required
+                    value="<?php echo htmlspecialchars($username); ?>">
+                <input type="email" name="email" placeholder="<?php echo translate('email_placeholder', 'Email'); ?>" required minlength="3" maxlength="36">
+                <input type="password" name="password" placeholder="<?php echo translate('password_placeholder', 'Password'); ?>" required minlength="6" maxlength="32">
+                <input type="password" name="confirm_password" placeholder="<?php echo translate('password_confirm_placeholder', 'Confirm Password'); ?>" required minlength="6" maxlength="32">
                 <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
-                <button type="submit" class="register-button">Register</button>
+                <button type="submit" class="register-button"><?php echo translate('register_button', 'Register'); ?></button>
             </form>
 
-            <p class="login-link-container">Already have an account? <a href="/sahtout/login">Login</a></p>
+            <p class="login-link-container"><?php echo translate('login_link_text_alt', 'Already have an account? <a href="/sahtout/login">Login</a>'); ?></p>
         </section>
     </main>
 
-    <?php
-    $footer_file = __DIR__ . "/../includes/footer.php";
-    if (file_exists($footer_file)) {
-        include $footer_file;
-    } else {
-        die("Error: Footer file not found.");
-    }
-    ?>
+    <?php include_once '../includes/footer.php'; ?>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 </html>

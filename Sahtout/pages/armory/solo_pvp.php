@@ -4,6 +4,7 @@ require_once '../../includes/session.php';
 $page_class = "armory";
 require_once '../../includes/header.php';
 
+
 // Query top 50 characters sorted by level and PvP kills, including guild name
 $sql = "
 SELECT c.guid, c.name, c.race, c.class, c.level, c.gender, c.totalKills, g.name AS guild_name
@@ -27,24 +28,23 @@ while ($row = $result->fetch_assoc()) {
         'gender' => $row['gender'],
         'level' => $row['level'],
         'kills' => $row['totalKills'],
-        'guild_name' => $row['guild_name'] ?? 'No Guild' // Default to 'No Guild' if null
+        'guild_name' => $row['guild_name'] ?? translate('solo_pvp_no_guild', 'No Guild') // Translated default
     ];
 }
 
 // Faction from race
 function getFaction($race) {
     $alliance = [1, 3, 4, 7, 11, 22, 25, 29];
-    return in_array($race, $alliance) ? 'Alliance' : 'Horde';
+    return in_array($race, $alliance) ? translate('solo_pvp_faction_alliance', 'Alliance') : translate('solo_pvp_faction_horde', 'Horde');
 }
 
 // Image paths
 function factionIcon($race) {
     $faction = getFaction($race);
-    return "/Sahtout/img/accountimg/faction/" . strtolower($faction) . ".png";
+    return "/Sahtout/img/accountimg/faction/" . strtolower(translate('solo_pvp_faction_alliance', 'Alliance') == $faction ? 'alliance' : 'horde') . ".png";
 }
 function raceIcon($race, $gender) {
     $genderFolder = ($gender == 0) ? 'male' : 'female';
-    // Map numeric race IDs to file names
     $raceMap = [
         1 => 'human', 2 => 'orc', 3 => 'dwarf', 4 => 'nightelf',
         5 => 'undead', 6 => 'tauren', 7 => 'gnome', 8 => 'troll',
@@ -67,9 +67,11 @@ function classIcon($class) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="<?php echo $_SESSION['lang'] ?? 'en'; ?>">
 <head>
-    <title>WoW Armory - Top 50 Players</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo translate('solo_pvp_page_title', 'WoW Armory - Top 50 Players'); ?></title>
     <!-- Load Tailwind CSS with a custom configuration -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -146,7 +148,7 @@ function classIcon($class) {
 <body class="<?php echo $page_class; ?>">
     <div class="arena-content tw-bg-900 tw-text-white">
         <div class="tw-container tw-mx-auto tw-px-4 tw-py-8">
-            <h1 class="tw-text-4xl tw-font-bold tw-text-center tw-text-amber-400 tw-mb-6">Top 50 Players</h1>
+            <h1 class="tw-text-4xl tw-font-bold tw-text-center tw-text-amber-400 tw-mb-6"><?php echo translate('solo_pvp_title', 'Top 50 Players'); ?></h1>
 
             <?php include_once '../../includes/arenanavbar.php'; ?>
 
@@ -154,20 +156,20 @@ function classIcon($class) {
                 <table class="tw-w-full tw-text-sm tw-text-center tw-bg-gray-800">
                     <thead class="tw-bg-gray-700 tw-text-amber-400 tw-uppercase">
                         <tr>
-                            <th class="tw-py-3 tw-px-6">Rank</th>
-                            <th class="tw-py-3 tw-px-6">Name</th>
-                            <th class="tw-py-3 tw-px-6">Guild</th>
-                            <th class="tw-py-3 tw-px-6">Faction</th>
-                            <th class="tw-py-3 tw-px-6">Race</th>
-                            <th class="tw-py-3 tw-px-6">Class</th>
-                            <th class="tw-py-3 tw-px-6">Level</th>
-                            <th class="tw-py-3 tw-px-6">PvP Kills</th>
+                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_rank', 'Rank'); ?></th>
+                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_name', 'Name'); ?></th>
+                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_guild', 'Guild'); ?></th>
+                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_faction', 'Faction'); ?></th>
+                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_race', 'Race'); ?></th>
+                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_class', 'Class'); ?></th>
+                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_level', 'Level'); ?></th>
+                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_kills', 'PvP Kills'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (count($players) == 0): ?>
                             <tr>
-                                <td colspan="8" class="tw-py-3 tw-px-6 tw-text-lg tw-text-amber-400">No players found.</td>
+                                <td colspan="8" class="tw-py-3 tw-px-6 tw-text-lg tw-text-amber-400"><?php echo translate('solo_pvp_no_players', 'No players found.'); ?></td>
                             </tr>
                         <?php else: ?>
                             <?php
@@ -180,13 +182,13 @@ function classIcon($class) {
                                     <td class='tw-py-3 tw-px-6'><a href='/sahtout/character?guid={$p['guid']}' class='tw-text-white tw-no-underline hover:tw-underline'>" . htmlspecialchars($p['name']) . "</a></td>
                                     <td class='tw-py-3 tw-px-6'>" . htmlspecialchars($p['guild_name']) . "</td>
                                     <td class='tw-py-3 tw-px-6'>
-                                        <img src='" . factionIcon($p['race']) . "' alt='Faction' class='tw-inline-block tw-w-6 tw-h-6 tw-rounded'>
+                                        <img src='" . factionIcon($p['race']) . "' alt='" . translate('solo_pvp_faction_alt', 'Faction') . "' class='tw-inline-block tw-w-6 tw-h-6 tw-rounded'>
                                     </td>
                                     <td class='tw-py-3 tw-px-6'>
-                                        <img src='" . raceIcon($p['race'], $p['gender']) . "' alt='Race' class='tw-inline-block tw-w-6 tw-h-6 tw-rounded'>
+                                        <img src='" . raceIcon($p['race'], $p['gender']) . "' alt='" . translate('solo_pvp_race_alt', 'Race') . "' class='tw-inline-block tw-w-6 tw-h-6 tw-rounded'>
                                     </td>
                                     <td class='tw-py-3 tw-px-6'>
-                                        <img src='" . classIcon($p['class']) . "' alt='Class' class='tw-inline-block tw-w-6 tw-h-6 tw-rounded'>
+                                        <img src='" . classIcon($p['class']) . "' alt='" . translate('solo_pvp_class_alt', 'Class') . "' class='tw-inline-block tw-w-6 tw-h-6 tw-rounded'>
                                     </td>
                                     <td class='tw-py-3 tw-px-6'>{$p['level']}</td>
                                     <td class='tw-py-3 tw-px-6'>{$p['kills']}</td>

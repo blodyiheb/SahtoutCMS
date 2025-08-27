@@ -4,6 +4,9 @@ if (!defined('ALLOWED_ACCESS')) {
     exit('Direct access to this file is not allowed.');
 }
 
+// Include language detection
+require_once __DIR__ . '/../languages/language.php';
+
 // Check if session is started; warn in source code if not
 if (session_status() !== PHP_SESSION_ACTIVE) {
     // phpcs:disable
@@ -22,6 +25,26 @@ if (!isset($_SESSION['user_id'])) {
 $page_class = isset($page_class) ? $page_class : 'default';
 // Base path for XAMPP setup at C:\xampp\htdocs\Sahtout
 $base_path = '/sahtout/';
+
+// Get current URL without query string
+$currentUrl = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$currentUrl = rtrim($currentUrl, '/');
+// Function to generate language URLs
+function getLanguageUrl($lang) {
+    global $currentUrl;
+
+    // Get current query parameters (excluding the path)
+    $query = $_GET; // This contains all current GET parameters
+
+    // Update or add the 'lang' parameter
+    $query['lang'] = $lang;
+
+    // Build the new query string
+    $queryString = http_build_query($query);
+
+    // Return full URL with updated query
+    return $currentUrl . '?' . $queryString;
+}
 
 // Fetch user points, tokens, email, avatar, gmlevel, and role if logged in
 $points = 0;
@@ -92,16 +115,38 @@ if (isset($_SESSION['user_id'])) {
         error_log("Failed to prepare statement for fetching gmlevel in header.");
     }
 }
+
+// Get current language and flag
+$current_lang = $_SESSION['lang'] ?? 'en';
+$languages = [
+    'en' => ['name' => 'English', 'flag' => $base_path . 'languages/flags/en.png'],
+    'fr' => ['name' => 'French', 'flag' => $base_path . 'languages/flags/fr.png'],
+    'es' => ['name' => 'Spanish', 'flag' => $base_path . 'languages/flags/es.png'],
+    'de' => ['name' => 'German', 'flag' => $base_path . 'languages/flags/de.png'],
+    'ru' => ['name' => 'Russian', 'flag' => $base_path . 'languages/flags/ru.png'],
+];
+$current_lang_name = $languages[$current_lang]['name'];
+$current_lang_code = $current_lang;
+
+// Fallback flag image if not found
+$fallback_flag = $base_path . 'languages/flags/world.png';
+foreach ($languages as $code => &$lang_data) {
+    if (!file_exists($_SERVER['DOCUMENT_ROOT'] . $lang_data['flag'])) {
+        error_log("Flag image not found: {$lang_data['flag']}. Using fallback: {$fallback_flag}");
+        $lang_data['flag'] = $fallback_flag;
+    }
+}
+$current_lang_flag = $languages[$current_lang]['flag'];
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sahtout Server - <?php echo ucfirst($page_class); ?></title>
     <base href="<?php echo $base_path; ?>">
     <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/header.css">
-    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
     <?php if (file_exists(__DIR__ . "/../assets/css/{$page_class}.css")): ?>
         <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/<?php echo $page_class; ?>.css">
     <?php endif; ?>
@@ -112,14 +157,13 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(135deg, rgba(0, 0, 30, 0.57) 0%, rgba(10, 10, 40, 0.36) 100%);
     padding: 1rem 2rem;
     box-shadow: 0 4px 15px rgba(0, 0, 50, 0.5);
-    border-bottom: 2px solid #ecf0f1;
+    border-bottom: 3px solid #1b9bf0;
     position: relative;
 }
-body{
-     cursor: url('/Sahtout/img/pointer_wow.gif')16 16, auto;
+body {
+    cursor: url('/Sahtout/img/pointer_wow.gif') 16 16, auto;
 }
 
 header img {
@@ -129,8 +173,8 @@ header img {
 
 header img:hover {
     transform: scale(1.05);
-    filter: drop-shadow(0 0 8px rgba(52, 152, 219, 0.5));
-    cursor: url('/Sahtout/img/hover_wow.gif')16 16, auto;
+    filter: drop-shadow(0 0 8px rgba(52, 152, 219, 0.7));
+    cursor: url('/Sahtout/img/hover_wow.gif') 16 16, auto;
 }
 
 header nav {
@@ -139,30 +183,39 @@ header nav {
     align-items: center;
 }
 
+header nav.no-session {
+    margin: 0 auto;
+}
+
 header nav a {
     text-decoration: none;
     font-size: 1.5rem;
     font-weight: 600;
     padding: 0.6rem 1.2rem;
     border-radius: 8px;
-    background: linear-gradient(135deg, #1b9bf0ff 0%, rgba(25, 159, 185, 0.58));
-    color: #fff;
-    border: 2px solid #ecf0f1;
+    background: linear-gradient(135deg, rgba(27, 155, 240, 0.93) 0%, rgba(25, 158, 185, 0.84) 58%);
+    color: #ffffff;
+    border: 2px solid #1b9bf0;
     transition: all 0.3s ease;
     position: relative;
     margin-right: 25px;
-    cursor: url('/Sahtout/img/hover_wow.gif')16 16, auto;
+    cursor: url('/Sahtout/img/hover_wow.gif') 16 16, auto;
+}
+
+header nav a.register,
+header nav a.login {
+    margin-right: 10px;
 }
 
 header nav a:hover {
-    background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%);
+    background: linear-gradient(135deg, rgba(41, 128, 185, 0.9) 0%, rgba(31, 97, 141, 0.7) 100%);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.5);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.6);
 }
 
 header nav a.active {
     background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-    border-color: #d35400;
+    border-color: #1b9bf0;
     box-shadow: 0 4px 12px rgba(211, 84, 0, 0.5);
 }
 
@@ -172,13 +225,14 @@ header nav a.active {
     border: none;
     cursor: pointer;
     padding: 0.5rem;
+    margin-top: 15px;
 }
 
 .nav-toggle .hamburger {
     display: block;
     width: 30px;
     height: 3px;
-    background: #ecf0f1;
+    background: #ffffff;
     position: relative;
     transition: all 0.3s ease;
 }
@@ -189,7 +243,7 @@ header nav a.active {
     position: absolute;
     width: 30px;
     height: 3px;
-    background: #ecf0f1;
+    background: #ffffff;
     transition: all 0.3s ease;
 }
 
@@ -208,13 +262,13 @@ header nav a.active {
 .nav-toggle.nav-open .hamburger::before {
     transform: rotate(45deg);
     top: 0;
-    background: #3498db;
+    background: #ffffff;
 }
 
 .nav-toggle.nav-open .hamburger::after {
     transform: rotate(-45deg);
     bottom: 0;
-    background: #3498db;
+    background: #ffffff;
 }
 
 .nav-close {
@@ -223,7 +277,7 @@ header nav a.active {
     right: 1rem;
     background: #e74c3c;
     border: none;
-    color: #fff;
+    color: #ffffff;
     font-size: 1.2rem;
     padding: 0.5rem;
     border-radius: 50%;
@@ -246,6 +300,11 @@ header nav a.active {
     position: relative;
 }
 
+.user-profile.session {
+    margin-left: 0;
+    margin-right: 0.2rem;
+}
+
 .profile-info {
     display: flex;
     flex-direction: column;
@@ -256,9 +315,9 @@ header nav a.active {
     display: flex;
     gap: 1rem;
     padding: 0.6rem 1.2rem;
-    background: linear-gradient(135deg, rgba(0, 0, 30, 0.8) 0%, rgba(10, 10, 40, 0.9) 100%);
+    background: linear-gradient(135deg, rgba(10, 10, 10, 0.8), rgba(26, 10, 10, 0.8));
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 50, 0.5);
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.5);
 }
 
 .user-currency span {
@@ -273,21 +332,21 @@ header nav a.active {
 }
 
 .user-currency .points {
-    background: linear-gradient(135deg, #ffd700 0%, #f1c40f 100%);
-    color: #1a1a1a;
-    border: 2px solid #ecf0f1;
+    background: linear-gradient(135deg, #1b9bf0 0%, #199fb9 100%);
+    color: #ffffff;
+    border: 2px solid #1b9bf0;
 }
 
 .user-currency .points:hover {
-    background: linear-gradient(135deg, #e6c200 0%, #d4ac0d 100%);
+    background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%);
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(241, 196, 15, 0.5);
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.5);
 }
 
 .user-currency .tokens {
     background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-    color: #fff;
-    border: 2px solid #8e44ad;
+    color: #ffffff;
+    border: 2px solid #1b9bf0;
 }
 
 .user-currency .tokens:hover {
@@ -296,7 +355,86 @@ header nav a.active {
     box-shadow: 0 4px 10px rgba(155, 89, 182, 0.5);
 }
 
-/* Dropdown styles */
+/* Language dropdown styles */
+.lang-dropdown {
+    position: relative;
+    display: inline-block;
+    width: 160px;
+    font-family: 'Cinzel', serif;
+}
+
+.lang-selected {
+    background: linear-gradient(135deg, rgba(27, 155, 240, 0.8) 0%, rgba(25, 159, 185, 0.6) 58%);
+    color: #ffffff;
+    padding: 8px 12px;
+    border: 2px solid #1b9bf0;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 0 12px rgba(52, 152, 219, 0.7), 0 0 8px rgba(52, 152, 219, 0.5);
+    transition: all 0.3s ease;
+}
+
+.lang-selected:hover {
+    background: linear-gradient(135deg, rgba(41, 128, 185, 0.9) 0%, rgba(31, 97, 141, 0.7) 100%);
+    transform: scale(1.05);
+    box-shadow: 0 0 18px rgba(52, 152, 219, 0.8), 0 0 12px rgba(52, 152, 219, 0.7);
+}
+
+.lang-selected img {
+    width: 20px;
+    height: 15px;
+    border-radius: 2px;
+}
+
+.lang-options {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 100%;
+    background: linear-gradient(135deg, rgba(10, 10, 10, 0.8), rgba(26, 10, 10, 0.8));
+    border: 2px solid #1b9bf0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(52, 152, 219, 0.7);
+    list-style: none;
+    margin: 5px 0 0 0;
+    padding: 0;
+    display: none;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.lang-options.show {
+    display: block;
+    transform: translateY(0);
+}
+
+.lang-options li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.lang-options li:hover {
+    background: linear-gradient(135deg, rgba(41, 128, 185, 0.9) 0%, rgba(31, 97, 141, 0.7) 100%);
+    transform: translateX(5px);
+}
+
+.lang-options li img {
+    width: 20px;
+    height: 15px;
+    border-radius: 2px;
+}
+
+/* Profile dropdown styles */
 .profile-dropdown {
     position: relative;
     display: inline-block;
@@ -306,8 +444,8 @@ header nav a.active {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    border: 2px solid #ecf0f1;
-    box-shadow: 0 2px 5px rgba(0, 0, 50, 0.3);
+    border: 2px solid #1b9bf0;
+    box-shadow: 0 2px 5px rgba(52, 152, 219, 0.5);
     object-fit: cover;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -315,20 +453,20 @@ header nav a.active {
 
 .user-image:hover {
     transform: scale(1.1);
-    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.5);
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.6);
 }
 
 .dropdown-menu {
     position: absolute;
     right: 0;
     top: 100%;
-    background: linear-gradient(135deg, rgba(0, 0, 30, 0.9) 0%, rgba(10, 10, 40, 0.95) 100%);
-    border: 2px solid #ecf0f1;
+    background: linear-gradient(135deg, rgba(10, 10, 10, 0.8), rgba(26, 10, 10, 0.8));
+    border: 2px solid #1b9bf0;
     border-radius: 8px;
     padding: 0.5rem 0;
     z-index: 1001;
     display: none;
-    box-shadow: 0 6px 15px rgba(0, 0, 50, 0.5);
+    box-shadow: 0 6px 15px rgba(52, 152, 219, 0.6);
     animation: fadeIn 0.3s ease-in-out;
 }
 
@@ -341,15 +479,15 @@ header nav a.active {
     align-items: center;
     padding: 0.75rem 1rem;
     background: rgba(52, 152, 219, 0.1);
-    border-bottom: 1px solid #ecf0f1;
+    border-bottom: 1px solid #1b9bf0;
 }
 
 .dropdown-image {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    border: 2px solid #ecf0f1;
-    box-shadow: 0 2px 5px rgba(0, 0, 50, 0.3);
+    border: 2px solid #1b9bf0;
+    box-shadow: 0 2px 5px rgba(52, 152, 219, 0.5);
     margin-right: 1rem;
 }
 
@@ -357,7 +495,7 @@ header nav a.active {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    color: #fff;
+    color: #ffffff;
 }
 
 .user-info .username {
@@ -367,7 +505,7 @@ header nav a.active {
 
 .user-info .email {
     font-size: 0.9rem;
-    color: #ccc;
+    color: #cccccc;
 }
 
 .dropdown-currency {
@@ -385,7 +523,7 @@ header nav a.active {
 }
 
 .dropdown-currency .points {
-    color: #ffd700;
+    color: #ffffff;
 }
 
 .dropdown-currency .tokens {
@@ -394,7 +532,7 @@ header nav a.active {
 
 .dropdown-divider {
     height: 1px;
-    background: linear-gradient(to right, transparent, #ecf0f1, transparent);
+    background: linear-gradient(to right, transparent, #1b9bf0, transparent);
     margin: 0.5rem 0;
 }
 
@@ -402,15 +540,15 @@ header nav a.active {
     display: flex;
     align-items: center;
     padding: 0.75rem 1rem;
-    color: #8c17beff;
+    color: #ffffff;
     text-decoration: none;
     font-size: 1.3rem;
     transition: all 0.3s ease;
 }
 
 .dropdown-item:hover {
-    background: linear-gradient(135deg, #158edfff 0%, #0544ceff 100%);
-    color: #ffffffff;
+    background: linear-gradient(135deg, rgba(41, 128, 185, 0.9) 0%, rgba(31, 97, 141, 0.7) 100%);
+    color: #ffffff;
 }
 
 .dropdown-item i {
@@ -420,12 +558,12 @@ header nav a.active {
 }
 
 .dropdown-item.admin-panel {
-    color: #f1c40f;
+    color: #ffffff;
 }
 
 .dropdown-item.admin-panel:hover {
-    background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%);
-    color: #fff;
+    background: linear-gradient(135deg, #1b9bf0 0%, #199fb9 100%);
+    color: #ffffff;
 }
 
 .dropdown-item.logout {
@@ -434,7 +572,7 @@ header nav a.active {
 
 .dropdown-item.logout:hover {
     background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-    color: #fff;
+    color: #ffffff;
 }
 
 @keyframes fadeIn {
@@ -460,13 +598,13 @@ header nav a.active {
         display: none;
         width: 100%;
         flex-direction: column;
-        background: linear-gradient(135deg, rgba(0, 0, 30, 0.9) 0%, rgba(10, 10, 40, 0.95) 100%);
+        background: linear-gradient(135deg, rgba(10, 10, 10, 0.8), rgba(26, 10, 10, 0.8));
         position: absolute;
         top: 100%;
         left: 0;
         padding: 1rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 50, 0.5);
-        border-bottom: 2px solid #ecf0f1;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.5);
+        border-bottom: 3px solid #1b9bf0;
     }
 
     header nav.nav-open {
@@ -477,6 +615,11 @@ header nav a.active {
         font-size: 1rem;
         padding: 0.5rem 1rem;
         margin: 0.5rem 0;
+    }
+
+    header nav a.register,
+    header nav a.login {
+        margin-right: 0;
     }
 
     .nav-toggle {
@@ -491,8 +634,47 @@ header nav a.active {
 
     .user-profile {
         position: absolute;
+        right: 7.5rem;
         top: 1.5rem;
-        right: 3.5rem;
+    }
+
+    .lang-dropdown {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        width: 40px; /* Reduced width for flag-only display */
+    }
+
+    .lang-selected {
+        padding: 0.4rem;
+        font-size: 0.8rem;
+        justify-content: center; /* Center the flag */
+    }
+
+    .lang-selected img {
+        width: 16px;
+        height: 12px;
+    }
+
+    .lang-selected span {
+        display: none; /* Hide language name on mobile */
+    }
+
+    .lang-options {
+        margin-top: 3rem;
+        right: 0;
+        width: 100px;
+    }
+
+    .lang-options li {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem;
+    }
+
+    .lang-options li img {
+        width: 16px;
+        height: 12px;
+        margin-right: 0.4rem;
     }
 
     .profile-info {
@@ -546,22 +728,22 @@ header nav a.active {
         <button class="nav-toggle" aria-label="Toggle navigation">
             <span class="hamburger"></span>
         </button>
-        <nav>
+        <nav class="<?php echo empty($_SESSION['user_id']) ? 'no-session' : ''; ?>">
             <button class="nav-close" aria-label="Close navigation">✖</button>
-            <a href="">Home</a>
-            <a href="<?php echo $base_path; ?>how-to-play">How to Play</a>
-            <a href="<?php echo $base_path; ?>news">News</a>
-            <a href="<?php echo $base_path; ?>armory/solo_pvp">armory</a>
-            <a href="<?php echo $base_path; ?>shop">Shop</a>
+            <a href=""><?php echo translate('nav_home', 'Home'); ?></a>
+            <a href="<?php echo $base_path; ?>how_to_play"><?php echo translate('nav_how_to_play', 'How to Play'); ?></a>
+            <a href="<?php echo $base_path; ?>news"><?php echo translate('nav_news', 'News'); ?></a>
+            <a href="<?php echo $base_path; ?>armory/solo_pvp"><?php echo translate('nav_armory', 'Armory'); ?></a>
+            <a href="<?php echo $base_path; ?>shop"><?php echo translate('nav_shop', 'Shop'); ?></a>
             <?php if (empty($_SESSION['user_id'])): ?>
-                <a href="<?php echo $base_path; ?>register">Register</a>
-                <a href="<?php echo $base_path; ?>login">Login</a>
+                <a href="<?php echo $base_path; ?>register" class="register"><?php echo translate('nav_register', 'Register'); ?></a>
+                <a href="<?php echo $base_path; ?>login" class="login"><?php echo translate('nav_login', 'Login'); ?></a>
             <?php else: ?>
-                <a href="<?php echo $base_path; ?>account">Account</a>
+                <a href="<?php echo $base_path; ?>account"><?php echo translate('nav_account', 'Account'); ?></a>
             <?php endif; ?>
         </nav>
         <?php if (!empty($_SESSION['user_id'])): ?>
-            <div class="user-profile">
+            <div class="user-profile session">
                 <div class="profile-info">
                     <div class="user-currency">
                         <span class="points"><i class="fas fa-coins"></i> <?php echo $points; ?></span>
@@ -577,28 +759,51 @@ header nav a.active {
                                 <span class="username"><?php echo htmlspecialchars($_SESSION['username'] ?? 'User', ENT_QUOTES, 'UTF-8'); ?></span>
                                 <span class="email"><?php echo $email; ?></span>
                                 <div class="dropdown-currency">
-                                    <span class="points"><i class="fas fa-coins"></i> Points: <?php echo $points; ?></span>
-                                    <span class="tokens"><i class="fas fa-gem"></i> Tokens: <?php echo $tokens; ?></span>
+                                    <span class="points"><i class="fas fa-coins"></i> <?php echo translate('points', 'Points'); ?>: <?php echo $points; ?></span>
+                                    <span class="tokens"><i class="fas fa-gem"></i> <?php echo translate('tokens', 'Tokens'); ?>: <?php echo $tokens; ?></span>
                                 </div>
                             </div>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <a style="color: #8c17beff;" href="<?php echo $base_path; ?>account" class="dropdown-item">
-                            <i class="fas fa-user-circle"></i> Account Settings
+                        <a style="color: #ffffff;" href="<?php echo $base_path; ?>account" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> <?php echo translate('account_settings', 'Account Settings'); ?>
                         </a>
                         <?php if ($gmlevel > 0 || $role === 'admin' || $role === 'moderator'): ?>
                             <a href="<?php echo $base_path; ?>admin/dashboard" class="dropdown-item admin-panel">
-                                <i class="fas fa-cogs"></i> Admin Panel
+                                <i class="fas fa-cogs"></i> <?php echo translate('admin_panel', 'Admin Panel'); ?>
                             </a>
                         <?php endif; ?>
                         <div class="dropdown-divider"></div>
                         <a href="<?php echo $base_path; ?>logout" class="dropdown-item logout">
-                            <i class="fas fa-sign-out-alt"></i> Logout
+                            <i class="fas fa-sign-out-alt"></i> <?php echo translate('logout', 'Logout'); ?>
                         </a>
                     </div>
                 </div>
             </div>
         <?php endif; ?>
+        <div class="lang-dropdown">
+            <div class="lang-selected" id="langSelected">
+                <img src="<?php echo $current_lang_flag; ?>" alt="<?php echo $current_lang_name; ?>" id="flagIcon">
+                <span id="langLabel"><?php echo $current_lang_name; ?></span>
+            </div>
+            <ul class="lang-options" id="langOptions">
+                <li data-value="en" data-flag="<?php echo $languages['en']['flag']; ?>">
+                    <img src="<?php echo $languages['en']['flag']; ?>" alt="English"> English
+                </li>
+                <li data-value="fr" data-flag="<?php echo $languages['fr']['flag']; ?>">
+                    <img src="<?php echo $languages['fr']['flag']; ?>" alt="French"> French
+                </li>
+                <li data-value="es" data-flag="<?php echo $languages['es']['flag']; ?>">
+                    <img src="<?php echo $languages['es']['flag']; ?>" alt="Spanish"> Spanish
+                </li>
+                <li data-value="de" data-flag="<?php echo $languages['de']['flag']; ?>">
+                    <img src="<?php echo $languages['de']['flag']; ?>" alt="German"> German
+                </li>
+                <li data-value="ru" data-flag="<?php echo $languages['ru']['flag']; ?>">
+                    <img src="<?php echo $languages['ru']['flag']; ?>" alt="Russian"> Russian
+                </li>
+            </ul>
+        </div>
     </header>
     <script>
         // Mobile menu toggle
@@ -622,6 +827,7 @@ header nav a.active {
             profileToggle.addEventListener('click', (e) => {
                 e.stopPropagation();
                 dropdownMenu.classList.toggle('show');
+                document.getElementById('langOptions').classList.remove('show');
             });
 
             // Close dropdown when clicking outside
@@ -644,6 +850,48 @@ header nav a.active {
             
             // Initial check
             handleViewportChange();
+        }
+
+        // Language dropdown toggle
+        const langToggle = document.getElementById('langSelected');
+        const langOptions = document.getElementById('langOptions');
+
+        if (langToggle && langOptions) {
+            langToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                langOptions.classList.toggle('show');
+                if (dropdownMenu) {
+                    dropdownMenu.classList.remove('show'); // Close profile menu when language is opened
+                }
+            });
+
+            // Close language dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.lang-dropdown')) {
+                    langOptions.classList.remove('show');
+                }
+            });
+
+            // Language selection
+            document.querySelectorAll('.lang-options li').forEach(option => {
+                option.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const lang = this.getAttribute('data-value');
+                    const flagSrc = this.getAttribute('data-flag');
+                    const langLabel = this.textContent.trim();
+
+                    // Update displayed flag and label
+                    const flagIcon = document.getElementById('flagIcon');
+                    flagIcon.src = flagSrc;
+                    flagIcon.alt = langLabel;
+                    document.getElementById('langLabel').textContent = langLabel;
+
+                    // Update URL with lang parameter and reload
+                    const url = new URL(window.location);
+                    url.searchParams.set('lang', lang);
+                    window.location.href = url.toString();
+                });
+            });
         }
     </script>
 </body>

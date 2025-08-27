@@ -1,7 +1,8 @@
 <?php
 define('ALLOWED_ACCESS', true);
-// Include session and config
+// Include session, language, and config
 require_once __DIR__ . '/../../includes/session.php'; // Includes config.php
+require_once __DIR__ . '/../../languages/language.php'; // Include translation system
 
 $page_class = 'users';
 
@@ -74,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'update') {
         // Verify CSRF token
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-            $update_message = '<div class="alert alert-danger">CSRF token validation failed.</div>';
+            $update_message = '<div class="alert alert-danger">' . translate('admin_users_csrf_error', 'CSRF token validation failed.') . '</div>';
         } else {
             $account_id = (int)$_POST['account_id'];
             $points = (int)$_POST['points'];
@@ -95,15 +96,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $stmt->close();
 
             if ($success) {
-                $update_message = '<div class="alert alert-success">User updated successfully.</div>';
+                $update_message = '<div class="alert alert-success">' . translate('admin_users_update_success', 'User updated successfully.') . '</div>';
             } else {
-                $update_message = '<div class="alert alert-danger">Failed to update user.</div>';
+                $update_message = '<div class="alert alert-danger">' . translate('admin_users_update_failed', 'Failed to update user.') . '</div>';
             }
         }
     } elseif ($_POST['action'] === 'manage_account') {
         // Handle ban/unban or GM role change
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-            $update_message = '<div class="alert alert-danger">CSRF token validation failed.</div>';
+            $update_message = '<div class="alert alert-danger">' . translate('admin_users_csrf_error', 'CSRF token validation failed.') . '</div>';
         } else {
             $account_id = (int)$_POST['account_id'];
             $ban_action = $_POST['ban_action'] ?? '';
@@ -155,9 +156,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
 
             if ($success && empty($update_message)) {
-                $update_message = '<div class="alert alert-success">Action completed successfully.</div>';
+                $update_message = '<div class="alert alert-success">' . translate('admin_users_action_success', 'Action completed successfully.') . '</div>';
             } elseif (empty($update_message)) {
-                $update_message = '<div class="alert alert-danger">Failed to complete action.</div>';
+                $update_message = '<div class="alert alert-danger">' . translate('admin_users_action_failed', 'Failed to complete action.') . '</div>';
             }
         }
     }
@@ -342,7 +343,7 @@ function getRaceIcon($race, $gender) {
     $gender_folder = ($gender == 1) ? 'female' : 'male';
     $race_name = $races[$race] ?? 'default';
     $image = $race_name . '.png';
-    return '<img src="/sahtout/img/accountimg/race/' . $gender_folder . '/' . $image . '" alt="Race Icon" class="account-sahtout-icon">';
+    return '<img src="/sahtout/img/accountimg/race/' . $gender_folder . '/' . $image . '" alt="' . translate('admin_users_race_icon_alt', 'Race Icon') . '" class="account-sahtout-icon">';
 }
 
 function getClassIcon($class) {
@@ -351,33 +352,33 @@ function getClassIcon($class) {
         5 => 'priest.webp', 6 => 'deathknight.webp', 7 => 'shaman.webp', 8 => 'mage.webp',
         9 => 'warlock.webp', 11 => 'druid.webp'
     ];
-    return '<img src="/sahtout/img/accountimg/class/' . ($icons[$class] ?? 'default.jpg') . '" alt="Class Icon" class="account-sahtout-icon">';
+    return '<img src="/sahtout/img/accountimg/class/' . ($icons[$class] ?? 'default.jpg') . '" alt="' . translate('admin_users_class_icon_alt', 'Class Icon') . '" class="account-sahtout-icon">';
 }
 
 function getFactionIcon($race) {
     $allianceRaces = [1, 3, 4, 7, 11]; // Human, Dwarf, Night Elf, Gnome, Draenei
     $faction = in_array($race, $allianceRaces) ? 'alliance.png' : 'horde.png';
-    return '<img src="/sahtout/img/accountimg/faction/' . $faction . '" alt="Faction Icon" class="account-sahtout-icon">';
+    return '<img src="/sahtout/img/accountimg/faction/' . $faction . '" alt="' . translate('admin_users_faction_icon_alt', 'Faction Icon') . '" class="account-sahtout-icon">';
 }
 
 function getOnlineStatus($online) {
-    return $online ? "<span style='color: #55ff55'>Online</span>" : "<span style='color: #ff5555'>Offline</span>";
+    return $online ? "<span style='color: #55ff55'>" . translate('admin_users_status_online', 'Online') . "</span>" : "<span style='color: #ff5555'>" . translate('admin_users_status_offline', 'Offline') . "</span>";
 }
 
 function getAccountStatus($banInfo) {
     if (!empty($banInfo)) {
-        $reason = htmlspecialchars($banInfo['banreason'] ?? 'No reason provided');
-        $unbanDate = $banInfo['unbandate'] ? date('Y-m-d H:i:s', $banInfo['unbandate']) : 'Permanent';
-        return "<span style='color: #ff5555'>Banned (Reason: $reason, Until: $unbanDate)</span>";
+        $reason = htmlspecialchars($banInfo['banreason'] ?? translate('admin_users_no_reason_provided', 'No reason provided'));
+        $unbanDate = $banInfo['unbandate'] ? date('Y-m-d H:i:s', $banInfo['unbandate']) : translate('admin_users_permanent', 'Permanent');
+        return "<span style='color: #ff5555'>" . translate('admin_users_status_banned', 'Banned') . " (" . translate('admin_users_reason', 'Reason') . ": $reason, " . translate('admin_users_until', 'Until') . ": $unbanDate)</span>";
     }
-    return "<span style='color: #05f30594'>Active</span>";
+    return "<span style='color: #05f30594'>" . translate('admin_users_status_active', 'Active') . "</span>";
 }
 
 function getGMLevel($gmlevel) {
     if (is_null($gmlevel)) {
-        return "<span style='color: #6c757d'>Player</span>";
+        return "<span style='color: #6c757d'>" . translate('admin_users_gmlevel_player', 'Player') . "</span>";
     }
-    return "<span style='color: #17a2b8'>GM Level $gmlevel</span>";
+    return "<span style='color: #17a2b8'>" . translate('admin_users_gmlevel_prefix', 'GM Level') . " $gmlevel</span>";
 }
 
 // Determine active tab: default to In-Game tab if ban_filter or gmlevel_filter is set
@@ -385,13 +386,13 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="User Management for Sahtout WoW Server">
+    <meta name="description" content="<?php echo translate('admin_users_meta_description', 'User Management for Sahtout WoW Server'); ?>">
     <meta name="robots" content="noindex">
-    <title>User Management</title>
+    <title><?php echo translate('admin_users_page_title', 'User Management'); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -694,52 +695,52 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                 <?php include dirname(__DIR__) . '../../includes/admin_sidebar.php'; ?>
                 <!-- Main Content -->
                 <div class="col-md-9">
-                    <h1 class="dashboard-title">User Management</h1>
+                    <h1 class="dashboard-title"><?php echo translate('admin_users_title', 'User Management'); ?></h1>
                     <?php echo $update_message; ?>
                     <!-- Search and Sort Form -->
                     <form class="search-form" method="GET" action="/Sahtout/admin/users">
                         <div class="row mb-3">
                             <div class="col-md-4">
-                                <input type="text" name="search_username" class="form-control" placeholder="Search by username" value="<?php echo htmlspecialchars($search_username); ?>">
+                                <input type="text" name="search_username" class="form-control" placeholder="<?php echo translate('admin_users_search_username_placeholder', 'Search by username'); ?>" value="<?php echo htmlspecialchars($search_username); ?>">
                             </div>
                             <div class="col-md-4">
-                                <input type="text" name="search_email" class="form-control" placeholder="Search by email" value="<?php echo htmlspecialchars($search_email); ?>">
+                                <input type="text" name="search_email" class="form-control" placeholder="<?php echo translate('admin_users_search_email_placeholder', 'Search by email'); ?>" value="<?php echo htmlspecialchars($search_email); ?>">
                             </div>
                             <div class="col-md-4">
                                 <select name="role_filter" class="form-select">
-                                    <option value="" <?php echo $role_filter === '' ? 'selected' : ''; ?>>All Roles</option>
-                                    <option value="player" <?php echo $role_filter === 'player' ? 'selected' : ''; ?>>Player</option>
-                                    <option value="moderator" <?php echo $role_filter === 'moderator' ? 'selected' : ''; ?>>Moderator</option>
-                                    <option value="admin" <?php echo $role_filter === 'admin' ? 'selected' : ''; ?>>Admin</option>
+                                    <option value="" <?php echo $role_filter === '' ? 'selected' : ''; ?>><?php echo translate('admin_users_all_roles', 'All Roles'); ?></option>
+                                    <option value="player" <?php echo $role_filter === 'player' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_player', 'Player'); ?></option>
+                                    <option value="moderator" <?php echo $role_filter === 'moderator' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_moderator', 'Moderator'); ?></option>
+                                    <option value="admin" <?php echo $role_filter === 'admin' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_admin', 'Admin'); ?></option>
                                 </select>
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <select name="ban_filter" class="form-select">
-                                    <option value="" <?php echo $ban_filter === '' ? 'selected' : ''; ?>>All Accounts</option>
-                                    <option value="banned" <?php echo $ban_filter === 'banned' ? 'selected' : ''; ?>>Banned</option>
+                                    <option value="" <?php echo $ban_filter === '' ? 'selected' : ''; ?>><?php echo translate('admin_users_all_accounts', 'All Accounts'); ?></option>
+                                    <option value="banned" <?php echo $ban_filter === 'banned' ? 'selected' : ''; ?>><?php echo translate('admin_users_banned', 'Banned'); ?></option>
                                 </select>
                             </div>
                             <div class="col-md-4">
                                 <select name="gmlevel_filter" class="form-select">
-                                    <option value="" <?php echo $gmlevel_filter === '' ? 'selected' : ''; ?>>All GM Levels</option>
-                                    <option value="player" <?php echo $gmlevel_filter === 'player' ? 'selected' : ''; ?>>Player</option>
-                                    <option value="1" <?php echo $gmlevel_filter === '1' ? 'selected' : ''; ?>>GM Level 1</option>
-                                    <option value="2" <?php echo $gmlevel_filter === '2' ? 'selected' : ''; ?>>GM Level 2</option>
-                                    <option value="3" <?php echo $gmlevel_filter === '3' ? 'selected' : ''; ?>>GM Level 3</option>
+                                    <option value="" <?php echo $gmlevel_filter === '' ? 'selected' : ''; ?>><?php echo translate('admin_users_all_gm_levels', 'All GM Levels'); ?></option>
+                                    <option value="player" <?php echo $gmlevel_filter === 'player' ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_player', 'Player'); ?></option>
+                                    <option value="1" <?php echo $gmlevel_filter === '1' ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_1', 'GM Level 1'); ?></option>
+                                    <option value="2" <?php echo $gmlevel_filter === '2' ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_2', 'GM Level 2'); ?></option>
+                                    <option value="3" <?php echo $gmlevel_filter === '3' ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_3', 'GM Level 3'); ?></option>
                                 </select>
                             </div>
                             <div class="col-md-4">
                                 <select name="sort_id" class="form-select">
-                                    <option value="asc" <?php echo $sort_id === 'asc' ? 'selected' : ''; ?>>Sort by ID: Ascending</option>
-                                    <option value="desc" <?php echo $sort_id === 'desc' ? 'selected' : ''; ?>>Sort by ID: Descending</option>
+                                    <option value="asc" <?php echo $sort_id === 'asc' ? 'selected' : ''; ?>><?php echo translate('admin_users_sort_id_asc', 'Sort by ID: Ascending'); ?></option>
+                                    <option value="desc" <?php echo $sort_id === 'desc' ? 'selected' : ''; ?>><?php echo translate('admin_users_sort_id_desc', 'Sort by ID: Descending'); ?></option>
                                 </select>
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-12">
-                                <button class="btn btn-primary" type="submit">Apply</button>
+                                <button class="btn btn-primary" type="submit"><?php echo translate('admin_users_apply_button', 'Apply'); ?></button>
                             </div>
                         </div>
                         <input type="hidden" name="website_page" value="<?php echo htmlspecialchars($website_page); ?>">
@@ -748,53 +749,53 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                     <!-- Tabs -->
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
-                            <a class="nav-link <?php echo $active_tab === 'website' ? 'active' : ''; ?>" href="#website-tab" data-bs-toggle="tab">Website</a>
+                            <a class="nav-link <?php echo $active_tab === 'website' ? 'active' : ''; ?>" href="#website-tab" data-bs-toggle="tab"><?php echo translate('admin_users_tab_website', 'Website'); ?></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?php echo $active_tab === 'ingame' ? 'active' : ''; ?>" href="#ingame-tab" data-bs-toggle="tab">In-Game</a>
+                            <a class="nav-link <?php echo $active_tab === 'ingame' ? 'active' : ''; ?>" href="#ingame-tab" data-bs-toggle="tab"><?php echo translate('admin_users_tab_ingame', 'In-Game'); ?></a>
                         </li>
                     </ul>
                     <div class="tab-content">
                         <!-- Website Tab -->
                         <div class="tab-pane fade <?php echo $active_tab === 'website' ? 'show active' : ''; ?>" id="website-tab">
                             <div class="card">
-                                <div class="card-header">Website Users</div>
+                                <div class="card-header"><?php echo translate('admin_users_website_users_header', 'Website Users'); ?></div>
                                 <div class="card-body">
                                     <div class="table-wrapper">
                                         <table class="table table-striped">
                                             <thead>
                                                 <tr>
-                                                    <th>Account ID</th>
-                                                    <th>Username</th>
-                                                    <th>Email</th>
-                                                    <th>Avatar</th>
-                                                    <th>Points</th>
-                                                    <th>Tokens</th>
-                                                    <th>Role</th>
-                                                    <th>Last Updated</th>
-                                                    <th>Action</th>
+                                                    <th><?php echo translate('admin_users_table_account_id', 'Account ID'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_username', 'Username'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_email', 'Email'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_avatar', 'Avatar'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_points', 'Points'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_tokens', 'Tokens'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_role', 'Role'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_last_updated', 'Last Updated'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_action', 'Action'); ?></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php if ($users_result->num_rows === 0): ?>
                                                     <tr>
-                                                        <td colspan="9">No users found.</td>
+                                                        <td colspan="9"><?php echo translate('admin_users_no_users_found', 'No users found.'); ?></td>
                                                     </tr>
                                                 <?php else: ?>
                                                     <?php while ($user = $users_result->fetch_assoc()): ?>
                                                         <tr id="user-<?php echo $user['account_id']; ?>">
                                                             <td><?php echo htmlspecialchars($user['account_id']); ?></td>
                                                             <td><?php echo htmlspecialchars($user['username']); ?></td>
-                                                            <td><?php echo htmlspecialchars($user['email'] ?? 'Not set'); ?></td>
-                                                            <td><?php echo !empty($user['avatar']) ? '<img src="/sahtout/img/accountimg/profile_pics/' . htmlspecialchars($user['avatar']) . '" class="rounded-circle" style="width: 40px; height: 40px;" alt="Avatar">' : '<img src="/sahtout/img/accountimg/profile_pics/user.jpg" class="rounded-circle" style="width: 40px; height: 40px;" alt="Default Avatar">'; ?></td>
+                                                            <td><?php echo htmlspecialchars($user['email'] ?? translate('admin_users_email_not_set', 'Not set')); ?></td>
+                                                            <td><?php echo !empty($user['avatar']) ? '<img src="/sahtout/img/accountimg/profile_pics/' . htmlspecialchars($user['avatar']) . '" class="rounded-circle" style="width: 40px; height: 40px;" alt="' . translate('admin_users_avatar_alt', 'Avatar') . '">' : '<img src="/sahtout/img/accountimg/profile_pics/user.jpg" class="rounded-circle" style="width: 40px; height: 40px;" alt="' . translate('admin_users_default_avatar_alt', 'Default Avatar') . '">'; ?></td>
                                                             <td><?php echo htmlspecialchars($user['points']); ?></td>
                                                             <td><?php echo htmlspecialchars($user['tokens']); ?></td>
                                                             <td><span class="status-<?php echo htmlspecialchars($user['role']); ?>">
-                                                                <?php echo ucfirst(htmlspecialchars($user['role'])); ?>
+                                                                <?php echo ucfirst(translate('admin_users_role_' . $user['role'], ucfirst($user['role']))); ?>
                                                             </span></td>
-                                                            <td><?php echo $user['last_updated'] ? date('M j, Y H:i', strtotime($user['last_updated'])) : 'Never'; ?></td>
+                                                            <td><?php echo $user['last_updated'] ? date('M j, Y H:i', strtotime($user['last_updated'])) : translate('admin_users_never', 'Never'); ?></td>
                                                             <td>
-                                                                <button class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#editModal-<?php echo $user['account_id']; ?>">Edit</button>
+                                                                <button class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#editModal-<?php echo $user['account_id']; ?>"><?php echo translate('admin_users_edit_button', 'Edit'); ?></button>
                                                             </td>
                                                         </tr>
                                                         <!-- Edit Modal -->
@@ -802,8 +803,8 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                                                             <div class="modal-dialog">
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
-                                                                        <h5 class="modal-title" id="editModalLabel-<?php echo $user['account_id']; ?>">Edit User: <?php echo htmlspecialchars($user['username']); ?></h5>
-                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                        <h5 class="modal-title" id="editModalLabel-<?php echo $user['account_id']; ?>"><?php echo translate('admin_users_edit_modal_title', 'Edit User: ') . htmlspecialchars($user['username']); ?></h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo translate('admin_users_close_button', 'Close'); ?>"></button>
                                                                     </div>
                                                                     <div class="modal-body">
                                                                         <form method="POST" action="/Sahtout/admin/users">
@@ -811,32 +812,32 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                                                                             <input type="hidden" name="account_id" value="<?php echo $user['account_id']; ?>">
                                                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                                                             <div class="mb-3">
-                                                                                <label class="form-label">Username</label>
+                                                                                <label class="form-label"><?php echo translate('admin_users_label_username', 'Username'); ?></label>
                                                                                 <input type="text" class="form-control" value="<?php echo htmlspecialchars($user['username']); ?>" disabled>
                                                                             </div>
                                                                             <div class="mb-3">
-                                                                                <label class="form-label">Email</label>
+                                                                                <label class="form-label"><?php echo translate('admin_users_label_email', 'Email'); ?></label>
                                                                                 <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" required>
                                                                             </div>
                                                                             <div class="mb-3">
-                                                                                <label class="form-label">Points</label>
+                                                                                <label class="form-label"><?php echo translate('admin_users_label_points', 'Points'); ?></label>
                                                                                 <input type="number" name="points" class="form-control" value="<?php echo htmlspecialchars($user['points']); ?>" required>
                                                                             </div>
                                                                             <div class="mb-3">
-                                                                                <label class="form-label">Tokens</label>
+                                                                                <label class="form-label"><?php echo translate('admin_users_label_tokens', 'Tokens'); ?></label>
                                                                                 <input type="number" name="tokens" class="form-control" value="<?php echo htmlspecialchars($user['tokens']); ?>" required>
                                                                             </div>
                                                                             <div class="mb-3">
-                                                                                <label class="form-label">Role</label>
+                                                                                <label class="form-label"><?php echo translate('admin_users_label_role', 'Role'); ?></label>
                                                                                 <select name="role" class="form-select">
-                                                                                    <option value="player" <?php echo $user['role'] === 'player' ? 'selected' : ''; ?>>Player</option>
-                                                                                    <option value="moderator" <?php echo $user['role'] === 'moderator' ? 'selected' : ''; ?>>Moderator</option>
-                                                                                    <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
+                                                                                    <option value="player" <?php echo $user['role'] === 'player' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_player', 'Player'); ?></option>
+                                                                                    <option value="moderator" <?php echo $user['role'] === 'moderator' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_moderator', 'Moderator'); ?></option>
+                                                                                    <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_admin', 'Admin'); ?></option>
                                                                                 </select>
                                                                             </div>
                                                                             <div class="modal-footer">
-                                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                                <button type="submit" class="btn btn-primary">Save</button>
+                                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo translate('admin_users_cancel_button', 'Cancel'); ?></button>
+                                                                                <button type="submit" class="btn btn-primary"><?php echo translate('admin_users_save_button', 'Save'); ?></button>
                                                                             </div>
                                                                         </form>
                                                                     </div>
@@ -851,11 +852,11 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                                     </div>
                                     <!-- Website Users Pagination -->
                                     <?php if ($total_website_pages > 1): ?>
-                                        <div class="pagination-label">Website Users Pagination</div>
-                                        <nav aria-label="Website users pagination">
+                                        <div class="pagination-label"><?php echo translate('admin_users_website_pagination_label', 'Website Users Pagination'); ?></div>
+                                        <nav aria-label="<?php echo translate('admin_users_website_pagination_aria', 'Website users pagination'); ?>">
                                             <ul class="pagination">
                                                 <li class="page-item <?php echo $website_page <= 1 ? 'disabled' : ''; ?>">
-                                                    <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'website_page=' . ($website_page - 1) . '&ingame_page=' . $ingame_page; ?>" aria-label="Previous">
+                                                    <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'website_page=' . ($website_page - 1) . '&ingame_page=' . $ingame_page; ?>" aria-label="<?php echo translate('admin_users_previous', 'Previous'); ?>">
                                                         <span aria-hidden="true">&laquo;</span>
                                                     </a>
                                                 </li>
@@ -865,7 +866,7 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                                                     </li>
                                                 <?php endfor; ?>
                                                 <li class="page-item <?php echo $website_page >= $total_website_pages ? 'disabled' : ''; ?>">
-                                                    <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'website_page=' . ($website_page + 1) . '&ingame_page=' . $ingame_page; ?>" aria-label="Next">
+                                                    <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'website_page=' . ($website_page + 1) . '&ingame_page=' . $ingame_page; ?>" aria-label="<?php echo translate('admin_users_next', 'Next'); ?>">
                                                         <span aria-hidden="true">&raquo;</span>
                                                     </a>
                                                 </li>
@@ -878,44 +879,44 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                         <!-- In-Game Tab -->
                         <div class="tab-pane fade <?php echo $active_tab === 'ingame' ? 'show active' : ''; ?>" id="ingame-tab">
                             <div class="card">
-                                <div class="card-header">In-Game Accounts</div>
+                                <div class="card-header"><?php echo translate('admin_users_ingame_accounts_header', 'In-Game Accounts'); ?></div>
                                 <div class="card-body">
                                     <div class="table-wrapper">
                                         <table class="table table-striped">
                                             <thead>
                                                 <tr>
-                                                    <th>Account ID</th>
-                                                    <th>Username</th>
-                                                    <th>Email</th>
-                                                    <th>Join Date</th>
-                                                    <th>Last Login</th>
-                                                    <th>Online</th>
-                                                    <th>Ban Status</th>
-                                                    <th>GM Level</th>
-                                                    <th>Characters</th>
-                                                    <th>Action</th>
+                                                    <th><?php echo translate('admin_users_table_account_id', 'Account ID'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_username', 'Username'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_email', 'Email'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_join_date', 'Join Date'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_last_login', 'Last Login'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_online', 'Online'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_ban_status', 'Ban Status'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_gm_level', 'GM Level'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_characters', 'Characters'); ?></th>
+                                                    <th><?php echo translate('admin_users_table_action', 'Action'); ?></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php if (empty($accounts)): ?>
                                                     <tr>
-                                                        <td colspan="10">No accounts found.</td>
+                                                        <td colspan="10"><?php echo translate('admin_users_no_accounts_found', 'No accounts found.'); ?></td>
                                                     </tr>
                                                 <?php else: ?>
                                                     <?php foreach ($accounts as $account): ?>
                                                         <tr>
                                                             <td><?php echo htmlspecialchars($account['id']); ?></td>
                                                             <td><?php echo htmlspecialchars($account['username']); ?></td>
-                                                            <td><?php echo htmlspecialchars($account['email'] ?? 'Not set'); ?></td>
-                                                            <td><?php echo $account['joindate'] ? date('M j, Y H:i', strtotime($account['joindate'])) : 'N/A'; ?></td>
-                                                            <td><?php echo $account['last_login'] ? date('M j, Y H:i', strtotime($account['last_login'])) : 'Never'; ?></td>
+                                                            <td><?php echo htmlspecialchars($account['email'] ?? translate('admin_users_email_not_set', 'Not set')); ?></td>
+                                                            <td><?php echo $account['joindate'] ? date('M j, Y H:i', strtotime($account['joindate'])) : translate('admin_users_na', 'N/A'); ?></td>
+                                                            <td><?php echo $account['last_login'] ? date('M j, Y H:i', strtotime($account['last_login'])) : translate('admin_users_never', 'Never'); ?></td>
                                                             <td><?php echo getOnlineStatus($account['online']); ?></td>
                                                             <td><?php echo getAccountStatus($account['banInfo'] ?? []); ?></td>
                                                             <td><?php echo getGMLevel($account['gmlevel'] ?? null); ?></td>
                                                             <td>
                                                                 <?php if (!empty($account['characters'])): ?>
                                                                     <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#characters-<?php echo $account['id']; ?>" aria-expanded="false" aria-controls="characters-<?php echo $account['id']; ?>">
-                                                                        Show Characters (<?php echo count($account['characters']); ?>)
+                                                                        <?php echo translate('admin_users_show_characters_button', 'Show Characters') . ' (' . count($account['characters']) . ')'; ?>
                                                                     </button>
                                                                     <div class="collapse character-collapse" id="characters-<?php echo $account['id']; ?>">
                                                                         <div class="character-grid">
@@ -924,17 +925,17 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                                                                                     <?php echo getFactionIcon($char['race']); ?>
                                                                                     <?php echo getRaceIcon($char['race'], $char['gender']); ?>
                                                                                     <?php echo getClassIcon($char['class']); ?>
-                                                                                    <?php echo htmlspecialchars($char['name']); ?> (Lv <?php echo $char['level']; ?>)
+                                                                                    <?php echo htmlspecialchars($char['name']); ?> (<?php echo translate('admin_users_level_prefix', 'Lv') . ' ' . $char['level']; ?>)
                                                                                 </div>
                                                                             <?php endforeach; ?>
                                                                         </div>
                                                                     </div>
                                                                 <?php else: ?>
-                                                                    No characters
+                                                                    <?php echo translate('admin_users_no_characters', 'No characters'); ?>
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td>
-                                                                <button class="btn btn-manage" data-bs-toggle="modal" data-bs-target="#manageModal-<?php echo $account['id']; ?>">Manage</button>
+                                                                <button class="btn btn-manage" data-bs-toggle="modal" data-bs-target="#manageModal-<?php echo $account['id']; ?>"><?php echo translate('admin_users_manage_button', 'Manage'); ?></button>
                                                             </td>
                                                         </tr>
                                                         <!-- Manage Account Modal -->
@@ -942,8 +943,8 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                                                             <div class="modal-dialog">
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
-                                                                        <h5 class="modal-title" id="manageModalLabel-<?php echo $account['id']; ?>">Manage Account: <?php echo htmlspecialchars($account['username']); ?></h5>
-                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                        <h5 class="modal-title" id="manageModalLabel-<?php echo $account['id']; ?>"><?php echo translate('admin_users_manage_modal_title', 'Manage Account: ') . htmlspecialchars($account['username']); ?></h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo translate('admin_users_close_button', 'Close'); ?>"></button>
                                                                     </div>
                                                                     <div class="modal-body">
                                                                         <form method="POST" action="/Sahtout/admin/users">
@@ -951,45 +952,45 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                                                                             <input type="hidden" name="account_id" value="<?php echo $account['id']; ?>">
                                                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                                                             <div class="mb-3">
-                                                                                <label class="form-label">Action</label>
+                                                                                <label class="form-label"><?php echo translate('admin_users_label_action', 'Action'); ?></label>
                                                                                 <select name="ban_action" class="form-select" id="banAction-<?php echo $account['id']; ?>">
-                                                                                    <option value="change_gm_role">Change GM Role</option>
-                                                                                    <option value="ban">Ban Account</option>
+                                                                                    <option value="change_gm_role"><?php echo translate('admin_users_action_change_gm_role', 'Change GM Role'); ?></option>
+                                                                                    <option value="ban"><?php echo translate('admin_users_action_ban', 'Ban Account'); ?></option>
                                                                                     <?php if (!empty($account['banInfo'])): ?>
-                                                                                        <option value="unban">Unban Account</option>
+                                                                                        <option value="unban"><?php echo translate('admin_users_action_unban', 'Unban Account'); ?></option>
                                                                                     <?php endif; ?>
                                                                                 </select>
                                                                             </div>
                                                                             <div id="banFields-<?php echo $account['id']; ?>" style="display: none;">
                                                                                 <div class="mb-3">
-                                                                                    <label class="form-label">Ban Reason</label>
-                                                                                    <input type="text" name="ban_reason" class="form-control" placeholder="Enter ban reason">
+                                                                                    <label class="form-label"><?php echo translate('admin_users_label_ban_reason', 'Ban Reason'); ?></label>
+                                                                                    <input type="text" name="ban_reason" class="form-control" placeholder="<?php echo translate('admin_users_ban_reason_placeholder', 'Enter ban reason'); ?>">
                                                                                 </div>
                                                                                 <div class="mb-3">
-                                                                                    <label class="form-label">Ban Duration</label>
+                                                                                    <label class="form-label"><?php echo translate('admin_users_label_ban_duration', 'Ban Duration'); ?></label>
                                                                                     <select name="ban_duration" class="form-select">
-                                                                                        <option value="3600">1 Hour</option>
-                                                                                        <option value="86400">1 Day</option>
-                                                                                        <option value="604800">7 Days</option>
-                                                                                        <option value="2592000">30 Days</option>
-                                                                                        <option value="permanent">Permanent</option>
+                                                                                        <option value="3600"><?php echo translate('admin_users_ban_duration_1hour', '1 Hour'); ?></option>
+                                                                                        <option value="86400"><?php echo translate('admin_users_ban_duration_1day', '1 Day'); ?></option>
+                                                                                        <option value="604800"><?php echo translate('admin_users_ban_duration_7days', '7 Days'); ?></option>
+                                                                                        <option value="2592000"><?php echo translate('admin_users_ban_duration_30days', '30 Days'); ?></option>
+                                                                                        <option value="permanent"><?php echo translate('admin_users_ban_duration_permanent', 'Permanent'); ?></option>
                                                                                     </select>
                                                                                 </div>
                                                                             </div>
                                                                             <div id="gmFields-<?php echo $account['id']; ?>" style="display: block;">
                                                                                 <div class="mb-3">
-                                                                                    <label class="form-label">GM Level</label>
+                                                                                    <label class="form-label"><?php echo translate('admin_users_label_gm_level', 'GM Level'); ?></label>
                                                                                     <select name="gmlevel" class="form-select">
-                                                                                        <option value="player" <?php echo is_null($account['gmlevel']) ? 'selected' : ''; ?>>Player</option>
-                                                                                        <option value="1" <?php echo $account['gmlevel'] === 1 ? 'selected' : ''; ?>>GM Level 1</option>
-                                                                                        <option value="2" <?php echo $account['gmlevel'] === 2 ? 'selected' : ''; ?>>GM Level 2</option>
-                                                                                        <option value="3" <?php echo $account['gmlevel'] === 3 ? 'selected' : ''; ?>>GM Level 3</option>
+                                                                                        <option value="player" <?php echo is_null($account['gmlevel']) ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_player', 'Player'); ?></option>
+                                                                                        <option value="1" <?php echo $account['gmlevel'] === 1 ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_1', 'GM Level 1'); ?></option>
+                                                                                        <option value="2" <?php echo $account['gmlevel'] === 2 ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_2', 'GM Level 2'); ?></option>
+                                                                                        <option value="3" <?php echo $account['gmlevel'] === 3 ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_3', 'GM Level 3'); ?></option>
                                                                                     </select>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="modal-footer">
-                                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                                <button type="submit" class="btn btn-primary">Apply</button>
+                                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo translate('admin_users_cancel_button', 'Cancel'); ?></button>
+                                                                                <button type="submit" class="btn btn-primary"><?php echo translate('admin_users_apply_button', 'Apply'); ?></button>
                                                                             </div>
                                                                         </form>
                                                                     </div>
@@ -1003,11 +1004,11 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                                     </div>
                                     <!-- In-Game Accounts Pagination -->
                                     <?php if ($total_ingame_pages > 1): ?>
-                                        <div class="pagination-label">In-Game Accounts Pagination</div>
-                                        <nav aria-label="In-game accounts pagination">
+                                        <div class="pagination-label"><?php echo translate('admin_users_ingame_pagination_label', 'In-Game Accounts Pagination'); ?></div>
+                                        <nav aria-label="<?php echo translate('admin_users_ingame_pagination_aria', 'In-game accounts pagination'); ?>">
                                             <ul class="pagination">
                                                 <li class="page-item <?php echo $ingame_page <= 1 ? 'disabled' : ''; ?>">
-                                                    <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'ingame_page=' . ($ingame_page - 1) . '&website_page=' . $website_page; ?>" aria-label="Previous">
+                                                    <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'ingame_page=' . ($ingame_page - 1) . '&website_page=' . $website_page; ?>" aria-label="<?php echo translate('admin_users_previous', 'Previous'); ?>">
                                                         <span aria-hidden="true">&laquo;</span>
                                                     </a>
                                                 </li>
@@ -1017,7 +1018,7 @@ $active_tab = (isset($_GET['ingame_page']) && $_GET['ingame_page'] > 1) || $ban_
                                                     </li>
                                                 <?php endfor; ?>
                                                 <li class="page-item <?php echo $ingame_page >= $total_ingame_pages ? 'disabled' : ''; ?>">
-                                                    <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'ingame_page=' . ($ingame_page + 1) . '&website_page=' . $website_page; ?>" aria-label="Next">
+                                                    <a class="page-link" href="/Sahtout/admin/users?<?php echo ($search_username ? 'search_username=' . urlencode($search_username) . '&' : '') . ($search_email ? 'search_email=' . urlencode($search_email) . '&' : '') . ($role_filter ? 'role_filter=' . urlencode($role_filter) . '&' : '') . ($ban_filter ? 'ban_filter=' . urlencode($ban_filter) . '&' : '') . ($gmlevel_filter ? 'gmlevel_filter=' . urlencode($gmlevel_filter) . '&' : '') . ($sort_id ? 'sort_id=' . urlencode($sort_id) . '&' : '') . 'ingame_page=' . ($ingame_page + 1) . '&website_page=' . $website_page; ?>" aria-label="<?php echo translate('admin_users_next', 'Next'); ?>">
                                                         <span aria-hidden="true">&raquo;</span>
                                                     </a>
                                                 </li>

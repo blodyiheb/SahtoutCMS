@@ -1,6 +1,7 @@
 <?php
 define('ALLOWED_ACCESS', true);
 require_once '../includes/session.php';
+require_once '../languages/language.php'; // Include language detection
 $page_class = 'woltk';
 
 // Handle download request if submitted
@@ -22,7 +23,7 @@ if (isset($_GET['file'])) {
         readfile($path);
         exit;
     } else {
-        $_SESSION['download_error'] = 'File not found';
+        $_SESSION['download_error'] = translate('download_error_file_not_found', 'File not found');
         header('Location: woltk.php');
         exit;
     }
@@ -183,27 +184,27 @@ include_once '../includes/header.php';
 
 <div class="main-content">
     <div class="container wow-decoration">
-        <h1>Choose a file to download</h1>
+        <h1><?php echo translate('download_title', 'Choose a file to download'); ?></h1>
         
         <?php if (isset($_SESSION['download_error'])): ?>
-            <div class="error"><?= htmlspecialchars($_SESSION['download_error']) ?></div>
+            <div class="error"><?php echo htmlspecialchars($_SESSION['download_error'], ENT_QUOTES, 'UTF-8'); ?></div>
             <?php unset($_SESSION['download_error']); ?>
         <?php endif; ?>
         
         <div class="file-info">
-            <p><i class="fas fa-file-archive"></i> Wrath of the Lich King Client</p>
-            <p><i class="fas fa-download"></i> Size: <?= 
-                file_exists(__DIR__ . '/files/wow_woltk.zip') ? 
+            <p><i class="fas fa-file-archive"></i> <?php echo translate('download_file_name', 'Wrath of the Lich King Client'); ?></p>
+            <p><i class="fas fa-download"></i> <?php echo translate('download_file_size', 'Size'); ?>: <?php 
+                echo file_exists(__DIR__ . '/files/wow_woltk.zip') ? 
                 round(filesize(__DIR__ . '/files/wow_woltk.zip') / (1024 * 1024), 2) . ' MB' : 
-                'Unknown' 
+                translate('download_size_unknown', 'Unknown'); 
             ?></p>
-            <p><i class="fas fa-exclamation-triangle"></i> Requires 35GB free space</p>
+            <p><i class="fas fa-exclamation-triangle"></i> <?php echo translate('download_space_required', 'Requires 35GB free space'); ?></p>
         </div>
         
         <form method="get">
             <input type="hidden" name="file" value="wow_woltk.zip">
             <button type="submit" class="download-button">
-                <i class="fas fa-dragon"></i> DOWNLOAD NOW
+                <i class="fas fa-dragon"></i> <?php echo translate('download_button', 'DOWNLOAD NOW'); ?>
             </button>
         </form>
     </div>

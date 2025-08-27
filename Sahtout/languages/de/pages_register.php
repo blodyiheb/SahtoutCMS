@@ -1,0 +1,31 @@
+<?php
+return [
+    'page_title' => 'Konto erstellen',
+    'meta_description' => 'Erstellen Sie ein Konto, um unser World of Warcraft Server-Abenteuer zu beginnen!',
+    'register_title' => 'Erstellen Sie Ihr Konto',
+    'username_placeholder' => 'Benutzername',
+    'email_placeholder' => 'E-Mail',
+    'password_placeholder' => 'Passwort',
+    'password_confirm_placeholder' => 'Passwort bestätigen',
+    'register_button' => 'Registrieren',
+    'login_link_text' => 'Hier klicken, um sich anzumelden',
+    'login_link_text_alt' => 'Bereits ein Konto? <a href="/sahtout/login">Anmelden</a>',
+    'email_subject' => 'Aktivieren Sie Ihr Konto',
+    'email_greeting' => 'Willkommen, {username}!',
+    'email_body' => 'Vielen Dank für Ihre Registrierung. Bitte klicken Sie auf die Schaltfläche unten, um Ihr Konto zu aktivieren:',
+    'email_activate_button' => 'Konto aktivieren',
+    'email_ignore' => 'Wenn Sie sich nicht registriert haben, ignorieren Sie diese E-Mail bitte.',
+    'error_recaptcha_empty' => 'Bitte füllen Sie das CAPTCHA aus.',
+    'error_recaptcha_failed' => 'CAPTCHA-Verifizierung fehlgeschlagen.',
+    'error_username_invalid_length' => 'Benutzername muss zwischen 3 und 16 Zeichen lang sein.',
+    'error_username_invalid_chars' => 'Benutzername darf nur Buchstaben und Zahlen enthalten.',
+    'error_email_invalid' => 'Ungültige E-Mail-Adresse.',
+    'error_password_short' => 'Passwort muss mindestens 6 Zeichen lang sein.',
+    'error_password_mismatch' => 'Passwörter stimmen nicht überein.',
+    'error_account_pending' => 'Ein Konto mit diesem Benutzernamen oder dieser E-Mail ist bereits ausstehend oder registriert. Bitte verwenden Sie einen anderen Benutzernamen oder eine andere E-Mail oder aktivieren Sie Ihr bestehendes Konto.',
+    'error_username_exists' => 'Benutzername existiert bereits. Bitte wählen Sie einen anderen Benutzernamen.',
+    'error_email_exists' => 'E-Mail wird bereits verwendet. Bitte wählen Sie eine andere E-Mail.',
+    'error_registration_failed' => 'Fehler beim Speichern des ausstehenden Kontos.',
+    'error_email_failed' => 'Fehler beim Senden der Aktivierungs-E-Mail. Bitte kontaktieren Sie den Support.'
+];
+?>

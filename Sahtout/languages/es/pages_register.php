@@ -1,0 +1,31 @@
+<?php
+return [
+    'page_title' => 'Crear cuenta',
+    'meta_description' => 'Crea una cuenta para unirte a la aventura en nuestro servidor de World of Warcraft.',
+    'register_title' => 'Crear tu cuenta',
+    'username_placeholder' => 'Nombre de usuario',
+    'email_placeholder' => 'Correo electrónico',
+    'password_placeholder' => 'Contraseña',
+    'password_confirm_placeholder' => 'Confirmar contraseña',
+    'register_button' => 'Registrarse',
+    'login_link_text' => 'Haz clic aquí para iniciar sesión',
+    'login_link_text_alt' => '¿Ya tienes una cuenta? <a href="/sahtout/login">Iniciar sesión</a>',
+    'email_subject' => 'Activa tu cuenta',
+    'email_greeting' => '¡Bienvenido, {username}!',
+    'email_body' => 'Gracias por registrarte. Haz clic en el botón de abajo para activar tu cuenta:',
+    'email_activate_button' => 'Activar cuenta',
+    'email_ignore' => 'Si no te registraste, ignora este correo.',
+    'error_recaptcha_empty' => 'Por favor, completa el CAPTCHA.',
+    'error_recaptcha_failed' => 'La verificación del CAPTCHA falló.',
+    'error_username_invalid_length' => 'El nombre de usuario debe tener entre 3 y 16 caracteres.',
+    'error_username_invalid_chars' => 'El nombre de usuario solo puede contener letras y números.',
+    'error_email_invalid' => 'Dirección de correo electrónico inválida.',
+    'error_password_short' => 'La contraseña debe tener al menos 6 caracteres.',
+    'error_password_mismatch' => 'Las contraseñas no coinciden.',
+    'error_account_pending' => 'Una cuenta con este nombre de usuario o correo electrónico ya está en espera o registrada. Por favor, usa un nombre de usuario o correo diferente, o activa tu cuenta existente.',
+    'error_username_exists' => 'El nombre de usuario ya existe. Por favor, elige un nombre de usuario diferente.',
+    'error_email_exists' => 'El correo electrónico ya está en uso. Por favor, elige un correo diferente.',
+    'error_registration_failed' => 'No se pudo almacenar la cuenta en espera.',
+    'error_email_failed' => 'No se pudo enviar el correo de activación. Por favor, contacta al soporte.'
+];
+?>

@@ -1,18 +1,21 @@
 <?php
 define('ALLOWED_ACCESS', true);
-// Include session and config
+// Include session, language, and config
 require_once __DIR__ . '/../../includes/session.php'; // Includes config.php
+require_once __DIR__ . '/../../languages/language.php'; // Include translation system
+
 // Check if user is admin or moderator
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'moderator'])) {
     header('Location: /Sahtout/login');
     exit;
 }
+
 $page_class = 'anews'; // Set page class for sidebar highlighting
 // Use site_db from config.php
 global $site_db;
 
 // Get current username for posted_by
-$current_username = $_SESSION['username'] ?? 'Unknown';
+$current_username = $_SESSION['username'] ?? translate('admin_news_unknown_user', 'Unknown');
 
 // Generate CSRF token if not set
 if (!isset($_SESSION['csrf_token'])) {
@@ -54,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'add') {
         // Verify CSRF token
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-            $update_message = '<div class="alert alert-danger">CSRF token validation failed.</div>';
+            $update_message = '<div class="alert alert-danger">' . translate('admin_news_csrf_error', 'CSRF token validation failed.') . '</div>';
         } else {
             $title = trim($_POST['title']);
             $slug = trim($_POST['slug']);
@@ -74,27 +77,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
                 if ($file['error'] !== UPLOAD_ERR_OK) {
                     $error_messages = [
-                        UPLOAD_ERR_INI_SIZE => 'File size exceeds server limit (upload_max_filesize)',
-                        UPLOAD_ERR_FORM_SIZE => 'File size exceeds form limit',
-                        UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
-                        UPLOAD_ERR_NO_FILE => 'No file was uploaded',
-                        UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary directory',
-                        UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
-                        UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the upload'
+                        UPLOAD_ERR_INI_SIZE => translate('admin_news_upload_err_ini_size', 'File size exceeds server limit (upload_max_filesize).'),
+                        UPLOAD_ERR_FORM_SIZE => translate('admin_news_upload_err_form_size', 'File size exceeds form limit.'),
+                        UPLOAD_ERR_PARTIAL => translate('admin_news_upload_err_partial', 'File was only partially uploaded.'),
+                        UPLOAD_ERR_NO_FILE => translate('admin_news_upload_err_no_file', 'No file was uploaded.'),
+                        UPLOAD_ERR_NO_TMP_DIR => translate('admin_news_upload_err_no_tmp_dir', 'Missing temporary directory.'),
+                        UPLOAD_ERR_CANT_WRITE => translate('admin_news_upload_err_cant_write', 'Failed to write file to disk.'),
+                        UPLOAD_ERR_EXTENSION => translate('admin_news_upload_err_extension', 'A PHP extension stopped the upload.')
                     ];
-                    $error_message = isset($error_messages[$file['error']]) ? $error_messages[$file['error']] : 'Unknown upload error';
+                    $error_message = isset($error_messages[$file['error']]) ? $error_messages[$file['error']] : translate('admin_news_upload_err_unknown', 'Unknown upload error.');
                     error_log("Upload error: $error_message", 3, $log_file);
                     $update_message = '<div class="alert alert-danger">' . htmlspecialchars($error_message) . '</div>';
                 } elseif (!in_array($file['type'], $allowed_types)) {
                     error_log("Invalid file type: {$file['type']}", 3, $log_file);
-                    $update_message = '<div class="alert alert-danger">Invalid file type. Only JPG, PNG, GIF allowed.</div>';
+                    $update_message = '<div class="alert alert-danger">' . translate('admin_news_invalid_file_type', 'Invalid file type. Only JPG, PNG, GIF allowed.') . '</div>';
                 } elseif ($file['size'] > $max_size) {
                     error_log("File size exceeds limit: {$file['size']} bytes", 3, $log_file);
-                    $update_message = '<div class="alert alert-danger">File size exceeds 2MB limit.</div>';
+                    $update_message = '<div class="alert alert-danger">' . translate('admin_news_file_size_exceeded', 'File size exceeds 2MB limit.') . '</div>';
                 } else {
                     if (!is_writable($base_upload_dir)) {
                         error_log("Upload directory not writable: $base_upload_dir", 3, $log_file);
-                        $update_message = '<div class="alert alert-danger">Upload directory is not writable.</div>';
+                        $update_message = '<div class="alert alert-danger">' . translate('admin_news_upload_dir_not_writable', 'Upload directory is not writable.') . '</div>';
                     } else {
                         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
                         $filename = uniqid('news_') . '.' . $ext;
@@ -105,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                             error_log("File uploaded successfully: $image_url", 3, $log_file);
                         } else {
                             error_log("Failed to move uploaded file to: $destination", 3, $log_file);
-                            $update_message = '<div class="alert alert-danger">Failed to move uploaded file.</div>';
+                            $update_message = '<div class="alert alert-danger">' . translate('admin_news_upload_failed', 'Failed to move uploaded file.') . '</div>';
                         }
                     }
                 }
@@ -115,9 +118,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $stmt = $site_db->prepare("INSERT INTO server_news (title, slug, content, posted_by, category, is_important, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)");
                 $stmt->bind_param("sssssis", $title, $slug, $content, $current_username, $category, $is_important, $image_url);
                 if ($stmt->execute()) {
-                    $update_message = '<div class="alert alert-success">News added successfully.</div>';
+                    $update_message = '<div class="alert alert-success">' . translate('admin_news_add_success', 'News added successfully.') . '</div>';
                 } else {
-                    $update_message = '<div class="alert alert-danger">Failed to add news: ' . htmlspecialchars($site_db->error) . '</div>';
+                    $update_message = '<div class="alert alert-danger">' . sprintf(translate('admin_news_add_failed', 'Failed to add news: %s'), htmlspecialchars($site_db->error)) . '</div>';
                 }
                 $stmt->close();
             }
@@ -125,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     } elseif ($_POST['action'] === 'update') {
         // Verify CSRF token
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-            $update_message = '<div class="alert alert-danger">CSRF token validation failed.</div>';
+            $update_message = '<div class="alert alert-danger">' . translate('admin_news_csrf_error', 'CSRF token validation failed.') . '</div>';
         } else {
             $id = (int)$_POST['id'];
             $title = trim($_POST['title']);
@@ -146,27 +149,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
                 if ($file['error'] !== UPLOAD_ERR_OK) {
                     $error_messages = [
-                        UPLOAD_ERR_INI_SIZE => 'File size exceeds server limit (upload_max_filesize)',
-                        UPLOAD_ERR_FORM_SIZE => 'File size exceeds form limit',
-                        UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
-                        UPLOAD_ERR_NO_FILE => 'No file was uploaded',
-                        UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary directory',
-                        UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
-                        UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the upload'
+                        UPLOAD_ERR_INI_SIZE => translate('admin_news_upload_err_ini_size', 'File size exceeds server limit (upload_max_filesize).'),
+                        UPLOAD_ERR_FORM_SIZE => translate('admin_news_upload_err_form_size', 'File size exceeds form limit.'),
+                        UPLOAD_ERR_PARTIAL => translate('admin_news_upload_err_partial', 'File was only partially uploaded.'),
+                        UPLOAD_ERR_NO_FILE => translate('admin_news_upload_err_no_file', 'No file was uploaded.'),
+                        UPLOAD_ERR_NO_TMP_DIR => translate('admin_news_upload_err_no_tmp_dir', 'Missing temporary directory.'),
+                        UPLOAD_ERR_CANT_WRITE => translate('admin_news_upload_err_cant_write', 'Failed to write file to disk.'),
+                        UPLOAD_ERR_EXTENSION => translate('admin_news_upload_err_extension', 'A PHP extension stopped the upload.')
                     ];
-                    $error_message = isset($error_messages[$file['error']]) ? $error_messages[$file['error']] : 'Unknown upload error';
+                    $error_message = isset($error_messages[$file['error']]) ? $error_messages[$file['error']] : translate('admin_news_upload_err_unknown', 'Unknown upload error.');
                     error_log("Upload error: $error_message", 3, $log_file);
                     $update_message = '<div class="alert alert-danger">' . htmlspecialchars($error_message) . '</div>';
                 } elseif (!in_array($file['type'], $allowed_types)) {
                     error_log("Invalid file type: {$file['type']}", 3, $log_file);
-                    $update_message = '<div class="alert alert-danger">Invalid file type. Only JPG, PNG, GIF allowed.</div>';
+                    $update_message = '<div class="alert alert-danger">' . translate('admin_news_invalid_file_type', 'Invalid file type. Only JPG, PNG, GIF allowed.') . '</div>';
                 } elseif ($file['size'] > $max_size) {
                     error_log("File size exceeds limit: {$file['size']} bytes", 3, $log_file);
-                    $update_message = '<div class="alert alert-danger">File size exceeds 2MB limit.</div>';
+                    $update_message = '<div class="alert alert-danger">' . translate('admin_news_file_size_exceeded', 'File size exceeds 2MB limit.') . '</div>';
                 } else {
                     if (!is_writable($base_upload_dir)) {
                         error_log("Upload directory not writable: $base_upload_dir", 3, $log_file);
-                        $update_message = '<div class="alert alert-danger">Upload directory is not writable.</div>';
+                        $update_message = '<div class="alert alert-danger">' . translate('admin_news_upload_dir_not_writable', 'Upload directory is not writable.') . '</div>';
                     } else {
                         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
                         $filename = uniqid('news_') . '.' . $ext;
@@ -185,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                             }
                         } else {
                             error_log("Failed to move uploaded file to: $destination", 3, $log_file);
-                            $update_message = '<div class="alert alert-danger">Failed to move uploaded file.</div>';
+                            $update_message = '<div class="alert alert-danger">' . translate('admin_news_upload_failed', 'Failed to move uploaded file.') . '</div>';
                         }
                     }
                 }
@@ -195,9 +198,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $stmt = $site_db->prepare("UPDATE server_news SET title = ?, slug = ?, content = ?, category = ?, is_important = ?, image_url = ? WHERE id = ?");
                 $stmt->bind_param("ssssisi", $title, $slug, $content, $category, $is_important, $image_url, $id);
                 if ($stmt->execute()) {
-                    $update_message = '<div class="alert alert-success">News updated successfully.</div>';
+                    $update_message = '<div class="alert alert-success">' . translate('admin_news_update_success', 'News updated successfully.') . '</div>';
                 } else {
-                    $update_message = '<div class="alert alert-danger">Failed to update news: ' . htmlspecialchars($site_db->error) . '</div>';
+                    $update_message = '<div class="alert alert-danger">' . sprintf(translate('admin_news_update_failed', 'Failed to update news: %s'), htmlspecialchars($site_db->error)) . '</div>';
                 }
                 $stmt->close();
             }
@@ -205,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     } elseif ($_POST['action'] === 'delete') {
         // Verify CSRF token
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-            $update_message = '<div class="alert alert-danger">CSRF token validation failed.</div>';
+            $update_message = '<div class="alert alert-danger">' . translate('admin_news_csrf_error', 'CSRF token validation failed.') . '</div>';
         } else {
             $id = (int)$_POST['id'];
             // Delete associated image if not default
@@ -227,9 +230,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $stmt = $site_db->prepare("DELETE FROM server_news WHERE id = ?");
             $stmt->bind_param("i", $id);
             if ($stmt->execute()) {
-                $update_message = '<div class="alert alert-success">News deleted successfully.</div>';
+                $update_message = '<div class="alert alert-success">' . translate('admin_news_delete_success', 'News deleted successfully.') . '</div>';
             } else {
-                $update_message = '<div class="alert alert-danger">Failed to delete news: ' . htmlspecialchars($site_db->error) . '</div>';
+                $update_message = '<div class="alert alert-danger">' . sprintf(translate('admin_news_delete_failed', 'Failed to delete news: %s'), htmlspecialchars($site_db->error)) . '</div>';
             }
             $stmt->close();
         }
@@ -259,13 +262,13 @@ $news_result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="News Management for Sahtout WoW Server">
+    <meta name="description" content="<?php echo translate('admin_news_meta_description', 'News Management for Sahtout WoW Server'); ?>">
     <meta name="robots" content="noindex">
-    <title>News Management</title>
+    <title><?php echo translate('admin_news_page_title', 'News Management'); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/Sahtout/assets/css/footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -501,90 +504,90 @@ $news_result = $stmt->get_result();
                 <?php include dirname(__DIR__) . '../../includes/admin_sidebar.php'; ?>
                 <!-- Main Content -->
                 <div class="col-md-9">
-                    <h1 class="dashboard-title">News Management</h1>
+                    <h1 class="dashboard-title"><?php echo translate('admin_news_title', 'News Management'); ?></h1>
                     <?php echo $update_message; ?>
                     <!-- Add News Form -->
                     <div class="card">
-                        <div class="card-header">Add New News</div>
+                        <div class="card-header"><?php echo translate('admin_news_add_header', 'Add New News'); ?></div>
                         <div class="card-body">
                             <form method="POST" enctype="multipart/form-data">
                                 <input type="hidden" name="action" value="add">
                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                 <div class="mb-3">
-                                    <label class="form-label">Title</label>
-                                    <input type="text" name="title" class="form-control" required maxlength="100">
+                                    <label class="form-label"><?php echo translate('admin_news_label_title', 'Title'); ?></label>
+                                    <input type="text" name="title" class="form-control" required maxlength="100" placeholder="<?php echo translate('admin_news_placeholder_title', 'Enter news title'); ?>">
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Slug</label>
-                                    <input type="text" name="slug" class="form-control" maxlength="120">
+                                    <label class="form-label"><?php echo translate('admin_news_label_slug', 'Slug'); ?></label>
+                                    <input type="text" name="slug" class="form-control" maxlength="120" placeholder="<?php echo translate('admin_news_placeholder_slug', 'Enter slug (optional)'); ?>">
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Content</label>
-                                    <textarea name="content" class="form-control" rows="5" required></textarea>
+                                    <label class="form-label"><?php echo translate('admin_news_label_content', 'Content'); ?></label>
+                                    <textarea name="content" class="form-control" rows="5" required placeholder="<?php echo translate('admin_news_placeholder_content', 'Enter news content'); ?>"></textarea>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Category</label>
+                                    <label class="form-label"><?php echo translate('admin_news_label_category', 'Category'); ?></label>
                                     <select name="category" id="category" class="form-select">
-                                        <option value="update">Update</option>
-                                        <option value="event">Event</option>
-                                        <option value="maintenance">Maintenance</option>
-                                        <option value="other">Other</option>
+                                        <option value="update"><?php echo translate('admin_news_category_update', 'Update'); ?></option>
+                                        <option value="event"><?php echo translate('admin_news_category_event', 'Event'); ?></option>
+                                        <option value="maintenance"><?php echo translate('admin_news_category_maintenance', 'Maintenance'); ?></option>
+                                        <option value="other"><?php echo translate('admin_news_category_other', 'Other'); ?></option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Image Upload (JPG, PNG, GIF, max 2MB, Optional)</label>
+                                    <label class="form-label"><?php echo translate('admin_news_label_image', 'Image Upload (JPG, PNG, GIF, max 2MB, Optional)'); ?></label>
                                     <input type="file" name="image" id="image" class="form-control" accept="image/jpeg,image/png,image/gif">
-                                    <small class="form-text text-muted">Leave blank to use default image (news.png).</small>
-                                    <img id="image_preview" class="image-preview" src="" alt="Image Preview">
+                                    <small class="form-text text-muted"><?php echo translate('admin_news_image_help', 'Leave blank to use default image (news.png).'); ?></small>
+                                    <img id="image_preview" class="image-preview" src="" alt="<?php echo translate('admin_news_image_preview_alt', 'Image Preview'); ?>">
                                 </div>
                                 <div class="mb-3">
                                     <div class="form-check">
                                         <input type="checkbox" name="is_important" class="form-check-input" id="is_important">
-                                        <label class="form-check-label" for="is_important" style="color: #dc3545;">Mark as Important</label>
+                                        <label class="form-check-label" for="is_important" style="color: #dc3545;"><?php echo translate('admin_news_label_is_important', 'Mark as Important'); ?></label>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary">Add News</button>
+                                <button type="submit" class="btn btn-primary"><?php echo translate('admin_news_add_button', 'Add News'); ?></button>
                             </form>
                         </div>
                     </div>
                     <!-- News List -->
                     <div class="card">
-                        <div class="card-header">News Articles</div>
+                        <div class="card-header"><?php echo translate('admin_news_list_header', 'News Articles'); ?></div>
                         <div class="card-body">
                             <div class="table-wrapper">
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>Title</th>
-                                            <th>Category</th>
-                                            <th>Posted By</th>
-                                            <th>Date</th>
-                                            <th>Important</th>
-                                            <th>Image</th>
-                                            <th>Actions</th>
+                                            <th><?php echo translate('admin_news_table_title', 'Title'); ?></th>
+                                            <th><?php echo translate('admin_news_table_category', 'Category'); ?></th>
+                                            <th><?php echo translate('admin_news_table_posted_by', 'Posted By'); ?></th>
+                                            <th><?php echo translate('admin_news_table_date', 'Date'); ?></th>
+                                            <th><?php echo translate('admin_news_table_important', 'Important'); ?></th>
+                                            <th><?php echo translate('admin_news_table_image', 'Image'); ?></th>
+                                            <th><?php echo translate('admin_news_table_actions', 'Actions'); ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php if ($news_result->num_rows === 0): ?>
                                             <tr>
-                                                <td colspan="7">No news available.</td>
+                                                <td colspan="7"><?php echo translate('admin_news_no_news', 'No news available.'); ?></td>
                                             </tr>
                                         <?php else: ?>
                                             <?php while ($news = $news_result->fetch_assoc()): ?>
                                                 <tr id="news-<?php echo $news['id']; ?>">
                                                     <td><a href="/Sahtout/news?slug=<?php echo urlencode(htmlspecialchars($news['slug'])); ?>" class="news-title-link"><?php echo htmlspecialchars($news['title']); ?></a></td>
-                                                    <td><?php echo ucfirst(htmlspecialchars($news['category'])); ?></td>
+                                                    <td><?php echo translate('admin_news_category_' . $news['category'], ucfirst($news['category'])); ?></td>
                                                     <td><?php echo htmlspecialchars($news['posted_by']); ?></td>
                                                     <td><?php echo date('M j, Y H:i', strtotime($news['post_date'])); ?></td>
                                                     <td><span class="<?php echo $news['is_important'] ? 'status-important' : ''; ?>">
-                                                        <?php echo $news['is_important'] ? 'Yes' : 'No'; ?>
+                                                        <?php echo $news['is_important'] ? translate('admin_news_yes', 'Yes') : translate('admin_news_no', 'No'); ?>
                                                     </span></td>
                                                     <td>
-                                                        <img src="<?php echo htmlspecialchars($news['image_url'] ?? $default_image_url); ?>" alt="News Image" style="max-width: 50px; max-height: 50px;">
+                                                        <img src="<?php echo htmlspecialchars($news['image_url'] ?? $default_image_url); ?>" alt="<?php echo translate('admin_news_image_alt', 'News Image'); ?>" style="max-width: 50px; max-height: 50px;">
                                                     </td>
                                                     <td>
-                                                        <button class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#editModal-<?php echo $news['id']; ?>">Edit</button>
-                                                        <button class="btn btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal-<?php echo $news['id']; ?>">Delete</button>
+                                                        <button class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#editModal-<?php echo $news['id']; ?>"><?php echo translate('admin_news_edit_button', 'Edit'); ?></button>
+                                                        <button class="btn btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal-<?php echo $news['id']; ?>"><?php echo translate('admin_news_delete_button', 'Delete'); ?></button>
                                                     </td>
                                                 </tr>
                                                 <!-- Edit Modal -->
@@ -592,8 +595,8 @@ $news_result = $stmt->get_result();
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
-                                                                <h5 class="modal-title" id="editModalLabel-<?php echo $news['id']; ?>">Edit News: <?php echo htmlspecialchars($news['title']); ?></h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                <h5 class="modal-title" id="editModalLabel-<?php echo $news['id']; ?>"><?php echo translate('admin_news_edit_modal_title', 'Edit News: ') . htmlspecialchars($news['title']); ?></h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo translate('admin_news_close_button', 'Close'); ?>"></button>
                                                             </div>
                                                             <div class="modal-body">
                                                                 <form method="POST" enctype="multipart/form-data">
@@ -602,41 +605,41 @@ $news_result = $stmt->get_result();
                                                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                                                     <input type="hidden" name="existing_image" id="existing_image_<?php echo $news['id']; ?>" value="<?php echo htmlspecialchars($news['image_url'] ?? $default_image_url); ?>">
                                                                     <div class="mb-3">
-                                                                        <label class="form-label">Title</label>
-                                                                        <input type="text" name="title" class="form-control" value="<?php echo htmlspecialchars($news['title']); ?>" required maxlength="100">
+                                                                        <label class="form-label"><?php echo translate('admin_news_label_title', 'Title'); ?></label>
+                                                                        <input type="text" name="title" class="form-control" value="<?php echo htmlspecialchars($news['title']); ?>" required maxlength="100" placeholder="<?php echo translate('admin_news_placeholder_title', 'Enter news title'); ?>">
                                                                     </div>
                                                                     <div class="mb-3">
-                                                                        <label class="form-label">Slug</label>
-                                                                        <input type="text" name="slug" class="form-control" value="<?php echo htmlspecialchars($news['slug'] ?? ''); ?>" maxlength="120">
+                                                                        <label class="form-label"><?php echo translate('admin_news_label_slug', 'Slug'); ?></label>
+                                                                        <input type="text" name="slug" class="form-control" value="<?php echo htmlspecialchars($news['slug'] ?? ''); ?>" maxlength="120" placeholder="<?php echo translate('admin_news_placeholder_slug', 'Enter slug (optional)'); ?>">
                                                                     </div>
                                                                     <div class="mb-3">
-                                                                        <label class="form-label">Content</label>
-                                                                        <textarea name="content" class="form-control" rows="5" required><?php echo htmlspecialchars($news['content']); ?></textarea>
+                                                                        <label class="form-label"><?php echo translate('admin_news_label_content', 'Content'); ?></label>
+                                                                        <textarea name="content" class="form-control" rows="5" required placeholder="<?php echo translate('admin_news_placeholder_content', 'Enter news content'); ?>"><?php echo htmlspecialchars($news['content']); ?></textarea>
                                                                     </div>
                                                                     <div class="mb-3">
-                                                                        <label class="form-label">Category</label>
+                                                                        <label class="form-label"><?php echo translate('admin_news_label_category', 'Category'); ?></label>
                                                                         <select name="category" class="form-select">
-                                                                            <option value="update" <?php echo $news['category'] === 'update' ? 'selected' : ''; ?>>Update</option>
-                                                                            <option value="event" <?php echo $news['category'] === 'event' ? 'selected' : ''; ?>>Event</option>
-                                                                            <option value="maintenance" <?php echo $news['category'] === 'maintenance' ? 'selected' : ''; ?>>Maintenance</option>
-                                                                            <option value="other" <?php echo $news['category'] === 'other' ? 'selected' : ''; ?>>Other</option>
+                                                                            <option value="update" <?php echo $news['category'] === 'update' ? 'selected' : ''; ?>><?php echo translate('admin_news_category_update', 'Update'); ?></option>
+                                                                            <option value="event" <?php echo $news['category'] === 'event' ? 'selected' : ''; ?>><?php echo translate('admin_news_category_event', 'Event'); ?></option>
+                                                                            <option value="maintenance" <?php echo $news['category'] === 'maintenance' ? 'selected' : ''; ?>><?php echo translate('admin_news_category_maintenance', 'Maintenance'); ?></option>
+                                                                            <option value="other" <?php echo $news['category'] === 'other' ? 'selected' : ''; ?>><?php echo translate('admin_news_category_other', 'Other'); ?></option>
                                                                         </select>
                                                                     </div>
                                                                     <div class="mb-3">
-                                                                        <label class="form-label">Image Upload (JPG, PNG, GIF, max 2MB, Optional)</label>
+                                                                        <label class="form-label"><?php echo translate('admin_news_label_image', 'Image Upload (JPG, PNG, GIF, max 2MB, Optional)'); ?></label>
                                                                         <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/gif">
-                                                                        <small class="form-text text-muted">Leave blank to keep existing image (default: news.png).</small>
-                                                                        <img class="image-preview" id="image_preview_<?php echo $news['id']; ?>" src="<?php echo htmlspecialchars($news['image_url'] ?? $default_image_url); ?>" alt="Image Preview" class="image-preview active">
+                                                                        <small class="form-text text-muted"><?php echo translate('admin_news_image_edit_help', 'Leave blank to keep existing image (default: news.png).'); ?></small>
+                                                                        <img class="image-preview active" id="image_preview_<?php echo $news['id']; ?>" src="<?php echo htmlspecialchars($news['image_url'] ?? $default_image_url); ?>" alt="<?php echo translate('admin_news_image_preview_alt', 'Image Preview'); ?>">
                                                                     </div>
                                                                     <div class="mb-3">
                                                                         <div class="form-check">
                                                                             <input type="checkbox" name="is_important" class="form-check-input" id="is_important_<?php echo $news['id']; ?>" <?php echo $news['is_important'] ? 'checked' : ''; ?>>
-                                                                            <label class="form-check-label" for="is_important_<?php echo $news['id']; ?>">Mark as Important</label>
+                                                                            <label class="form-check-label" for="is_important_<?php echo $news['id']; ?>"><?php echo translate('admin_news_label_is_important', 'Mark as Important'); ?></label>
                                                                         </div>
                                                                     </div>
                                                                     <div class="modal-footer">
-                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                        <button type="submit" class="btn btn-primary">Save</button>
+                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo translate('admin_news_cancel_button', 'Cancel'); ?></button>
+                                                                        <button type="submit" class="btn btn-primary"><?php echo translate('admin_news_save_button', 'Save'); ?></button>
                                                                     </div>
                                                                 </form>
                                                             </div>
@@ -648,18 +651,18 @@ $news_result = $stmt->get_result();
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
-                                                                <h5 class="modal-title" id="deleteModalLabel-<?php echo $news['id']; ?>">Delete News: <?php echo htmlspecialchars($news['title']); ?></h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                <h5 class="modal-title" id="deleteModalLabel-<?php echo $news['id']; ?>"><?php echo translate('admin_news_delete_modal_title', 'Delete News: ') . htmlspecialchars($news['title']); ?></h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo translate('admin_news_close_button', 'Close'); ?>"></button>
                                                             </div>
                                                             <div class="modal-body">
-                                                                <p>Are you sure you want to delete this news article?</p>
+                                                                <p><?php echo translate('admin_news_delete_confirm', 'Are you sure you want to delete this news article?'); ?></p>
                                                                 <form method="POST">
                                                                     <input type="hidden" name="action" value="delete">
                                                                     <input type="hidden" name="id" value="<?php echo $news['id']; ?>">
                                                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                                                     <div class="modal-footer">
-                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo translate('admin_news_cancel_button', 'Cancel'); ?></button>
+                                                                        <button type="submit" class="btn btn-danger"><?php echo translate('admin_news_delete_button', 'Delete'); ?></button>
                                                                     </div>
                                                                 </form>
                                                             </div>
@@ -674,10 +677,10 @@ $news_result = $stmt->get_result();
                             </div>
                             <!-- Pagination -->
                             <?php if ($total_pages > 1): ?>
-                                <nav aria-label="News pagination">
+                                <nav aria-label="<?php echo translate('admin_news_pagination_aria', 'News pagination'); ?>">
                                     <ul class="pagination">
                                         <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
-                                            <a class="page-link" href="admin/anews?page=<?php echo $page - 1; ?>" aria-label="Previous">
+                                            <a class="page-link" href="admin/anews?page=<?php echo $page - 1; ?>" aria-label="<?php echo translate('admin_news_previous', 'Previous'); ?>">
                                                 <span aria-hidden="true">&laquo;</span>
                                             </a>
                                         </li>
@@ -687,7 +690,7 @@ $news_result = $stmt->get_result();
                                             </li>
                                         <?php endfor; ?>
                                         <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
-                                            <a class="page-link" href="admin/anews?page=<?php echo $page + 1; ?>" aria-label="Next">
+                                            <a class="page-link" href="admin/anews?page=<?php echo $page + 1; ?>" aria-label="<?php echo translate('admin_news_next', 'Next'); ?>">
                                                 <span aria-hidden="true">&raquo;</span>
                                             </a>
                                         </li>
@@ -716,14 +719,14 @@ $news_result = $stmt->get_result();
                         const maxSize = 2 * 1024 * 1024; // 2MB
 
                         if (!allowedTypes.includes(file.type)) {
-                            alert('Invalid file type. Only JPG, PNG, or GIF allowed.');
+                            alert('<?php echo translate('admin_news_js_invalid_file_type', 'Invalid file type. Only JPG, PNG, or GIF allowed.'); ?>');
                             this.value = '';
                             addImagePreview.classList.remove('active');
                             addImagePreview.src = '<?php echo htmlspecialchars($default_image_url); ?>';
                             return;
                         }
                         if (file.size > maxSize) {
-                            alert('File size exceeds 2MB limit.');
+                            alert('<?php echo translate('admin_news_js_file_size_exceeded', 'File size exceeds 2MB limit.'); ?>');
                             this.value = '';
                             addImagePreview.classList.remove('active');
                             addImagePreview.src = '<?php echo htmlspecialchars($default_image_url); ?>';
@@ -760,14 +763,14 @@ $news_result = $stmt->get_result();
                                 const maxSize = 2 * 1024 * 1024; // 2MB
 
                                 if (!allowedTypes.includes(file.type)) {
-                                    alert('Invalid file type. Only JPG, PNG, or GIF allowed.');
+                                    alert('<?php echo translate('admin_news_js_invalid_file_type', 'Invalid file type. Only JPG, PNG, or GIF allowed.'); ?>');
                                     this.value = '';
                                     imagePreview.classList.add('active');
                                     imagePreview.src = existingImageInput.value;
                                     return;
                                 }
                                 if (file.size > maxSize) {
-                                    alert('File size exceeds 2MB limit.');
+                                    alert('<?php echo translate('admin_news_js_file_size_exceeded', 'File size exceeds 2MB limit.'); ?>');
                                     this.value = '';
                                     imagePreview.classList.add('active');
                                     imagePreview.src = existingImageInput.value;
