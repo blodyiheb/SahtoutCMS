@@ -98,6 +98,17 @@ function sendActivationEmail($username, $email, $token) {
     <meta name="description" content="<?php echo translate('meta_description', 'Resend the activation email for your World of Warcraft server account.'); ?>">
     <title><?php echo translate('page_title', 'Resend Activation Email'); ?></title>
     <style>
+        body.resend_activation {
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: url('/sahtout/img/backgrounds/bg-resend.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'UnifrakturCook', 'Arial', sans-serif;
+            position: relative;
+        }
         html, body {
             width: 100%;
             overflow-x: hidden;

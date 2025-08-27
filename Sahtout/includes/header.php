@@ -180,7 +180,7 @@ header img:hover {
 
 header nav {
     display: flex;
-    gap: 1.5rem;
+    gap: 0.6rem;
     align-items: center;
 }
 
@@ -190,17 +190,17 @@ header nav.no-session {
 
 header nav a {
     text-decoration: none;
-    font-size: 1.5rem;
+    font-size: 1.2rem; /* slightly smaller */
     font-weight: 600;
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    background: linear-gradient(135deg, rgba(27, 155, 240, 0.93) 0%, rgba(25, 158, 185, 0.84) 58%);
+    padding: 0.4rem 1rem; /* tighter padding */
+    border-radius: 6px;
+    background: linear-gradient(135deg, rgba(27, 155, 240, 0.85) 0%, rgba(25, 158, 185, 0.75) 58%);
     color: #ffffff;
-    border: 2px solid #1b9bf0;
-    transition: all 0.3s ease;
+    border: 1px solid #1b9bf0;
+    transition: all 0.25s ease;
     position: relative;
-    margin-right: 25px;
-    cursor: url('/Sahtout/img/hover_wow.gif') 16 16, auto;
+    margin-right: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
 header nav a.register,
@@ -209,14 +209,14 @@ header nav a.login {
 }
 
 header nav a:hover {
-    background: linear-gradient(135deg, rgba(41, 128, 185, 0.9) 0%, rgba(31, 97, 141, 0.7) 100%);
+    background: linear-gradient(135deg, rgba(41, 128, 185, 0.9) 0%, rgba(31, 97, 141, 0.85) 100%);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.6);
 }
 
 header nav a.active {
     background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-    border-color: #1b9bf0;
+    border-color: #e67e22;
     box-shadow: 0 4px 12px rgba(211, 84, 0, 0.5);
 }
 
@@ -314,53 +314,54 @@ header nav a.active {
 
 .user-currency {
     display: flex;
-    gap: 1rem;
-    padding: 0.6rem 1.2rem;
-    background: linear-gradient(135deg, rgba(10, 10, 10, 0.8), rgba(26, 10, 10, 0.8));
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.5);
+    gap: 0.6rem; /* slightly smaller gap */
+    padding: 0.3rem 0.8rem; /* reduced padding */
+    border-radius: 6px; /* slightly smaller radius */
+    box-shadow: 0 2px 6px rgba(52, 152, 219, 0.4);
+    font-size: 0.95rem; /* slightly smaller text */
+    margin-left: 180px;
 }
 
 .user-currency span {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    font-size: 1.1rem;
+    gap: 0.4rem;
+    padding: 0.25rem 0.6rem; /* tighter padding */
+    border-radius: 5px;
+    font-size: 0.95rem; /* matches container */
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
 }
 
 .user-currency .points {
     background: linear-gradient(135deg, #1b9bf0 0%, #199fb9 100%);
-    color: #ffffff;
-    border: 2px solid #1b9bf0;
+    color: #ffee00ff;
+    border: 1px solid #1b9bf0;
 }
 
 .user-currency .points:hover {
     background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(52, 152, 219, 0.5);
 }
 
 .user-currency .tokens {
     background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
     color: #ffffff;
-    border: 2px solid #1b9bf0;
+    border: 1px solid #1b9bf0;
 }
 
 .user-currency .tokens:hover {
     background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(155, 89, 182, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(155, 89, 182, 0.5);
 }
 
 /* Language dropdown styles */
 .lang-dropdown {
     position: relative;
     display: inline-block;
-    width: 160px;
+    width: 124px;
     font-family: 'Cinzel', serif;
 }
 

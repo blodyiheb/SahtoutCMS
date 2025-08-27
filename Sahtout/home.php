@@ -59,7 +59,7 @@ $result = $site_db->query($query);
         /* Discord Widget */
         .discord-widget {
             position: fixed;
-            top: 150px;
+            top: 145px;
             left: 5px;
             background: rgba(0, 0, 0, 0.7);
             border: 2px solid #ffd700;
@@ -407,7 +407,7 @@ $result = $site_db->query($query);
             box-shadow: 0 0 20px rgba(0, 247, 255, 0.5), 0 0 10px rgba(255, 0, 255, 0.3);
             box-sizing: border-box;
             text-align: center;
-            max-height: calc(100vh - 150px); /* Prevent touching footer */
+            max-height: calc(100vh - 255px); /* Prevent touching footer */
             overflow-y: auto; /* Enable scrollbar if content overflows */
             z-index: 900; /* Below discord-widget (z-index: 1000) */
         }
@@ -458,7 +458,7 @@ $result = $site_db->query($query);
             border: 1px solid #ff00ff;
             border-radius: 6px;
             padding: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
             text-align: center;
             transition: box-shadow 0.3s ease, background 0.3s ease;
         }
@@ -469,11 +469,10 @@ $result = $site_db->query($query);
         }
 
         .server-status img {
-            display: block;
             margin: 0 auto 10px;
             max-width: 50%;
             height: auto;
-            border-radius: 6px;
+            border-radius: 4px;
             filter: drop-shadow(0 0 5px rgba(0, 247, 255, 0.5));
         }
 
@@ -481,7 +480,6 @@ $result = $site_db->query($query);
             font-size: 1rem;
             color: #ff00ff;
             display: block;
-            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -505,9 +503,7 @@ $result = $site_db->query($query);
         .server-status .players,
         .server-status .uptime,
         .server-status .realm-ip {
-            display: block;
             font-size: 0.9rem;
-            margin-top: 5px;
             color: #e0e0e0;
             font-family: 'Orbitron', sans-serif;
         }
