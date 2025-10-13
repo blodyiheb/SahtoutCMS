@@ -17,12 +17,10 @@ SahtoutCMS is a World of Warcraft website for AzerothCore WOLTK 3.3.5 (with SRP6
 ## 🎥 Demo Video  
 Watch on YouTube: [SahtoutCMS Demo](https://www.youtube.com/watch?v=wHZypMui6aQ )  
 
-🚀 Voting System Update – 19/09/2025
-🗂  Admin Settings: Add & manage vote sites easily
-💎 Rewards & Cooldowns: Users vote → claim points → wait for cooldowns. Both CMS & vote sites enforce timers
-📊 Vote History: Claimed votes move from vote_log → vote_log_history
-⚠️ Reminder: Each vote site may have its own cooldown system; some sites like www.xtremetop100.com
- require VIP GOLD to send callbacks
+🚀 Dynamic Paths & Configuration – 12/10/2025
+🌐 All URLs, paths, images, and database connections are now fully dynamic — works in root, subfolders, or custom directories.
+🖌️ Frontend & Code Cleanup: Most inline CSS and JS have been moved into separate CSS, JS, and PHP include files for better structure and maintainability.
+⚠️ Notes: Most inline styles are refactored; some files may still need cleanup. Minor issues may appear during testing.
  
 ## 🔄 Latest Updates
 - 🛡️ Added **failed_logins** and **reset_attempts** tables for security tracking
@@ -31,7 +29,8 @@ Watch on YouTube: [SahtoutCMS Demo](https://www.youtube.com/watch?v=wHZypMui6aQ 
 - 🔒 Implemented **brute-force protection** for login, forgot password, and reset password
 - 🌍 Multilingual support for all static pages (including the installer)  
 - ✨ Updated styles for Realm Status, How to Play, Login, Register, and other UI elements  
-- 🖌️ Improved overall design consistency and responsiveness  
+- 🖌️ Improved overall design consistency and responsiveness
+- 🚀 Voting System : Add/manage vote sites, claim points with cooldowns, and track vote history
 - ℹ️ Note: dynamic database content (shop items, news) is still single-language for now
   
 
@@ -59,6 +58,7 @@ Watch on YouTube: [SahtoutCMS Demo](https://www.youtube.com/watch?v=wHZypMui6aQ 
   - reCAPTCHA: keys, enable/disable
   - Realm: name, IP, port, logo
   - SOAP: GM command connection
+  - Voting: add/manage vote sites, set rewards and cooldowns
     
 - **Shop System**
   - Purchase in-game services: Character Rename, Faction Change, Level Boost,Gold
@@ -87,7 +87,7 @@ Watch on YouTube: [SahtoutCMS Demo](https://www.youtube.com/watch?v=wHZypMui6aQ 
 1. Download SahtoutCMS
 2. Copie sahtout folder From SahtoutCMS to htdocs if you are using xampp
 3. Run the Sahtoutsite Sql First then the other sqls
-4. Run the installer to set up database,recaptcha,realmstatus,mail,soap(create account from your database gm level 3 -1). configuration.(url:http://localhost/Sahtout/install/)
+4. Run the installer to set up database,recaptcha,realmstatus,mail,soap(create account from your database gm level 3 -1). configuration.(url:http://localhost/Sahtout/install/ or http(s)://ursite/install/)
 5. Remove the installer Folder if you completed everything
 6. Log in as admin and start managing your server.
 
@@ -110,11 +110,14 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## Screenshots
 <img width="1914" height="936" alt="image" src="https://github.com/user-attachments/assets/ea53eddc-da0d-4f65-a2b1-80396d505c47" />
-<img width="495" height="789" alt="image" src="https://github.com/user-attachments/assets/a14aba5e-3ca9-4872-bd2f-7dd4915f7910" />
-<img width="1886" height="895" alt="image" src="https://github.com/user-attachments/assets/8c0ceaa9-c67b-4c75-8216-9f5cb2d4acbd" />
+<img width="485" height="833" alt="image" src="https://github.com/user-attachments/assets/496821fc-0a69-4cf1-b788-299a51821ed1" />
+<img width="1885" height="891" alt="image" src="https://github.com/user-attachments/assets/324a0759-6b26-41d9-87b4-19dac3947006" />
+<img width="1892" height="897" alt="image" src="https://github.com/user-attachments/assets/2b850e74-0d8c-4567-b553-680528c26936" />
+<img width="1889" height="890" alt="image" src="https://github.com/user-attachments/assets/e61280fb-2f2e-43f4-961d-8aa17a932980" />
 <img width="1882" height="869" alt="image" src="https://github.com/user-attachments/assets/c5aaae3c-3958-435d-b892-0912b0a7c389" />
-<img width="1886" height="934" alt="image" src="https://github.com/user-attachments/assets/d9b28534-2a37-4d62-a01d-29a767107569" />
+<img width="1890" height="908" alt="image" src="https://github.com/user-attachments/assets/36f18329-6673-4a1c-921b-da70fc6a2051" />
 <img width="1917" height="946" alt="image" src="https://github.com/user-attachments/assets/1d5e5a02-0d0d-4042-8a10-ee3d31ef82d8" />
+<img width="740" height="911" alt="image" src="https://github.com/user-attachments/assets/a179dfe2-d75c-4c82-a019-8308fdf975c8" />
 <img width="1429" height="937" alt="image" src="https://github.com/user-attachments/assets/3bbbeb19-b268-4aee-9d62-b3071f47ca44" />
 <img width="1364" height="910" alt="image" src="https://github.com/user-attachments/assets/40cd9d91-273a-4d41-bea0-b62832ce9451" />
 <img width="860" height="935" alt="image" src="https://github.com/user-attachments/assets/ca790fc8-a2fa-4ce1-bd19-188e6d22938e" />
@@ -125,7 +128,8 @@ MIT License — see [LICENSE](LICENSE) for details.
 <img width="1895" height="906" alt="image" src="https://github.com/user-attachments/assets/268b2e99-1c15-40e9-9d67-16d93755576a" />
 <img width="1394" height="626" alt="image" src="https://github.com/user-attachments/assets/89761c3b-b5b5-46df-a3b8-613b81e80684" />
 <img width="1411" height="736" alt="image" src="https://github.com/user-attachments/assets/ca899b32-4203-4c90-9270-ac5a6a0d6039" />
-<img width="1499" height="820" alt="image" src="https://github.com/user-attachments/assets/146e24a7-2bc8-4d53-a4f8-a54625f765ac" />
+<img width="1331" height="812" alt="image" src="https://github.com/user-attachments/assets/424404f5-49eb-46ab-a662-11214bd5dc9b" />
+
 <img width="1093" height="682" alt="image" src="https://github.com/user-attachments/assets/d92c1d16-4f5b-49b6-a8a2-a51eacc52ed4" />
 
 and more 
