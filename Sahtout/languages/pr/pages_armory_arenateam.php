@@ -1,0 +1,28 @@
+<?php
+return [
+    'arenateam_page_title' => 'WoW Armory - Detalhes do Time de Arena',
+    'arenateam_suffix' => 'Time de Arena',
+    'arenateam_team_summary' => 'Resumo do Time',
+    'arenateam_rating' => 'Rating',
+    'arenateam_winrate' => 'Taxa de Vitória',
+    'arenateam_season_games' => 'Jogos da Temporada',
+    'arenateam_season_wins' => 'Vitórias na Temporada',
+    'arenateam_season_losses' => 'Derrotas na Temporada',
+    'arenateam_week_games' => 'Jogos da Semana',
+    'arenateam_week_wins' => 'Vitórias da Semana',
+    'arenateam_week_losses' => 'Derrotas da Semana',
+    'arenateam_team_members' => 'Membros do Time',
+    'arenateam_name' => 'Nome',
+    'arenateam_faction' => 'Facção',
+    'arenateam_race' => 'Raça',
+    'arenateam_class' => 'Classe',
+    'arenateam_personal_rating' => 'Rating Pessoal',
+    'arenateam_no_team' => 'Nenhum time de arena encontrado.',
+    'arenateam_no_members' => 'Nenhum membro encontrado.',
+    'arenateam_type_2v2' => '2v2',
+    'arenateam_type_3v3' => '3v3',
+    'arenateam_type_5v5' => '5v5',
+    'arenateam_type_unknown' => 'Desconhecido',
+    'arenateam_faction_alliance' => 'Aliança',
+    'arenateam_faction_horde' => 'Horda'
+];
