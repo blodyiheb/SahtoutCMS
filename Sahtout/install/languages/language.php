@@ -10,7 +10,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 
 // Supported languages
-$supportedLangs = ['en', 'fr', 'es', 'de', 'ru'];
+$supportedLangs = ['en', 'fr', 'es', 'de', 'ru','pr'];
 $defaultLang = 'en';
 
 // === 1. Priority: URL parameter ?lang=fr ===

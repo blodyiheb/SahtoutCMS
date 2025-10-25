@@ -16,7 +16,7 @@ global $langCode;
 $langCode = isset($_SESSION['lang']) ? $_SESSION['lang'] : ($_GET['lang'] ?? 'en');
 
 // Supported languages
-$supported = ['en', 'fr', 'es', 'de', 'ru'];
+$supported = ['en', 'fr', 'es', 'de', 'ru','pr'];
 if (!in_array($langCode, $supported)) {
     $langCode = 'en';
 }
@@ -27,7 +27,8 @@ $langNames = [
     'fr' => 'Français',
     'es' => 'Español',
     'de' => 'Deutsch',
-    'ru' => 'Русский'
+    'ru' => 'Русский',
+    'pr' => 'Português'
 ];
 
 // Current language data
@@ -169,6 +170,9 @@ $currentFlagEsc = htmlspecialchars($currentFlag);
                 </li>
                 <li data-value="ru" data-flag="<?php echo $base_path; ?>languages/flags/ru.png">
                     <img src="<?php echo $base_path; ?>languages/flags/ru.png" alt="Русский"> Русский
+                </li>
+                <li data-value="pr" data-flag="<?php echo $base_path; ?>languages/flags/pr.png">
+                    <img src="<?php echo $base_path; ?>languages/flags/pr.png" alt="Português"> Português
                 </li>
             </ul>
         </div>

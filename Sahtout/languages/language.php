@@ -11,7 +11,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 // Define supported languages and default
 $defaultLang = 'en';
-$supported = ['en', 'fr', 'es', 'de', 'ru'];
+$supported = ['en', 'fr', 'es', 'de', 'ru','pr'];
 
 // Set language
 if (isset($_GET['lang']) && in_array($_GET['lang'], $supported)) {
