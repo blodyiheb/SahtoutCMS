@@ -132,7 +132,7 @@ $result = $site_db->query($query);
             ?>
         </div>
     </main>
-    
+      
     <?php
     $footer_file = $project_root . 'includes/footer.php';
     if (file_exists($footer_file)) {
