@@ -1,0 +1,25 @@
+<?php
+return [
+    'page_title' => 'Redefinir Senha',
+    'meta_description' => 'Redefina sua senha para nosso servidor World of Warcraft.',
+    'reset_title' => 'Redefinir Senha',
+    'password_placeholder' => 'Nova Senha',
+    'confirm_password_placeholder' => 'Confirmar Senha',
+    'reset_button' => 'Redefinir Senha',
+    'login_link' => '<a href="%s">Voltar ao Login</a>',
+    'email_subject_confirmation' => 'Confirmação de Redefinição de Senha',
+    'email_greeting' => 'Bem-vindo, {username}!',
+    'email_success' => 'Sua senha foi redefinida com sucesso.',
+    'email_contact_support' => 'Se você não realizou esta ação, contate o suporte imediatamente.',
+    'error_no_token' => 'Nenhum token de redefinição fornecido.',
+    'error_token_invalid' => 'O link de redefinição é inválido ou expirou.',
+    'error_account_not_active' => 'Sua conta ainda não está ativa. Por favor, ative sua conta para redefinir a senha.',
+    'error_account_not_exist' => 'A conta não existe.',
+    'error_invalid_nonce' => 'Envio de formulário inválido ou expirado. Tente novamente.',
+    'error_password_required' => 'Senha é obrigatória.',
+    'error_password_short' => 'A senha deve ter pelo menos 8 caracteres.',
+    'error_password_mismatch' => 'As senhas não correspondem.',
+    'error_recaptcha_failed' => 'Falha na verificação do reCAPTCHA.',
+    'error_password_update_failed' => 'Falha ao atualizar a senha.',
+    'error_email_failed' => 'Falha ao enviar o email de confirmação: '
+];

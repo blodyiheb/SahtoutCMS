@@ -405,7 +405,7 @@ header nav a.active {
 .lang-dropdown {
     position: relative;
     display: inline-block;
-    width: 124px;
+    width: 150px;
     font-family: 'Cinzel', serif;
 }
 
@@ -680,6 +680,7 @@ header nav a.active {
 
     .nav-toggle {
         display: block;
+        margin-right: -8px;
         z-index: 1002;
     }
 
@@ -719,7 +720,7 @@ header nav a.active {
     .lang-options {
         margin-top: 3rem;
         right: 0;
-        width: 100px;
+        width: 124px;
     }
 
     .lang-options li {
