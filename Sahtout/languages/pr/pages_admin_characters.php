@@ -1,0 +1,106 @@
+<?php
+return [
+    // 🔹 Page Info
+    'admin_chars_page_title' => 'Gestión de Personajes',
+    'admin_chars_meta_description' => 'Gestión de personajes para el Servidor WoW Sahtout',
+    'admin_chars_title' => 'Gestión de Personajes',
+
+    // 🔹 CSRF & General Errors
+    'admin_chars_csrf_missing' => 'Falta el token CSRF.',
+    'admin_chars_csrf_error' => 'La validación del token CSRF falló.',
+    'admin_chars_not_found' => 'Personaje no encontrado.',
+    'admin_chars_db_error' => 'Error al preparar la consulta: %s',
+
+    // 🔹 Gold Management
+    'admin_chars_add_gold_success' => 'Se añadieron %d de oro a %s correctamente.',
+    'admin_chars_add_gold_failed' => 'Error al añadir oro a %s.',
+    'admin_chars_gold_negative' => 'La cantidad de oro debe ser un número no negativo.',
+    'admin_chars_gold_online' => 'No se puede añadir oro a %s: El personaje está en línea.',
+
+    // 🔹 Level Management
+    'admin_chars_level_success' => 'Nivel cambiado a %d para %s correctamente.',
+    'admin_chars_level_failed' => 'Error al cambiar el nivel de %s.',
+    'admin_chars_level_invalid' => 'El nivel debe estar entre 1 y 255.',
+
+    // 🔹 Teleport Management
+    'admin_chars_teleport_success' => 'Teletransportado %s a %s (%.2f, %.2f, %.2f).',
+    'admin_chars_teleport_failed' => 'Error al teletransportar a %s.',
+    'admin_chars_teleport_invalid' => 'Coordenadas inválidas. El mapa debe ser ≥ 0 y X/Y no pueden ser 0.',
+    'admin_chars_location_invalid' => 'Ubicación seleccionada inválida.',
+    'admin_chars_teleport_direct_success' => 'Teletransportado %s a %s.',
+    'admin_chars_teleport_tip' => 'Consejo: Consulta las coordenadas en el juego usando el comando .gps.',
+
+    // 🔹 Search & Filters
+    'admin_chars_found_chars' => 'Se encontraron %d personajes en esta página (Total: %d).',
+    'admin_chars_label_char_name' => 'Nombre del Personaje',
+    'admin_chars_placeholder_char_name' => 'Ingrese el nombre del personaje',
+    'admin_chars_label_username' => 'Nombre de Usuario',
+    'admin_chars_placeholder_username' => 'Ingrese el nombre de usuario',
+    'admin_chars_label_min_level' => 'Nivel Mínimo',
+    'admin_chars_placeholder_min_level' => 'ej. 1',
+    'admin_chars_label_max_level' => 'Nivel Máximo',
+    'admin_chars_placeholder_max_level' => 'ej. 255',
+    'admin_chars_label_online_status' => 'Estado en Línea',
+    'admin_chars_option_all' => 'Todos',
+    'admin_chars_option_online' => 'En Línea',
+    'admin_chars_option_offline' => 'Desconectado',
+    'admin_chars_label_sort_id' => 'Ordenar por ID',
+    'admin_chars_option_sort_asc' => 'Ascendente',
+    'admin_chars_option_sort_desc' => 'Descendente',
+    'admin_chars_search_button' => 'Buscar',
+    'admin_chars_clear_filters' => 'Limpiar Filtros',
+
+    // 🔹 Table
+    'admin_chars_table_header' => 'Personajes',
+    'admin_chars_table_char_id' => 'ID del Personaje',
+    'admin_chars_table_name' => 'Nombre',
+    'admin_chars_table_username' => 'Usuario',
+    'admin_chars_table_race' => 'Raza',
+    'admin_chars_table_class' => 'Clase',
+    'admin_chars_table_map' => 'Mapa',
+    'admin_chars_table_level' => 'Nivel',
+    'admin_chars_table_online' => 'En Línea',
+    'admin_chars_table_action' => 'Acción',
+    'admin_chars_no_chars_found' => 'No se encontraron personajes.',
+
+    // 🔹 Manage Character Modal
+    'admin_chars_manage_button' => 'Gestionar',
+    'admin_chars_manage_modal_title' => 'Gestionar Personaje: ',
+    'admin_chars_close_button' => 'Cerrar',
+    'admin_chars_label_action' => 'Acción',
+    'admin_chars_action_add_gold' => 'Añadir Oro',
+    'admin_chars_action_change_level' => 'Cambiar Nivel',
+    'admin_chars_action_teleport' => 'Teletransportar (Personalizado)',
+    'admin_chars_action_teleport_direct' => 'Teletransportar Directamente',
+
+    // 🔹 Gold / Level / Teleport Fields
+    'admin_chars_label_gold' => 'Cantidad de Oro (en oro)',
+    'admin_chars_placeholder_gold' => 'Ingrese la cantidad de oro (ej. 100)',
+    'admin_chars_label_level' => 'Nivel (1-255)',
+    'admin_chars_placeholder_level' => 'Ingrese el nivel (ej. 80)',
+    'admin_chars_label_map' => 'ID del Mapa',
+    'admin_chars_label_x_coord' => 'Coordenada X',
+    'admin_chars_placeholder_x_coord' => 'Coordenada X',
+    'admin_chars_label_y_coord' => 'Coordenada Y',
+    'admin_chars_placeholder_y_coord' => 'Coordenada Y',
+    'admin_chars_label_z_coord' => 'Coordenada Z',
+    'admin_chars_placeholder_z_coord' => 'Coordenada Z',
+    'admin_chars_label_destination' => 'Destino',
+    'admin_chars_cancel_button' => 'Cancelar',
+    'admin_chars_apply_button' => 'Aplicar',
+
+    // 🔹 Pagination
+    'admin_chars_pagination_aria' => 'Paginación de personajes',
+    'admin_chars_previous' => 'Anterior',
+    'admin_chars_next' => 'Siguiente',
+
+    // 🔹 Icons
+    'admin_chars_race_icon_alt' => 'Icono de Raza',
+    'admin_chars_class_icon_alt' => 'Icono de Clase',
+    'admin_chars_faction_icon_alt' => 'Icono de Facción',
+
+    // 🔹 Status
+    'admin_chars_status_online' => 'En Línea',
+    'admin_chars_status_offline' => 'Desconectado',
+];
+?>
