@@ -1,0 +1,56 @@
+<?php
+return [
+    // Configurações gerais
+    'page_title_general' => 'Configurações Gerais',
+    'settings_general' => 'Configurações Gerais',
+    'label_website_logo' => 'Logo do Site',
+    'label_social_media' => 'Links de Redes Sociais',
+    'btn_choose_file' => 'Escolher Arquivo',
+    'btn_save_settings' => 'Salvar Configurações',
+    'msg_settings_saved' => 'Configurações atualizadas com sucesso!',
+
+    // Placeholders para redes sociais
+    'placeholder_facebook' => 'URL do Facebook',
+    'placeholder_twitter' => 'URL do Twitter (X)',
+    'placeholder_tiktok' => 'URL do TikTok',
+    'placeholder_youtube' => 'URL do YouTube',
+    'placeholder_discord' => 'URL de Convite do Discord',
+    'placeholder_twitch' => 'URL do Twitch',
+    'placeholder_kick' => 'URL do Kick',
+    'placeholder_instagram' => 'URL do Instagram',
+    'placeholder_github' => 'URL do GitHub',
+    'placeholder_linkedin' => 'URL do LinkedIn',
+    'placeholder_logo' => 'Envie uma imagem PNG, SVG ou JPG (máx. 3MB) para usar como logo do site.',
+
+    // Texto alternativo para redes sociais
+    'footer_logo_alt' => 'Logo do Servidor Sahtout',
+    'facebook_alt' => 'Facebook',
+    'twitter_alt' => 'Twitter (X)',
+    'tiktok_alt' => 'TikTok',
+    'youtube_alt' => 'YouTube',
+    'discord_alt' => 'Discord',
+    'twitch_alt' => 'Twitch',
+    'kick_alt' => 'Kick',
+    'instagram_alt' => 'Instagram',
+    'github_alt' => 'GitHub',
+    'linkedin_alt' => 'LinkedIn',
+
+    // Mensagens de erro
+    'error_csrf_invalid' => 'Token CSRF inválido.',
+    'error_access_denied' => 'Acesso negado.',
+    'error_direct_access' => 'Acesso direto não permitido.',
+    'error_file_too_large' => 'O tamanho do arquivo excede 3MB.',
+    'error_invalid_file_type' => 'Tipo de arquivo inválido. Apenas PNG, SVG ou JPG são permitidos.',
+    'error_file_upload_failed' => 'Falha ao enviar o logo. Verifique as permissões do servidor.',
+    'error_file_write_failed' => 'O arquivo de configuração não é gravável.',
+    'error_invalid_facebook' => 'URL do Facebook inválida.',
+    'error_invalid_twitter' => 'URL do Twitter (X) inválida.',
+    'error_invalid_tiktok' => 'URL do TikTok inválida.',
+    'error_invalid_youtube' => 'URL do YouTube inválida.',
+    'error_invalid_discord' => 'URL do Discord inválida.',
+    'error_invalid_twitch' => 'URL do Twitch inválida.',
+    'error_invalid_kick' => 'URL do Kick inválida.',
+    'error_invalid_instagram' => 'URL do Instagram inválida.',
+    'error_invalid_github' => 'URL do GitHub inválida.',
+    'error_invalid_linkedin' => 'URL do LinkedIn inválida.',
+];
