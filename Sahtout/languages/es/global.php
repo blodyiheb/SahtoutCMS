@@ -43,7 +43,8 @@ return [
     'settings_nav_realm' => 'Reino',
     'settings_nav_soap' => 'SOAP',
     'settings_nav_vote_sites' => 'Sitios de Votación',
-    
+    'settings_nav_page_manager' => 'Administrador de páginas',
+
     // Realm status (from realm_status.php)
    'error_direct_access' => 'No se permite el acceso directo a este archivo.',
     'error_access_denied' => 'Acceso denegado.',

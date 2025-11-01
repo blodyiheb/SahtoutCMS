@@ -42,7 +42,8 @@ return [
     'settings_nav_realm' => 'Realm',
     'settings_nav_soap' => 'SOAP',
     'settings_nav_vote_sites' => 'Abstimmungsseiten',
-    
+    'settings_nav_page_manager' => 'Seitenverwaltung',
+
     // Social media alt text
     'footer_logo_alt' => 'Sahtout Server-Logo',
     'facebook_alt' => 'Facebook',

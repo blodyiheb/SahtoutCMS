@@ -43,7 +43,8 @@ return [
     'settings_nav_realm' => 'Реалм',
     'settings_nav_soap' => 'SOAP',
     'settings_nav_vote_sites' => 'Сайты для голосования',
-    
+    'settings_nav_page_manager' => 'Менеджер страниц',
+
     // Social media alt text
     'footer_logo_alt' => 'Логотип сервера Sahtout',
     'facebook_alt' => 'Facebook',

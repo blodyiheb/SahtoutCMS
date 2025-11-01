@@ -43,7 +43,8 @@ return [
     'settings_nav_realm' => 'Reino',
     'settings_nav_soap' => 'SOAP',
     'settings_nav_vote_sites' => 'Sites de Votação',
-    
+    'settings_nav_page_manager' => 'Gerenciador de páginas',
+
     // Texto alternativo das redes sociais
     'footer_logo_alt' => 'Logo do Servidor Sahtout',
     'facebook_alt' => 'Facebook',

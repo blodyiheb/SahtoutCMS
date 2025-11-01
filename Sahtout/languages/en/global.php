@@ -35,14 +35,16 @@ return [
     'admin_gm_commands' => 'GM Commands',
     'admin_settings' => 'Settings',
     
-    // Settings navigation
-    'settings_nav_menu' => 'Settings Menu',
-    'settings_nav_general' => 'General',
-    'settings_nav_smtp' => 'SMTP',
-    'settings_nav_recaptcha' => 'reCAPTCHA',
-    'settings_nav_realm' => 'Realm',
-    'settings_nav_soap' => 'SOAP',
-    'settings_nav_vote_sites' => 'Vote Sites',
+   // Settings navigation
+'settings_nav_menu'        => 'Settings Menu',
+'settings_nav_general'     => 'General',
+'settings_nav_smtp'        => 'SMTP',
+'settings_nav_recaptcha'   => 'reCAPTCHA',
+'settings_nav_realm'       => 'Realm',
+'settings_nav_soap'        => 'SOAP',
+'settings_nav_vote_sites'  => 'Vote Sites',
+'settings_nav_page_manager'=> 'Page Manager',
+
     
     // Social media alt text
     'footer_logo_alt' => 'Sahtout Server Logo',
