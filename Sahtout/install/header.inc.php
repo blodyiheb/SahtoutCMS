@@ -172,7 +172,7 @@ $currentFlagEsc = htmlspecialchars($currentFlag);
                     <img src="<?php echo $base_path; ?>languages/flags/ru.png" alt="Русский"> Русский
                 </li>
                 <li data-value="pt" data-flag="<?php echo $base_path; ?>languages/flags/pt.png">
-                    <img src="<?php echo $base_path; ?>languages/flags/pr.png" alt="Português"> Português
+                    <img src="<?php echo $base_path; ?>languages/flags/pt.png" alt="Português"> Português
                 </li>
             </ul>
         </div>
