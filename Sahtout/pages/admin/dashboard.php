@@ -1,15 +1,16 @@
 <?php
 define('ALLOWED_ACCESS', true);
+
 // Include session, language, and paths
 require_once __DIR__ . '/../../includes/paths.php';
 require_once $project_root . 'includes/session.php'; // Includes config.php
 require_once $project_root . 'languages/language.php'; // Include translation system
 
 $page_class = 'dashboard';
-define('DB_AUTH', $db_auth);
-define('DB_CHAR', $db_char);
-define('DB_WORLD', $db_world);
-define('DB_SITE', $db_site);
+define('DB_AUTH', $db_auth_name);
+define('DB_CHAR', $db_char_name);
+define('DB_WORLD', $db_world_name);
+define('DB_SITE', $db_site_name);
 // Check if user is admin or moderator
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'moderator'])) {
     header("Location: {$base_path}login");
@@ -67,29 +68,25 @@ $search_username = isset($_GET['search_username']) ? trim($_GET['search_username
 $search_email = isset($_GET['search_email']) ? trim($_GET['search_email']) : '';
 $role_filter = isset($_GET['role_filter']) && in_array($_GET['role_filter'], ['admin', 'moderator', '']) ? $_GET['role_filter'] : '';
 
-// Get recent admins/moderators with email, online status, and ban info
-$users_query = "SELECT uc.account_id, uc.username, uc.points, uc.tokens, uc.role, uc.last_updated, a.email, a.online, a.locked 
-                FROM " . DB_SITE . ".user_currencies uc 
-                JOIN " . DB_AUTH . ".account a ON uc.account_id = a.id 
-                WHERE uc.role IN ('admin', 'moderator')";
+// Get recent admins/moderators – **NO CROSS‑DB JOIN**
+$users_query = "SELECT account_id, username, points, tokens, role, last_updated
+                FROM " . DB_SITE . ".user_currencies
+                WHERE role IN ('admin', 'moderator')";
 $params = [];
 $types = '';
+
 if ($search_username) {
-    $users_query .= " AND uc.username LIKE ?";
+    $users_query .= " AND username LIKE ?";
     $params[] = "%$search_username%";
-    $types .= 's';
-}
-if ($search_email) {
-    $users_query .= " AND a.email LIKE ?";
-    $params[] = "%$search_email%";
-    $types .= 's';
+    $types   .= 's';
 }
 if ($role_filter) {
-    $users_query .= " AND uc.role = ?";
+    $users_query .= " AND role = ?";
     $params[] = $role_filter;
-    $types .= 's';
+    $types   .= 's';
 }
-$users_query .= " ORDER BY uc.last_updated DESC LIMIT 5";
+$users_query .= " ORDER BY last_updated DESC LIMIT 5";
+
 $stmt = $site_db->prepare($users_query);
 if (!empty($params)) {
     $stmt->bind_param($types, ...$params);
@@ -97,14 +94,44 @@ if (!empty($params)) {
 $stmt->execute();
 $users_result = $stmt->get_result();
 
-// Fetch ban info for users
 $users = [];
-while ($user = $users_result->fetch_assoc()) {
-    $users[$user['account_id']] = $user;
+$account_ids = [];
+while ($row = $users_result->fetch_assoc()) {
+    $users[$row['account_id']] = $row;
+    $account_ids[] = $row['account_id'];
 }
 $users_result->free();
+$stmt->close();
 
-$account_ids = array_keys($users);
+/* ------------------------------------------------------------------
+   Now pull the missing fields (email, online, locked) from the Auth DB
+   ------------------------------------------------------------------ */
+if (!empty($account_ids)) {
+    $placeholders = implode(',', array_fill(0, count($account_ids), '?'));
+    $auth_query   = "SELECT id, email, online, locked
+                     FROM " . DB_AUTH . ".account
+                     WHERE id IN ($placeholders)";
+
+    $stmt = $auth_db->prepare($auth_query);
+    $stmt->bind_param(str_repeat('i', count($account_ids)), ...$account_ids);
+    $stmt->execute();
+    $auth_result = $stmt->get_result();
+
+    while ($auth = $auth_result->fetch_assoc()) {
+        $aid = $auth['id'];
+        if (isset($users[$aid])) {
+            $users[$aid]['email']  = $auth['email'];
+            $users[$aid]['online'] = $auth['online'];
+            $users[$aid]['locked'] = $auth['locked'];
+        }
+    }
+    $auth_result->free();
+    $stmt->close();
+}
+
+/* ------------------------------------------------------------------
+   Fetch ban info (still from Auth DB, unchanged)
+   ------------------------------------------------------------------ */
 if (!empty($account_ids)) {
     $placeholders = implode(',', array_fill(0, count($account_ids), '?'));
     $stmt = $auth_db->prepare("SELECT id, bandate, unbandate, banreason 
@@ -229,8 +256,8 @@ $bans_result = $auth_db->query($bans_query);
                                                     <td><span class="status-<?php echo htmlspecialchars($user['role']); ?>">
                                                         <?php echo ucfirst(translate('admin_dashboard_role_' . $user['role'], ucfirst($user['role']))); ?>
                                                     </span></td>
-                                                    <td><?php echo getOnlineStatus($user['online']); ?></td>
-                                                    <td><?php echo getAccountStatus($user['locked'], $user['banInfo'] ?? []); ?></td>
+                                                    <td><?php echo getOnlineStatus($user['online'] ?? 0); ?></td>
+                                                    <td><?php echo getAccountStatus($user['locked'] ?? 0, $user['banInfo'] ?? []); ?></td>
                                                     <td><?php echo $user['last_updated'] ? date('M j, Y H:i', strtotime($user['last_updated'])) : translate('admin_dashboard_never', 'Never'); ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
