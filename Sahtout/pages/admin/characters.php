@@ -8,10 +8,10 @@ require_once $project_root . 'languages/language.php'; // Include translation sy
 
 $page_class = 'characters';
 
-define('DB_AUTH', $db_auth);
-define('DB_CHAR', $db_char);
-define('DB_WORLD', $db_world);
-define('DB_SITE', $db_site);
+define('DB_AUTH', $db_auth_name);
+define('DB_CHAR', $db_char_name);
+define('DB_WORLD', $db_world_name);
+define('DB_SITE', $db_site_name);
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: {$base_path}login");
