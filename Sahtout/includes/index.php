@@ -38,7 +38,7 @@ http_response_code(403); // Forbidden
     <div class="container">
         <h1>403 Forbidden</h1>
         <p>You don’t have permission to access this folder.</p>
-        <p><a href="/Sahtout">Go back to Home Page</a></p>
+        <p><a href="/">Go back to Home Page</a></p>
     </div>
 </body>
 </html>
