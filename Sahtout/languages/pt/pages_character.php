@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Equipamento do Personagem',
+    'page_title' => ' - Personagem',
     'meta_description' => 'Veja o equipamento, estatísticas e detalhes PvP do seu personagem World of Warcraft.',
     'label_head' => 'Cabeça',
     'label_neck' => 'Pescoço',

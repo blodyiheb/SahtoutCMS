@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_3v3_page_title' => 'WoW Armory - Top 50 3v3 Arena Teams',
+    'arena_3v3_page_title' => '- Armory - 3v3 Arena',
     'arena_3v3_title' => 'Top 50 3v3 Arena Teams',
     'arena_3v3_rank' => 'Rank',
     'arena_3v3_name' => 'Name',

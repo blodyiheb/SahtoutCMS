@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Reset Password',
+    'page_title' => ' - Reset Password',
     'meta_description' => 'Reset your password for our World of Warcraft server.',
     'reset_title' => 'Reset Password',
     'password_placeholder' => 'New Password',

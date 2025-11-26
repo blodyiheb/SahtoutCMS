@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Créer un compte',
+    'page_title' => ' - Créer un compte',
     'meta_description' => 'Créez un compte pour rejoindre l\'aventure sur notre serveur World of Warcraft !',
     'register_title' => 'Créer votre compte',
     'username_placeholder' => 'Nom d\'utilisateur',

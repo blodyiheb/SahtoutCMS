@@ -32,6 +32,7 @@ if (isset($_GET['file'])) {
 include_once $project_root . 'includes/header.php';
 ?>
 <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/download/index.css">
+<title><?php echo $site_title_name ." ". translate('download_title', 'Download'); ?></title>
 
 <style>
     :root{
@@ -40,7 +41,7 @@ include_once $project_root . 'includes/header.php';
 </style>
 <div class="main-content">
     <div class="container wow-decoration">
-        <h1><?php echo translate('download_title', 'Choose a file to download'); ?></h1>
+        <h1><?php echo translate('download_title_h1', 'Choose a file to download'); ?></h1>
         
         <?php if (isset($_SESSION['download_error'])): ?>
             <div class="error"><?php echo htmlspecialchars($_SESSION['download_error'], ENT_QUOTES, 'UTF-8'); ?></div>

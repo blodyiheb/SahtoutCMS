@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Activate Account',
+    'page_title' => '- Activate Account',
     'meta_description' => 'Activate your account to join our World of Warcraft server adventure!',
     'activate_title' => 'Activate Your Account',
     'error_no_token' => 'Invalid activation link.',

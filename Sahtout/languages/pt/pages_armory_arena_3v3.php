@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_3v3_page_title' => 'WoW Armory - Top 50 Times de Arena 3v3',
+    'arena_3v3_page_title' => ' - Arsenal – 3v3 Arena',
     'arena_3v3_title' => 'Top 50 Times de Arena 3v3',
     'arena_3v3_rank' => 'Posição',
     'arena_3v3_name' => 'Nome',

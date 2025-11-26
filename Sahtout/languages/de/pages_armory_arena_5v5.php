@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_5v5_page_title' => 'WoW-Waffenkammer - Top 50 5v5 Arena-Teams',
+    'arena_5v5_page_title' => ' - Waffenkammer – 5v5 Arena',
     'arena_5v5_title' => 'Top 50 5v5 Arena-Teams',
     'arena_5v5_rank' => 'Rang',
     'arena_5v5_name' => 'Name',

@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Вход',
+    'page_title' => ' - Вход',
     'meta_description' => 'Войдите в свою учетную запись, чтобы присоединиться к приключению на нашем сервере World of Warcraft!',
     'login_title' => 'Вход',
     'username_placeholder' => 'Имя пользователя',

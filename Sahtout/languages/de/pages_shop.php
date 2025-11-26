@@ -1,8 +1,8 @@
 <?php
 return [
-    'shop_page_title' => 'Sahtout Server Shop',
-    'shop_meta_description' => 'Durchstöbere und kaufe Gegenstände, Reittiere, Haustiere, Gold und Dienstleistungen für den Sahtout WoW Server',
-    'shop_title' => 'Sahtout Server Shop',
+    'shop_page_title' => ' - Shop',
+    'shop_meta_description' => 'Durchstöbern und kaufen Sie Gegenstände, Reittiere, Haustiere, Gold und Dienstleistungen',
+    'shop_title' => ' Server Shop',
     'shop_points' => 'Punkte',
     'shop_tokens' => 'Token',
     'shop_login_prompt' => 'Bitte <a href="{base_path}login">melde dich an</a>, um Gegenstände zu kaufen.',

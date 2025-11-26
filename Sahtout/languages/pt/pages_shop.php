@@ -1,8 +1,8 @@
 <?php
 return [
-    'shop_page_title' => 'Loja do Servidor Sahtout',
-    'shop_meta_description' => 'Explore e compre itens, montarias, mascotes, ouro e serviços para o Servidor WoW Sahtout',
-    'shop_title' => 'Loja do Servidor Sahtout',
+    'shop_page_title' => ' - Loja',
+    'shop_meta_description' => 'Navegue e compre itens, montarias, mascotes, ouro e serviços',
+    'shop_title' => 'Loja do Servidor ',
     'shop_points' => 'Pontos',
     'shop_tokens' => 'Tokens',
     'shop_login_prompt' => 'Por favor, <a href="{base_path}login">faça login</a> para comprar itens.',

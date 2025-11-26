@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_2v2_page_title' => 'WoW-Waffenkammer - Top 50 2v2 Arena-Teams',
+    'arena_2v2_page_title' => ' - Waffenkammer – 2v2 Arena',
     'arena_2v2_title' => 'Top 50 2v2 Arena-Teams',
     'arena_2v2_rank' => 'Rang',
     'arena_2v2_name' => 'Name',

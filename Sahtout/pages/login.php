@@ -259,7 +259,7 @@ include_once $project_root . 'includes/header.php';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content="<?php echo translate('meta_description', 'Log in to your account to join our World of Warcraft server adventure!'); ?>">
-    <title><?php echo translate('page_title', 'Login'); ?></title>
+    <title><?php echo $site_title_name ." ". translate('page_title', 'Login'); ?></title>
     <style>
         :root{
             --bg-login:url('<?php echo $base_path; ?>img/backgrounds/bg-login.jpg');

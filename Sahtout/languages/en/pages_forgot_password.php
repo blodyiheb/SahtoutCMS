@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Forgot Password',
+    'page_title' => '- Forgot Password',
     'meta_description' => 'Request a password reset link for your World of Warcraft server account.',
     'forgot_title' => 'Forgot Password',
     'username_or_email_placeholder' => 'Username or Email',

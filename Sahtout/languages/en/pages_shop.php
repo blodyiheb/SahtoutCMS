@@ -1,8 +1,8 @@
 <?php
 return [
-    'shop_page_title' => 'Sahtout Server Shop',
-    'shop_meta_description' => 'Browse and purchase items, mounts, pets, gold, and services for Sahtout WoW Server',
-    'shop_title' => 'Sahtout Server Shop',
+    'shop_page_title' => ' - Shop',
+    'shop_meta_description' => 'Browse and purchase items, mounts, pets, gold, and services',
+    'shop_title' => 'Server Shop',
     'shop_points' => 'Points',
     'shop_tokens' => 'Tokens',
     'shop_login_prompt' => 'Please <a href="{base_path}login">log in</a> to purchase items.',

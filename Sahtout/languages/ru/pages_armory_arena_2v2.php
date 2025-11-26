@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_2v2_page_title' => 'WoW Арсенал - Топ-50 команд арены 2v2',
+    'arena_2v2_page_title' => ' - Оружейная — 2v2 Арена',
     'arena_2v2_title' => 'Топ-50 команд арены 2v2',
     'arena_2v2_rank' => 'Ранг',
     'arena_2v2_name' => 'Название',

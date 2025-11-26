@@ -132,7 +132,7 @@ if (!function_exists('translate')) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo translate('vote_title', 'Vote for Epic Rewards'); ?></title>
+    <title><?php echo $site_title_name ." ". translate('vote_title', 'Vote for Epic Rewards'); ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     
@@ -141,7 +141,7 @@ if (!function_exists('translate')) {
     <div class="container">
         <div class="page-header">
             <a href="<?php echo htmlspecialchars($base_path, ENT_QUOTES, 'UTF-8'); ?>"><img src="<?php echo htmlspecialchars($base_path . $site_logo, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo translate('site_logo_alt', 'Sahtout Server Logo'); ?>" class="logo"></a>
-            <h1><?php echo translate('vote_title', 'Vote for Epic Rewards'); ?></h1>
+            <h1><?php echo translate('vote_title_h1', 'Vote for Epic Rewards'); ?></h1>
             <p class="subtitle"><?php echo translate('vote_subtitle', 'Support our server by voting on top sites and earn exclusive in-game rewards!'); ?></p>
         </div>
         <?php if (empty($username)): ?>

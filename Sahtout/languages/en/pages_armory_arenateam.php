@@ -1,6 +1,6 @@
 <?php
 return [
-    'arenateam_page_title' => 'WoW Armory - Arena Team Details',
+    'arenateam_page_title' => ' - Armory - Arena Team Details',
     'arenateam_suffix' => 'Arena Team',
     'arenateam_team_summary' => 'Team Summary',
     'arenateam_rating' => 'Rating',

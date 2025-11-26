@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Anmeldung',
+    'page_title' => ' - Anmeldung',
     'meta_description' => 'Melden Sie sich bei Ihrem Konto an, um am Abenteuer auf unserem World of Warcraft-Server teilzunehmen!',
     'login_title' => 'Anmeldung',
     'username_placeholder' => 'Benutzername',

@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Aktivierungs-E-Mail erneut senden',
+    'page_title' => ' - Aktivierungs-E-Mail erneut senden',
     'meta_description' => 'Senden Sie die Aktivierungs-E-Mail für Ihr World of Warcraft Server-Konto erneut.',
     'resend_title' => 'Aktivierungs-E-Mail erneut senden',
     'username_placeholder' => 'Benutzername',

@@ -1,6 +1,6 @@
 <?php
 return [
-    'solo_pvp_page_title' => 'WoW Armory - Top 50 Jogadores',
+    'solo_pvp_page_title' => ' - Arsenal - Maiores Assassinos',
     'solo_pvp_title' => 'Top 50 Jogadores',
     'solo_pvp_rank' => 'Posição',
     'solo_pvp_name' => 'Nome',

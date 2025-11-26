@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Login',
+    'page_title' => ' - Login',
     'meta_description' => 'Faça login na sua conta para se juntar à aventura em nosso servidor World of Warcraft!',
     'login_title' => 'Login',
     'username_placeholder' => 'Nome de Usuário',

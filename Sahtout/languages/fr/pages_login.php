@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Connexion',
+    'page_title' => ' - Connexion',
     'meta_description' => 'Connectez-vous à votre compte pour rejoindre l’aventure sur notre serveur World of Warcraft !',
     'login_title' => 'Connexion',
     'username_placeholder' => 'Nom d’utilisateur',

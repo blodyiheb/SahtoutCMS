@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_3v3_page_title' => 'WoW-Waffenkammer - Top 50 3v3 Arena-Teams',
+    'arena_3v3_page_title' => ' - Waffenkammer – 3v3 Arena',
     'arena_3v3_title' => 'Top 50 3v3 Arena-Teams',
     'arena_3v3_rank' => 'Rang',
     'arena_3v3_name' => 'Name',

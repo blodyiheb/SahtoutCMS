@@ -1,6 +1,6 @@
 <?php
 return [
-    'arenateam_page_title' => 'WoW Арсенал - Детали команды арены',
+    'arenateam_page_title' => ' - Арсенал - Детали команды арены',
     'arenateam_suffix' => 'Команда арены',
     'arenateam_team_summary' => 'Обзор команды',
     'arenateam_rating' => 'Рейтинг',

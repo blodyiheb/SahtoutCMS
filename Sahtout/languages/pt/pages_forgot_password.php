@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Esqueceu a Senha',
+    'page_title' => ' - Esqueceu a Senha',
     'meta_description' => 'Solicite um link para redefinir a senha da sua conta no servidor World of Warcraft.',
     'forgot_title' => 'Esqueceu a Senha',
     'username_or_email_placeholder' => 'Nome de usuário ou Email',

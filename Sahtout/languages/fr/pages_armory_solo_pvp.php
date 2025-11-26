@@ -1,6 +1,6 @@
 <?php
 return [
-    'solo_pvp_page_title' => 'Armurerie WoW - Top 50 Joueurs',
+    'solo_pvp_page_title' => ' - Armurerie - Top Tueurs',
     'solo_pvp_title' => 'Top 50 Joueurs',
     'solo_pvp_rank' => 'Rang',
     'solo_pvp_name' => 'Nom',

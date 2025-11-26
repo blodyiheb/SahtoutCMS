@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Экипировка персонажа',
+    'page_title' => ' - Экипировка персонажа',
     'meta_description' => 'Просмотрите экипировку, характеристики и PvP-детали вашего персонажа World of Warcraft.',
     'label_head' => 'Голова',
     'label_neck' => 'Шея',

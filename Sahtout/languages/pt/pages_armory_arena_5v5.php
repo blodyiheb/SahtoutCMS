@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_5v5_page_title' => 'WoW Armory - Top 50 Times de Arena 5v5',
+    'arena_5v5_page_title' => ' - Arsenal – 5v5 Arena',
     'arena_5v5_title' => 'Top 50 Times de Arena 5v5',
     'arena_5v5_rank' => 'Posição',
     'arena_5v5_name' => 'Nome',

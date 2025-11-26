@@ -1,6 +1,6 @@
 <?php
 return [
-    'solo_pvp_page_title' => 'WoW Арсенал - Топ-50 игроков',
+    'solo_pvp_page_title' => ' - Оружейная — Топ Убийц',
     'solo_pvp_title' => 'Топ-50 игроков',
     'solo_pvp_rank' => 'Ранг',
     'solo_pvp_name' => 'Имя',

@@ -1,6 +1,6 @@
 <?php
 return [
-   'page_title' => 'Passwort vergessen',
+   'page_title' => ' - Passwort vergessen',
         'meta_description' => 'Fordere einen Link zum Zurücksetzen des Passworts für dein World of Warcraft-Serverkonto an.',
         'forgot_title' => 'Passwort vergessen',
         'username_or_email_placeholder' => 'Benutzername oder E-Mail',

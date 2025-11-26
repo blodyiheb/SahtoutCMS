@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_2v2_page_title' => 'WoW Armory - Top 50 Times de Arena 2v2',
+    'arena_2v2_page_title' => ' - Arsenal – 2v2 Arena',
     'arena_2v2_title' => 'Top 50 Times de Arena 2v2',
     'arena_2v2_rank' => 'Posição',
     'arena_2v2_name' => 'Nome',

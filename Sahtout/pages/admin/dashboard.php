@@ -5,7 +5,7 @@ define('ALLOWED_ACCESS', true);
 require_once __DIR__ . '/../../includes/paths.php';
 require_once $project_root . 'includes/session.php'; // Includes config.php
 require_once $project_root . 'languages/language.php'; // Include translation system
-
+require_once $project_root . 'includes/config.settings.php';
 $page_class = 'dashboard';
 define('DB_AUTH', $db_auth_name);
 define('DB_CHAR', $db_char_name);
@@ -163,6 +163,7 @@ $bans_result = $auth_db->query($bans_query);
     <meta name="description" content="<?php echo translate('admin_dashboard_meta_description', 'Admin and Moderator Dashboard for Sahtout WoW Server'); ?>">
     <meta name="robots" content="noindex">
     <title><?php echo translate('admin_dashboard_page_title', 'Admin & Moderator Dashboard'); ?></title>
+    <link rel="icon" href="<?php echo $base_path . $site_logo; ?>" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/admin/dashboard.css">
     <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/admin/admin_sidebar.css">

@@ -1,6 +1,6 @@
 <?php
 return [
-    'how_to_play_title' => 'Como Jogar',
+    'how_to_play_title' => ' - Como Jogar',
     'step_1_title' => 'Passo 1: Crie uma Conta',
     'step_1_desc' => 'Registre uma conta gratuita usando nosso site:',
     'create_account' => 'Criar Conta',

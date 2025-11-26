@@ -127,7 +127,7 @@ $orderedMembers = array_merge($orderedMembers, $members);
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php echo translate('arenateam_page_title', 'WoW Armory - Arena Team Details'); ?></title>
+    <title><?php echo  $site_title_name ." ". translate('arenateam_page_title', 'Arena Team Details'); ?></title>
     <!-- Load Tailwind CSS with a custom configuration -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>

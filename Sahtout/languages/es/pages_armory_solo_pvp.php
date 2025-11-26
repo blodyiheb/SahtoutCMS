@@ -1,6 +1,6 @@
 <?php
 return [
-    'solo_pvp_page_title' => 'Armería WoW - Top 50 Jugadores',
+    'solo_pvp_page_title' => ' - Armería - Mejores Asesinos',
     'solo_pvp_title' => 'Top 50 Jugadores',
     'solo_pvp_rank' => 'Rango',
     'solo_pvp_name' => 'Nombre',

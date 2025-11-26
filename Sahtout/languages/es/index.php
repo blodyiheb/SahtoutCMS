@@ -1,9 +1,9 @@
 <?php
 return [
-    'home_page_title' => 'Inicio',
+    'home_page_title' => ' - Inicio',
     'home_meta_description' => 'Bienvenido a nuestro servidor de World of Warcraft. ¡Únete a nuestro Discord, YouTube, Instagram, crea una cuenta o descarga el juego ahora!',
     'home_discord_title' => 'Únete a nuestro Discord',
-    'home_intro_title' => 'Bienvenido a Sahtout',
+    'home_intro_title' => 'Bienvenido a ',
     'home_intro_tagline' => '¡Únete a nuestra épica aventura en el servidor de World of Warcraft hoy!',
     'home_create_account' => 'Crear cuenta',
     'home_download' => 'Descargar',

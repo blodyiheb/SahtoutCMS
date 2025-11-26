@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Activer le compte',
+    'page_title' => ' - Activer le compte',
     'meta_description' => 'Activez votre compte pour rejoindre l\'aventure sur notre serveur World of Warcraft !',
     'activate_title' => 'Activer votre compte',
     'login_link' => 'Cliquez ici pour vous connecter',

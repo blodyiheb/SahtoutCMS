@@ -1,6 +1,6 @@
 <?php
 return [
-    'arenateam_page_title' => 'Armurerie WoW - Détails de l’équipe d’arène',
+    'arenateam_page_title' => 'Armurerie - Détails de l’équipe d’arène',
     'arenateam_suffix' => 'Équipe d’arène',
     'arenateam_team_summary' => 'Résumé de l’équipe',
     'arenateam_rating' => 'Cote',

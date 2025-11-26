@@ -2,7 +2,7 @@
 // Language file for news.php (French)
 return [
     // Page titles
-    'page_title_list' => 'Actualités',
+    'page_title_list' => ' - Actualités',
     
     // Meta descriptions
     'meta_description_list' => 'Dernières nouvelles et mises à jour pour notre serveur World of Warcraft.',

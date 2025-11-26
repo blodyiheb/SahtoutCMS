@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Create Account',
+    'page_title' => ' - Create Account',
     'meta_description' => 'Create an account to join our World of Warcraft server adventure!',
     'register_title' => 'Create Your Account',
     'username_placeholder' => 'Username',

@@ -14,7 +14,7 @@ require_once $project_root . 'includes/header.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<?php echo translate('meta_description', 'View your World of Warcraft character equipment, stats, and PvP details.'); ?>">
     <meta name="robots" content="index">
-    <title><?php echo translate('page_title', 'Character Equipment'); ?></title>
+    <title><?php echo $site_title_name ." ". translate('page_title', 'Character Equipment'); ?></title>
     
     <style>
     :root{

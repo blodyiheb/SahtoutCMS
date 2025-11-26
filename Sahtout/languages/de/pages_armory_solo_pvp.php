@@ -1,6 +1,6 @@
 <?php
 return [
-    'solo_pvp_page_title' => 'WoW-Waffenkammer - Top 50 Spieler',
+    'solo_pvp_page_title' => ' - Waffenkammer - Top 50 Spieler',
     'solo_pvp_title' => 'Top 50 Spieler',
     'solo_pvp_rank' => 'Rang',
     'solo_pvp_name' => 'Name',

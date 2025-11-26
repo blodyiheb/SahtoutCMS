@@ -1,6 +1,6 @@
 <?php
 return [
-    'arenateam_page_title' => 'WoW Armory - Detalhes do Time de Arena',
+    'arenateam_page_title' => ' - Armory - Detalhes do Time de Arena',
     'arenateam_suffix' => 'Time de Arena',
     'arenateam_team_summary' => 'Resumo do Time',
     'arenateam_rating' => 'Rating',

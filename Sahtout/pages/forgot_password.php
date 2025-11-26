@@ -259,7 +259,7 @@ function sendResetEmail($username, $email, $token) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content="<?php echo translate('meta_description', 'Request a password reset link for your World of Warcraft server account.'); ?>">
-    <title><?php echo translate('page_title', 'Forgot Password'); ?></title>
+    <title><?php echo $site_title_name ." ". translate('page_title', 'Forgot Password'); ?></title>
 </head>
     <style>
         :root{

@@ -196,8 +196,11 @@ $current_lang_flag = $languages[$current_lang]['flag_url'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sahtout SITE <?php echo ucfirst($page_class); ?></title>
     <base href="<?php echo $base_path; ?>">
+    <?php if ($page_class === "how_to_play"): ?>
+        <title><?php echo $site_title_name . translate('how_to_play_title', 'How to Play');?> </title> 
+        <?php endif; ?>
+    <link rel="icon" href="<?php echo $base_path . $site_logo; ?>" type="image/x-icon">
     <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/header.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
     <?php if (file_exists($project_root . "assets/css/{$page_class}.css")): ?>

@@ -1,6 +1,7 @@
 <?php
 return [
-    'vote_title' => 'Vote for Epic Rewards',
+    'vote_title' => ' - Vote for Epic Rewards',
+    'vote_title_h1' => ' - Vote for Epic Rewards',
     'vote_subtitle' => 'Support our server by voting on top sites and earn exclusive in-game rewards!',
     'vote_no_sites' => 'No vote sites available at the moment.',
     'vote_points_label' => 'Vote Points',

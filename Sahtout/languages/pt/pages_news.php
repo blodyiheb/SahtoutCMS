@@ -1,8 +1,7 @@
 <?php
-// Arquivo de idioma para news.php (Português)
 return [
     // Títulos da página
-    'page_title_list' => 'Notícias',
+    'page_title_list' => ' - Notícias',
     
     // Meta descrições
     'meta_description_list' => 'Últimas notícias e atualizações do nosso servidor World of Warcraft.',

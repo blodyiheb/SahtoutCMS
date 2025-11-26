@@ -2,7 +2,7 @@
 // Language file for account.php (French)
 return [
     // Page title
-    'page_title' => 'Mon compte - %s',
+    'page_title' => ' - Compte : %s',
 
     // Dashboard and section titles
     'dashboard_title' => 'Tableau de bord du compte',

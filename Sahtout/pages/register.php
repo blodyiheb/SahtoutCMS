@@ -200,7 +200,7 @@ require_once $project_root . 'includes/header.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<?php echo translate('meta_description', 'Create an account to join our World of Warcraft server adventure!'); ?>">
     <meta name="robots" content="index">
-    <title><?php echo translate('page_title', 'Create Account'); ?></title>
+    <title><?php echo $site_title_name ." ". translate('page_title', 'Create Account'); ?></title>
     <style>
         :root{
             --bg-register:url('<?php echo $base_path; ?>img/backgrounds/bg-register.jpg');

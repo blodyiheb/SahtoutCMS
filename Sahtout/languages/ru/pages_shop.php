@@ -1,8 +1,8 @@
 <?php
 return [
-    'shop_page_title' => 'Магазин сервера Sahtout',
-    'shop_meta_description' => 'Просматривайте и покупайте предметы, маунтов, питомцев, золото и услуги для сервера Sahtout WoW',
-    'shop_title' => 'Магазин сервера Sahtout',
+    'shop_page_title' => ' - Магазин сервера Sahtout',
+    'shop_meta_description' => 'Просматривайте и покупайте предметы, маунтов, питомцев, золото и услуги',
+    'shop_title' => 'Магазин сервера ',
     'shop_points' => 'Очки',
     'shop_tokens' => 'Токены',
     'shop_login_prompt' => 'Пожалуйста, <a href="{base_path}login">войдите в систему</a>, чтобы покупать предметы.',

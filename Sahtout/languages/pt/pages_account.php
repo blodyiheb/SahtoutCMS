@@ -2,7 +2,7 @@
 // Arquivo de idioma para account.php (Português)
 return [
     // Título da página
-    'page_title' => 'Minha Conta - %s',
+    'page_title' => ' - Conta : %s',
 
     // Painel e títulos de seção
     'dashboard_title' => 'Painel da Conta',

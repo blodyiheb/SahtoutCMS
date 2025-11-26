@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_5v5_page_title' => 'Armurerie WoW - Top 50 Équipes d’Arène 5v5',
+    'arena_5v5_page_title' => ' - Armurerie – 5c5 Arène',
     'arena_5v5_title' => 'Top 50 Équipes d’Arène 5v5',
     'arena_5v5_rank' => 'Rang',
     'arena_5v5_name' => 'Nom',

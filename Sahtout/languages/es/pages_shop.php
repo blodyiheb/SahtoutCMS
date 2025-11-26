@@ -1,8 +1,8 @@
 <?php
 return [
-    'shop_page_title' => 'Tienda del Servidor Sahtout',
-    'shop_meta_description' => 'Explora y compra objetos, monturas, mascotas, oro y servicios para el servidor Sahtout WoW',
-    'shop_title' => 'Tienda del Servidor Sahtout',
+    'shop_page_title' => ' - Tienda',
+    'shop_meta_description' => 'Navega y compra objetos, monturas, mascotas, oro y servicios',
+    'shop_title' => 'Tienda del Servidor ',
     'shop_points' => 'Puntos',
     'shop_tokens' => 'Tokens',
     'shop_login_prompt' => 'Por favor, <a href="{base_path}login">inicia sesión</a> para comprar artículos.',

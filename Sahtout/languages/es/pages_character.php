@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Equipo del personaje',
+    'page_title' => ' - personaje',
     'meta_description' => 'Consulta el equipo, las estadísticas y los detalles de JcJ de tu personaje de World of Warcraft.',
     'label_head' => 'Cabeza',
     'label_neck' => 'Cuello',

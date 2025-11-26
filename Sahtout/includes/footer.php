@@ -30,7 +30,7 @@ if (file_exists($project_root . 'includes/config.settings.php')) {
 
     <!-- Copyright -->
     <div class="footer-center">
-      <p>© <?php echo date('Y'); ?> SahtoutCMS by Blody. All rights reserved.</p>
+      <p>© <?php echo date('Y') ." ". $site_title_name ;?>  by SahtoutCMS. All rights reserved.</p>
     </div>
 
     <!-- Socials -->

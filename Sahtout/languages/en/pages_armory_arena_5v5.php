@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_5v5_page_title' => 'WoW Armory - Top 50 5v5 Arena Teams',
+    'arena_5v5_page_title' => '- Armory - 5v5 Arena',
     'arena_5v5_title' => 'Top 50 5v5 Arena Teams',
     'arena_5v5_rank' => 'Rank',
     'arena_5v5_name' => 'Name',

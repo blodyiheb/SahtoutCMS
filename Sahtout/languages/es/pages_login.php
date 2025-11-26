@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Iniciar sesión',
+    'page_title' => ' - Iniciar sesión',
     'meta_description' => 'Inicia sesión en tu cuenta para unirte a la aventura en nuestro servidor de World of Warcraft.',
     'login_title' => 'Iniciar sesión',
     'username_placeholder' => 'Nombre de usuario',

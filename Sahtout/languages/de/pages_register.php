@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Konto erstellen',
+    'page_title' => ' - Konto erstellen',
     'meta_description' => 'Erstellen Sie ein Konto, um unser World of Warcraft Server-Abenteuer zu beginnen!',
     'register_title' => 'Erstellen Sie Ihr Konto',
     'username_placeholder' => 'Benutzername',

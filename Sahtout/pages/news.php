@@ -63,7 +63,7 @@ if ($is_single) {
     <?php else: ?>
         <meta name="description" content="<?php echo translate('meta_description_list', 'Latest news and updates for our World of Warcraft server.'); ?>">
         <link rel="canonical" href="<?php echo $base_path; ?>news?page=<?php echo $current_page; ?>">
-        <title><?php echo translate('page_title_list', 'News'); ?></title>
+        <title><?php echo $site_title_name ." ". translate('page_title_list', 'News'); ?></title>
     <?php endif; ?>
     <meta name="robots" content="index">
     <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/news.css">

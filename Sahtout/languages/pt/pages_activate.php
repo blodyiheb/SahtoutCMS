@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Ativar Conta',
+    'page_title' => ' - Ativar Conta',
     'meta_description' => 'Ative sua conta para juntar-se à nossa aventura no servidor de World of Warcraft!',
     'activate_title' => 'Ative Sua Conta',
     'error_no_token' => 'Link de ativação inválido.',

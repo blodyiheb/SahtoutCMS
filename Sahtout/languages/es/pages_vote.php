@@ -1,6 +1,7 @@
 <?php
 return [
-    'vote_title' => 'Vota por recompensas épicas',
+    'vote_title' => ' - Vota por recompensas épicas',
+    'vote_title_h1' => ' - Vota por recompensas épicas',
     'vote_subtitle' => '¡Apoya nuestro servidor votando en los mejores sitios y gana recompensas exclusivas en el juego!',
     'vote_no_sites' => 'No hay sitios de votación disponibles en este momento.',
     'vote_points_label' => 'Puntos de voto',

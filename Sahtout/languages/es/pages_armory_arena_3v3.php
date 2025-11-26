@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_3v3_page_title' => 'Armería WoW - Top 50 Equipos de Arena 3v3',
+    'arena_3v3_page_title' => ' - Armería – 3v3 Arena',
     'arena_3v3_title' => 'Top 50 Equipos de Arena 3v3',
     'arena_3v3_rank' => 'Rango',
     'arena_3v3_name' => 'Nombre',

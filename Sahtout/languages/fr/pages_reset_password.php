@@ -1,6 +1,6 @@
 <?php
 return [
-   'page_title' => 'Mot de passe oublié',
+   'page_title' => ' - Mot de passe oublié',
         'meta_description' => 'Demandez un lien de réinitialisation de mot de passe pour votre compte de serveur World of Warcraft.',
         'forgot_title' => 'Mot de passe oublié',
         'username_or_email_placeholder' => 'Nom d’utilisateur ou email',

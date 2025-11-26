@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Redefinir Senha',
+    'page_title' => ' - Redefinir Senha',
     'meta_description' => 'Redefina sua senha para nosso servidor World of Warcraft.',
     'reset_title' => 'Redefinir Senha',
     'password_placeholder' => 'Nova Senha',

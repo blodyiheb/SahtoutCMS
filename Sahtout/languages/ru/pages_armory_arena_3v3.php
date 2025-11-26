@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_3v3_page_title' => 'WoW Арсенал - Топ-50 команд арены 3v3',
+    'arena_3v3_page_title' => ' - Оружейная — 3v3 Арена',
     'arena_3v3_title' => 'Топ-50 команд арены 3v3',
     'arena_3v3_rank' => 'Ранг',
     'arena_3v3_name' => 'Название',

@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_2v2_page_title' => 'WoW Armory - Top 50 2v2 Arena Teams',
+    'arena_2v2_page_title' => '- Armory - 2v2 Arena',
     'arena_2v2_title' => 'Top 50 2v2 Arena Teams',
     'arena_2v2_rank' => 'Rank',
     'arena_2v2_name' => 'Name',

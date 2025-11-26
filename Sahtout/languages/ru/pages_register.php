@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Создать аккаунт',
+    'page_title' => ' - Создать аккаунт',
     'meta_description' => 'Создайте аккаунт, чтобы начать приключение на нашем сервере World of Warcraft!',
     'register_title' => 'Создайте свой аккаунт',
     'username_placeholder' => 'Имя пользователя',

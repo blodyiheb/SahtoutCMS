@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Character Equipment',
+    'page_title' => '- Character',
     'meta_description' => 'View your World of Warcraft character equipment, stats, and PvP details.',
     'label_head' => 'Head',
     'label_neck' => 'Neck',

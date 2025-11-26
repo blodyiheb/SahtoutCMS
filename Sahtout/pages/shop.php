@@ -121,15 +121,15 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo translate('shop_meta_description', 'Browse and purchase items, mounts, pets, gold, and services for Sahtout WoW Server'); ?>">
-    <title><?php echo translate('shop_page_title', 'Sahtout Server Shop'); ?></title>
+    <meta name="description" content="<?php echo translate('shop_meta_description', 'Browse and purchase items, mounts, pets, gold, and services for '.$site_title_name . ' WoW Server'); ?>">
+    <title><?php echo $site_title_name ." ".translate('shop_page_title', '- Shop'); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body class="shop">
     <div class="shop-container">
-        <h1><?php echo translate('shop_title', 'Sahtout Server Shop'); ?></h1>
+        <h1><?php echo $site_title_name ." ". translate('shop_title', 'Server Shop'); ?></h1>
         <?php if (!empty($_SESSION['user_id'])): ?>
             <div class="user-balance">
                 <span class="points"><i class="fas fa-coins"></i> <?php echo translate('shop_points', 'Points'); ?>: <?php echo $points; ?></span>

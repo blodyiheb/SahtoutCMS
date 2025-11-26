@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Забыли пароль',
+    'page_title' => ' - Забыли пароль',
     'meta_description' => 'Запросите ссылку для сброса пароля для вашей учетной записи сервера World of Warcraft.',
     'forgot_title' => 'Забыли пароль',
     'username_or_email_placeholder' => 'Имя пользователя или email',

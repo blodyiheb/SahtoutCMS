@@ -1,6 +1,7 @@
 <?php
 return [
-    'download_title' => 'Elige un archivo para descargar',
+    'download_title' => ' - Descargar',
+    'download_title_h1' => 'Elige un archivo para descargar',
     'download_error_file_not_found' => 'Archivo no encontrado',
     'download_file_name' => 'Cliente de Wrath of the Lich King',
     'download_file_size' => 'Tamaño',

@@ -1,6 +1,6 @@
 <?php
 return [
-    'arenateam_page_title' => 'WoW-Waffenkammer - Arena-Team-Details',
+    'arenateam_page_title' => ' - Waffenkammer - Arena-Team-Details',
     'arenateam_suffix' => 'Arena-Team',
     'arenateam_team_summary' => 'Teamübersicht',
     'arenateam_rating' => 'Wertung',

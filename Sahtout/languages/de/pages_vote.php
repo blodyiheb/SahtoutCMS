@@ -1,6 +1,7 @@
 <?php
 return [
-    'vote_title' => 'Stimme für epische Belohnungen ab',
+    'vote_title' => ' - Stimme für epische Belohnungen ab',
+    'vote_title_h1' => ' - Stimme für epische Belohnungen ab',
     'vote_subtitle' => 'Unterstütze unseren Server, indem du auf Top-Seiten abstimmst und exklusive In-Game-Belohnungen erhältst!',
     'vote_no_sites' => 'Momentan sind keine Abstimmungsseiten verfügbar.',
     'vote_points_label' => 'Abstimmungspunkte',

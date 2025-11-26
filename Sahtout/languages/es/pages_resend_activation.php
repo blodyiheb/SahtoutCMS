@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Reenviar correo de activación',
+    'page_title' => ' - Reenviar correo de activación',
     'meta_description' => 'Reenvía el correo de activación para tu cuenta en nuestro servidor de World of Warcraft.',
     'resend_title' => 'Reenviar correo de activación',
     'username_placeholder' => 'Nombre de usuario',

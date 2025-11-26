@@ -2,7 +2,7 @@
 // Language file for account.php (English)
 return [
     // Page title
-    'page_title' => 'My Account - %s',
+    'page_title' => '- Account : %s',
 
     // Dashboard and section titles
     'dashboard_title' => 'Account Dashboard',

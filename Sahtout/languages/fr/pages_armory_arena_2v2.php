@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_2v2_page_title' => 'Armurerie WoW - Top 50 Équipes d’Arène 2v2',
+    'arena_2v2_page_title' => ' - Armurerie – 2c2 Arène',
     'arena_2v2_title' => 'Top 50 Équipes d’Arène 2v2',
     'arena_2v2_rank' => 'Rang',
     'arena_2v2_name' => 'Nom',

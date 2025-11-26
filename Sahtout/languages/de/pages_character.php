@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Charakterausrüstung',
+    'page_title' => ' - Charakter',
     'meta_description' => 'Zeigen Sie die Ausrüstung, Statistiken und PvP-Details Ihres World of Warcraft-Charakters an.',
     'label_head' => 'Kopf',
     'label_neck' => 'Hals',

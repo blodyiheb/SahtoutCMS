@@ -1,6 +1,6 @@
 <?php
 return [
-    'arena_5v5_page_title' => 'WoW Арсенал - Топ-50 команд арены 5v5',
+    'arena_5v5_page_title' => ' - Оружейная — 2v2 Арена',
     'arena_5v5_title' => 'Топ-50 команд арены 5v5',
     'arena_5v5_rank' => 'Ранг',
     'arena_5v5_name' => 'Название',

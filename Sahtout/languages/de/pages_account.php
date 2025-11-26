@@ -2,7 +2,7 @@
 // Sprachdatei für account.php (Deutsch)
 return [
     // Seitentitel
-    'page_title' => 'Mein Konto - %s',
+    'page_title' => ' - Konto : %s',
 
     // Dashboard und Abschnittstitel
     'dashboard_title' => 'Kontodashboard',

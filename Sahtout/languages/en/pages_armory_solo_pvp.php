@@ -1,6 +1,6 @@
 <?php
 return [
-    'solo_pvp_page_title' => 'WoW Armory - Top 50 Players',
+    'solo_pvp_page_title' => ' - Armory Top Killers',
     'solo_pvp_title' => 'Top 50 Players',
     'solo_pvp_rank' => 'Rank',
     'solo_pvp_name' => 'Name',

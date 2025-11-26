@@ -50,7 +50,7 @@ while ($row = $result->fetch_assoc()) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php echo translate('arena_5v5_page_title', 'WoW Armory - Top 50 5v5 Arena Teams'); ?></title>
+    <title><?php echo  $site_title_name ." ". translate('arena_5v5_page_title', ' Top 50 5v5 Arena Teams'); ?></title>
     <!-- Load Tailwind CSS with a custom configuration -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>

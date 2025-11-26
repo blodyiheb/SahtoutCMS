@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Renvoyer l\'email d\'activation',
+    'page_title' => ' - Renvoyer l\'email d\'activation',
     'meta_description' => 'Renvoyez l\'email d\'activation pour votre compte sur notre serveur World of Warcraft.',
     'resend_title' => 'Renvoyer l\'email d\'activation',
     'username_placeholder' => 'Nom d\'utilisateur',

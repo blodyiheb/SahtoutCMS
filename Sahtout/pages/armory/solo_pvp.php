@@ -76,7 +76,7 @@ function classIcon($class) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo translate('solo_pvp_page_title', 'WoW Armory - Top 50 Players'); ?></title>
+    <title><?php echo  $site_title_name ." ". translate('solo_pvp_page_title', 'Top 50 Players'); ?></title>
     <!-- Load Tailwind CSS with a custom configuration -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>

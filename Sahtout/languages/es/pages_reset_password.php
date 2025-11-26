@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Olvidé mi contraseña',
+    'page_title' => ' - Olvidé mi contraseña',
         'meta_description' => 'Solicita un enlace para restablecer la contraseña de tu cuenta en el servidor de World of Warcraft.',
         'forgot_title' => 'Olvidé mi contraseña',
         'username_or_email_placeholder' => 'Nombre de usuario o correo electrónico',

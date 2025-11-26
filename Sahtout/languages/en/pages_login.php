@@ -1,6 +1,6 @@
 <?php
 return [
-    'page_title' => 'Login',
+    'page_title' => ' - Login',
     'meta_description' => 'Log in to your account to join the adventure on our World of Warcraft server!',
     'login_title' => 'Login',
     'username_placeholder' => 'Username',

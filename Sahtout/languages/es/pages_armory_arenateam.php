@@ -1,6 +1,6 @@
 <?php
 return [
-    'arenateam_page_title' => 'Armería WoW - Detalles del equipo de arena',
+    'arenateam_page_title' => ' - Armería - Detalles del equipo de arena',
     'arenateam_suffix' => 'Equipo de arena',
     'arenateam_team_summary' => 'Resumen del equipo',
     'arenateam_rating' => 'Puntuación',
