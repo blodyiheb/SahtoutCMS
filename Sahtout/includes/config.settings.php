@@ -4,6 +4,9 @@ if (!defined('ALLOWED_ACCESS')) {
     exit('Direct access not allowed.');
 }
 
+// Site Title (Editable from Admin Panel)
+$site_title_name = 'SahtoutCMS';
+
 // Logo
 $site_logo = 'img/logo.png';
 

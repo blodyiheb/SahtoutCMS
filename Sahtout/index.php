@@ -29,7 +29,7 @@ $result = $site_db->query($query);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<?php echo translate('home_meta_description', 'Welcome to our World of Warcraft server. Join our Discord, YouTube, Instagram, create an account, or download the game now!'); ?>">
     <meta name="robots" content="index">
-    <title><?php echo translate('home_page_title', 'Home'); ?></title>
+    <title><?php echo $site_title_name ." ". translate('home_page_title', 'Home'); ?></title>
     <style>
     :root {
         --bg-home: url("<?php echo $base_path; ?>img/backgrounds/bg-home.jpg");
@@ -47,7 +47,7 @@ $result = $site_db->query($query);
 
         <!-- Intro Container -->
         <section class="intro-container">
-            <h1 class="intro-title"><?php echo translate('home_intro_title', 'Welcome to Sahtout'); ?></h1>
+            <h1 class="intro-title"><?php echo translate('home_intro_title', 'Welcome to ')." ".$site_title_name ; ?></h1>
             <p class="intro-tagline"><?php echo translate('home_intro_tagline', 'Join our epic World of Warcraft server adventure today!'); ?></p>
             <div class="intro-buttons">
                 <a href="<?php echo $base_path; ?>register" class="intro-button"><?php echo translate('home_create_account', 'Create Account'); ?></a>

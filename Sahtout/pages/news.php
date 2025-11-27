@@ -104,7 +104,7 @@ if ($is_single) {
                 </article>
             <?php else: ?>
                 <!-- News List -->
-                <h1 class="wow-news-title"><?php echo translate('page_title_list', 'Sahtout News'); ?></h1>
+                <h1 class="wow-news-title"><?php echo $site_title_name ." ".translate('page_title_list', '- News'); ?></h1>
                 <?php if ($result->num_rows === 0): ?>
                     <div class="no-news"><?php echo translate('no_news', 'No news available at this time.'); ?></div>
                 <?php else: ?>
