@@ -110,7 +110,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## Screenshots
 <img width="1879" height="906" alt="image" src="https://github.com/user-attachments/assets/f3eee597-2c1d-4738-a3f1-67068d67f581" />
-<img width="485" height="833" alt="image" src="https://github.com/user-attachments/assets/496821fc-0a69-4cf1-b788-299a51821ed1" />
+<img width="517" height="828" alt="image" src="https://github.com/user-attachments/assets/65bbf24d-8102-4c54-b113-2b8790694979" />
 <img width="1885" height="891" alt="image" src="https://github.com/user-attachments/assets/324a0759-6b26-41d9-87b4-19dac3947006" />
 <img width="1892" height="897" alt="image" src="https://github.com/user-attachments/assets/2b850e74-0d8c-4567-b553-680528c26936" />
 <img width="1889" height="890" alt="image" src="https://github.com/user-attachments/assets/e61280fb-2f2e-43f4-961d-8aa17a932980" />
