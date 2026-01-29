@@ -1,8 +1,25 @@
 <?php
-// Start session with secure settings
-ini_set('session.cookie_httponly', 1); // Prevent JavaScript access to session cookie
-ini_set('session.use_only_cookies', 1); // Use cookies only for session ID
-ini_set('session.cookie_secure', isset($_SERVER['HTTPS'])); // Use secure cookies if HTTPS
+// Detect HTTPS properly (works with proxies & Cloudflare)
+$is_https = false;
+if (
+    (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+    (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+) {
+    $is_https = true;
+}
+
+// Force correct session cookie params
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '',        // current domain
+    'secure' => $is_https,
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
+
+ini_set('session.use_only_cookies', 1);
+
 session_start();
 
 require_once __DIR__ . '/paths.php';

@@ -214,8 +214,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $account = $result->fetch_assoc();
 
                     if (SRP6::VerifyPassword($username, $password, $account['salt'], $account['verifier'])) {
-                        $_SESSION['user_id'] = $account['id'];
+                    session_regenerate_id(true);    
+                    $_SESSION['user_id'] = $account['id'];
                         $_SESSION['username'] = $account['username'];
+$_SESSION['last_regeneration'] = time();
 
                         $update = $auth_db->prepare("UPDATE account SET last_login = NOW() WHERE id = ?");
                         $update->bind_param('i', $account['id']);

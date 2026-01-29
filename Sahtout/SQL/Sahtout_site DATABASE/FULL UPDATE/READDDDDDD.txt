@@ -1,3 +1,2 @@
 🚨 Important:
-- Only use the latest SQL file (DATE)
-- For NEW installations only.
+-Use For First Time installation.
