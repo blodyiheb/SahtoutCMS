@@ -9,7 +9,7 @@ return [
     'password_confirm_placeholder' => 'Passwort bestätigen',
     'register_button' => 'Registrieren',
     'login_link_text' => 'Hier klicken, um sich anzumelden',
-    'login_link_text_alt' => 'Bereits ein Konto? <a href="/sahtout/login">Anmelden</a>',
+    'login_link_text_alt' => 'Bereits ein Konto? <a href="/login">Anmelden</a>',
     'email_subject' => 'Aktivieren Sie Ihr Konto',
     'email_greeting' => 'Willkommen, {username}!',
     'email_body' => 'Vielen Dank für Ihre Registrierung. Bitte klicken Sie auf die Schaltfläche unten, um Ihr Konto zu aktivieren:',

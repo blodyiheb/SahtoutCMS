@@ -6,7 +6,7 @@ return [
     'username_or_email_placeholder' => 'Nombre de usuario o correo electrónico',
     'send_button' => 'Enviar enlace de restablecimiento',
     'login_link' => '¿Recordaste tu contraseña?',
-    'login_link_text' => 'Inicia sesión aquí',
+    'login_link_text' => '<a href="%s">Inicia sesión aquí</a>',
     'email_subject' => 'Solicitud de restablecimiento de contraseña',
     'email_greeting' => '¡Bienvenido, {username}!',
     'email_request' => 'Has solicitado un restablecimiento de contraseña. Haz clic en el botón de abajo para restablecer tu contraseña:',

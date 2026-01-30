@@ -6,7 +6,7 @@ return [
     'username_or_email_placeholder' => 'Nom d’utilisateur ou email',
     'send_button' => 'Envoyer le lien de réinitialisation',
     'login_link' => 'Vous vous souvenez de votre mot de passe ?',
-    'login_link_text' => 'Connectez-vous ici',
+    'login_link_text' => '<a href="%s">Connectez-vous ici</a>',
     'email_subject' => 'Demande de réinitialisation de mot de passe',
     'email_greeting' => 'Bienvenue, {username} !',
     'email_request' => 'Vous avez demandé une réinitialisation de mot de passe. Cliquez sur le bouton ci-dessous pour réinitialiser votre mot de passe :',

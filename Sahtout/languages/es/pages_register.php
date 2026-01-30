@@ -9,7 +9,7 @@ return [
     'password_confirm_placeholder' => 'Confirmar contraseña',
     'register_button' => 'Registrarse',
     'login_link_text' => 'Haz clic aquí para iniciar sesión',
-    'login_link_text_alt' => '¿Ya tienes una cuenta? <a href="/sahtout/login">Iniciar sesión</a>',
+    'login_link_text_alt' => '¿Ya tienes una cuenta? <a href="/login">Iniciar sesión</a>',
     'email_subject' => 'Activa tu cuenta',
     'email_greeting' => '¡Bienvenido, {username}!',
     'email_body' => 'Gracias por registrarte. Haz clic en el botón de abajo para activar tu cuenta:',

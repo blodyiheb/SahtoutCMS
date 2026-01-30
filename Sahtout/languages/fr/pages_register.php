@@ -9,7 +9,7 @@ return [
     'password_confirm_placeholder' => 'Confirmer le mot de passe',
     'register_button' => 'S\'inscrire',
     'login_link_text' => 'Cliquez ici pour vous connecter',
-    'login_link_text_alt' => 'Vous avez déjà un compte ? <a href="/sahtout/login">Connexion</a>',
+    'login_link_text_alt' => 'Vous avez déjà un compte ? <a href="/login">Connexion</a>',
     'email_subject' => 'Activez votre compte',
     'email_greeting' => 'Bienvenue, {username} !',
     'email_body' => 'Merci de vous être inscrit. Veuillez cliquer sur le bouton ci-dessous pour activer votre compte :',

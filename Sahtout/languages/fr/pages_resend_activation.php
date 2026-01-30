@@ -7,7 +7,7 @@ return [
     'email_placeholder' => 'Email',
     'resend_button' => 'Renvoyer l\'email d\'activation',
     'login_link' => 'Déjà activé ?',
-    'login_link_text' => 'Connectez-vous ici',
+    'login_link_text' => '<a href="%s">Connectez-vous ici</a>',
     'email_subject' => '[RENVOI] Activez votre compte',
     'email_greeting' => 'Bienvenue, {username} !',
     'email_thanks' => 'Merci de vous être inscrit. Veuillez cliquer sur le bouton ci-dessous pour activer votre compte :',

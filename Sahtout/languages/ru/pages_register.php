@@ -9,7 +9,7 @@ return [
     'password_confirm_placeholder' => 'Подтвердите пароль',
     'register_button' => 'Зарегистрироваться',
     'login_link_text' => 'Нажмите здесь, чтобы войти',
-    'login_link_text_alt' => 'Уже есть аккаунт? <a href="/sahtout/login">Войти</a>',
+    'login_link_text_alt' => 'Уже есть аккаунт? <a href="/login">Войти</a>',
     'email_subject' => 'Активируйте ваш аккаунт',
     'email_greeting' => 'Добро пожаловать, {username}!',
     'email_body' => 'Спасибо за регистрацию. Пожалуйста, нажмите на кнопку ниже, чтобы активировать ваш аккаунт:',

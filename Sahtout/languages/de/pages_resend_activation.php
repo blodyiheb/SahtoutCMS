@@ -7,7 +7,7 @@ return [
     'email_placeholder' => 'E-Mail',
     'resend_button' => 'Aktivierungs-E-Mail erneut senden',
     'login_link' => 'Bereits aktiviert?',
-    'login_link_text' => 'Hier anmelden',
+    'login_link_text' => '<a href="%s">Hier anmelden</a>',
     'email_subject' => '[WIEDERSENDEN] Aktivieren Sie Ihr Konto',
     'email_greeting' => 'Willkommen, {username}!',
     'email_thanks' => 'Vielen Dank für Ihre Registrierung. Bitte klicken Sie auf die Schaltfläche unten, um Ihr Konto zu aktivieren:',

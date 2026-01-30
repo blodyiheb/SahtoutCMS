@@ -6,7 +6,7 @@ return [
     'username_or_email_placeholder' => 'Benutzername oder E-Mail',
     'send_button' => 'Link zum Zurücksetzen senden',
     'login_link' => 'Haben Sie Ihr Passwort wieder eingefallen?',
-    'login_link_text' => 'Hier anmelden',
+    'login_link_text' => '<a href="%s">Hier anmelden</a>',
     'email_subject' => 'Anfrage zum Zurücksetzen des Passworts',
     'email_greeting' => 'Willkommen, {username}!',
     'email_request' => 'Sie haben eine Zurücksetzung des Passworts angefordert. Klicken Sie auf die Schaltfläche unten, um Ihr Passwort zurückzusetzen:',

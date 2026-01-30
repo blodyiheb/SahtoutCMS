@@ -6,7 +6,7 @@ return [
     'username_or_email_placeholder' => 'Имя пользователя или email',
     'send_button' => 'Отправить ссылку для сброса',
     'login_link' => 'Вспомнили пароль?',
-    'login_link_text' => 'Войдите здесь',
+    'login_link_text' => '<a href="%s">Войдите здесь</a>',
     'email_subject' => 'Запрос на сброс пароля',
     'email_greeting' => 'Добро пожаловать, {username}!',
     'email_request' => 'Вы запросили сброс пароля. Нажмите на кнопку ниже, чтобы сбросить пароль:',
