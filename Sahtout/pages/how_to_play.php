@@ -8,6 +8,14 @@ require_once __DIR__ . '/../includes/paths.php';
 require_once $project_root . 'includes/session.php';
 $page_class = "how_to_play";
 require_once $project_root . 'includes/header.php'; 
+$realmsFile = $project_root . 'includes/realm_config.php';
+$realmlistIP = '127.0.0.1'; // fallback if file missing
+if (file_exists($realmsFile)) {
+    include $realmsFile; // this defines $realmlist
+    if (!empty($realmlist[0]['address'])) {
+        $realmlistIP = $realmlist[0]['address'];
+    }
+}
 ?>
 
 <style>
@@ -55,12 +63,13 @@ require_once $project_root . 'includes/header.php';
                     <h2><?php echo translate('step_3_title', 'Step 3: Set the Realmlist'); ?></h2>
                     <p><?php echo translate('step_3_desc_1', 'Open your World of Warcraft folder, go to <code><strong>Data/enUS</strong></code> or <code><strong>Data/enGB</strong></code>, and find <code>realmlist.wtf</code>.'); ?></p>
                     <p><?php echo translate('step_3_desc_2', 'Open it with Notepad and replace everything inside with:'); ?></p>
-                    <pre>set realmlist 127.0.0.1</pre>
+                    <pre>set realmlist <?php echo htmlspecialchars($realmlistIP); ?></pre>
                     <p><?php echo translate('step_3_desc_3', 'Save the file and close it.'); ?></p>
                 </div>
                 <img id="down_img_realm" src="<?php echo $base_path; ?>img/howtoplay/down_realmlist.png" alt="<?php echo translate('edit_realmlist_alt', 'Edit Realmlist'); ?>">
             </div>
         </div>
+        
 
         <!-- Step 4: Launch the Game -->
         <div class="step">

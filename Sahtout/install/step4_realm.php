@@ -1,20 +1,20 @@
-<?php
+<?php 
 define('ALLOWED_ACCESS', true);
 require_once __DIR__ . '/../includes/paths.php'; // Include paths.php
 include __DIR__ . '/header.inc.php';
 
 $errors = [];
 $success = false;
-$realmsFile = realpath(__DIR__ . '/../includes/realm_status.php');
+$realmsFile = $project_root . 'includes/realm_config.php';
 $defaultLogo = 'img/logos/realm1_logo.webp'; 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $realmName = trim($_POST['realm_name'] ?? '');
     $realmIP = trim($_POST['realm_ip'] ?? '');
     $realmPort = (int) ($_POST['realm_port'] ?? 0);
-    $logo_path = $defaultLogo; // Default to existing logo
+    $logo_path = $defaultLogo;
 
-    // Validate realm inputs
+    // Validate inputs
     if (empty($realmName)) {
         $errors[] = "❌ " . translate('err_realm_name_required', 'realm name is mandatory.');
     }
@@ -35,97 +35,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $allowed_exts = ['png', 'svg', 'jpg', 'jpeg', 'webp'];
         $max_size = 2 * 1024 * 1024; // 2MB
 
-        // Validate file size
         if ($file_size > $max_size) {
             $errors[] = "❌ " . translate('error_realm_logo_too_large', 'realm emblem size exceeds 2MB.');
-        }
-        // Validate extension
-        elseif (!in_array($file_ext, $allowed_exts)) {
+        } elseif (!in_array($file_ext, $allowed_exts)) {
             $errors[] = "❌ " . translate('error_invalid_realm_logo_type', 'Invalid emblem format. Only PNG, SVG, JPG, or WebP permitted.');
-        }
-        // Validate MIME type
-        elseif ($file_ext === 'png' && $file_type !== 'image/png') {
-            $errors[] = "❌ " . translate('error_invalid_realm_logo_type', 'Invalid PNG emblem. MIME type must be image/png.');
-        }
-        elseif (in_array($file_ext, ['jpg', 'jpeg']) && !in_array($file_type, ['image/jpeg', 'image/jpg'])) {
-            $errors[] = "❌ " . translate('error_invalid_realm_logo_type', 'Invalid JPG emblem. MIME type must be image/jpeg or image/jpg.');
-        }
-        elseif ($file_ext === 'svg' && $file_type !== 'image/svg+xml') {
-            $errors[] = "❌ " . translate('error_invalid_realm_logo_type', 'Invalid SVG emblem. MIME type must be image/svg+xml.');
-        }
-        elseif ($file_ext === 'webp' && $file_type !== 'image/webp') {
-            $errors[] = "❌ " . translate('error_invalid_realm_logo_type', 'Invalid WebP emblem. MIME type must be image/webp.');
-        }
-        else {
-            $upload_dir = realpath(__DIR__ . '/../img/logos') . '/';
-            if (!is_dir($upload_dir) || !is_writable($upload_dir)) {
-                $errors[] = "❌ " . translate('error_realm_logo_upload_failed', 'Emblem upload directory is inaccessible or not writable.');
+        } else {
+            // Validate MIME
+            $mimeValid = false;
+            switch ($file_ext) {
+                case 'png': $mimeValid = $file_type === 'image/png'; break;
+                case 'jpg':
+                case 'jpeg': $mimeValid = in_array($file_type, ['image/jpeg','image/jpg']); break;
+                case 'svg': $mimeValid = $file_type === 'image/svg+xml'; break;
+                case 'webp': $mimeValid = $file_type === 'image/webp'; break;
+            }
+            if (!$mimeValid) {
+                $errors[] = "❌ " . translate('error_invalid_realm_logo_type', 'Invalid emblem MIME type for ' . strtoupper($file_ext));
             } else {
-                $new_file_name = 'realm_logo.' . $file_ext;
-                $destination = $upload_dir . $new_file_name;
-                if (move_uploaded_file($file_tmp, $destination)) {
-                    $logo_path = "img/logos/$new_file_name"; 
+                $upload_dir = $project_root . 'img/logos/';
+                if (!is_dir($upload_dir) || !is_writable($upload_dir)) {
+                    $errors[] = "❌ " . translate('error_realm_logo_upload_failed', 'Emblem upload directory is inaccessible or not writable.');
                 } else {
-                    $errors[] = "❌ " . translate('error_realm_logo_upload_failed', 'Failed to upload realm emblem. Verify server permissions.');
+                    $new_file_name = 'realm_logo.' . $file_ext;
+                    $destination = $upload_dir . $new_file_name;
+                    if (move_uploaded_file($file_tmp, $destination)) {
+                        $logo_path = "img/logos/$new_file_name"; 
+                    } else {
+                        $errors[] = "❌ " . translate('error_realm_logo_upload_failed', 'Failed to upload realm emblem. Verify server permissions.');
+                    }
                 }
             }
-        }
-    } elseif (isset($_FILES['realm_logo']) && $_FILES['realm_logo']['error'] !== UPLOAD_ERR_NO_FILE) {
-        switch ($_FILES['realm_logo']['error']) {
-            case UPLOAD_ERR_INI_SIZE:
-            case UPLOAD_ERR_FORM_SIZE:
-                $errors[] = "❌ " . translate('error_realm_logo_too_large', 'realm emblem file exceeds 2MB limit.');
-                break;
-            case UPLOAD_ERR_PARTIAL:
-                $errors[] = "❌ " . translate('error_realm_logo_upload_failed', 'realm emblem was only partially uploaded.');
-                break;
-            case UPLOAD_ERR_NO_TMP_DIR:
-                $errors[] = "❌ " . translate('error_realm_logo_upload_failed', 'Server error: Temporary directory missing.');
-                break;
-            case UPLOAD_ERR_CANT_WRITE:
-                $errors[] = "❌ " . translate('error_realm_logo_upload_failed', 'Server error: Failed to write emblem to disk.');
-                break;
-            default:
-                $errors[] = "❌ " . sprintf(translate('error_realm_logo_upload_failed', 'Error uploading realm emblem: Code %s'), $_FILES['realm_logo']['error']);
         }
     }
 
-    // Update realm_status.php if no errors
+    // Save realm_config.php if no errors
     if (empty($errors)) {
-        $file_content = file_get_contents($realmsFile);
-        if ($file_content === false) {
-            $errors[] = "❌ " . sprintf(translate('err_read_realm_config', 'Cannot read realm configuration file: %s'), $realmsFile);
+        $newRealmList = [
+            [
+                'id' => 1,
+                'name' => $realmName,
+                'address' => $realmIP,
+                'port' => $realmPort,
+                'logo' => $logo_path
+            ]
+        ];
+
+        $configPhp  = "<?php\n";
+        $configPhp .= "if (!defined('ALLOWED_ACCESS')) { exit('Forbidden'); }\n\n";
+        $configPhp .= '$realmlist = ' . var_export($newRealmList, true) . ";\n";
+
+        $configDir = dirname($realmsFile);
+        if (!is_writable($configDir)) {
+            $errors[] = "❌ " . sprintf(translate('err_config_dir_not_writable_realm', 'Configuration directory is not writable: %s'), $configDir);
+        } elseif (file_put_contents($realmsFile, $configPhp) === false) {
+            $errors[] = "❌ " . sprintf(translate('err_write_realm_config', 'Cannot write realm configuration file: %s'), $realmsFile);
         } else {
-            // Generate new $realmlist array
-            $new_realmlist = "    [\n";
-            $new_realmlist .= "        'id' => 1,\n";
-            $new_realmlist .= "        'name' => " . var_export($realmName, true) . ",\n";
-            $new_realmlist .= "        'address' => " . var_export($realmIP, true) . ",\n";
-            $new_realmlist .= "        'port' => $realmPort,\n";
-            $new_realmlist .= "        'logo' => " . var_export($logo_path, true) . "\n";
-            $new_realmlist .= "    ]";
-
-            // Find and replace $realmlist array
-            $pattern = '/\$realmlist\s*=\s*\[.*?\];/s';
-            $replacement = "\$realmlist = [\n$new_realmlist\n];";
-            $new_content = preg_replace($pattern, $replacement, $file_content, 1, $count);
-
-            if ($count === 0) {
-                $errors[] = "❌ " . translate('err_update_realm_config', 'Failed to update realm configuration: $realmlist not found or invalid.');
-            } else {
-                $configDir = dirname($realmsFile);
-                if (!is_writable($configDir)) {
-                    $errors[] = "❌ " . sprintf(translate('err_config_dir_not_writable_realm', 'Configuration directory is not writable: %s'), $configDir);
-                } elseif (file_put_contents($realmsFile, $new_content) === false) {
-                    $errors[] = "❌ " . sprintf(translate('err_write_realm_config', 'Cannot write realm configuration file: %s'), $realmsFile);
-                } else {
-                    $success = true;
-                }
-            }
+            $success = true;
         }
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="<?php echo htmlspecialchars($langCode ?? 'en'); ?>">

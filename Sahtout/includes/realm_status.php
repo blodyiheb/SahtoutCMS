@@ -9,15 +9,8 @@ if (basename($_SERVER['PHP_SELF']) == basename(__FILE__)) {
 require_once __DIR__ . '/paths.php';
 
 // Realm list configuration
-$realmlist = [
-    [
-        'id' => 1,
-        'name' => 'Sahtout realm',
-        'address' => '127.0.0.1',
-        'port' => 8085,
-        'logo' => 'img/logos/realm1_logo.webp'
-    ]
-];
+require_once __DIR__ . '/realm_config.php';
+
 
 // Check if realm is online
 function isRealmOnline($address, $port, $timeout = 2) {

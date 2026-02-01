@@ -15,8 +15,19 @@ require_once $project_root . 'includes/header.php';
 
 $errors = [];
 $success = false;
-$realmsFile = realpath($project_root . 'includes/realm_status.php');
+$realmsFile = $project_root . 'includes/realm_config.php';
+
 $defaultLogo = 'img/logos/realm1_logo.webp';
+
+require_once $project_root . 'includes/realm_config.php';
+
+$currentRealm = $realmlist[0] ?? [
+    'name' => 'Sahtout Realm',
+    'address' => '127.0.0.1',
+    'port' => 8085,
+    'logo' => $defaultLogo
+];
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $realmName = trim($_POST['realm_name'] ?? '');
@@ -101,40 +112,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Update realm_status.php if no errors
-    if (empty($errors)) {
-        $file_content = file_get_contents($realmsFile);
-        if ($file_content === false) {
-            $errors[] = "❌ " . sprintf(translate('err_read_realm_config', 'Cannot read realm configuration file: %s'), $realmsFile);
-        } else {
-            // Generate new $realmlist array
-            $new_realmlist = "    [\n";
-            $new_realmlist .= "        'id' => 1,\n";
-            $new_realmlist .= "        'name' => " . var_export($realmName, true) . ",\n";
-            $new_realmlist .= "        'address' => " . var_export($realmIP, true) . ",\n";
-            $new_realmlist .= "        'port' => $realmPort,\n";
-            $new_realmlist .= "        'logo' => " . var_export($logo_path, true) . "\n";
-            $new_realmlist .= "    ]";
+   // Save realm config 
+if (empty($errors)) {
 
-            // Find and replace $realmlist array
-            $pattern = '/\$realmlist\s*=\s*\[.*?\];/s';
-            $replacement = "\$realmlist = [\n$new_realmlist\n];";
-            $new_content = preg_replace($pattern, $replacement, $file_content, 1, $count);
+    $newRealmList = [
+        [
+            'id' => 1,
+            'name' => $realmName,
+            'address' => $realmIP,
+            'port' => $realmPort,
+            'logo' => $logo_path
+        ]
+    ];
 
-            if ($count === 0) {
-                $errors[] = "❌ " . translate('err_update_realm_config', 'Failed to update realm configuration: $realmlist not found or invalid.');
-            } else {
-                $configDir = dirname($realmsFile);
-                if (!is_writable($configDir)) {
-                    $errors[] = "❌ " . sprintf(translate('err_config_dir_not_writable', 'Config directory is not writable: %s'), $configDir);
-                } elseif (file_put_contents($realmsFile, $new_content) === false) {
-                    $errors[] = "❌ " . sprintf(translate('err_write_realm_config', 'Cannot write realm configuration file: %s'), $realmsFile);
-                } else {
-                    $success = true;
-                }
-            }
-        }
+    $configPhp  = "<?php\n";
+    $configPhp .= "if (!defined('ALLOWED_ACCESS')) { exit('Forbidden'); }\n\n";
+    $configPhp .= '$realmlist = ' . var_export($newRealmList, true) . ";\n";
+
+    $configDir = dirname($realmsFile);
+
+    if (!is_writable($configDir)) {
+        $errors[] = "❌ " . sprintf(
+            translate('err_config_dir_not_writable', 'Config directory is not writable: %s'),
+            $configDir
+        );
+    } elseif (file_put_contents($realmsFile, $configPhp) === false) {
+        $errors[] = "❌ " . sprintf(
+            translate('err_write_realm_config', 'Cannot write realm configuration file: %s'),
+            $realmsFile
+        );
+    } else {
+        $success = true;
     }
+}
+
 }
 ?>
 
@@ -188,15 +199,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <form method="post" enctype="multipart/form-data">
                         <div class="mb-3 col-md-6 mx-auto">
                             <label for="realm_name" class="form-label"><?php echo translate('label_realm_name', 'Realm Name'); ?></label>
-                            <input type="text" class="form-control" id="realm_name" name="realm_name" placeholder="<?php echo translate('placeholder_realm_name', 'Enter realm name'); ?>" value="<?php echo htmlspecialchars($_POST['realm_name'] ?? 'Sahtout'); ?>" required>
+                            <input type="text" class="form-control" id="realm_name" name="realm_name" placeholder="<?php echo translate('placeholder_realm_name', 'Enter realm name'); ?>" value="<?php echo htmlspecialchars($_POST['realm_name'] ?? $currentRealm['name']); ?>" required>
                         </div>
                         <div class="mb-3 col-md-6 mx-auto">
                             <label for="realm_ip" class="form-label"><?php echo translate('label_realm_ip', 'Realm IP / Host'); ?></label>
-                            <input type="text" class="form-control" id="realm_ip" name="realm_ip" placeholder="127.0.0.1" value="<?php echo htmlspecialchars($_POST['realm_ip'] ?? '127.0.1.1'); ?>" required>
+                            <input type="text" class="form-control" id="realm_ip" name="realm_ip" placeholder="127.0.0.1" value="<?php echo htmlspecialchars($_POST['realm_ip'] ?? $currentRealm['address']); ?>" required>
                         </div>
                         <div class="mb-3 col-md-6 mx-auto">
                             <label for="realm_port" class="form-label"><?php echo translate('label_realm_port', 'Realm Port'); ?></label>
-                            <input type="number" class="form-control" id="realm_port" name="realm_port" placeholder="8085" value="<?php echo htmlspecialchars($_POST['realm_port'] ?? '8085'); ?>" required>
+                            <input type="number" class="form-control" id="realm_port" name="realm_port" placeholder="8085" value="<?php echo htmlspecialchars($_POST['realm_port'] ?? $currentRealm['port']); ?>" required>
                         </div>
                         <div class="mb-3 col-md-6 mx-auto">
                             <label for="realm_logo" class="form-label"><?php echo translate('label_realm_logo', 'Realm Logo'); ?></label>
