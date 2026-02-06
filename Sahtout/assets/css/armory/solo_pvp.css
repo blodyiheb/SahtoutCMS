@@ -45,7 +45,9 @@
             transition: background-color 0.2s ease-in-out;
             cursor: var(--hover-wow-gif) 16 16, auto;
         }
-
+        #search-btn:hover {
+           cursor: var(--hover-wow-gif) 16 16, auto;
+        }
         .arena-content tr.top5:hover {
             filter: brightness(1.2);
             transition: filter 0.2s ease-in-out;

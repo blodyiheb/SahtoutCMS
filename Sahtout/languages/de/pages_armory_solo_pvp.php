@@ -16,6 +16,12 @@ return [
     'solo_pvp_faction_horde' => 'Horde',
     'solo_pvp_faction_alt' => 'Fraktion',
     'solo_pvp_race_alt' => 'Rasse',
-    'solo_pvp_class_alt' => 'Klasse'
+    'solo_pvp_class_alt' => 'Klasse',
+
+    'solo_pvp_search_placeholder' => 'Charaktername suchen...',
+'solo_pvp_search_btn' => 'Suchen',
+'solo_pvp_reset_btn' => 'Zurücksetzen',
+'solo_pvp_search_min' => 'Bitte geben Sie mindestens 2 Zeichen ein.',
+
 ];
 ?>

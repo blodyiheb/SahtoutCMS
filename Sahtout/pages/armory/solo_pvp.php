@@ -7,17 +7,58 @@ require_once __DIR__ . '/../../includes/paths.php';
 require_once $project_root . 'includes/session.php';
 require_once $project_root . 'includes/header.php';
 
-// Query top 50 characters sorted by level and PvP kills, including guild name
-$sql = "
-SELECT c.guid, c.name, c.race, c.class, c.level, c.gender, c.totalKills, g.name AS guild_name
-FROM characters c
-LEFT JOIN guild_member gm ON c.guid = gm.guid
-LEFT JOIN guild g ON gm.guildid = g.guildid
-ORDER BY c.level DESC, c.totalKills DESC
-LIMIT 50
-";
+$search = '';
+$search_error = '';
 
-$result = $char_db->query($sql);
+if (isset($_GET['search'])) {
+    $search = trim($_GET['search']);
+
+    // Remove SQL wildcards
+    $search = str_replace(['%', '_'], '', $search);
+
+    // Limit length
+    $search = substr($search, 0, 12);
+
+    // Minimum length (use 3 for big servers)
+    if (strlen($search) > 0 && strlen($search) < 2) {
+        $search_error = translate('solo_pvp_search_min', 'Please enter at least 2 characters.');
+        $search = '';
+    }
+}
+
+
+
+if ($search !== '') {
+    // Search by character name
+    $sql = "
+    SELECT c.guid, c.name, c.race, c.class, c.level, c.gender, c.totalKills, g.name AS guild_name
+    FROM characters c
+    LEFT JOIN guild_member gm ON c.guid = gm.guid
+    LEFT JOIN guild g ON gm.guildid = g.guildid
+    WHERE LOWER(c.name) LIKE LOWER(?)
+    ORDER BY c.level DESC, c.totalKills DESC
+    LIMIT 50
+    ";
+
+    $stmt = $char_db->prepare($sql);
+    $like = '%' . $search . '%';
+    $stmt->bind_param('s', $like);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    // Default Top 50
+    $sql = "
+    SELECT c.guid, c.name, c.race, c.class, c.level, c.gender, c.totalKills, g.name AS guild_name
+    FROM characters c
+    LEFT JOIN guild_member gm ON c.guid = gm.guid
+    LEFT JOIN guild g ON gm.guildid = g.guildid
+    ORDER BY c.level DESC, c.totalKills DESC
+    LIMIT 50
+    ";
+
+    $result = $char_db->query($sql);
+}
+
 
 // Prepare players array
 $players = [];
@@ -102,6 +143,36 @@ function classIcon($class) {
             <h1 class="tw-text-4xl tw-font-bold tw-text-center tw-text-amber-400 tw-mb-6"><?php echo translate('solo_pvp_title', 'Top 50 Players'); ?></h1>
 
             <?php include_once $project_root . 'includes/arenanavbar.php'; ?>
+<?php if (!empty($search_error)): ?>
+    <div class="tw-mb-3 tw-text-center tw-text-red-300 tw-font-semibold">
+        <?php echo htmlspecialchars($search_error); ?>
+    </div>
+<?php endif; ?>
+
+            <form method="get" class="tw-mb-4 tw-flex tw-justify-center tw-gap-2">
+    <input 
+        type="text" 
+        name="search" 
+        value="<?php echo htmlspecialchars($search); ?>"
+        placeholder="<?php echo translate('solo_pvp_search_placeholder', 'Search character name...'); ?>"
+        maxlength="12"
+        class="tw-px-4 tw-py-2 tw-rounded tw-bg-gray-700 tw-text-white tw-border tw-border-gray-600 focus:tw-outline-none focus:tw-border-amber-400"
+    >
+    <button 
+        type="submit"
+        id="search-btn"
+        class="tw-px-4 tw-py-2 tw-rounded tw-bg-amber-500 tw-text-black tw-font-bold hover:tw-bg-amber-400"
+    >
+        <?php echo translate('solo_pvp_search_btn', 'Search'); ?>
+    </button>
+
+    <?php if ($search !== ''): ?>
+        <a href="<?php echo $base_path; ?>armory/solo_pvp" class="tw-px-4 tw-py-2 tw-rounded tw-bg-gray-600 tw-text-white hover:tw-bg-gray-500">
+
+            <?php echo translate('solo_pvp_reset_btn', 'Reset'); ?>
+        </a>
+    <?php endif; ?>
+</form>
 
             <div class="table-container tw-overflow-x-auto tw-rounded-lg tw-shadow-lg">
                 <table class="tw-w-full tw-text-sm tw-text-center tw-bg-gray-800">
