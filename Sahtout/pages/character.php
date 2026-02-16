@@ -476,7 +476,7 @@ if ($guid > 0) {
                         <?php
                         $raceIcon = isset($races[$character['race']]) ? $races[$character['race']]['icon'] : 'unknown';
                         $gender = ($character['gender'] ?? 0) == 0 ? 'male' : 'female';
-                        $modelPath = "$base_path/3dmodels/character/$raceIcon/$gender/$raceIcon.gltf";
+                        $modelPath = "{$base_path}3dmodels/character/$raceIcon/$gender/$raceIcon.gltf";
                         ?>
                         const modelPath = <?= json_encode($modelPath) ?>;
 
