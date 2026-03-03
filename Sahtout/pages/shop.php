@@ -164,7 +164,12 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                     <div class="item-grid">
                         <?php foreach ($category_items as $item): ?>
                             <div class="item-card" data-entry="<?php echo $item['sit_entry'] ? htmlspecialchars($item['sit_entry']) : ''; ?>">
-                                <img src="<?php echo $base_path . ($item['image'] ?? 'img/shop/placeholder.png'); ?>" alt="<?php echo str_replace('{name}', htmlspecialchars($item['name']), translate('shop_item_image_alt', '{name}')); ?>">
+                                <div class="item-image-container">
+                                    <img src="<?php echo $base_path . ($item['image'] ?? 'img/shop/placeholder.png'); ?>" alt="<?php echo str_replace('{name}', htmlspecialchars($item['name']), translate('shop_item_image_alt', '{name}')); ?>">
+                                    <?php if ($item['stock'] !== null && $item['stock'] < 10 && $item['stock'] > 0): ?>
+                                        <span class="limited-stock-badge">Limited Stock</span>
+                                    <?php endif; ?>
+                                </div>
                                 <h3><?php echo htmlspecialchars($item['name']); ?></h3>
                                 <p><?php echo htmlspecialchars($item['description'] ?? translate('shop_no_description', 'No description available.')); ?></p>
                                 <?php if ($category === 'Service'): ?>
@@ -247,7 +252,7 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                         </button>
                                     </form>
                                 <?php else: ?>
-                                    <a href="<?php echo $base_path; ?>login" class="buy-button"><?php echo translate('shop_login_to_buy', 'Log in to Buy'); ?></a>
+                                    <a href="<?php echo $base_path; ?>login" class="login-to-buy-button"><?php echo translate('shop_login_to_buy', 'Log in to Buy'); ?></a>
                                 <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
@@ -325,21 +330,23 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                 const characterSelect = this.querySelector('.character-select');
                 if (characterSelect && !characterSelect.value) {
                     e.preventDefault();
-                    alert('<?php echo translate('shop_js_select_character', 'Please select a character to purchase this item.'); ?>');
+                    showCustomAlert('<?php echo translate('shop_js_select_character', 'Please select a character to purchase this item.'); ?>', 'info');
                     return;
                 }
                 if (isPurchaseBlocked) {
                     e.preventDefault();
-                    alert('<?php echo translate('shop_js_cooldown_active', 'Please wait {seconds} seconds before making another purchase.'); ?>'.replace('{seconds}', remainingCooldown));
+                    showCustomAlert('<?php echo translate('shop_js_cooldown_active', 'Please wait {seconds} seconds before making another purchase.'); ?>'.replace('{seconds}', remainingCooldown), 'warning');
                     return;
                 }
             });
         });
 
-        const loginButtons = document.querySelectorAll('.buy-button[href]');
+        // Beautiful custom alert for login button
+        const loginButtons = document.querySelectorAll('.login-to-buy-button');
         loginButtons.forEach(button => {
             button.addEventListener('click', function(e) {
-                alert('<?php echo translate('shop_js_login_required', 'Please log in to purchase items.'); ?>');
+                e.preventDefault();
+                showLoginAlert();
             });
         });
 
@@ -348,10 +355,158 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
             if (<?php echo json_encode(empty($characters)); ?>) {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
-                    alert('<?php echo translate('shop_js_no_characters', 'You have no characters available. Please create a character first.'); ?>');
+                    showCustomAlert('<?php echo translate('shop_js_no_characters', 'You have no characters available. Please create a character first.'); ?>', 'warning');
                 });
             }
         });
+
+        // Beautiful custom alert function
+        function showCustomAlert(message, type = 'info') {
+            // Remove any existing custom alert
+            const existingAlert = document.querySelector('.custom-alert-overlay');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'custom-alert-overlay';
+            
+            // Create alert container
+            const alertBox = document.createElement('div');
+            alertBox.className = `custom-alert ${type}`;
+            
+            // Set icon based on type
+            let icon = 'fa-info-circle';
+            let title = 'Information';
+            
+            if (type === 'warning') {
+                icon = 'fa-exclamation-triangle';
+                title = 'Warning';
+            } else if (type === 'error') {
+                icon = 'fa-times-circle';
+                title = 'Error';
+            } else if (type === 'success') {
+                icon = 'fa-check-circle';
+                title = 'Success';
+            }
+            
+            // Build alert HTML
+            alertBox.innerHTML = `
+                <div class="alert-icon">
+                    <i class="fas ${icon}"></i>
+                </div>
+                <div class="alert-content">
+                    <h3>${title}</h3>
+                    <p>${message}</p>
+                </div>
+                <button class="alert-close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            overlay.appendChild(alertBox);
+            document.body.appendChild(overlay);
+            
+            // Add close button functionality
+            const closeBtn = alertBox.querySelector('.alert-close-btn');
+            closeBtn.addEventListener('click', function() {
+                overlay.classList.add('fade-out');
+                setTimeout(() => {
+                    overlay.remove();
+                }, 300);
+            });
+            
+            // Close when clicking outside
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    overlay.classList.add('fade-out');
+                    setTimeout(() => {
+                        overlay.remove();
+                    }, 300);
+                }
+            });
+            
+            // Auto close after 5 seconds for info messages
+            if (type === 'info') {
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        overlay.classList.add('fade-out');
+                        setTimeout(() => {
+                            if (document.body.contains(overlay)) {
+                                overlay.remove();
+                            }
+                        }, 300);
+                    }
+                }, 5000);
+            }
+            
+            // Trigger animation
+            setTimeout(() => {
+                alertBox.classList.add('show');
+            }, 10);
+        }
+
+        // Specialized login alert
+        function showLoginAlert() {
+            // Remove any existing custom alert
+            const existingAlert = document.querySelector('.custom-alert-overlay');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'custom-alert-overlay';
+            
+            // Create alert container
+            const alertBox = document.createElement('div');
+            alertBox.className = 'custom-alert login-alert';
+            
+            // Build login alert HTML
+            alertBox.innerHTML = `
+                <div class="alert-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="alert-content">
+                    <h3>Login Required</h3>
+                    <p>Please log in to purchase items from the shop.</p>
+                    <div class="alert-actions">
+                        <a href="<?php echo $base_path; ?>login" class="alert-btn login-btn">
+                            <i class="fas fa-sign-in-alt"></i> Log In Now
+                        </a>
+                        <button class="alert-btn cancel-btn">Continue Browsing</button>
+                    </div>
+                </div>
+            `;
+            
+            overlay.appendChild(alertBox);
+            document.body.appendChild(overlay);
+            
+            // Add button functionality
+            const cancelBtn = alertBox.querySelector('.cancel-btn');
+            cancelBtn.addEventListener('click', function() {
+                overlay.classList.add('fade-out');
+                setTimeout(() => {
+                    overlay.remove();
+                }, 300);
+            });
+            
+            // Close when clicking outside
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    overlay.classList.add('fade-out');
+                    setTimeout(() => {
+                        overlay.remove();
+                    }, 300);
+                }
+            });
+            
+            // Trigger animation
+            setTimeout(() => {
+                alertBox.classList.add('show');
+            }, 10);
+        }
     });
     </script>
 
@@ -570,6 +725,10 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
     .item-card:hover .item-tooltip {
         display: block;
     }
+    .item-image-container {
+        position: relative;
+        width: 100%;
+    }
     .item-card img {
         width: 100%;
         max-width: 110%;
@@ -578,6 +737,25 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
         object-fit: cover;
         border-radius: 5px;
         margin-bottom: 1rem;
+    }
+    .limited-stock-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #e74c3c;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        z-index: 10;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
     }
     .item-card h3 {
         color: #fff;
@@ -633,6 +811,28 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
         background: #666;
         cursor: not-allowed;
     }
+    .login-to-buy-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        text-decoration: none;
+        padding: 0.7rem 1rem;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: 600;
+        width: 100%;
+        margin-top: 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .login-to-buy-button:hover {
+        background: linear-gradient(135deg, #2980b9, #3498db);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
+        color: white;
+    }
     .character-select {
         width: 100%;
         margin-bottom: 0.75rem;
@@ -655,6 +855,176 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
         z-index: 100;
         margin-left: 10px;
     }
+
+    /* Custom Alert Styles */
+    .custom-alert-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .custom-alert-overlay.fade-out {
+        animation: fadeOut 0.3s ease forwards;
+    }
+
+    .custom-alert {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+        border: 2px solid #ffd700;
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+        position: relative;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        transform: scale(0.9);
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .custom-alert.show {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    .custom-alert .alert-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        margin: -50px auto 1rem auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .custom-alert.info .alert-icon {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+    }
+
+    .custom-alert.warning .alert-icon {
+        background: linear-gradient(135deg, #f39c12, #e67e22);
+        color: white;
+    }
+
+    .custom-alert.error .alert-icon {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+    }
+
+    .custom-alert.success .alert-icon {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        color: white;
+    }
+
+    .custom-alert.login-alert .alert-icon {
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        color: white;
+        animation: pulse 2s infinite;
+    }
+
+    .custom-alert h3 {
+        color: #ffd700;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .custom-alert p {
+        color: #fff;
+        font-size: 1rem;
+        line-height: 1.5;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .custom-alert .alert-close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        color: #999;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: color 0.3s ease;
+        padding: 5px;
+    }
+
+    .custom-alert .alert-close-btn:hover {
+        color: #ffd700;
+    }
+
+    .alert-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .alert-btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .alert-btn.login-btn {
+        background: linear-gradient(135deg, #ffd700, #f39c12);
+        color: #1a1a1a;
+        box-shadow: 0 4px 15px rgba(241, 196, 15, 0.3);
+    }
+
+    .alert-btn.login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(241, 196, 15, 0.5);
+    }
+
+    .alert-btn.cancel-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .alert-btn.cancel-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    /* Mobile Responsive for Alerts */
     @media (max-width: 768px) {
         .item-grid {
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -700,6 +1070,25 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
             transform: translateX(-50%);
             margin-left: 0;
             margin-top: 10px;
+        }
+        .custom-alert {
+            padding: 1.5rem;
+        }
+        .custom-alert .alert-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+            margin-top: -40px;
+        }
+        .custom-alert h3 {
+            font-size: 1.3rem;
+        }
+        .alert-actions {
+            flex-direction: column;
+        }
+        .alert-btn {
+            width: 100%;
+            justify-content: center;
         }
     }
     </style>
