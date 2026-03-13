@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->bind_param("sssss", $upper_username, $email, $salt, $verifier, $token);
                     if ($stmt->execute()) {
                         // Use $base_path for activation link
-                        $activation_link = $base_path . "activate?token=$token";
+                        $activation_link = $site_url . "activate?token=$token";
 
                         // Send activation email
                         try {

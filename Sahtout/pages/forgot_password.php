@@ -232,13 +232,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 function sendResetEmail($username, $email, $token) {
-    global $errors, $base_path;
+    global $errors, $site_url;
     try {
         $mail = getMailer();
         $mail->addAddress($email, $username);
         $mail->AddEmbeddedImage('logo.png', 'logo_cid');
         $mail->Subject = translate('email_subject', 'Password Reset Request');
-        $reset_link = $base_path . "reset_password?token=$token";
+        $reset_link = $site_url. "reset_password?token=$token";
         $mail->Body = "<h2>" . str_replace('{username}', htmlspecialchars($username), translate('email_greeting', 'Welcome, {username}!')) . "</h2>
             <img src='cid:logo_cid' alt='Sahtout logo'>
             <p>" . translate('email_request', 'You requested a password reset. Please click the button below to reset your password:') . "</p>

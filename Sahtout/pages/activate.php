@@ -74,13 +74,13 @@ if (!$token) {
 // Function to send confirmation email
 // ==========================
 function sendActivationConfirmationEmail($username, $email) {
-    global $errors, $base_path, $project_root;
+    global $errors, $site_url, $project_root;
     try {
         $mail = getMailer();
         $mail->addAddress($email, $username);
         $mail->AddEmbeddedImage('logo.png', 'logo_cid');
         $mail->Subject = translate('email_subject', 'Account Activation Confirmation');
-        $login_link = $base_path . 'login';
+        $login_link = $site_url . 'login';
         $mail->Body = "<h2>" . str_replace('{username}', htmlspecialchars($username), translate('email_greeting', 'Welcome, {username}!')) . "</h2>
             <img src='cid:logo_cid' alt='Sahtout logo'>
             <p>" . translate('email_success', 'Your account has been successfully activated.') . "</p>
