@@ -15,3 +15,5 @@ $projectFolder = str_replace($_SERVER['DOCUMENT_ROOT'], '', str_replace('\\', '/
 $base_path = '/';
 
 $project_root = rtrim(realpath(__DIR__ . '/..'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+$site_url = $protocol . $host . $base_path;
