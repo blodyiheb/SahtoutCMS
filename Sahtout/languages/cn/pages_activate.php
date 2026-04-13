@@ -1,21 +1,21 @@
 <?php
 return [
-    'page_title' => '- Activate Account',
-    'meta_description' => 'Activate your account to join our World of Warcraft server adventure!',
-    'activate_title' => 'Activate Your Account',
-    'error_no_token' => 'Invalid activation link.',
-    'error_token_invalid' => 'Invalid or expired activation link.',
-    'error_database' => 'Database query error: ',
-    'error_delete_failed' => 'Failed to delete pending account: ',
-    'error_activation_failed' => 'Failed to activate account: ',
-    'success_account_activated' => 'Your account has been activated! You will be redirected to the login page shortly.',
-    'email_subject' => 'Account Activation Confirmation',
-    'email_greeting' => 'Welcome, {username}!',
-    'email_success' => 'Your account has been successfully activated.',
-    'email_login' => 'You can now log in to start your adventure by clicking the button below:',
-    'email_button' => 'Log In',
-    'email_contact_support' => 'If you did not activate this account, please contact support immediately.',
-    'error_email_failed' => 'Failed to send confirmation email: ',
-    'login_link' => '<a href="%s">Click here to login</a>'
+    'page_title' => '- 激活账号',
+    'meta_description' => '激活您的账号，加入我们的《魔兽世界》服务器冒险之旅！',
+    'activate_title' => '激活您的账号',
+    'error_no_token' => '无效的激活链接。',
+    'error_token_invalid' => '激活链接无效或已过期。',
+    'error_database' => '数据库查询错误：',
+    'error_delete_failed' => '删除待处理账号失败：',
+    'error_activation_failed' => '账号激活失败：',
+    'success_account_activated' => '您的账号已成功激活！您很快将被重定向到登录页面。',
+    'email_subject' => '账号激活确认',
+    'email_greeting' => '欢迎您，{username}！',
+    'email_success' => '您的账号已成功激活。',
+    'email_login' => '您现在可以点击下方按钮登录并开始您的冒险：',
+    'email_button' => '立即登录',
+    'email_contact_support' => '如果您没有激活此账号，请立即联系支持人员。',
+    'error_email_failed' => '发送确认邮件失败：',
+    'login_link' => '<a href="%s">点击此处登录</a>'
 ];
 ?>
