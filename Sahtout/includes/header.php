@@ -173,6 +173,11 @@ $languages = [
         'flag_url' => $base_path . 'languages/flags/pt.png',
         'flag_path' => $project_root . 'languages/flags/pt.png'
     ],
+    'cn' => [
+        'name' => '中文',
+        'flag_url' => $base_path . 'languages/flags/cn.png',
+        'flag_path' => $project_root . 'languages/flags/cn.png'
+    ],
 ];
 
 $current_lang_name = $languages[$current_lang]['name'];
@@ -302,7 +307,11 @@ $current_lang_flag = $languages[$current_lang]['flag_url'];
                 </li>
                 <li data-value="pt" data-flag="<?php echo $languages['pt']['flag_url']; ?>">
                     <img src="<?php echo $languages['pt']['flag_url']; ?>" alt="Português"> Português
-            </ul>
+                </li>
+                <li data-value="cn" data-flag="<?php echo $languages['cn']['flag_url']; ?>">
+                    <img src="<?php echo $languages['cn']['flag_url']; ?>" alt="中文"> 中文
+                </li>
+                </ul>
         </div>
     </header>
     <script src="<?php echo $base_path; ?>assets/js/includes/header.js"></script>
