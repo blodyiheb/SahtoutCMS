@@ -1,0 +1,31 @@
+<?php
+return [
+    'page_title' => ' - Create Account',
+    'meta_description' => 'Create an account to join our World of Warcraft server adventure!',
+    'register_title' => 'Create Your Account',
+    'username_placeholder' => 'Username',
+    'email_placeholder' => 'Email',
+    'password_placeholder' => 'Password',
+    'password_confirm_placeholder' => 'Confirm Password',
+    'register_button' => 'Register',
+    'login_link_text' => 'Click here to login',
+    'login_link_text_alt' => 'Already have an account? <a href="%s">Login</a>',
+    'email_subject' => 'Activate Your Account',
+    'email_greeting' => 'Welcome, {username}!',
+    'email_body' => 'Thank you for registering. Please click the button below to activate your account:',
+    'email_activate_button' => 'Activate Account',
+    'email_ignore' => 'If you did not register, please ignore this email.',
+    'error_recaptcha_empty' => 'Please complete the CAPTCHA.',
+    'error_recaptcha_failed' => 'CAPTCHA verification failed.',
+    'error_username_invalid_length' => 'Username must be between 3 and 16 characters.',
+    'error_username_invalid_chars' => 'Username can only contain letters and numbers.',
+    'error_email_invalid' => 'Invalid email address.',
+    'error_password_short' => 'Password must be at least 6 characters.',
+    'error_password_mismatch' => 'Passwords do not match.',
+    'error_account_pending' => 'An account with this username or email is already pending or registered. Please use a different username or email, or activate your existing account.',
+    'error_username_exists' => 'Username already exists. Please choose a different username.',
+    'error_email_exists' => 'Email already in use. Please choose a different email.',
+    'error_registration_failed' => 'Failed to store pending account.',
+    'error_email_failed' => 'Failed to send activation email. Please contact support.'
+];
+?>

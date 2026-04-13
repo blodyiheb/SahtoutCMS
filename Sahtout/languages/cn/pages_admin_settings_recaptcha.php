@@ -1,0 +1,25 @@
+<?php
+return [
+    'page_title_recaptcha' => 'reCAPTCHA Settings',
+    'settings_recaptcha' => 'reCAPTCHA Settings',
+    'msg_recaptcha_enabled' => 'reCAPTCHA is currently enabled.',
+    'msg_recaptcha_disabled' => 'reCAPTCHA is currently disabled.',
+    'err_fix_errors' => 'Please fix the following errors:',
+    'msg_recaptcha_saved' => 'reCAPTCHA settings saved successfully!',
+    'label_captcha_type' => 'CAPTCHA Type',
+    'option_recaptcha' => 'reCAPTCHA',
+    'option_hcaptcha' => 'hCaptcha (Coming Soon)',
+    'option_other' => 'Other (Coming Soon)',
+    'label_recaptcha_enabled' => 'Enable reCAPTCHA',
+    'label_recaptcha_site_key' => 'Site Key',
+    'label_recaptcha_secret_key' => 'Secret Key',
+    'placeholder_recaptcha_default' => 'Leave empty for default',
+    'note_recaptcha_empty' => 'Leave reCAPTCHA fields empty to use default keys when enabled',
+    'btn_save_recaptcha' => 'Save reCAPTCHA Settings',
+    'error_direct_access' => 'Direct access not allowed.',
+    'err_invalid_captcha_type' => 'Invalid CAPTCHA type selected. Only reCAPTCHA is supported.',
+    'err_recaptcha_keys_required' => 'reCAPTCHA Site Key and Secret Key are required when reCAPTCHA is enabled.',
+    'err_cap_dir_not_writable' => 'reCAPTCHA config directory is not writable: %s',
+    'err_failed_write_cap' => 'Failed to write reCAPTCHA config file: %s',
+];
+?>

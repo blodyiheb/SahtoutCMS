@@ -1,0 +1,32 @@
+<?php
+return [
+    'vote_title' => ' - Vote for Epic Rewards',
+    'vote_title_h1' => ' - Vote for Epic Rewards',
+    'vote_subtitle' => 'Support our server by voting on top sites and earn exclusive in-game rewards!',
+    'vote_no_sites' => 'No vote sites available at the moment.',
+    'vote_points_label' => 'Vote Points',
+    'vote_button' => 'Vote',
+    'claim_button' => 'Claim',
+    'vote_cooldown_label' => 'h cooldown',
+    'vote_cooldown_timer' => 'Cooldown: Calculating...',
+    'vote_cooldown_ready' => 'Ready to vote!',
+    'vote_rewards_title' => 'Voting Rewards',
+    'vote_reward_gold' => 'Gold',
+    'vote_reward_gold_desc' => 'Receive up to 40 gold per vote to boost your in-game wealth.',
+    'vote_reward_enchants' => 'Enchants',
+    'vote_reward_enchants_desc' => 'Unlock powerful weapon and armor enchants for your characters.',
+    'vote_reward_mounts' => 'Mounts',
+    'vote_reward_mounts_desc' => 'Gain access to exclusive mounts only available through voting.',
+    'vote_reward_vip_points' => 'VIP Points',
+    'vote_reward_vip_points_desc' => 'Earn points to redeem for special items and perks.',
+    'vote_modal_title' => 'Thank You for Voting!',
+    'vote_modal_message' => 'You\'re being redirected to <span class="site-name"></span> to complete your vote.',
+    'vote_modal_button' => 'Continue',
+    'site_logo_alt' => 'Sahtout Server Logo',
+    'vote_login_prompt' => 'Please log in to vote and earn rewards.',
+    'vote_unauthorized' => 'Cannot vote during cooldown.',
+    'vote_claim_success' => 'Rewards claimed successfully!',
+    'vote_claim_error' => 'Error claiming rewards: ',
+    'vote_site_image_alt' => 'Voting Site'
+];
+?>
