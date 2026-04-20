@@ -80,6 +80,43 @@ require_once $project_root . 'includes/header.php';
                                 </div>
                             </div>
 
+                            <!-- Featured YouTube Video -->
+                            <div class="mb-4">
+                                <label for="youtube_embed_url" class="form-label fw-bold">Featured YouTube Embed Link</label>
+                                <input type="url"
+                                       id="youtube_embed_url"
+                                       name="youtube_embed_url"
+                                       class="form-control form-control-lg mb-2"
+                                       value="<?php echo htmlspecialchars($youtube_embed_url ?? ''); ?>"
+                                       placeholder="https://www.youtube.com/embed/VIDEO_ID"
+                                       required>
+                                <div class="form-text mb-3">
+                                    Paste a YouTube watch, short, or embed link. The system will normalize it to an embed URL.
+                                </div>
+
+                                <label for="youtube_title" class="form-label fw-bold">Video Title</label>
+                                <input type="text"
+                                       id="youtube_title"
+                                       name="youtube_title"
+                                       class="form-control form-control-lg mb-2"
+                                       value="<?php echo htmlspecialchars($youtube_title ?? 'Featured Video'); ?>"
+                                       placeholder="Featured Video"
+                                       required>
+                                <div class="form-text mb-3">
+                                    This title appears centered above the video.
+                                </div>
+
+                                <label for="youtube_description" class="form-label fw-bold">Video Description</label>
+                                <textarea id="youtube_description"
+                                          name="youtube_description"
+                                          class="form-control form-control-lg"
+                                          rows="4"
+                                          placeholder="Watch a featured video here..."><?php echo htmlspecialchars($youtube_description ?? 'Watch a featured video here. Replace it with your own channel or highlight later.'); ?></textarea>
+                                <div class="form-text">
+                                    This text appears under the title in the video panel.
+                                </div>
+                            </div>
+
                             <!-- Logo Upload -->
                             <div class="mb-4">
                                 <label for="logo" class="form-label fw-bold"><?php echo translate('label_website_logo', 'Website Logo'); ?></label>

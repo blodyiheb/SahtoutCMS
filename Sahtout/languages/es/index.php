@@ -9,7 +9,9 @@ return [
     'home_download' => 'Descargar',
     'home_no_news' => 'No hay noticias disponibles en este momento.',
     'home_tab_bugtracker' => 'Rastreador de errores',
-    'home_tab_stream' => 'Transmisión',
+    'home_tab_youtube' => 'YouTube',
+    'home_youtube_title' => 'Video destacado',
+    'home_youtube_content' => 'Mira un video destacado aquí. Más adelante puedes reemplazarlo con tu propio canal o un contenido destacado.',
     'home_bugtracker_title' => 'Rastreador de errores',
     'home_bugtracker_content' => 'Consulta y reporta problemas con el servidor para ayudarnos a mejorar tu experiencia.',
     'home_realm_status_error' => 'Error: Estado del reino no disponible.'

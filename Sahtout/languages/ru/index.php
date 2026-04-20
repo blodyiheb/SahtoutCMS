@@ -9,7 +9,9 @@ return [
     'home_download' => 'Скачать',
     'home_no_news' => 'Новости отсутствуют.',
     'home_tab_bugtracker' => 'Баг-трекер',
-    'home_tab_stream' => 'Стрим',
+    'home_tab_youtube' => 'YouTube',
+    'home_youtube_title' => 'Избранное видео',
+    'home_youtube_content' => 'Здесь можно смотреть избранное видео. Позже вы сможете заменить его своим каналом или другим роликом.',
     'home_bugtracker_title' => 'Баг-трекер',
     'home_bugtracker_content' => 'Просматривайте и сообщайте о проблемах на сервере, чтобы помочь нам улучшить ваш игровой опыт.',
     'home_realm_status_error' => 'Ошибка: статус игрового мира недоступен.'
