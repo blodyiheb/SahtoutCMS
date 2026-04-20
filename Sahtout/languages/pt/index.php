@@ -9,7 +9,9 @@ return [
     'home_download' => 'Baixar',
     'home_no_news' => 'Nenhuma notícia disponível no momento.',
     'home_tab_bugtracker' => 'Bugtracker',
-    'home_tab_stream' => 'Transmissão',
+    'home_tab_youtube' => 'YouTube',
+    'home_youtube_title' => 'Vídeo em destaque',
+    'home_youtube_content' => 'Assista a um vídeo em destaque aqui. Depois você pode trocar por seu próprio canal ou outro destaque.',
     'home_bugtracker_title' => 'Bugtracker',
     'home_bugtracker_content' => 'Veja e reporte problemas no servidor para nos ajudar a melhorar sua experiência.',
     'home_realm_status_error' => 'Erro: status do reino indisponível.'

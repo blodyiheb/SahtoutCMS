@@ -9,7 +9,9 @@ return [
     'home_download' => 'Télécharger',
     'home_no_news' => 'Aucune nouvelle disponible pour le moment.',
     'home_tab_bugtracker' => 'Suivi des bogues',
-    'home_tab_stream' => 'Stream',
+    'home_tab_youtube' => 'YouTube',
+    'home_youtube_title' => 'Vidéo en vedette',
+    'home_youtube_content' => 'Regardez une vidéo mise en avant ici. Vous pourrez la remplacer plus tard par votre propre chaîne ou une autre mise en avant.',
     'home_bugtracker_title' => 'Suivi des bogues',
     'home_bugtracker_content' => 'Consultez et signalez les problèmes avec le serveur pour nous aider à améliorer votre expérience.',
     'home_realm_status_error' => 'Erreur : Statut du royaume indisponible.'

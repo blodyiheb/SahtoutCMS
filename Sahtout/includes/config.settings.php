@@ -7,6 +7,11 @@ if (!defined('ALLOWED_ACCESS')) {
 // Site Title (Editable from Admin Panel)
 $site_title_name = 'SahtoutCMS';
 
+// Featured YouTube video (Editable from Admin Panel)
+$youtube_embed_url = 'https://www.youtube.com/embed/DjuN1dE50VI?rel=0&modestbranding=1';
+$youtube_title = 'Sahtout Server Trailer';
+$youtube_description = 'Lichking Trailer, Replace it with your own ....';
+
 // Logo
 $site_logo = 'img/logo.png';
 

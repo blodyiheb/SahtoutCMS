@@ -9,7 +9,9 @@ return [
     'home_download' => 'Herunterladen',
     'home_no_news' => 'Derzeit keine Neuigkeiten verfügbar.',
     'home_tab_bugtracker' => 'Bugtracker',
-    'home_tab_stream' => 'Stream',
+    'home_tab_youtube' => 'YouTube',
+    'home_youtube_title' => 'Vorgestelltes Video',
+    'home_youtube_content' => 'Hier kannst du ein vorgestelltes Video ansehen. Später kannst du es durch deinen eigenen Kanal oder ein anderes Highlight ersetzen.',
     'home_bugtracker_title' => 'Bugtracker',
     'home_bugtracker_content' => 'Sieh dir Probleme an und melde Fehler auf dem Server, um uns zu helfen, dein Erlebnis zu verbessern.',
     'home_realm_status_error' => 'Fehler: Realm-Status nicht verfügbar.'

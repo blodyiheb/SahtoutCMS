@@ -14,7 +14,7 @@ header {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    position: relative;
+    position: fixed;
     z-index: 1000;
 }
 
@@ -25,12 +25,11 @@ header img {
 header nav {
     display: flex;
     align-items: center;
-    justify-content: center;
+    position: relative;
     flex-wrap: wrap;
 }
 
 header nav a {
-    display: inline-block;
     color: #ffd700;
     margin: 0.5rem;
     padding: 0.8rem 1.2rem;
@@ -239,7 +238,7 @@ main {
     }
 
     main {
-        margin-top: 100px;
+        margin-top: 0;
     }
 
     .form-container {
@@ -259,10 +258,16 @@ header {
     padding: 1rem 2rem;
     box-shadow: 0 4px 15px rgba(0, 0, 50, 0.5);
     border-bottom: 3px solid #1b9bf0;
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1000;
 }
 body {
     cursor: var(--point-wow-gif) 16 16, auto;
+    padding-top: 112px;
 }
 
 header img {
@@ -648,6 +653,10 @@ header nav a.active {
     header {
         flex-wrap: wrap;
         padding: 1rem;
+    }
+
+    body {
+        padding-top: 96px;
     }
 
     header nav {

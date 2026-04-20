@@ -36,6 +36,13 @@ $result = $site_db->query($query);
         }
 
     </style>
+    <script>
+        window.homeYoutubeSettings = <?php echo json_encode([
+            'embedUrl' => $youtube_embed_url ?? 'https://www.youtube.com/embed/DjuN1dE50VI?rel=0&modestbranding=1',
+            'title' => $youtube_title ?? 'Sahtout Server Trailer',
+            'description' => $youtube_description ?? 'Lichking Trailer, Replace it with your own ....',
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
+    </script>
 </head>
 <body class="home">
     <main>
@@ -111,12 +118,25 @@ $result = $site_db->query($query);
         <!-- 🔲 Menubar Tabs -->
         <section class="tabs-container">
             <div class="tabs">
-                <button class="tab active" data-tab="bugtracker"><?php echo translate('home_tab_bugtracker', 'Bugtracker'); ?></button>
-                <button class="tab" data-tab="stream"><?php echo translate('home_tab_stream', 'Stream'); ?></button>
+                <button class="tab active" data-tab="youtube"><?php echo translate('home_tab_youtube', 'YouTube'); ?></button>
+                <button class="tab" data-tab="bugtracker"><?php echo translate('home_tab_bugtracker', 'Bugtracker'); ?></button>
             </div>
             <div class="tab-content" id="tab-content">
-                <h2><?php echo translate('home_bugtracker_title', 'Bugtracker'); ?></h2>
-                <p><?php echo translate('home_bugtracker_content', 'View and report issues with the server to help us improve your experience.'); ?></p>
+                <div class="tab-panel tab-panel--video">
+                    <div class="tab-kicker"><?php echo translate('home_tab_youtube', 'YouTube'); ?></div>
+                    <h2><?php echo htmlspecialchars($youtube_title ?? 'Sahtout Server Trailer', ENT_QUOTES, 'UTF-8'); ?></h2>
+                    <p><?php echo htmlspecialchars($youtube_description ?? 'Lichking Trailer, Replace it with your own ....', ENT_QUOTES, 'UTF-8'); ?></p>
+                    <div class="video-card">
+                        <div class="video-frame">
+                            <iframe
+                                src="<?php echo htmlspecialchars($youtube_embed_url ?? 'https://www.youtube.com/embed/DjuN1dE50VI?rel=0&modestbranding=1', ENT_QUOTES, 'UTF-8'); ?>"
+                                title="<?php echo htmlspecialchars($youtube_title ?? 'Sahtout Server Trailer', ENT_QUOTES, 'UTF-8'); ?>"
+                                loading="lazy"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
