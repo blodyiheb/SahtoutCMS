@@ -201,6 +201,7 @@ CREATE TABLE IF NOT EXISTS `shop_items` (
   KEY `idx_entry` (`entry`),
   KEY `idx_itemset_id` (`itemset_id`),
   CONSTRAINT `fk_shop_items_entry` FOREIGN KEY (`entry`) REFERENCES `site_items` (`entry`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `chk_shop_items_category` CHECK ((`category` in ('Mount','Pet','Gold','Service','Stuff','Set'))),
   CONSTRAINT `chk_at_login_flags` CHECK ((`at_login_flags` in (0,1,2,4,8,16,32,64,128,3,5,6,7,9,12,15,31,127,255))),
   CONSTRAINT `chk_is_item` CHECK ((`is_item` in (0,1))),
   CONSTRAINT `chk_is_set` CHECK ((`is_set` in (0,1))),

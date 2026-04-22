@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $level_boost = isset($_POST['level_boost']) && $_POST['level_boost'] !== '' ? (int)$_POST['level_boost'] : null;
             $at_login_flags = (int)($_POST['at_login_flags'] ?? 0);
             $is_item = (int)($_POST['is_item'] ?? 0);
-            $is_set = (int)($_POST['is_set'] ?? 0);
+            $is_set = ($category === 'Set') ? 1 : 0;
             $itemset_id = isset($_POST['itemset_id']) && $_POST['itemset_id'] !== '' ? (int)$_POST['itemset_id'] : null;
             $image = null;
 
@@ -109,19 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
-            if (!in_array($is_set, [0, 1], true)) {
-                header("Location: {$base_path}admin/ashop?status=error&message=" . urlencode(translate('admin_shop_invalid_set_flag', 'Invalid set flag')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
-                exit;
-            }
-
             // Validate entry/itemset for item delivery categories.
             if (in_array($category, ['Mount', 'Pet', 'Stuff', 'Set'], true)) {
                 // These categories are always delivered as in-game items.
                 $is_item = 1;
-
-                if ($category === 'Set') {
-                    $is_set = 1;
-                }
 
                 if ($is_set === 1) {
                     if ($itemset_id === null || $itemset_id <= 0) {
@@ -274,9 +265,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $gold_amount = 0;
                 $level_boost = null;
                 $at_login_flags = 0;
-                if ($category === 'Set') {
-                    $is_set = 1;
-                } elseif ($is_set !== 1) {
+                if ($is_set !== 1) {
                     $itemset_id = null;
                 }
             } elseif ($category === 'Service') {
@@ -558,14 +547,6 @@ if (isset($_GET['status'])) {
                                         </select>
                                     </div>
 
-                                    <div class="col-md-4 form-group is-set-group">
-                                        <label for="is_set" class="form-label"><?php echo translate('admin_shop_label_is_set', 'Is Set?'); ?></label>
-                                        <select name="is_set" id="is_set" class="form-select">
-                                            <option value="0"><?php echo translate('admin_shop_no', 'No'); ?></option>
-                                            <option value="1"><?php echo translate('admin_shop_yes', 'Yes'); ?></option>
-                                        </select>
-                                    </div>
-
                                     <div class="col-md-4 form-group itemset-id-group">
                                         <label for="itemset_id" class="form-label"><?php echo translate('admin_shop_label_itemset_id', 'Item Set ID'); ?></label>
                                         <input type="number" name="itemset_id" id="itemset_id" class="form-control" min="1" placeholder="<?php echo translate('admin_shop_placeholder_itemset_id', 'Enter AzerothCore itemset ID'); ?>">
@@ -735,7 +716,6 @@ if (isset($_GET['status'])) {
             const existingImageInput = document.getElementById('existing_image');
             const entrySelect = document.getElementById('entry');
             const isItemSelect = document.getElementById('is_item');
-            const isSetSelect = document.getElementById('is_set');
             const itemsetInput = document.getElementById('itemset_id');
             const itemsetPreviewEmpty = document.getElementById('itemset_preview_empty');
             const itemsetPreviewList = document.getElementById('itemset_preview_list');
@@ -748,27 +728,25 @@ if (isset($_GET['status'])) {
                 'token-cost-group': ['Mount', 'Pet', 'Gold', 'Service', 'Stuff', 'Set'],
                 'stock-group': ['Mount', 'Pet', 'Gold', 'Service', 'Stuff', 'Set'],
                 'entry-group': ['Mount', 'Pet', 'Stuff'],
-                'is-set-group': ['Mount', 'Pet', 'Stuff'],
-                'itemset-id-group': ['Mount', 'Pet', 'Stuff', 'Set'],
+                'itemset-id-group': ['Set'],
                 'gold-amount-group': ['Gold'],
                 'level-boost-group': ['Service'],
                 'at-login-flags-group': ['Service'],
                 'is-item-group': ['Mount', 'Pet', 'Stuff'],
                 'image-group': ['Mount', 'Pet', 'Gold', 'Service', 'Stuff', 'Set'],
                 'description-group': ['Service', 'Gold'],
-                'itemset-preview-group': ['Mount', 'Pet', 'Stuff', 'Set']
+                'itemset-preview-group': ['Set']
             };
 
             function renderItemsetPreview() {
                 const category = categorySelect.value;
-                const isSet = isSetSelect.value === '1';
-                const supportsSets = ['Mount', 'Pet', 'Stuff', 'Set'].includes(category);
+                const isSet = category === 'Set';
                 const rawSetId = itemsetInput.value.trim();
 
                 itemsetPreviewList.innerHTML = '';
 
-                if (!supportsSets || !isSet) {
-                    itemsetPreviewEmpty.textContent = '<?php echo translate('admin_shop_itemset_preview_hidden', 'Enable "Is Set?" to preview the set contents.'); ?>';
+                if (!isSet) {
+                    itemsetPreviewEmpty.textContent = '<?php echo translate('admin_shop_itemset_preview_hidden', 'Choose the "Set" category to preview the set contents.'); ?>';
                     itemsetPreviewEmpty.classList.remove('d-none');
                     return;
                 }
@@ -797,20 +775,14 @@ if (isset($_GET['status'])) {
             // Update form fields based on category
             function updateFormFields() {
                 const category = categorySelect.value;
-                const supportsSets = ['Mount', 'Pet', 'Stuff', 'Set'].includes(category);
                 const isDedicatedSetCategory = category === 'Set';
+                const isSet = isDedicatedSetCategory;
 
-                if (!supportsSets) {
-                    isSetSelect.value = '0';
-                    isItemSelect.value = '0';
-                } else {
+                if (['Mount', 'Pet', 'Stuff', 'Set'].includes(category)) {
                     isItemSelect.value = '1';
-                    if (isDedicatedSetCategory) {
-                        isSetSelect.value = '1';
-                    }
+                } else {
+                    isItemSelect.value = '0';
                 }
-
-                const isSet = supportsSets && (isDedicatedSetCategory || isSetSelect.value === '1');
                 
                 // Toggle field groups
                 Object.keys(fieldGroups).forEach(group => {
@@ -853,18 +825,16 @@ if (isset($_GET['status'])) {
                 // Special handling for Gold category
                 if (category === 'Gold') {
                     isItemSelect.value = '0';
-                    isSetSelect.value = '0';
                 }
 
                 if (category === 'Service') {
-                    isSetSelect.value = '0';
                     isItemSelect.value = '0';
                 }
 
                 if (isSet) {
                     isItemSelect.value = '1';
                     entrySelect.value = '';
-                } else if (supportsSets) {
+                } else {
                     itemsetInput.value = '';
                 }
 
@@ -876,7 +846,6 @@ if (isset($_GET['status'])) {
             
             // Handle category change
             categorySelect.addEventListener('change', updateFormFields);
-            isSetSelect.addEventListener('change', updateFormFields);
             itemsetInput.addEventListener('input', renderItemsetPreview);
             
             // Image preview
@@ -932,7 +901,6 @@ if (isset($_GET['status'])) {
                     document.getElementById('level_boost').value = item.level_boost || '';
                     document.getElementById('at_login_flags').value = item.at_login_flags || 0;
                     document.getElementById('is_item').value = item.is_item || 0;
-                    document.getElementById('is_set').value = item.is_set || 0;
                     document.getElementById('itemset_id').value = item.itemset_id || '';
                     existingImageInput.value = item.image || '';
                     imagePreview.src = item.image || '';
@@ -970,7 +938,7 @@ if (isset($_GET['status'])) {
                 const name = document.getElementById('name').value.trim();
                 const pointCost = document.getElementById('point_cost').value;
                 const tokenCost = document.getElementById('token_cost').value;
-                const isSet = document.getElementById('is_set').value;
+                const isSet = category === 'Set';
                 const entryValue = document.getElementById('entry').value;
                 const itemsetValue = document.getElementById('itemset_id').value;
                 
@@ -981,13 +949,13 @@ if (isset($_GET['status'])) {
                 }
 
                 if (['Mount', 'Pet', 'Stuff', 'Set'].includes(category)) {
-                    if (isSet === '1' && (!itemsetValue || parseInt(itemsetValue, 10) <= 0)) {
+                    if (isSet && (!itemsetValue || parseInt(itemsetValue, 10) <= 0)) {
                         e.preventDefault();
                         alert('<?php echo translate('admin_shop_js_invalid_itemset_id', 'Please provide a valid item set ID.'); ?>');
                         return;
                     }
 
-                    if (category !== 'Set' && isSet === '0' && !entryValue) {
+                    if (category !== 'Set' && !entryValue) {
                         e.preventDefault();
                         alert('<?php echo translate('admin_shop_js_select_entry', 'Please select an item entry.'); ?>');
                         return;
