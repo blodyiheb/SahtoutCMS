@@ -31,6 +31,7 @@ return [
     'admin_shop_category_gold' => 'Gold',
     'admin_shop_category_service' => 'Dienstleistung',
     'admin_shop_category_stuff' => 'Ausrüstung',
+    'admin_shop_category_set' => 'Set',
     'admin_shop_label_name' => 'Name',
     'admin_shop_placeholder_name' => 'Artikelname eingeben',
     'admin_shop_label_point_cost' => 'Punktkosten',

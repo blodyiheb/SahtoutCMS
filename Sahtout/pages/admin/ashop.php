@@ -19,7 +19,7 @@ $offset = ($page - 1) * $items_per_page;
 // Handle filter and search
 $category_filter = isset($_GET['category']) ? trim($_GET['category']) : '';
 $search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
-$valid_categories = ['Mount', 'Pet', 'Gold', 'Service', 'Stuff'];
+$valid_categories = ['Mount', 'Pet', 'Gold', 'Service', 'Stuff', 'Set'];
 
 // Fetch all available site items for Mount, Pet, Stuff dropdown
 $site_items = [];
@@ -29,6 +29,26 @@ if ($stmt->execute()) {
     $result = $stmt->get_result();
     while ($row = $result->fetch_assoc()) {
         $site_items[] = $row;
+    }
+}
+$stmt->close();
+
+// Preload item set composition for admin preview.
+$site_itemsets = [];
+$sql = "SELECT itemset, entry, name FROM site_items WHERE itemset > 0 ORDER BY itemset, entry";
+$stmt = $site_db->prepare($sql);
+if ($stmt->execute()) {
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $itemset_id = (int)$row['itemset'];
+        if (!isset($site_itemsets[$itemset_id])) {
+            $site_itemsets[$itemset_id] = [];
+        }
+
+        $site_itemsets[$itemset_id][] = [
+            'entry' => (int)$row['entry'],
+            'name' => $row['name']
+        ];
     }
 }
 $stmt->close();
@@ -43,6 +63,7 @@ $category_dirs = [
     'Mount' => 'items',
     'Pet' => 'items',
     'Stuff' => 'items',
+    'Set' => 'items',
     'Service' => 'services'
 ];
 
@@ -78,6 +99,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $level_boost = isset($_POST['level_boost']) && $_POST['level_boost'] !== '' ? (int)$_POST['level_boost'] : null;
             $at_login_flags = (int)($_POST['at_login_flags'] ?? 0);
             $is_item = (int)($_POST['is_item'] ?? 0);
+            $is_set = (int)($_POST['is_set'] ?? 0);
+            $itemset_id = isset($_POST['itemset_id']) && $_POST['itemset_id'] !== '' ? (int)$_POST['itemset_id'] : null;
             $image = null;
 
             // Validate category
@@ -86,18 +109,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
-            // Validate entry for Mount, Pet, Stuff
-            if (in_array($category, ['Mount', 'Pet', 'Stuff']) && $entry !== null) {
-                $sql = "SELECT COUNT(*) FROM site_items WHERE entry = ?";
-                $stmt = $site_db->prepare($sql);
-                $stmt->bind_param("i", $entry);
-                $stmt->execute();
-                $stmt->bind_result($count);
-                $stmt->fetch();
-                $stmt->close();
-                if ($count == 0) {
-                    header("Location: {$base_path}admin/ashop?status=error&message=" . urlencode(translate('admin_shop_invalid_entry_id', 'Invalid entry ID')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
-                    exit;
+            if (!in_array($is_set, [0, 1], true)) {
+                header("Location: {$base_path}admin/ashop?status=error&message=" . urlencode(translate('admin_shop_invalid_set_flag', 'Invalid set flag')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                exit;
+            }
+
+            // Validate entry/itemset for item delivery categories.
+            if (in_array($category, ['Mount', 'Pet', 'Stuff', 'Set'], true)) {
+                // These categories are always delivered as in-game items.
+                $is_item = 1;
+
+                if ($category === 'Set') {
+                    $is_set = 1;
+                }
+
+                if ($is_set === 1) {
+                    if ($itemset_id === null || $itemset_id <= 0) {
+                        header("Location: {$base_path}admin/ashop?status=error&message=" . urlencode(translate('admin_shop_invalid_itemset_id', 'Invalid item set ID')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                        exit;
+                    }
+
+                    $sql = "SELECT COUNT(*) FROM site_items WHERE itemset = ?";
+                    $stmt = $site_db->prepare($sql);
+                    $stmt->bind_param("i", $itemset_id);
+                    $stmt->execute();
+                    $stmt->bind_result($count);
+                    $stmt->fetch();
+                    $stmt->close();
+                    if ($count == 0) {
+                        header("Location: {$base_path}admin/ashop?status=error&message=" . urlencode(translate('admin_shop_invalid_itemset_id', 'Invalid item set ID')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                        exit;
+                    }
+
+                    // A set product is always item-based and does not use a single entry.
+                    $entry = null;
+                } else {
+                    $itemset_id = null;
+
+                    if ($entry === null || $entry <= 0) {
+                        header("Location: {$base_path}admin/ashop?status=error&message=" . urlencode(translate('admin_shop_invalid_entry_id', 'Invalid entry ID')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                        exit;
+                    }
+
+                    $sql = "SELECT COUNT(*) FROM site_items WHERE entry = ?";
+                    $stmt = $site_db->prepare($sql);
+                    $stmt->bind_param("i", $entry);
+                    $stmt->execute();
+                    $stmt->bind_result($count);
+                    $stmt->fetch();
+                    $stmt->close();
+                    if ($count == 0) {
+                        header("Location: {$base_path}admin/ashop?status=error&message=" . urlencode(translate('admin_shop_invalid_entry_id', 'Invalid entry ID')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                        exit;
+                    }
                 }
             }
 
@@ -200,30 +264,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Set fields to NULL or defaults based on category
             if ($category === 'Gold') {
                 $entry = null;
+                $itemset_id = null;
                 $level_boost = null;
                 $at_login_flags = 0;
                 $is_item = 0;
-            } elseif ($category === 'Mount' || $category === 'Pet' || $category === 'Stuff') {
+                $is_set = 0;
+            } elseif ($category === 'Mount' || $category === 'Pet' || $category === 'Stuff' || $category === 'Set') {
                 $description = null;
                 $gold_amount = 0;
                 $level_boost = null;
                 $at_login_flags = 0;
+                if ($category === 'Set') {
+                    $is_set = 1;
+                } elseif ($is_set !== 1) {
+                    $itemset_id = null;
+                }
             } elseif ($category === 'Service') {
                 $entry = null;
+                $itemset_id = null;
                 $gold_amount = 0;
                 $is_item = 0;
+                $is_set = 0;
             }
 
             try {
                 if ($action === 'add') {
-                    $sql = "INSERT INTO shop_items (category, name, description, image, point_cost, token_cost, stock, entry, gold_amount, level_boost, at_login_flags, is_item) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    $sql = "INSERT INTO shop_items (category, name, description, image, point_cost, token_cost, stock, entry, gold_amount, level_boost, at_login_flags, is_item, is_set, itemset_id) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     $stmt = $site_db->prepare($sql);
-                    $stmt->bind_param("ssssiiiiiiii", $category, $name, $description, $image, $point_cost, $token_cost, $stock, $entry, $gold_amount, $level_boost, $at_login_flags, $is_item);
+                    $stmt->bind_param("ssssiiiiiiiiii", $category, $name, $description, $image, $point_cost, $token_cost, $stock, $entry, $gold_amount, $level_boost, $at_login_flags, $is_item, $is_set, $itemset_id);
                 } else {
-                    $sql = "UPDATE shop_items SET category = ?, name = ?, description = ?, image = ?, point_cost = ?, token_cost = ?, stock = ?, entry = ?, gold_amount = ?, level_boost = ?, at_login_flags = ?, is_item = ? WHERE item_id = ?";
+                    $sql = "UPDATE shop_items SET category = ?, name = ?, description = ?, image = ?, point_cost = ?, token_cost = ?, stock = ?, entry = ?, gold_amount = ?, level_boost = ?, at_login_flags = ?, is_item = ?, is_set = ?, itemset_id = ? WHERE item_id = ?";
                     $stmt = $site_db->prepare($sql);
-                    $stmt->bind_param("ssssiiiiiiiii", $category, $name, $description, $image, $point_cost, $token_cost, $stock, $entry, $gold_amount, $level_boost, $at_login_flags, $is_item, $item_id);
+                    $stmt->bind_param("ssssiiiiiiiiiii", $category, $name, $description, $image, $point_cost, $token_cost, $stock, $entry, $gold_amount, $level_boost, $at_login_flags, $is_item, $is_set, $itemset_id, $item_id);
                 }
                 
                 if ($stmt->execute()) {
@@ -317,7 +390,16 @@ try {
 // Fetch shop items for current page
 $items = [];
 try {
-    $sql = "SELECT si.*, sit.name as entry_name FROM shop_items si LEFT JOIN site_items sit ON si.entry = sit.entry WHERE 1=1";
+    $sql = "SELECT si.*, sit.name as entry_name, sis.set_item_count
+            FROM shop_items si
+            LEFT JOIN site_items sit ON si.entry = sit.entry
+            LEFT JOIN (
+                SELECT itemset, COUNT(*) AS set_item_count
+                FROM site_items
+                WHERE itemset > 0
+                GROUP BY itemset
+            ) sis ON si.itemset_id = sis.itemset
+            WHERE 1=1";
     $params = [];
     $types = "";
     
@@ -407,6 +489,7 @@ if (isset($_GET['status'])) {
                                             <option value="Gold"><?php echo translate('admin_shop_category_gold', 'Gold'); ?></option>
                                             <option value="Service"><?php echo translate('admin_shop_category_service', 'Service'); ?></option>
                                             <option value="Stuff"><?php echo translate('admin_shop_category_stuff', 'Stuff'); ?></option>
+                                            <option value="Set"><?php echo translate('admin_shop_category_set', 'Set'); ?></option>
                                         </select>
                                     </div>
                                     
@@ -473,6 +556,27 @@ if (isset($_GET['status'])) {
                                             <option value="0"><?php echo translate('admin_shop_no', 'No'); ?></option>
                                             <option value="1"><?php echo translate('admin_shop_yes', 'Yes'); ?></option>
                                         </select>
+                                    </div>
+
+                                    <div class="col-md-4 form-group is-set-group">
+                                        <label for="is_set" class="form-label"><?php echo translate('admin_shop_label_is_set', 'Is Set?'); ?></label>
+                                        <select name="is_set" id="is_set" class="form-select">
+                                            <option value="0"><?php echo translate('admin_shop_no', 'No'); ?></option>
+                                            <option value="1"><?php echo translate('admin_shop_yes', 'Yes'); ?></option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4 form-group itemset-id-group">
+                                        <label for="itemset_id" class="form-label"><?php echo translate('admin_shop_label_itemset_id', 'Item Set ID'); ?></label>
+                                        <input type="number" name="itemset_id" id="itemset_id" class="form-control" min="1" placeholder="<?php echo translate('admin_shop_placeholder_itemset_id', 'Enter AzerothCore itemset ID'); ?>">
+                                    </div>
+
+                                    <div class="col-12 form-group itemset-preview-group">
+                                        <label class="form-label"><?php echo translate('admin_shop_label_itemset_preview', 'Set Preview'); ?></label>
+                                        <div class="border rounded p-3 bg-light-subtle">
+                                            <p id="itemset_preview_empty" class="mb-0 text-muted"><?php echo translate('admin_shop_itemset_preview_hint', 'Enter an item set ID to preview its items.'); ?></p>
+                                            <ul id="itemset_preview_list" class="mb-0 ps-3"></ul>
+                                        </div>
                                     </div>
                                     
                                     <div class="col-md-8 form-group image-group active">
@@ -548,7 +652,9 @@ if (isset($_GET['status'])) {
                                                     <td><?php echo translate('admin_shop_category_' . strtolower($row['category']), $row['category']); ?></td>
                                                     <td>
                                                         <?php echo htmlspecialchars($row['name']); ?>
-                                                        <?php if (!empty($row['entry_name'])): ?>
+                                                        <?php if ((int)$row['is_set'] === 1 && !empty($row['itemset_id'])): ?>
+                                                            <br><small class="text-muted"><?php echo translate('admin_shop_set_label', 'Set:') . ' #' . (int)$row['itemset_id'] . ' (' . (int)($row['set_item_count'] ?? 0) . ' ' . translate('admin_shop_items_count_label', 'items') . ')'; ?></small>
+                                                        <?php elseif (!empty($row['entry_name'])): ?>
                                                             <br><small class="text-muted"><?php echo translate('admin_shop_item_label', 'Item:') . ' ' . htmlspecialchars($row['entry_name']); ?></small>
                                                         <?php elseif ($row['gold_amount'] > 0): ?>
                                                             <br><small class="text-muted"><?php echo translate('admin_shop_gold_label', 'Gold:') . ' ' . number_format($row['gold_amount']); ?></small>
@@ -627,30 +733,105 @@ if (isset($_GET['status'])) {
             const imageInput = document.getElementById('image');
             const imagePreview = document.getElementById('image_preview');
             const existingImageInput = document.getElementById('existing_image');
+            const entrySelect = document.getElementById('entry');
+            const isItemSelect = document.getElementById('is_item');
+            const isSetSelect = document.getElementById('is_set');
+            const itemsetInput = document.getElementById('itemset_id');
+            const itemsetPreviewEmpty = document.getElementById('itemset_preview_empty');
+            const itemsetPreviewList = document.getElementById('itemset_preview_list');
+            const itemsetPreviewData = <?php echo json_encode($site_itemsets, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
             
             // Field groups configuration
             const fieldGroups = {
-                'name-group': ['Mount', 'Pet', 'Gold', 'Service', 'Stuff'],
-                'point-cost-group': ['Mount', 'Pet', 'Gold', 'Service', 'Stuff'],
-                'token-cost-group': ['Mount', 'Pet', 'Gold', 'Service', 'Stuff'],
-                'stock-group': ['Mount', 'Pet', 'Gold', 'Service', 'Stuff'],
+                'name-group': ['Mount', 'Pet', 'Gold', 'Service', 'Stuff', 'Set'],
+                'point-cost-group': ['Mount', 'Pet', 'Gold', 'Service', 'Stuff', 'Set'],
+                'token-cost-group': ['Mount', 'Pet', 'Gold', 'Service', 'Stuff', 'Set'],
+                'stock-group': ['Mount', 'Pet', 'Gold', 'Service', 'Stuff', 'Set'],
                 'entry-group': ['Mount', 'Pet', 'Stuff'],
+                'is-set-group': ['Mount', 'Pet', 'Stuff'],
+                'itemset-id-group': ['Mount', 'Pet', 'Stuff', 'Set'],
                 'gold-amount-group': ['Gold'],
                 'level-boost-group': ['Service'],
                 'at-login-flags-group': ['Service'],
                 'is-item-group': ['Mount', 'Pet', 'Stuff'],
-                'image-group': ['Mount', 'Pet', 'Gold', 'Service', 'Stuff'],
-                'description-group': ['Service', 'Gold']
+                'image-group': ['Mount', 'Pet', 'Gold', 'Service', 'Stuff', 'Set'],
+                'description-group': ['Service', 'Gold'],
+                'itemset-preview-group': ['Mount', 'Pet', 'Stuff', 'Set']
             };
+
+            function renderItemsetPreview() {
+                const category = categorySelect.value;
+                const isSet = isSetSelect.value === '1';
+                const supportsSets = ['Mount', 'Pet', 'Stuff', 'Set'].includes(category);
+                const rawSetId = itemsetInput.value.trim();
+
+                itemsetPreviewList.innerHTML = '';
+
+                if (!supportsSets || !isSet) {
+                    itemsetPreviewEmpty.textContent = '<?php echo translate('admin_shop_itemset_preview_hidden', 'Enable "Is Set?" to preview the set contents.'); ?>';
+                    itemsetPreviewEmpty.classList.remove('d-none');
+                    return;
+                }
+
+                if (!rawSetId) {
+                    itemsetPreviewEmpty.textContent = '<?php echo translate('admin_shop_itemset_preview_hint', 'Enter an item set ID to preview its items.'); ?>';
+                    itemsetPreviewEmpty.classList.remove('d-none');
+                    return;
+                }
+
+                const setItems = itemsetPreviewData[rawSetId] || [];
+                if (setItems.length === 0) {
+                    itemsetPreviewEmpty.textContent = '<?php echo translate('admin_shop_itemset_preview_empty', 'No items were found for this item set ID.'); ?>';
+                    itemsetPreviewEmpty.classList.remove('d-none');
+                    return;
+                }
+
+                itemsetPreviewEmpty.classList.add('d-none');
+                setItems.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${item.entry} - ${item.name}`;
+                    itemsetPreviewList.appendChild(listItem);
+                });
+            }
             
             // Update form fields based on category
             function updateFormFields() {
                 const category = categorySelect.value;
+                const supportsSets = ['Mount', 'Pet', 'Stuff', 'Set'].includes(category);
+                const isDedicatedSetCategory = category === 'Set';
+
+                if (!supportsSets) {
+                    isSetSelect.value = '0';
+                    isItemSelect.value = '0';
+                } else {
+                    isItemSelect.value = '1';
+                    if (isDedicatedSetCategory) {
+                        isSetSelect.value = '1';
+                    }
+                }
+
+                const isSet = supportsSets && (isDedicatedSetCategory || isSetSelect.value === '1');
                 
                 // Toggle field groups
                 Object.keys(fieldGroups).forEach(group => {
                     const element = document.querySelector(`.${group}`);
-                    const shouldShow = fieldGroups[group].includes(category);
+                    let shouldShow = fieldGroups[group].includes(category);
+
+                    if (group === 'entry-group') {
+                        shouldShow = shouldShow && !isSet;
+                    }
+
+                    if (group === 'itemset-id-group') {
+                        shouldShow = shouldShow && isSet;
+                    }
+
+                    if (group === 'is-item-group') {
+                        shouldShow = shouldShow && !isSet;
+                    }
+
+                    if (group === 'itemset-preview-group') {
+                        shouldShow = shouldShow && isSet;
+                    }
                     
                     if (element) {
                         element.classList.toggle('active', shouldShow);
@@ -671,8 +852,23 @@ if (isset($_GET['status'])) {
                 
                 // Special handling for Gold category
                 if (category === 'Gold') {
-                    document.getElementById('is_item').value = '0';
+                    isItemSelect.value = '0';
+                    isSetSelect.value = '0';
                 }
+
+                if (category === 'Service') {
+                    isSetSelect.value = '0';
+                    isItemSelect.value = '0';
+                }
+
+                if (isSet) {
+                    isItemSelect.value = '1';
+                    entrySelect.value = '';
+                } else if (supportsSets) {
+                    itemsetInput.value = '';
+                }
+
+                renderItemsetPreview();
             }
             
             // Initialize form fields
@@ -680,6 +876,8 @@ if (isset($_GET['status'])) {
             
             // Handle category change
             categorySelect.addEventListener('change', updateFormFields);
+            isSetSelect.addEventListener('change', updateFormFields);
+            itemsetInput.addEventListener('input', renderItemsetPreview);
             
             // Image preview
             imageInput.addEventListener('change', function() {
@@ -734,6 +932,8 @@ if (isset($_GET['status'])) {
                     document.getElementById('level_boost').value = item.level_boost || '';
                     document.getElementById('at_login_flags').value = item.at_login_flags || 0;
                     document.getElementById('is_item').value = item.is_item || 0;
+                    document.getElementById('is_set').value = item.is_set || 0;
+                    document.getElementById('itemset_id').value = item.itemset_id || '';
                     existingImageInput.value = item.image || '';
                     imagePreview.src = item.image || '';
                     imagePreview.classList.toggle('active', !!item.image);
@@ -770,11 +970,28 @@ if (isset($_GET['status'])) {
                 const name = document.getElementById('name').value.trim();
                 const pointCost = document.getElementById('point_cost').value;
                 const tokenCost = document.getElementById('token_cost').value;
+                const isSet = document.getElementById('is_set').value;
+                const entryValue = document.getElementById('entry').value;
+                const itemsetValue = document.getElementById('itemset_id').value;
                 
                 if (!name || pointCost === '' || tokenCost === '') {
                     e.preventDefault();
                     alert('<?php echo translate('admin_shop_js_required_fields', 'Please fill in all required fields.'); ?>');
                     return;
+                }
+
+                if (['Mount', 'Pet', 'Stuff', 'Set'].includes(category)) {
+                    if (isSet === '1' && (!itemsetValue || parseInt(itemsetValue, 10) <= 0)) {
+                        e.preventDefault();
+                        alert('<?php echo translate('admin_shop_js_invalid_itemset_id', 'Please provide a valid item set ID.'); ?>');
+                        return;
+                    }
+
+                    if (category !== 'Set' && isSet === '0' && !entryValue) {
+                        e.preventDefault();
+                        alert('<?php echo translate('admin_shop_js_select_entry', 'Please select an item entry.'); ?>');
+                        return;
+                    }
                 }
                 
                 // Only validate level boost if category is Service

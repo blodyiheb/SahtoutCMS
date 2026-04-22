@@ -194,12 +194,16 @@ CREATE TABLE IF NOT EXISTS `shop_items` (
   `level_boost` smallint unsigned DEFAULT NULL,
   `at_login_flags` tinyint unsigned DEFAULT '0',
   `is_item` tinyint unsigned NOT NULL DEFAULT '0',
+  `is_set` tinyint unsigned NOT NULL DEFAULT '0',
+  `itemset_id` int unsigned DEFAULT NULL,
   PRIMARY KEY (`item_id`),
   KEY `idx_category` (`category`),
   KEY `idx_entry` (`entry`),
+  KEY `idx_itemset_id` (`itemset_id`),
   CONSTRAINT `fk_shop_items_entry` FOREIGN KEY (`entry`) REFERENCES `site_items` (`entry`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `chk_at_login_flags` CHECK ((`at_login_flags` in (0,1,2,4,8,16,32,64,128,3,5,6,7,9,12,15,31,127,255))),
   CONSTRAINT `chk_is_item` CHECK ((`is_item` in (0,1))),
+  CONSTRAINT `chk_is_set` CHECK ((`is_set` in (0,1))),
   CONSTRAINT `shop_items_chk_1` CHECK ((`level_boost` between 2 and 255))
 ) ENGINE=InnoDB AUTO_INCREMENT=505 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

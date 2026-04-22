@@ -68,6 +68,7 @@ return [
     'admin_shop_category_gold' => 'Oro',
     'admin_shop_category_service' => 'Servicio',
     'admin_shop_category_stuff' => 'Objetos',
+    'admin_shop_category_set' => 'Set',
     'admin_shop_all_categories' => 'Todas las Categorías',
 
     // 🔹 At Login Flags

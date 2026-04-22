@@ -44,8 +44,8 @@ $char_db->begin_transaction();
 $world_db->begin_transaction();
 
 try {
-    // Fetch item details, including is_item and entry
-    $stmt = $site_db->prepare("SELECT name, point_cost, token_cost, stock, gold_amount, category, level_boost, at_login_flags, is_item, entry FROM shop_items WHERE item_id = ?");
+    // Fetch item details, including set metadata.
+    $stmt = $site_db->prepare("SELECT name, point_cost, token_cost, stock, gold_amount, category, level_boost, at_login_flags, is_item, is_set, entry, itemset_id FROM shop_items WHERE item_id = ?");
     if (!$stmt) {
         error_log("Failed to prepare item query: " . $site_db->error);
         throw new Exception('Database query error');
@@ -159,6 +159,29 @@ try {
     $_SESSION['last_purchase_time'] = time();
     error_log("Set last_purchase_time: " . $_SESSION['last_purchase_time']);
 
+    $sendStoreItem = function ($characterGuid, $entry) use ($world_db) {
+        $send_stmt = $world_db->prepare("CALL acore_characters.SendStoreItem(?, ?)");
+        if (!$send_stmt) {
+            throw new Exception('Database query error');
+        }
+
+        $send_stmt->bind_param('ii', $characterGuid, $entry);
+        if (!$send_stmt->execute()) {
+            $send_stmt->close();
+            throw new Exception('Database query error');
+        }
+
+        $send_stmt->close();
+
+        // Stored procedures may leave additional result sets pending.
+        while ($world_db->more_results() && $world_db->next_result()) {
+            $flush = $world_db->use_result();
+            if ($flush instanceof mysqli_result) {
+                $flush->free();
+            }
+        }
+    };
+
     // Handle different item categories
     if (strtolower($item['category']) === 'gold' && $item['gold_amount'] > 0) {
         // Check if adding gold would exceed max
@@ -227,15 +250,53 @@ try {
         $stmt->execute();
         $stmt->close();
         error_log("Logged Customization Purchase: $details");
-    } elseif ($item['is_item'] == 1 && $item['entry'] !== null) {
-        // Send item via stored procedure
-        $stmt = $world_db->prepare("CALL acore_characters.SendStoreItem(?, ?)");
-        $stmt->bind_param('ii', $character_guid, $item['entry']);
-        if (!$stmt->execute()) {
-            error_log("Failed to execute SendStoreItem: Character GUID: $character_guid, Item Entry: {$item['entry']}, Error: {$stmt->error}");
+    } elseif ((int)$item['is_set'] === 1) {
+        if (empty($item['itemset_id'])) {
+            error_log("Set purchase missing itemset_id: item_id=$item_id");
             throw new Exception('Database query error');
         }
+
+        $set_stmt = $site_db->prepare("SELECT entry, name FROM site_items WHERE itemset = ? ORDER BY entry");
+        if (!$set_stmt) {
+            error_log("Failed to prepare set items query: " . $site_db->error);
+            throw new Exception('Database query error');
+        }
+
+        $set_stmt->bind_param('i', $item['itemset_id']);
+        if (!$set_stmt->execute()) {
+            error_log("Set items query execution failed: " . $set_stmt->error);
+            $set_stmt->close();
+            throw new Exception('Database query error');
+        }
+
+        $set_result = $set_stmt->get_result();
+        $set_entries = [];
+        while ($set_row = $set_result->fetch_assoc()) {
+            $set_entries[] = (int)$set_row['entry'];
+        }
+        $set_stmt->close();
+
+        if (empty($set_entries)) {
+            error_log("No items found for itemset_id={$item['itemset_id']} (item_id=$item_id)");
+            throw new Exception('Database query error');
+        }
+
+        foreach ($set_entries as $set_entry) {
+            $sendStoreItem($character_guid, $set_entry);
+            error_log("Set item sent: Character GUID: $character_guid, Item Entry: $set_entry");
+        }
+
+        // Log set purchase in website_activity_log
+        $stmt = $site_db->prepare("INSERT INTO website_activity_log (account_id, character_name, action, timestamp, details) VALUES (?, ?, 'Purchase Item Set', UNIX_TIMESTAMP(), ?)");
+        $character_name = $character['name'];
+        $details = "Purchased set {$item['name']} (ID: $item_id, ItemSet: {$item['itemset_id']}) with " . count($set_entries) . " items for character GUID $character_guid";
+        $stmt->bind_param("iss", $account_id, $character_name, $details);
+        $stmt->execute();
         $stmt->close();
+        error_log("Logged Set Purchase: $details");
+    } elseif ($item['is_item'] == 1 && $item['entry'] !== null) {
+        // Send single item via stored procedure
+        $sendStoreItem($character_guid, (int)$item['entry']);
         error_log("Item Sent via Stored Procedure: Character GUID: $character_guid, Item Entry: {$item['entry']}");
 
         // Log item purchase in website_activity_log

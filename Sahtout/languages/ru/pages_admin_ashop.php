@@ -31,6 +31,7 @@ return [
     'admin_shop_category_gold' => 'Золото',
     'admin_shop_category_service' => 'Услуга',
     'admin_shop_category_stuff' => 'Снаряжение',
+    'admin_shop_category_set' => 'Set',
     'admin_shop_label_name' => 'Название',
     'admin_shop_placeholder_name' => 'Введите название товара',
     'admin_shop_label_point_cost' => 'Стоимость в очках',
