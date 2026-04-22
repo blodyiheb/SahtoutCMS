@@ -31,6 +31,7 @@ return [
     'admin_shop_category_gold' => 'Or',
     'admin_shop_category_service' => 'Service',
     'admin_shop_category_stuff' => 'Équipement',
+    'admin_shop_category_set' => 'Set',
     'admin_shop_label_name' => 'Nom',
     'admin_shop_placeholder_name' => 'Entrez le nom de l’article',
     'admin_shop_label_point_cost' => 'Coût en points',

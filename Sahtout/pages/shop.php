@@ -9,7 +9,7 @@ $page_class = 'shop';
 include_once $project_root . 'includes/header.php';
 
 $selected_category = isset($_GET['category']) ? $_GET['category'] : 'All';
-$valid_categories = ['All', 'Service', 'Mount', 'Pet', 'Gold', 'Stuff'];
+$valid_categories = ['All', 'Service', 'Mount', 'Pet', 'Gold', 'Stuff', 'Set'];
 if (!in_array($selected_category, $valid_categories)) {
     $selected_category = 'All';
 }
@@ -19,13 +19,20 @@ $category_images = [
     'Mount' => 'img/shopimg/icons/category_mount.jpg',
     'Pet' => 'img/shopimg/icons/category_pet.jpg',
     'Gold' => 'img/shopimg/icons/category_gold.webp',
-    'Stuff' => 'img/shopimg/icons/category_stuff.jpg'
+    'Stuff' => 'img/shopimg/icons/category_stuff.jpg',
+    'Set' => 'img/shopimg/icons/category_stuff.jpg'
 ];
 
 $query = "
-    SELECT si.item_id, si.category, si.name, si.description, si.image, si.point_cost, si.token_cost, si.stock, si.level_boost, si.at_login_flags, sit.entry AS sit_entry
+    SELECT si.item_id, si.category, si.name, si.description, si.image, si.point_cost, si.token_cost, si.stock, si.level_boost, si.at_login_flags, si.is_set, si.itemset_id, sit.entry AS sit_entry, sis.set_item_count
     FROM shop_items si
     LEFT JOIN site_items sit ON si.entry = sit.entry
+    LEFT JOIN (
+        SELECT itemset, COUNT(*) AS set_item_count
+        FROM site_items
+        WHERE itemset > 0
+        GROUP BY itemset
+    ) sis ON si.itemset_id = sis.itemset
     ORDER BY si.category, si.name
 ";
 $stmt = $site_db->prepare($query);
@@ -172,6 +179,11 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                 </div>
                                 <h3><?php echo htmlspecialchars($item['name']); ?></h3>
                                 <p><?php echo htmlspecialchars($item['description'] ?? translate('shop_no_description', 'No description available.')); ?></p>
+                                <?php if ((int)$item['is_set'] === 1 && !empty($item['itemset_id'])): ?>
+                                    <p class="set-info">
+                                        <?php echo translate('shop_set_contains', 'Set') . ' #' . (int)$item['itemset_id'] . ' - ' . (int)($item['set_item_count'] ?? 0) . ' ' . translate('shop_items', 'items'); ?>
+                                    </p>
+                                <?php endif; ?>
                                 <?php if ($category === 'Service'): ?>
                                     <?php if ($item['level_boost'] !== null): ?>
                                         <p class="level-boost"><?php echo translate('shop_level_boost', 'Level Boost'); ?>: <?php echo $item['level_boost']; ?></p>
@@ -203,7 +215,7 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                 <?php endif; ?>
                                 <div class="item-tooltip">
                                     <?php
-                                    if (in_array($category, ['Stuff', 'Pet', 'Mount']) && $item['sit_entry']) {
+                                    if (in_array($category, ['Stuff', 'Pet', 'Mount']) && $item['sit_entry'] && (int)$item['is_set'] !== 1) {
                                         $stmt_tooltip = $site_db->prepare("SELECT * FROM site_items WHERE entry = ?");
                                         $stmt_tooltip->bind_param("i", $item['sit_entry']);
                                         $stmt_tooltip->execute();
@@ -774,6 +786,12 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
         font-size: 0.9rem;
         font-weight: bold;
         margin-bottom: 1rem;
+    }
+    .item-card .set-info {
+        color: #89d2ff;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
     }
     .item-cost {
         display: flex;

@@ -31,6 +31,7 @@ return [
     'admin_shop_category_gold' => '金币',
     'admin_shop_category_service' => '服务',
     'admin_shop_category_stuff' => '材料/杂项',
+    'admin_shop_category_set' => '套装',
     'admin_shop_label_name' => '名称',
     'admin_shop_placeholder_name' => '输入物品名称',
     'admin_shop_label_point_cost' => '积分消耗',
