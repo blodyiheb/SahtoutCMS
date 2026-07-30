@@ -1,0 +1,4 @@
+node_modules/
+vendor/
+includes/config.php
+includes/config.cap.php

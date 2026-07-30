@@ -1,0 +1,25 @@
+{
+  "name": "sahtoutcms",
+  "version": "1.0.0",
+  "description": "<div align=\"center\">\r   <img width=\"612\" height=\"408\" alt=\"logo\" src=\"https://github.com/user-attachments/assets/54293d96-03eb-4dda-9f22-e1c013d6053b\" />\r </div>\r #SahtoutCMS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blodyiheb/SahtoutCMS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/blodyiheb/SahtoutCMS/issues"
+  },
+  "homepage": "https://github.com/blodyiheb/SahtoutCMS#readme",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  }
+}
