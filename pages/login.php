@@ -21,7 +21,6 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 
-$page_class = 'login';
 
 $errors = [];
 $username = '';
@@ -262,63 +261,57 @@ include_once $project_root . 'includes/header.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content="<?php echo translate('meta_description', 'Log in to your account to join our World of Warcraft server adventure!'); ?>">
     <title><?php echo $site_title_name ." ". translate('page_title', 'Login'); ?></title>
-    <style>
-        :root{
-            --bg-login:url('<?php echo $base_path; ?>img/backgrounds/bg-login.jpg');
-            --hover-wow-gif: url('<?php echo $base_path; ?>img/hover_wow.gif');
-        }
-    </style>
 </head>
 <body>
-<div class="wrapper">
-    <div class="form-container">
-        <div class="form-section">
-            <h2><?php echo translate('login_title', 'Login'); ?></h2>
+<div class="wrapper relative flex min-h-screen w-full items-center justify-center overflow-x-hidden bg-(image:--bg-register) bg-cover bg-center bg-fixed px-4 py-4 font-['UnifrakturCook',Arial,sans-serif] text-white max-[767px]:mt-20 max-[767px]:p-0" style="--bg-register: url('<?php echo $base_path; ?>img/backgrounds/bg-login.jpg'); --hover-wow-gif: url('<?php echo $base_path; ?>img/hover_wow.gif');">
+        <div class="pointer-events-none absolute inset-0 bg-black/20"></div>
+        <div class="form-container relative z-10 w-[calc(100%-2rem)] max-w-120 rounded-xl border-[3px] border-[#f1c40f] bg-[#1a1a1a88] p-8 shadow-[0_8px_24px_rgba(241,196,15,0.4),0_0_40px_rgba(0,0,0,0.8)] transition-transform duration-300 ease-in-out animate-[login-card-pulse_3s_ease-in-out_infinite] hover:-translate-y-1.25 hover:rotate-1 max-[767px]:mx-auto max-[767px]:my-6 max-[767px]:w-[calc(100%-1.5rem)] max-[767px]:max-w-full max-[767px]:p-6 max-[767px]:shadow-[0_6px_16px_rgba(241,196,15,0.3)] max-[767px]:hover:-translate-y-0.75 max-[767px]:hover:rotate-[0.5deg]">
+            <div class="form-section flex flex-col justify-center">
+                <h2 class="mb-6 text-center font-['UnifrakturCook',sans-serif] text-5xl tracking-[1px] text-[#f1c40f] [text-shadow:3px_3px_6px_rgba(0,0,0,0.9)] max-[767px]:text-[2.4rem] max-[576px]:text-[2rem]"><?php echo translate('login_title', 'Login'); ?></h2>
 
-            <?php if (!empty($errors)): ?>
-                <div class="error">
-                    <?php foreach ($errors as $error): ?>
-                        <p><?php echo htmlspecialchars($error); ?></p>
-                    <?php endforeach; ?>
-                    <?php if ($show_resend_button): ?>
-                        <div class="resend-link">
-                            <p><?php echo translate('resend_activation_prompt', 'CLICK HERE:'); ?></p>
-                            <a href="<?php echo $base_path; ?>resend_activation?username=<?php echo htmlspecialchars($username); ?>">
-                                <?php echo translate('resend_activation_link', 'Resend Activation Code'); ?>
-                            </a>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($remaining_attempts < MAX_LOGIN_ATTEMPTS && $remaining_attempts > 0): ?>
-                <div class="attempts-info">
-                    <p><?php echo translate('remaining_attempts', 'You have %d login attempts remaining.', $remaining_attempts); ?></p>
-                </div>
-            <?php endif; ?>
-
-            <form method="POST">
-                <input type="text" name="username" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required value="<?php echo htmlspecialchars($username); ?>">
-                <br>
-                <input type="password" name="password" placeholder="<?php echo translate('password_placeholder', 'Password'); ?>" required>
-                <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>
-                    <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
+                <?php if (!empty($errors)): ?>
+                    <div class="error mt-[0.6rem] mb-0 text-center font-[Arial,sans-serif] text-[1.1rem] text-[#e74c3c] [text-shadow:1px_1px_2px_rgba(0,0,0,0.7)] max-[767px]:text-base max-[576px]:text-[0.95rem]">
+                        <?php foreach ($errors as $error): ?>
+                            <p><?php echo htmlspecialchars($error); ?></p>
+                        <?php endforeach; ?>
+                        <?php if ($show_resend_button): ?>
+                            <div class="resend-link mb-[1.2rem] text-center font-['UnifrakturCook',sans-serif] text-[1.1rem] text-white max-[767px]:mt-4 max-[767px]:text-base max-[576px]:text-[0.95rem]">
+                                <p class="mr-[0.6rem] inline font-['Courier_New',Courier,monospace] text-white"><?php echo translate('resend_activation_prompt', 'CLICK HERE:'); ?></p>
+                                <a class="text-[#f1c40f] no-underline transition-all duration-300 ease-in-out hover:text-[#ffe600] hover:underline" href="<?php echo $base_path; ?>resend_activation?username=<?php echo htmlspecialchars($username); ?>">
+                                    <?php echo translate('resend_activation_link', 'Resend Activation Code'); ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 <?php endif; ?>
-                <button type="submit"><?php echo translate('login_button', 'Sign In'); ?></button>
-                <div class="register-link">
-                    <?php echo sprintf(translate('register_link_text', 'Don\'t have an account? <a href="%s">Register now</a>'), htmlspecialchars($base_path . 'register')); ?>
-                </div>
-                <div class="forgot-password-link">
-                    <?php echo sprintf(translate('forgot_password_link_text', 'Forgot your password? <a href="%s">Reset it here</a>'), htmlspecialchars($base_path . 'forgot_password')); ?>
-                </div>
-            </form>
+
+                <?php if ($remaining_attempts < MAX_LOGIN_ATTEMPTS && $remaining_attempts > 0): ?>
+                    <div class="attempts-info my-[0.6rem] text-center font-[Arial,sans-serif] text-[1.1rem] text-[#f1c40f] [text-shadow:1px_1px_2px_rgba(0,0,0,0.7)] max-[767px]:mt-4 max-[767px]:text-base max-[576px]:text-[0.95rem]">
+                        <p><?php echo translate('remaining_attempts', 'You have %d login attempts remaining.', $remaining_attempts); ?></p>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" class="flex flex-col gap-[0.8rem]">
+                    <input type="text" name="username" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required value="<?php echo htmlspecialchars($username); ?>" class="w-full rounded-md border-2 border-[#f1c40f] bg-[#2c2c2c] p-[0.9rem] font-[Arial,sans-serif] text-[1.1rem] text-white outline-none transition-[border-color,box-shadow] duration-300 ease-in-out placeholder:text-base placeholder:text-[#999] focus:border-[#ffe600] focus:shadow-[0_0_8px_rgba(255,230,0,0.6)] max-[767px]:p-[0.8rem] max-[767px]:text-base max-[576px]:p-[0.7rem] max-[576px]:text-[0.95rem]">
+                    <input type="password" name="password" placeholder="<?php echo translate('password_placeholder', 'Password'); ?>" required class="w-full rounded-md border-2 border-[#f1c40f] bg-[#2c2c2c] p-[0.9rem] font-[Arial,sans-serif] text-[1.1rem] text-white outline-none transition-[border-color,box-shadow] duration-300 ease-in-out placeholder:text-base placeholder:text-[#999] focus:border-[#ffe600] focus:shadow-[0_0_8px_rgba(255,230,0,0.6)] max-[767px]:p-[0.8rem] max-[767px]:text-base max-[576px]:p-[0.7rem] max-[576px]:text-[0.95rem]">
+                    <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>
+                        <div class="g-recaptcha mx-auto my-[1.2rem] flex justify-center max-[767px]:scale-[0.85] max-[576px]:scale-[0.77]" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
+                    <?php endif; ?>
+                    <button type="submit" class="cursor-[var(--hover-wow-gif)_16_16,auto] rounded-md border-2 border-[#f1c40f] bg-[linear-gradient(135deg,#e74c3c_0%,#c0392b_100%)] px-[1.8rem] py-[0.9rem] text-[1.3rem] tracking-[1px] text-white uppercase transition-all duration-300 ease-in-out hover:scale-105 hover:bg-[linear-gradient(135deg,#0e65d6ff_0%,#26a938ff_100%)] hover:shadow-[0_4px_16px_rgba(230,247,3,0.6)] max-[767px]:px-6 max-[767px]:py-[0.8rem] max-[767px]:text-[1.2rem] max-[576px]:px-5 max-[576px]:py-[0.7rem] max-[576px]:text-[1.1rem]"><?php echo translate('login_button', 'Sign In'); ?></button>
+                    <div class="register-link mt-[1.2rem] text-center font-['UnifrakturCook',sans-serif] text-[1.1rem] text-white max-[767px]:mt-4 max-[767px]:text-base max-[576px]:text-[0.95rem]">
+                        <?php echo sprintf(translate('register_link_text', 'Don\'t have an account? <a class="text-[#f1c40f] no-underline transition-all duration-300 ease-in-out hover:text-[#ffe600] hover:underline" href="%s">Register now</a>'), htmlspecialchars($base_path . 'register')); ?>
+                    </div>
+                    <div class="forgot-password-link mt-[1.2rem] text-center font-['UnifrakturCook',sans-serif] text-[1.1rem] text-white max-[767px]:mt-4 max-[767px]:text-base max-[576px]:text-[0.95rem]">
+                        <?php echo sprintf(translate('forgot_password_link_text', 'Forgot your password? <a class="text-[#f1c40f] no-underline transition-all duration-300 ease-in-out hover:text-[#ffe600] hover:underline" href="%s">Reset it here</a>'), htmlspecialchars($base_path . 'forgot_password')); ?>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
-<?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-<?php endif; ?>
-<?php include_once $project_root . 'includes/footer.php'; ?>
+    <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <?php endif; ?>
+    <?php include_once $project_root . 'includes/footer.php'; ?>
 </body>
 </html>

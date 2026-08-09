@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@source "../../**/*.php";
+
+/* Tailwind v4 uses @theme for configuration */
+@theme {
+    /* Custom colors */
+    --color-wow-gold: #f1c40f;
+    --color-wow-gold-light: #ffe600;
+    --color-wow-dark: #1a1a1a7c;
+    --color-wow-input: #2c2c2c;
+    --color-wow-error: #e74c3c;
+    --color-wow-success: #2ecc71;
+    
+    /* Custom font family */
+    --font-family-unifraktur: UnifrakturCook, serif;
+    
+    /* Custom border width */
+    --border-width-3: 3px;
+}
+
+/* Custom styles that Tailwind CANNOT handle */
+:root {
+    --hover-wow-gif: url('../../img/hover_wow.gif');
+    --point-wow-gif: url('../../img/pointer_wow.gif');
+}
+
+/* Fix for footer on login/register pages */
+body.login-page footer,
+body.register-page footer {
+    background: rgba(0, 0, 0, 0.33) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    position: relative;
+    z-index: 2;
+}
+
+/* Ensure footer links are visible */
+body.login-page footer a,
+body.register-page footer a {
+    color: #ffffff;
+}
+
+body.login-page footer a:hover,
+body.register-page footer a:hover {
+    color: #e5ff00;
+}
+
+/* Pulse animation for register card */
+@keyframes register-card-pulse {
+    0%, 100% { 
+        box-shadow: 0 8px 24px rgba(241, 196, 15, 0.4), 0 0 40px rgba(0, 0, 0, 0.8); 
+    }
+    50% { 
+        box-shadow: 0 8px 32px rgba(241, 196, 15, 0.6), 0 0 48px rgba(0, 0, 0, 0.9); 
+    }
+}
+
+/* Pulse animation for login card */
+@keyframes login-card-pulse {
+    0%, 100% { 
+        box-shadow: 0 8px 24px rgba(241, 196, 15, 0.4), 0 0 40px rgba(0, 0, 0, 0.8); 
+    }
+    50% { 
+        box-shadow: 0 8px 32px rgba(241, 196, 15, 0.6), 0 0 48px rgba(0, 0, 0, 0.9); 
+    }
+}
+
+/* reCAPTCHA scaling for mobile responsiveness */
+@media (max-width: 767px) {
+    .g-recaptcha {
+        transform: scale(0.85);
+        transform-origin: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .g-recaptcha {
+        transform: scale(0.77);
+    }
+}
