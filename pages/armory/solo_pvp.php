@@ -26,8 +26,6 @@ if (isset($_GET['search'])) {
     }
 }
 
-
-
 if ($search !== '') {
     // Search by character name
     $sql = "
@@ -59,7 +57,6 @@ if ($search !== '') {
     $result = $char_db->query($sql);
 }
 
-
 // Prepare players array
 $players = [];
 while ($row = $result->fetch_assoc()) {
@@ -71,7 +68,7 @@ while ($row = $result->fetch_assoc()) {
         'gender' => $row['gender'],
         'level' => $row['level'],
         'kills' => $row['totalKills'],
-        'guild_name' => $row['guild_name'] ?? translate('solo_pvp_no_guild', 'No Guild') // Translated default
+        'guild_name' => $row['guild_name'] ?? translate('solo_pvp_no_guild', 'No Guild')
     ];
 }
 
@@ -117,103 +114,183 @@ function classIcon($class) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo  $site_title_name ." ". translate('solo_pvp_page_title', 'Top 50 Players'); ?></title>
-    <!-- Load Tailwind CSS with a custom configuration -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            prefix: 'tw-', // Prefix all Tailwind classes
-            corePlugins: {
-                preflight: false // Disable Tailwind's reset
+    <title><?php echo $site_title_name ." ". translate('solo_pvp_page_title', 'Top 50 Players'); ?></title>
+    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/armory/arenanavbar.css">
+    <style>
+        /* Page background */
+        body {
+            background: url('<?php echo $base_path; ?>img/backgrounds/bg-armory.jpg') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            min-height: 100vh;
+            padding-top: 112px;
+        }
+        
+        body::before {
+            display: none;
+        }
+        
+        /* Main content wrapper */
+        .arena-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Table container */
+        .table-container {
+            scrollbar-width: thin;
+            scrollbar-color: #ffcc00 #1f2937;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: #ffcc00;
+            border-radius: 4px;
+        }
+        
+        /* Top 5 rows */
+        .top5 {
+            background: linear-gradient(to right, rgba(22, 22, 22, 0.9), rgba(4, 58, 158, 0.9)) !important;
+        }
+        
+        .top5:hover {
+            background: linear-gradient(to right, rgba(88, 7, 219, 0.9), rgba(6, 9, 199, 0.8)) !important;
+            filter: brightness(1.2);
+            transition: filter 0.2s ease-in-out;
+        }
+        
+        /* Regular row hover */
+        .player-row:hover {
+            background-color: rgba(16, 54, 158, 0.7) !important;
+            transition: background-color 0.2s ease-in-out;
+            cursor: var(--hover-wow-gif) 16 16, auto;
+        }
+        
+        /* Search button hover */
+        #search-btn:hover {
+            cursor: var(--hover-wow-gif) 16 16, auto;
+        }
+        
+        /* Links */
+        .player-link {
+            color: #ffffff;
+            text-decoration: none;
+        }
+        
+        .player-link:hover {
+            text-decoration: underline;
+            color: #ffd700;
+        }
+        
+        @media (max-width: 767px) {
+            body {
+                padding-top: 96px;
             }
         }
-    </script>
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/armory/solo_pvp.css">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/armory/arenanavbar.css">
-</head>
-<style>
-       :root{
-            --bg-armory:url('<?php echo $base_path; ?>img/backgrounds/bg-armory.jpg');
-            --hover-wow-gif: url('<?php echo $base_path; ?>img/hover_wow.gif');
-        }
     </style>
-<body class="<?php echo $page_class; ?>">
-    <div class="arena-content tw-bg-900 tw-text-white">
-        <div class="tw-container tw-mx-auto tw-px-4 tw-py-8">
-            <h1 class="tw-text-4xl tw-font-bold tw-text-center tw-text-amber-400 tw-mb-6"><?php echo translate('solo_pvp_title', 'Top 50 Players'); ?></h1>
+</head>
+<body>
+<div class="arena-content min-h-screen flex items-start justify-center px-4 md:px-8 py-8">
+    <div class="container mx-auto max-w-7xl px-2 sm:px-4">
+        <!-- Main Container - Transparent Glass Effect -->
+        <div class="bg-black/30 backdrop-blur-md rounded-2xl border border-amber-500/30 p-6 md:p-10 shadow-2xl">
+            
+            <!-- Title -->
+            <h1 class="text-3xl md:text-5xl font-bold text-center text-amber-400 mb-6 font-['UnifrakturCook',sans-serif] [text-shadow:0_0_20px_rgba(255,215,0,0.3)]">
+                <?php echo translate('solo_pvp_title', 'Top 50 Players'); ?>
+            </h1>
 
+            <!-- Navigation - Clean & Modern -->
             <?php include_once $project_root . 'includes/arenanavbar.php'; ?>
-<?php if (!empty($search_error)): ?>
-    <div class="tw-mb-3 tw-text-center tw-text-red-300 tw-font-semibold">
-        <?php echo htmlspecialchars($search_error); ?>
-    </div>
-<?php endif; ?>
 
-            <form method="get" class="tw-mb-4 tw-flex tw-justify-center tw-gap-2">
-    <input 
-        type="text" 
-        name="search" 
-        value="<?php echo htmlspecialchars($search); ?>"
-        placeholder="<?php echo translate('solo_pvp_search_placeholder', 'Search character name...'); ?>"
-        maxlength="12"
-        class="tw-px-4 tw-py-2 tw-rounded tw-bg-gray-700 tw-text-white tw-border tw-border-gray-600 focus:tw-outline-none focus:tw-border-amber-400"
-    >
-    <button 
-        type="submit"
-        id="search-btn"
-        class="tw-px-4 tw-py-2 tw-rounded tw-bg-amber-500 tw-text-black tw-font-bold hover:tw-bg-amber-400"
-    >
-        <?php echo translate('solo_pvp_search_btn', 'Search'); ?>
-    </button>
+            <!-- Search Error -->
+            <?php if (!empty($search_error)): ?>
+                <div class="mb-4 text-center text-red-400 font-semibold text-sm">
+                    <?php echo htmlspecialchars($search_error); ?>
+                </div>
+            <?php endif; ?>
 
-    <?php if ($search !== ''): ?>
-        <a href="<?php echo $base_path; ?>armory/solo_pvp" class="tw-px-4 tw-py-2 tw-rounded tw-bg-gray-600 tw-text-white hover:tw-bg-gray-500">
+            <!-- Search Form -->
+            <form method="get" class="mb-8 flex flex-col sm:flex-row justify-center items-center gap-3">
+                <input 
+                    type="text" 
+                    name="search" 
+                    value="<?php echo htmlspecialchars($search); ?>"
+                    placeholder="<?php echo translate('solo_pvp_search_placeholder', 'Search character name...'); ?>"
+                    maxlength="12"
+                    class="w-full sm:w-80 px-4 py-2.5 rounded-lg bg-black/60 text-white border-2 border-amber-500/40 focus:outline-none focus:border-amber-400 focus:shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all duration-300 placeholder:text-gray-400 text-sm"
+                >
+                <button 
+                    type="submit"
+                    id="search-btn"
+                    class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold hover:from-amber-400 hover:to-amber-500 transition-all duration-300 shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105"
+                >
+                    <?php echo translate('solo_pvp_search_btn', 'Search'); ?>
+                </button>
 
-            <?php echo translate('solo_pvp_reset_btn', 'Reset'); ?>
-        </a>
-    <?php endif; ?>
-</form>
+                <?php if ($search !== ''): ?>
+                    <a href="<?php echo $base_path; ?>armory/solo_pvp" class="px-5 py-2.5 rounded-lg bg-gray-600/80 text-white hover:bg-gray-500/80 transition-all duration-300 hover:scale-105">
+                        <?php echo translate('solo_pvp_reset_btn', 'Reset'); ?>
+                    </a>
+                <?php endif; ?>
+            </form>
 
-            <div class="table-container tw-overflow-x-auto tw-rounded-lg tw-shadow-lg">
-                <table class="tw-w-full tw-text-sm tw-text-center tw-bg-gray-800">
-                    <thead class="tw-bg-gray-700 tw-text-amber-400 tw-uppercase">
+            <!-- Table -->
+            <div class="table-container overflow-x-auto rounded-xl shadow-2xl border border-amber-500/20">
+                <table class="w-full text-sm md:text-base text-center">
+                    <thead class="bg-gradient-to-r from-amber-600/80 to-amber-700/80 text-amber-100 uppercase text-xs md:text-sm">
                         <tr>
-                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_rank', 'Rank'); ?></th>
-                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_name', 'Name'); ?></th>
-                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_guild', 'Guild'); ?></th>
-                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_faction', 'Faction'); ?></th>
-                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_race', 'Race'); ?></th>
-                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_class', 'Class'); ?></th>
-                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_level', 'Level'); ?></th>
-                            <th class="tw-py-3 tw-px-6"><?php echo translate('solo_pvp_kills', 'PvP Kills'); ?></th>
+                            <th class="py-4 px-4 md:px-6 font-bold"><?php echo translate('solo_pvp_rank', 'Rank'); ?></th>
+                            <th class="py-4 px-4 md:px-6 font-bold text-left"><?php echo translate('solo_pvp_name', 'Name'); ?></th>
+                            <th class="py-4 px-4 md:px-6 font-bold text-left hidden sm:table-cell"><?php echo translate('solo_pvp_guild', 'Guild'); ?></th>
+                            <th class="py-4 px-4 md:px-6 font-bold"><?php echo translate('solo_pvp_faction', 'Faction'); ?></th>
+                            <th class="py-4 px-4 md:px-6 font-bold hidden md:table-cell"><?php echo translate('solo_pvp_race', 'Race'); ?></th>
+                            <th class="py-4 px-4 md:px-6 font-bold hidden md:table-cell"><?php echo translate('solo_pvp_class', 'Class'); ?></th>
+                            <th class="py-4 px-4 md:px-6 font-bold"><?php echo translate('solo_pvp_level', 'Level'); ?></th>
+                            <th class="py-4 px-4 md:px-6 font-bold"><?php echo translate('solo_pvp_kills', 'PvP Kills'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (count($players) == 0): ?>
                             <tr>
-                                <td colspan="8" class="tw-py-3 tw-px-6 tw-text-lg tw-text-amber-400"><?php echo translate('solo_pvp_no_players', 'No players found.'); ?></td>
+                                <td colspan="8" class="py-8 px-4 text-lg text-amber-400 font-bold">
+                                    <?php echo translate('solo_pvp_no_players', 'No players found.'); ?>
+                                </td>
                             </tr>
                         <?php else: ?>
                             <?php
                             $rank = 1;
                             $playerCount = count($players);
                             foreach ($players as $p) {
-                                $rowClass = ($rank <= 5 && $playerCount >= 5) ? 'top5' : '';
-                                echo "<tr class='{$rowClass} tw-transition tw-duration-200' onclick=\"window.location='{$base_path}character?guid={$p['guid']}';\">
-                                    <td class='tw-py-3 tw-px-6'>{$rank}</td>
-                                    <td class='tw-py-3 tw-px-6'><a href='{$base_path}character?guid={$p['guid']}' class='tw-text-white tw-no-underline hover:tw-underline'>" . htmlspecialchars($p['name']) . "</a></td>
-                                    <td class='tw-py-3 tw-px-6'>" . htmlspecialchars($p['guild_name']) . "</td>
-                                    <td class='tw-py-3 tw-px-6'>
-                                        <img src='" . factionIcon($p['race']) . "' alt='" . translate('solo_pvp_faction_alt', 'Faction') . "' class='tw-inline-block tw-w-6 tw-h-6 tw-rounded'>
+                                $rowClass = ($rank <= 5 && $playerCount >= 5) ? 'top5' : 'player-row';
+                                echo "<tr class='{$rowClass} transition-all duration-200 border-b border-gray-700/50 last:border-0' onclick=\"window.location='{$base_path}character?guid={$p['guid']}';\">
+                                    <td class='py-3.5 px-4 md:px-6 font-bold text-amber-400'>{$rank}</td>
+                                    <td class='py-3.5 px-4 md:px-6 text-left'>
+                                        <a href='{$base_path}character?guid={$p['guid']}' class='player-link font-semibold hover:text-amber-400 transition-colors duration-200'>
+                                            " . htmlspecialchars($p['name']) . "
+                                        </a>
                                     </td>
-                                    <td class='tw-py-3 tw-px-6'>
-                                        <img src='" . raceIcon($p['race'], $p['gender']) . "' alt='" . translate('solo_pvp_race_alt', 'Race') . "' class='tw-inline-block tw-w-6 tw-h-6 tw-rounded'>
+                                    <td class='py-3.5 px-4 md:px-6 text-left hidden sm:table-cell text-gray-300'>" . htmlspecialchars($p['guild_name']) . "</td>
+                                    <td class='py-3.5 px-4 md:px-6'>
+                                        <img src='" . factionIcon($p['race']) . "' alt='" . translate('solo_pvp_faction_alt', 'Faction') . "' class='inline-block w-6 h-6 rounded-full shadow-md'>
                                     </td>
-                                    <td class='tw-py-3 tw-px-6'>
-                                        <img src='" . classIcon($p['class']) . "' alt='" . translate('solo_pvp_class_alt', 'Class') . "' class='tw-inline-block tw-w-6 tw-h-6 tw-rounded'>
+                                    <td class='py-3.5 px-4 md:px-6 hidden md:table-cell'>
+                                        <img src='" . raceIcon($p['race'], $p['gender']) . "' alt='" . translate('solo_pvp_race_alt', 'Race') . "' class='inline-block w-6 h-6 rounded-full shadow-md'>
                                     </td>
-                                    <td class='tw-py-3 tw-px-6'>{$p['level']}</td>
-                                    <td class='tw-py-3 tw-px-6'>{$p['kills']}</td>
+                                    <td class='py-3.5 px-4 md:px-6 hidden md:table-cell'>
+                                        <img src='" . classIcon($p['class']) . "' alt='" . translate('solo_pvp_class_alt', 'Class') . "' class='inline-block w-6 h-6 rounded-full shadow-md'>
+                                    </td>
+                                    <td class='py-3.5 px-4 md:px-6 font-bold text-amber-400'>{$p['level']}</td>
+                                    <td class='py-3.5 px-4 md:px-6 font-extrabold text-green-400 text-base md:text-lg'>{$p['kills']}</td>
                                 </tr>";
                                 $rank++;
                             }
@@ -222,8 +299,15 @@ function classIcon($class) {
                     </tbody>
                 </table>
             </div>
+            
+            <!-- Footer note -->
+            <div class="mt-6 text-center text-gray-400 text-xs md:text-sm">
+                <?php echo translate('solo_pvp_footer', 'Click on any row to view character details.'); ?>
+            </div>
         </div>
     </div>
-    <?php include_once $project_root . 'includes/footer.php'; ?>
+</div>
+
+<?php include_once $project_root . 'includes/footer.php'; ?>
 </body>
 </html>
