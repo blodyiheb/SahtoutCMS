@@ -10,6 +10,8 @@ return [
     'register_button' => 'Register',
     'login_link_text' => 'Click here to login',
     'login_link_text_alt' => 'Already have an account? <a href="%s">Login</a>',
+    'already_have_account' => 'Already have an account?',
+    'login_link_text_simple' => 'Login',
     'email_subject' => 'Activate Your Account',
     'email_greeting' => 'Welcome, {username}!',
     'email_body' => 'Thank you for registering. Please click the button below to activate your account:',
@@ -26,6 +28,8 @@ return [
     'error_username_exists' => 'Username already exists. Please choose a different username.',
     'error_email_exists' => 'Email already in use. Please choose a different email.',
     'error_registration_failed' => 'Failed to store pending account.',
-    'error_email_failed' => 'Failed to send activation email. Please contact support.'
+    'error_email_failed' => 'Failed to send activation email. Please contact support.',
+    'success_account_created' => 'Account created. Check your email to activate your account.',
+    'success_account_created_no_email' => 'Account created successfully! You can now log in.'
 ];
 ?>

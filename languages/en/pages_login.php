@@ -18,6 +18,9 @@ return [
     'error_invalid_credentials' => 'Invalid username or password',
     'error_too_many_attempts' => 'Too many login attempts (%d made). Please try again in %d minutes.',
     'error_database' => 'Database error occurred. Please try again.',
-    'remaining_attempts' => 'You have %d login attempts remaining.'
+    'remaining_attempts' => 'You have %d login attempts remaining.',
+    'dont_have_account' => "Don't have an account?",
+    'register_link_text_simple' => 'Register',
+    'forgot_password_link' => 'Forgot Password?'
 ];
 ?>

@@ -198,11 +198,38 @@ include_once $project_root . 'includes/header.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content="<?php echo translate('meta_description', 'Create an account to join our World of Warcraft server adventure!'); ?>">
     <title><?php echo $site_title_name ." ". translate('page_title', 'Create Account'); ?></title>
+    <style>
+        body {
+            background: url('<?php echo $base_path; ?>img/backgrounds/bg-register.jpg') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            min-height: 100vh;
+            padding-top: 112px;
+        }
+        
+        /* Main content wrapper */
+        .wrapper {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Form container - transparent background */
+        .form-container {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        
+        @media (max-width: 767px) {
+            body {
+                padding-top: 96px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="wrapper relative flex min-h-screen w-full items-center justify-center overflow-x-hidden bg-(image:--bg-register) bg-cover bg-center bg-fixed px-4 py-4 font-['UnifrakturCook',Arial,sans-serif] text-white max-[767px]:mt-20 max-[767px]:p-0" style="--bg-register: url('<?php echo $base_path; ?>img/backgrounds/bg-register.jpg'); --hover-wow-gif: url('<?php echo $base_path; ?>img/hover_wow.gif');">
-    <div class="pointer-events-none absolute inset-0 bg-black/20"></div>
-    <div class="form-container relative z-10 w-[calc(100%-2rem)] max-w-120 rounded-xl border-[3px] border-[#f1c40f] bg-[#1a1a1a88] p-8 shadow-[0_8px_24px_rgba(241,196,15,0.4),0_0_40px_rgba(0,0,0,0.8)] transition-transform duration-300 ease-in-out animate-[register-card-pulse_3s_ease-in-out_infinite] hover:-translate-y-1.25 hover:rotate-1 max-[767px]:mx-auto max-[767px]:my-6 max-[767px]:w-[calc(100%-1.5rem)] max-[767px]:max-w-full max-[767px]:p-6 max-[767px]:shadow-[0_6px_16px_rgba(241,196,15,0.3)] max-[767px]:hover:-translate-y-0.75 max-[767px]:hover:rotate-[0.5deg]">
+<div class="wrapper relative flex min-h-screen w-full items-center justify-center overflow-x-hidden px-4 py-4 text-white max-[767px]:mt-0 max-[767px]:p-0">
+    <div class="form-container relative z-10 w-[calc(100%-2rem)] max-w-120 rounded-xl border-[3px] border-[#f1c40f] p-8 shadow-[0_8px_24px_rgba(241,196,15,0.4),0_0_40px_rgba(0,0,0,0.8)] transition-transform duration-300 ease-in-out hover:-translate-y-1.25 hover:rotate-1 max-[767px]:mx-auto max-[767px]:my-6 max-[767px]:w-[calc(100%-1.5rem)] max-[767px]:max-w-full max-[767px]:p-6 max-[767px]:shadow-[0_6px_16px_rgba(241,196,15,0.3)] max-[767px]:hover:-translate-y-0.75 max-[767px]:hover:rotate-[0.5deg]">
         <div class="form-section flex flex-col justify-center">
             <h2 class="mb-6 text-center font-['UnifrakturCook',sans-serif] text-5xl tracking-[1px] text-[#f1c40f] [text-shadow:3px_3px_6px_rgba(0,0,0,0.9)] max-[767px]:text-[2.4rem] max-[576px]:text-[2rem]"><?php echo translate('register_title', 'Create Your Account'); ?></h2>
 
@@ -216,7 +243,7 @@ include_once $project_root . 'includes/header.php';
                 <div class="success mt-[0.6rem] mb-0 text-center font-[Arial,sans-serif] text-[1.1rem] text-[#2ecc71] [text-shadow:1px_1px_2px_rgba(0,0,0,0.7)] max-[767px]:text-base max-[576px]:text-[0.95rem]">
                     <p><?php echo htmlspecialchars($success); ?></p>
                     <p class="mt-4 text-center text-lg font-['UnifrakturCook',sans-serif] text-white max-[767px]:mt-4 max-[767px]:text-base max-[576px]:text-[0.95rem]">
-                        <a href="<?php echo $base_path; ?>login" class="text-[#f1c40f] no-underline transition-all duration-300 ease-in-out hover:text-[#ffe600] hover:underline">
+                        <a href="<?php echo $base_path; ?>login" class="inline-block rounded-md bg-[#f1c40f] px-6 py-2 text-black font-bold no-underline transition-all duration-300 ease-in-out hover:bg-[#f39c12]">
                             <?php echo translate('login_link_text', 'Click here to login'); ?>
                         </a>
                     </p>
@@ -224,19 +251,27 @@ include_once $project_root . 'includes/header.php';
             <?php endif; ?>
 
             <form method="POST" class="flex flex-col gap-[0.8rem]">
-                <input type="text" name="username" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required value="<?php echo htmlspecialchars($username); ?>" class="w-full rounded-md border-2 border-[#f1c40f] bg-[#2c2c2c] p-[0.9rem] font-[Arial,sans-serif] text-[1.1rem] text-white outline-none transition-[border-color,box-shadow] duration-300 ease-in-out placeholder:text-base placeholder:text-[#999] focus:border-[#ffe600] focus:shadow-[0_0_8px_rgba(255,230,0,0.6)] max-[767px]:p-[0.8rem] max-[767px]:text-base max-[576px]:p-[0.7rem] max-[576px]:text-[0.95rem]">
-                <input type="email" name="email" placeholder="<?php echo translate('email_placeholder', 'Email'); ?>" required minlength="3" maxlength="36" class="w-full rounded-md border-2 border-[#f1c40f] bg-[#2c2c2c] p-[0.9rem] font-[Arial,sans-serif] text-[1.1rem] text-white outline-none transition-[border-color,box-shadow] duration-300 ease-in-out placeholder:text-base placeholder:text-[#999] focus:border-[#ffe600] focus:shadow-[0_0_8px_rgba(255,230,0,0.6)] max-[767px]:p-[0.8rem] max-[767px]:text-base max-[576px]:p-[0.7rem] max-[576px]:text-[0.95rem]">
-                <input type="password" name="password" placeholder="<?php echo translate('password_placeholder', 'Password'); ?>" required minlength="6" maxlength="32" class="w-full rounded-md border-2 border-[#f1c40f] bg-[#2c2c2c] p-[0.9rem] font-[Arial,sans-serif] text-[1.1rem] text-white outline-none transition-[border-color,box-shadow] duration-300 ease-in-out placeholder:text-base placeholder:text-[#999] focus:border-[#ffe600] focus:shadow-[0_0_8px_rgba(255,230,0,0.6)] max-[767px]:p-[0.8rem] max-[767px]:text-base max-[576px]:p-[0.7rem] max-[576px]:text-[0.95rem]">
-                <input type="password" name="confirm_password" placeholder="<?php echo translate('password_confirm_placeholder', 'Confirm Password'); ?>" required minlength="6" maxlength="32" class="w-full rounded-md border-2 border-[#f1c40f] bg-[#2c2c2c] p-[0.9rem] font-[Arial,sans-serif] text-[1.1rem] text-white outline-none transition-[border-color,box-shadow] duration-300 ease-in-out placeholder:text-base placeholder:text-[#999] focus:border-[#ffe600] focus:shadow-[0_0_8px_rgba(255,230,0,0.6)] max-[767px]:p-[0.8rem] max-[767px]:text-base max-[576px]:p-[0.7rem] max-[576px]:text-[0.95rem]">
+                <!-- Solid non-transparent dark inputs -->
+                <input type="text" name="username" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required value="<?php echo htmlspecialchars($username); ?>" class="w-full rounded-md border-2 border-[#f1c40f] bg-[#1a1a1a] p-[0.9rem] font-[Arial,sans-serif] text-[1.1rem] text-white outline-none transition-[border-color,box-shadow] duration-300 ease-in-out placeholder:text-base placeholder:text-[#aaa] focus:border-[#ffe600] focus:shadow-[0_0_8px_rgba(255,230,0,0.6)] max-[767px]:p-[0.8rem] max-[767px]:text-base max-[576px]:p-[0.7rem] max-[576px]:text-[0.95rem]">
+                <input type="email" name="email" placeholder="<?php echo translate('email_placeholder', 'Email'); ?>" required minlength="3" maxlength="36" class="w-full rounded-md border-2 border-[#f1c40f] bg-[#1a1a1a] p-[0.9rem] font-[Arial,sans-serif] text-[1.1rem] text-white outline-none transition-[border-color,box-shadow] duration-300 ease-in-out placeholder:text-base placeholder:text-[#aaa] focus:border-[#ffe600] focus:shadow-[0_0_8px_rgba(255,230,0,0.6)] max-[767px]:p-[0.8rem] max-[767px]:text-base max-[576px]:p-[0.7rem] max-[576px]:text-[0.95rem]">
+                <input type="password" name="password" placeholder="<?php echo translate('password_placeholder', 'Password'); ?>" required minlength="6" maxlength="32" class="w-full rounded-md border-2 border-[#f1c40f] bg-[#1a1a1a] p-[0.9rem] font-[Arial,sans-serif] text-[1.1rem] text-white outline-none transition-[border-color,box-shadow] duration-300 ease-in-out placeholder:text-base placeholder:text-[#aaa] focus:border-[#ffe600] focus:shadow-[0_0_8px_rgba(255,230,0,0.6)] max-[767px]:p-[0.8rem] max-[767px]:text-base max-[576px]:p-[0.7rem] max-[576px]:text-[0.95rem]">
+                <input type="password" name="confirm_password" placeholder="<?php echo translate('password_confirm_placeholder', 'Confirm Password'); ?>" required minlength="6" maxlength="32" class="w-full rounded-md border-2 border-[#f1c40f] bg-[#1a1a1a] p-[0.9rem] font-[Arial,sans-serif] text-[1.1rem] text-white outline-none transition-[border-color,box-shadow] duration-300 ease-in-out placeholder:text-base placeholder:text-[#aaa] focus:border-[#ffe600] focus:shadow-[0_0_8px_rgba(255,230,0,0.6)] max-[767px]:p-[0.8rem] max-[767px]:text-base max-[576px]:p-[0.7rem] max-[576px]:text-[0.95rem]">
                 
                 <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>
                     <div class="g-recaptcha mx-auto my-[1.2rem] flex justify-center max-[767px]:scale-[0.85] max-[576px]:scale-[0.77]" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
                 <?php endif; ?>
                 
-                <button type="submit" class="cursor-[var(--hover-wow-gif)_16_16,auto] rounded-md border-2 border-[#f1c40f] bg-[linear-gradient(135deg,#e74c3c_0%,#c0392b_100%)] px-[1.8rem] py-[0.9rem] text-[1.3rem] tracking-[1px] text-white uppercase transition-all duration-300 ease-in-out hover:scale-105 hover:bg-[linear-gradient(135deg,#0e65d6ff_0%,#26a938ff_100%)] hover:shadow-[0_4px_16px_rgba(230,247,3,0.6)] max-[767px]:px-6 max-[767px]:py-[0.8rem] max-[767px]:text-[1.2rem] max-[576px]:px-5 max-[576px]:py-[0.7rem] max-[576px]:text-[1.1rem]"><?php echo translate('register_button', 'Register'); ?></button>
+                <!-- REGISTER BUTTON - Solid green, changes color only on hover -->
+                <button type="submit" class="cursor-[var(--hover-wow-gif)_16_16,auto] rounded-md border-2 border-[#f1c40f] bg-[#2ecc71] px-[1.8rem] py-[0.9rem] text-[1.3rem] font-['Arial',sans-serif] font-bold tracking-[1px] text-white uppercase shadow-[0_4px_12px_rgba(46,204,113,0.4)] transition-all duration-300 ease-in-out hover:bg-[#3498db] hover:border-[#3498db] hover:scale-105 hover:shadow-[0_6px_20px_rgba(52,152,219,0.6)] max-[767px]:px-6 max-[767px]:py-[0.8rem] max-[767px]:text-[1.2rem] max-[576px]:px-5 max-[576px]:py-[0.7rem] max-[576px]:text-[1.1rem]">
+                    <?php echo translate('register_button', 'Register'); ?>
+                </button>
                 
-                <div class="login-link mt-[1.2rem] text-center font-['UnifrakturCook',sans-serif] text-[1.1rem] text-white max-[767px]:mt-4 max-[767px]:text-base max-[576px]:text-[0.95rem]">
-                    <?php echo sprintf(translate('login_link_text_alt', 'Already have an account? <a class="text-[#f1c40f] no-underline transition-all duration-300 ease-in-out hover:text-[#ffe600] hover:underline" href="%s">Login</a>'), htmlspecialchars($base_path . 'login')); ?>
+                <!-- LOGIN TEXT - "Already have an account? Login" -->
+                <div class="login-link mt-[1rem] text-center font-['Arial',sans-serif] text-[1.05rem] text-gray-200 [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)] max-[767px]:mt-3 max-[767px]:text-base">
+                    <?php echo translate('already_have_account', 'Already have an account?'); ?>
+                    <a href="<?php echo htmlspecialchars($base_path . 'login'); ?>" class="font-bold text-[#f1c40f] underline transition-colors duration-200 hover:text-[#ffe600]">
+                        <?php echo translate('login_link_text_simple', 'Login'); ?>
+                    </a>
                 </div>
             </form>
         </div>
