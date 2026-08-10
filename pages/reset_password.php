@@ -164,53 +164,115 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
     <meta name="description" content="<?php echo translate('meta_description', 'Reset your password for our World of Warcraft server.'); ?>">
     <title><?php echo $site_title_name ." ". translate('page_title', 'Reset Password'); ?></title>
     <style>
-        :root{
-            --bg-reset-pw:url('<?php echo $base_path; ?>img/backgrounds/bg-reset-password.jpg');
+        /* Page background */
+        body {
+            background: url('<?php echo $base_path; ?>img/backgrounds/bg-reset-password.jpg') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            min-height: 100vh;
+            padding-top: 112px;
+        }
+        
+        /* No overlay on the page - let the image show through */
+        body::before {
+            display: none;
+        }
+        
+        /* Main content wrapper */
+        .wrapper {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Form container - transparent like other pages */
+        .form-container {
+            background: rgba(0, 0, 0, 0.35) !important;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 2px solid rgba(241, 196, 15, 0.4);
+        }
+        
+        /* Input fields - semi-transparent dark */
+        .form-container input {
+            background: rgba(0, 0, 0, 0.5) !important;
+            border-color: rgba(241, 196, 15, 0.4);
+        }
+        
+        .form-container input:focus {
+            border-color: #ffe600 !important;
+        }
+        
+        @media (max-width: 767px) {
+            body {
+                padding-top: 96px;
+            }
         }
     </style>
 </head>
-<body class="reset_password">
-    <div class="wrapper">
-        <div class="form-container">
-            <div class="form-section">
-                <h2><?php echo translate('reset_title', 'Reset Password'); ?></h2>
-                <?php if (!empty($errors)): ?>
-                    <div class="error">
-                        <?php foreach ($errors as $error): ?>
-                            <p><?php echo htmlspecialchars($error); ?></p>
-                        <?php endforeach; ?>
-                    </div>
+<body>
+<div class="wrapper relative flex min-h-screen w-full items-center justify-center overflow-x-hidden px-4 py-4 text-white max-[767px]:mt-0 max-[767px]:p-0">
+    <div class="form-container relative z-10 w-[calc(100%-2rem)] max-w-[500px] rounded-xl border-[2px] border-[#f1c40f] p-8 shadow-[0_8px_24px_rgba(241,196,15,0.2),0_0_40px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-in-out hover:-translate-y-1.25 hover:rotate-1 max-[767px]:mx-auto max-[767px]:my-6 max-[767px]:w-[calc(100%-1.5rem)] max-[767px]:max-w-full max-[767px]:p-6 max-[767px]:shadow-[0_6px_16px_rgba(241,196,15,0.15)] max-[767px]:hover:-translate-y-0.75 max-[767px]:hover:rotate-[0.5deg]">
+        <div class="form-section flex flex-col justify-center">
+            <h2 class="mb-6 text-center font-['UnifrakturCook',sans-serif] text-5xl tracking-[1px] text-[#f1c40f] [text-shadow:3px_3px_6px_rgba(0,0,0,0.9)] max-[767px]:text-[2.4rem] max-[576px]:text-[2rem]">
+                <?php echo translate('reset_title', 'Reset Password'); ?>
+            </h2>
+
+            <?php if (!empty($errors)): ?>
+                <div class="error mt-[0.6rem] mb-0 text-center font-[Arial,sans-serif] text-[1.1rem] text-[#e74c3c] [text-shadow:1px_1px_2px_rgba(0,0,0,0.7)] max-[767px]:text-base max-[576px]:text-[0.95rem]">
+                    <?php foreach ($errors as $error): ?>
+                        <p><?php echo htmlspecialchars($error); ?></p>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($success): ?>
+                <div class="success mt-[0.6rem] mb-0 text-center font-[Arial,sans-serif] text-[1.1rem] text-[#2ecc71] [text-shadow:1px_1px_2px_rgba(0,0,0,0.7)] max-[767px]:text-base max-[576px]:text-[0.95rem]">
+                    <p><?php echo htmlspecialchars($success); ?></p>
+                    <p class="mt-4 text-center text-lg font-['UnifrakturCook',sans-serif] text-white max-[767px]:mt-4 max-[767px]:text-base max-[576px]:text-[0.95rem]">
+                        <a href="<?php echo $base_path; ?>login" class="inline-block rounded-md bg-[#f1c40f] px-6 py-2 text-black font-bold no-underline transition-all duration-300 ease-in-out hover:bg-[#f39c12]">
+                            <?php echo translate('login_link', 'Back to Login'); ?>
+                        </a>
+                    </p>
+                </div>
+                <script>
+                    setTimeout(() => {
+                        window.location.href = '<?php echo $base_path; ?>login';
+                    }, 3000);
+                </script>
+            <?php else: ?>
+                <?php if ($valid_token): ?>
+                    <form method="POST" class="flex flex-col gap-[0.8rem]">
+                        <input type="hidden" name="nonce" value="<?php echo htmlspecialchars($nonce); ?>">
+                        
+                        <input type="password" name="password" placeholder="<?php echo translate('password_placeholder', 'New Password'); ?>" required class="w-full rounded-md border-2 border-[rgba(241,196,15,0.4)] bg-[rgba(0,0,0,0.5)] p-[0.9rem] font-[Arial,sans-serif] text-[1.1rem] text-white outline-none transition-[border-color,box-shadow] duration-300 ease-in-out placeholder:text-base placeholder:text-[#aaa] focus:border-[#ffe600] focus:shadow-[0_0_8px_rgba(255,230,0,0.3)] max-[767px]:p-[0.8rem] max-[767px]:text-base max-[576px]:p-[0.7rem] max-[576px]:text-[0.95rem]">
+                        
+                        <input type="password" name="confirm_password" placeholder="<?php echo translate('confirm_password_placeholder', 'Confirm Password'); ?>" required class="w-full rounded-md border-2 border-[rgba(241,196,15,0.4)] bg-[rgba(0,0,0,0.5)] p-[0.9rem] font-[Arial,sans-serif] text-[1.1rem] text-white outline-none transition-[border-color,box-shadow] duration-300 ease-in-out placeholder:text-base placeholder:text-[#aaa] focus:border-[#ffe600] focus:shadow-[0_0_8px_rgba(255,230,0,0.3)] max-[767px]:p-[0.8rem] max-[767px]:text-base max-[576px]:p-[0.7rem] max-[576px]:text-[0.95rem]">
+                        
+                        <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>
+                            <div class="g-recaptcha mx-auto my-[1.2rem] flex justify-center max-[767px]:scale-[0.85] max-[576px]:scale-[0.77]" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
+                        <?php endif; ?>
+                        
+                        <!-- RESET BUTTON - Red, Hover: Green-Blue -->
+                        <button type="submit" class="cursor-[var(--hover-wow-gif)_16_16,auto] rounded-md border-2 border-[#f1c40f] bg-gradient-to-r from-[#e74c3c] to-[#c0392b] px-[1.8rem] py-[0.9rem] text-[1.3rem] font-['Arial',sans-serif] font-bold tracking-[1px] text-white uppercase shadow-[0_4px_12px_rgba(231,76,60,0.3)] transition-all duration-300 ease-in-out hover:scale-105 hover:from-[#2ecc71] hover:to-[#3498db] hover:shadow-[0_6px_20px_rgba(46,204,113,0.4)] max-[767px]:px-6 max-[767px]:py-[0.8rem] max-[767px]:text-[1.2rem] max-[576px]:px-5 max-[576px]:py-[0.7rem] max-[576px]:text-[1.1rem]">
+                            <?php echo translate('reset_button', 'Reset Password'); ?>
+                        </button>
+                        
+                        <!-- BACK TO LOGIN LINK - Yellow -->
+                        <div class="login-link mt-[1rem] text-center font-['Arial',sans-serif] text-[1.05rem] text-gray-200 [text-shadow:1px_1px_2px_rgba(0,0,0,0.8)] max-[767px]:mt-3 max-[767px]:text-base">
+                            <a href="<?php echo htmlspecialchars($base_path . 'login'); ?>" class="font-bold text-[#f1c40f] transition-colors duration-200 hover:text-[#ffe600] hover:underline">
+                                <?php echo translate('login_link_text_simple', 'Back to Login'); ?>
+                            </a>
+                        </div>
+                    </form>
                 <?php endif; ?>
-                <?php if ($success): ?>
-                    <div class="success">
-                        <p><?php echo htmlspecialchars($success); ?></p>
-                        <p class="login-link"><?php echo sprintf(translate('login_link', '<a href="%s">Back to Login</a>'), htmlspecialchars($base_path . 'login')); ?></p>
-                    </div>
-                    <script>
-                        setTimeout(() => {
-                            window.location.href = '<?php echo $base_path; ?>login';
-                        }, 3000);
-                    </script>
-                <?php else: ?>
-                    <?php if ($valid_token): ?>
-                        <form method="POST">
-                            <input type="hidden" name="nonce" value="<?php echo htmlspecialchars($nonce); ?>">
-                            <input type="password" name="password" placeholder="<?php echo translate('password_placeholder', 'New Password'); ?>" required>
-                            <input type="password" name="confirm_password" placeholder="<?php echo translate('confirm_password_placeholder', 'Confirm Password'); ?>" required>
-                            <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>
-                                <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
-                            <?php endif; ?>
-                            <button type="submit"><?php echo translate('reset_button', 'Reset Password'); ?></button>
-                            <p class="login-link"><?php echo sprintf(translate('login_link', '<a href="%s">Back to Login</a>'), htmlspecialchars($base_path . 'login')); ?></p>
-                        </form>
-                    <?php endif; ?>
-                <?php endif; ?>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
-    <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>
-        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <?php endif; ?>
-    <?php include_once $project_root . 'includes/footer.php'; ?>
+</div>
+
+<?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<?php endif; ?>
+<?php include_once $project_root . 'includes/footer.php'; ?>
 </body>
 </html>

@@ -6,21 +6,24 @@ return [
     'password_placeholder' => 'New Password',
     'confirm_password_placeholder' => 'Confirm Password',
     'reset_button' => 'Reset Password',
-    'login_link' => '<a href="%s">Back to Login</a>',
+    'login_link' => 'Back to Login',
+    'login_link_text_simple' => 'Back to Login',
     'email_subject_confirmation' => 'Password Reset Confirmation',
     'email_greeting' => 'Welcome, {username}!',
     'email_success' => 'Your password has been successfully reset.',
     'email_contact_support' => 'If you did not perform this action, please contact support immediately.',
-    'error_no_token' => 'No reset token provided.',
-    'error_token_invalid' => 'The reset link is invalid or has expired.',
     'error_account_not_active' => 'Your account is not active yet. Please activate your account to reset your password.',
     'error_account_not_exist' => 'Account does not exist.',
+    'error_token_invalid' => 'The reset link is invalid or has expired.',
+    'error_token_missing' => 'Invalid reset token.',
+    'error_no_token' => 'No reset token provided.',
     'error_invalid_nonce' => 'Invalid or expired form submission. Please try again.',
     'error_password_required' => 'Password is required.',
     'error_password_short' => 'Password must be at least 8 characters long.',
     'error_password_mismatch' => 'Passwords do not match.',
     'error_recaptcha_failed' => 'reCAPTCHA verification failed.',
     'error_password_update_failed' => 'Failed to update password.',
-    'error_email_failed' => 'Failed to send confirmation email: '
+    'error_email_failed' => 'Failed to send confirmation email. Please contact support.',
+    'success_password_reset' => 'Your password has been successfully reset. You can now log in.'
 ];
 ?>
