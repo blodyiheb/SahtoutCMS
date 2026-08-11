@@ -156,8 +156,41 @@ function classIcon($class) {
             background: #ffcc00;
             border-radius: 4px;
         }
+
+        /* 1st Place - Gold */
+        .rank-1 {
+            background: linear-gradient(to right, rgba(120, 85, 0, 0.9), rgba(212, 175, 55, 0.85), rgba(80, 55, 0, 0.9)) !important;
+        }
+        .rank-1:hover {
+            background: linear-gradient(to right, rgba(160, 115, 0, 0.95), rgba(255, 215, 0, 0.95), rgba(120, 85, 0, 0.95)) !important;
+            filter: brightness(1.25);
+            transition: all 0.2s ease-in-out;
+            cursor: var(--hover-wow-gif) 16 16, auto;
+        }
+
+        /* 2nd Place - Silver */
+        .rank-2 {
+            background: linear-gradient(to right, rgba(60, 65, 75, 0.9), rgba(160, 170, 185, 0.8), rgba(40, 45, 55, 0.9)) !important;
+        }
+        .rank-2:hover {
+            background: linear-gradient(to right, rgba(90, 100, 115, 0.95), rgba(200, 210, 225, 0.9), rgba(70, 75, 85, 0.95)) !important;
+            filter: brightness(1.2);
+            transition: all 0.2s ease-in-out;
+            cursor: var(--hover-wow-gif) 16 16, auto;
+        }
+
+        /* 3rd Place - Bronze */
+        .rank-3 {
+            background: linear-gradient(to right, rgba(90, 45, 15, 0.9), rgba(180, 100, 50, 0.8), rgba(60, 30, 10, 0.9)) !important;
+        }
+        .rank-3:hover {
+            background: linear-gradient(to right, rgba(120, 60, 20, 0.95), rgba(210, 120, 60, 0.9), rgba(90, 40, 15, 0.95)) !important;
+            filter: brightness(1.2);
+            transition: all 0.2s ease-in-out;
+            cursor: var(--hover-wow-gif) 16 16, auto;
+        }
         
-        /* Top 5 rows */
+        /* Top 4 and Top 5 rows */
         .top5 {
             background: linear-gradient(to right, rgba(22, 22, 22, 0.9), rgba(4, 58, 158, 0.9)) !important;
         }
@@ -166,6 +199,7 @@ function classIcon($class) {
             background: linear-gradient(to right, rgba(88, 7, 219, 0.9), rgba(6, 9, 199, 0.8)) !important;
             filter: brightness(1.2);
             transition: filter 0.2s ease-in-out;
+            cursor: var(--hover-wow-gif) 16 16, auto;
         }
         
         /* Regular row hover */
@@ -271,7 +305,19 @@ function classIcon($class) {
                             $rank = 1;
                             $playerCount = count($players);
                             foreach ($players as $p) {
-                                $rowClass = ($rank <= 5 && $playerCount >= 5) ? 'top5' : 'player-row';
+                                // Dynamic row styling based on rank
+                                if ($rank === 1) {
+                                    $rowClass = 'rank-1';
+                                } elseif ($rank === 2) {
+                                    $rowClass = 'rank-2';
+                                } elseif ($rank === 3) {
+                                    $rowClass = 'rank-3';
+                                } elseif ($rank <= 5 && $playerCount >= 5) {
+                                    $rowClass = 'top5';
+                                } else {
+                                    $rowClass = 'player-row';
+                                }
+
                                 echo "<tr class='{$rowClass} transition-all duration-200 border-b border-gray-700/50 last:border-0' onclick=\"window.location='{$base_path}character?guid={$p['guid']}';\">
                                     <td class='py-3.5 px-4 md:px-6 font-bold text-amber-400'>{$rank}</td>
                                     <td class='py-3.5 px-4 md:px-6 text-left'>

@@ -26,20 +26,20 @@ $search_error = '';
 if (isset($_GET['search'])) {
     $search = trim($_GET['search']);
 
-    // Remove SQL wildcards
-    $search = str_replace(['%', '_'], '', $search);
-
-    // Limit length
-    $search = substr($search, 0, 16);
+    // Limit length safely using multi-byte substr
+    $search = mb_substr($search, 0, 16);
 
     // Minimum length check
-    if (strlen($search) > 0 && strlen($search) < 2) {
+    if (mb_strlen($search) > 0 && mb_strlen($search) < 2) {
         $search_error = translate('arena_3v3_search_min', 'Please enter at least 2 characters.');
         $search = '';
     }
 }
 
 if ($search !== '') {
+    // Properly escape SQL LIKE special characters (\, %, _)
+    $escaped_search = addcslashes($search, '%_\\');
+
     // Search 3v3 arena teams by team name
     $sql = "
     SELECT 
@@ -57,13 +57,13 @@ if ($search !== '') {
     JOIN characters c ON atm.guid = c.guid
     WHERE at.type = 3
     AND atm.guid = at.captainGuid
-    AND LOWER(at.name) LIKE LOWER(?)
+    AND at.name LIKE ? ESCAPE '\\'
     ORDER BY at.rating DESC
     LIMIT 50
     ";
 
     $stmt = $char_db->prepare($sql);
-    $like = '%' . $search . '%';
+    $like = '%' . $escaped_search . '%';
     $stmt->bind_param('s', $like);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -93,8 +93,10 @@ if ($search !== '') {
 }
 
 $teams = [];
-while ($row = $result->fetch_assoc()) {
-    $teams[] = $row;
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $teams[] = $row;
+    }
 }
 ?>
 
@@ -146,8 +148,41 @@ while ($row = $result->fetch_assoc()) {
             background: #ffcc00;
             border-radius: 4px;
         }
+
+        /* 1st Place - Gold */
+        .rank-1 {
+            background: linear-gradient(to right, rgba(120, 85, 0, 0.9), rgba(212, 175, 55, 0.85), rgba(80, 55, 0, 0.9)) !important;
+        }
+        .rank-1:hover {
+            background: linear-gradient(to right, rgba(160, 115, 0, 0.95), rgba(255, 215, 0, 0.95), rgba(120, 85, 0, 0.95)) !important;
+            filter: brightness(1.25);
+            transition: all 0.2s ease-in-out;
+            cursor: var(--hover-wow-gif) 16 16, auto;
+        }
+
+        /* 2nd Place - Silver */
+        .rank-2 {
+            background: linear-gradient(to right, rgba(60, 65, 75, 0.9), rgba(160, 170, 185, 0.8), rgba(40, 45, 55, 0.9)) !important;
+        }
+        .rank-2:hover {
+            background: linear-gradient(to right, rgba(90, 100, 115, 0.95), rgba(200, 210, 225, 0.9), rgba(70, 75, 85, 0.95)) !important;
+            filter: brightness(1.2);
+            transition: all 0.2s ease-in-out;
+            cursor: var(--hover-wow-gif) 16 16, auto;
+        }
+
+        /* 3rd Place - Bronze */
+        .rank-3 {
+            background: linear-gradient(to right, rgba(90, 45, 15, 0.9), rgba(180, 100, 50, 0.8), rgba(60, 30, 10, 0.9)) !important;
+        }
+        .rank-3:hover {
+            background: linear-gradient(to right, rgba(120, 60, 20, 0.95), rgba(210, 120, 60, 0.9), rgba(90, 40, 15, 0.95)) !important;
+            filter: brightness(1.2);
+            transition: all 0.2s ease-in-out;
+            cursor: var(--hover-wow-gif) 16 16, auto;
+        }
         
-        /* Top 5 teams styling */
+        /* Top 4 and Top 5 teams styling */
         .top5 {
             background: linear-gradient(to right, rgba(22, 22, 22, 0.9), rgba(153, 27, 27, 0.85)) !important;
         }
@@ -191,7 +226,7 @@ while ($row = $result->fetch_assoc()) {
 </head>
 <body>
 <div class="arena-content min-h-screen flex items-start justify-center px-4 md:px-8 py-8">
-    <!-- Updated container width to max-w-7xl -->
+    <!-- Container updated to max-w-7xl -->
     <div class="container mx-auto max-w-7xl px-2 sm:px-4">
         
         <!-- Main Container - Transparent Glass Effect -->
@@ -263,9 +298,21 @@ while ($row = $result->fetch_assoc()) {
                             $rank = 1;
                             $teamCount = count($teams);
                             foreach ($teams as $team) {
-                                $rowClass = ($rank <= 5 && $teamCount >= 5) ? 'top5' : 'team-row';
+                                // Dynamic row styling based on rank
+                                if ($rank === 1) {
+                                    $rowClass = 'rank-1';
+                                } elseif ($rank === 2) {
+                                    $rowClass = 'rank-2';
+                                } elseif ($rank === 3) {
+                                    $rowClass = 'rank-3';
+                                } elseif ($rank <= 5 && $teamCount >= 5) {
+                                    $rowClass = 'top5';
+                                } else {
+                                    $rowClass = 'team-row';
+                                }
+
                                 $faction = getFaction($team['race']);
-                                $teamUrl = $base_path . "armory/arenateam?arenaTeamId=" . $team['arenaTeamId'];
+                                $teamUrl = $base_path . "armory/arenateam?arenaTeamId=" . (int)$team['arenaTeamId'];
 
                                 echo "<tr class='{$rowClass} transition-all duration-200 border-b border-gray-700/50 last:border-0' onclick=\"window.location='{$teamUrl}';\">
                                     <td class='py-3.5 px-4 md:px-6 font-bold text-amber-400'>{$rank}</td>
@@ -277,10 +324,10 @@ while ($row = $result->fetch_assoc()) {
                                     <td class='py-3.5 px-4 md:px-6'>
                                         <img src='" . factionIconByName($faction) . "' alt='{$faction}' title='{$faction}' class='inline-block w-6 h-6 rounded-full shadow-md'>
                                     </td>
-                                    <td class='py-3.5 px-4 md:px-6 text-emerald-400 font-semibold'>{$team['seasonWins']}</td>
-                                    <td class='py-3.5 px-4 md:px-6 text-rose-400 font-semibold'>{$team['seasonLosses']}</td>
-                                    <td class='py-3.5 px-4 md:px-6 font-bold text-amber-300'>{$team['winrate']}%</td>
-                                    <td class='py-3.5 px-4 md:px-6 font-extrabold text-amber-400 text-base md:text-lg'>{$team['rating']}</td>
+                                    <td class='py-3.5 px-4 md:px-6 text-emerald-400 font-semibold'>" . (int)$team['seasonWins'] . "</td>
+                                    <td class='py-3.5 px-4 md:px-6 text-rose-400 font-semibold'>" . (int)$team['seasonLosses'] . "</td>
+                                    <td class='py-3.5 px-4 md:px-6 font-bold text-amber-300'>" . htmlspecialchars($team['winrate']) . "%</td>
+                                    <td class='py-3.5 px-4 md:px-6 font-extrabold text-amber-400 text-base md:text-lg'>" . (int)$team['rating'] . "</td>
                                 </tr>";
                                 $rank++;
                             }
