@@ -12,7 +12,7 @@ return [
     'error_404_message' => 'The news article you are looking for does not exist.',
 
     // UI elements
-    'back_to_news' => '← Back to News',
+    'back_to_news' => 'Back to News',
     'no_news' => 'No news available at this time.',
     'posted_by' => 'Posted by %s',
 

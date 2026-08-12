@@ -11,7 +11,7 @@ return [
     'error_404_message' => 'O artigo de notícia que você procura não existe.',
 
     // Elementos da interface
-    'back_to_news' => '← Voltar para Notícias',
+    'back_to_news' => 'Voltar para Notícias',
     'no_news' => 'Nenhuma notícia disponível no momento.',
     'posted_by' => 'Publicado por %s',
 

@@ -12,7 +12,7 @@ return [
     'error_404_message' => '您正在查找的新闻文章不存在。',
 
     // UI elements
-    'back_to_news' => '← 返回新闻列表',
+    'back_to_news' => '返回新闻列表',
     'no_news' => '目前没有任何新闻公告。',
     'posted_by' => '发布者：%s',
 

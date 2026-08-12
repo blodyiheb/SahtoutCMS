@@ -464,6 +464,9 @@
   .ml-1 {
     margin-left: var(--spacing);
   }
+  .ml-2 {
+    margin-left: calc(var(--spacing) * 2);
+  }
   .ml-4 {
     margin-left: calc(var(--spacing) * 4);
   }

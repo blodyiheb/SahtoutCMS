@@ -12,7 +12,7 @@ return [
     'error_404_message' => 'Der gesuchte Nachrichtenartikel existiert nicht.',
 
     // UI elements
-    'back_to_news' => '← Zurück zu Neuigkeiten',
+    'back_to_news' => 'Zurück zu Neuigkeiten',
     'no_news' => 'Derzeit sind keine Neuigkeiten verfügbar.',
     'posted_by' => 'Veröffentlicht von %s',
 
