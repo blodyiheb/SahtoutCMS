@@ -107,46 +107,185 @@ function sendActivationEmail($username, $email, $token) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content="<?php echo translate('meta_description', 'Resend the activation email for your World of Warcraft server account.'); ?>">
     <title><?php echo $site_title_name ." ". translate('page_title', 'Resend Activation Email'); ?></title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
     <style>
-        :root{
-            --bg-resend-act:url('<?php echo $base_path; ?>img/backgrounds/bg-register.jpg');
+        /* Page background - Show full background image */
+        body {
+            background: url('<?php echo $base_path; ?>img/backgrounds/bg-register.jpg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            padding-top: 112px;
+            margin: 0;
+            position: relative;
+        }
+        
+        body::before {
+            display: none;
+        }
+        
+        /* Main content wrapper */
+        .resend-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Glass effect container - Same as login/register */
+        .glass-container {
+            background: rgba(5, 7, 11, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(201,162,39,.22);
+            border-radius: 0;
+            padding: 2.5rem 2.5rem;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.8), inset 0 0 60px rgba(0,0,0,.25);
+            position: relative;
+            max-width: 450px;
+            width: 100%;
+        }
+        
+        .glass-container::before {
+            content: ''; position: absolute; inset: 5px;
+            border: 1px solid rgba(201,162,39,.14);
+            pointer-events: none;
+        }
+        
+        .glass-container::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background:
+                linear-gradient(#e8c552,#e8c552) left top / 18px 2px,
+                linear-gradient(#e8c552,#e8c552) left top / 2px 18px,
+                linear-gradient(#e8c552,#e8c552) right top / 18px 2px,
+                linear-gradient(#e8c552,#e8c552) right top / 2px 18px,
+                linear-gradient(#e8c552,#e8c552) left bottom / 18px 2px,
+                linear-gradient(#e8c552,#e8c552) left bottom / 2px 18px,
+                linear-gradient(#e8c552,#e8c552) right bottom / 18px 2px,
+                linear-gradient(#e8c552,#e8c552) right bottom / 2px 18px;
+            background-repeat: no-repeat;
+        }
+        
+        /* Wow title gradient - Same as login */
+        .wow-title {
+            font-family: 'Cinzel', serif;
+            font-weight: 900;
+            background: linear-gradient(180deg, #fff7d6 0%, #f2cf5b 35%, #c9a227 62%, #8a6a14 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,.9));
+            letter-spacing: .02em;
+        }
+        
+        /* Input fields - Same as login */
+        .input-resend {
+            background: rgba(20, 30, 50, 0.7) !important;
+            border: 2px solid rgba(201,162,39,0.4) !important;
+            color: #ffffff !important;
+            transition: all 0.3s ease;
+        }
+        
+        .input-resend:focus {
+            border-color: #f2cf5b !important;
+            box-shadow: 0 0 25px rgba(242,207,82,0.2) !important;
+            outline: none;
+            background: rgba(20, 30, 50, 0.85) !important;
+        }
+        
+        .input-resend::placeholder {
+            color: #9ca3af !important;
+        }
+        
+        /* Responsive - Essential */
+        @media (max-width: 767px) {
+            body {
+                padding-top: 96px;
+            }
+            
+            .glass-container {
+                max-width: 100%;
+                margin: 0 0.5rem;
+            }
         }
     </style>
 </head>
-<body class="resend_activation">
-    <div class="wrapper">
-        <div class="form-container">
-            <div class="form-section">
-                <h2><?php echo translate('resend_title', 'Resend Activation Email'); ?></h2>
-                <?php if (!empty($errors)): ?>
-                    <div class="error">
-                        <?php foreach ($errors as $error): ?>
-                            <p><?php echo htmlspecialchars($error); ?></p>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-                <?php if ($success): ?>
-                    <div class="success">
-                        <p><?php echo htmlspecialchars($success); ?></p>
-                    </div>
-                <?php endif; ?>
-                <form method="POST">
-                    <input type="text" name="username" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required value="<?php echo htmlspecialchars($test_username); ?>">
-                    <input type="email" name="email" placeholder="<?php echo translate('email_placeholder', 'Email'); ?>" required value="<?php echo htmlspecialchars($test_email); ?>">
-                    <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>
-                        <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
-                    <?php endif; ?>
-                    <button type="submit"><?php echo translate('resend_button', 'Resend Activation Email'); ?></button>
-                    <div class="login-link">
-                        <?php echo translate('login_link', 'Already activated?'); ?> <?php echo sprintf(translate('login_link_text', '<a href="%s">Log in here</a>'), htmlspecialchars($base_path . 'login')); ?>
-                    </div>
-                </form>
+<body>
+<div class="resend-content relative z-10 min-h-screen flex items-center justify-center px-4 py-8">
+    <div class="container mx-auto max-w-7xl px-2 sm:px-4 flex items-center justify-center">
+        
+        <!-- Main Container -->
+        <div class="glass-container p-6 md:p-10">
+            
+            <!-- Icon -->
+            <div class="text-center mb-4">
+                <div class="w-20 h-20 mx-auto bg-[rgba(242,207,82,0.15)] border-2 border-[rgba(201,162,39,0.4)] flex items-center justify-center">
+                    <i class="fas fa-envelope text-4xl text-[#f2cf5b]"></i>
+                </div>
             </div>
+            
+            <!-- Title -->
+            <h1 class="wow-title text-3xl md:text-5xl font-bold text-center mb-6">
+                <?php echo translate('resend_title', 'Resend Activation Email'); ?>
+            </h1>
+
+            <!-- Errors -->
+            <?php if (!empty($errors)): ?>
+                <div class="bg-red-900/40 border border-red-600/40 text-red-200 px-4 py-3 mb-4 text-center text-sm">
+                    <?php foreach ($errors as $error): ?>
+                        <p><i class="fas fa-exclamation-circle mr-2"></i><?php echo htmlspecialchars($error); ?></p>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Success -->
+            <?php if ($success): ?>
+                <div class="bg-green-900/40 border border-green-600/40 text-green-200 px-4 py-3 mb-4 text-center text-sm">
+                    <p><i class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($success); ?></p>
+                </div>
+            <?php endif; ?>
+
+            <!-- Form -->
+            <form method="POST" class="space-y-4">
+                <div class="relative">
+                    <i class="fas fa-user text-[rgba(242,207,82,0.5)] absolute top-3.5 left-3 text-sm"></i>
+                    <input type="text" name="username" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required value="<?php echo htmlspecialchars($test_username); ?>" class="input-resend w-full pl-10 pr-4 py-3 text-base">
+                </div>
+                
+                <div class="relative">
+                    <i class="fas fa-envelope text-[rgba(242,207,82,0.5)] absolute top-3.5 left-3 text-sm"></i>
+                    <input type="email" name="email" placeholder="<?php echo translate('email_placeholder', 'Email'); ?>" required value="<?php echo htmlspecialchars($test_email); ?>" class="input-resend w-full pl-10 pr-4 py-3 text-base">
+                </div>
+
+                <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>
+                    <div class="flex justify-center py-2">
+                        <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
+                    </div>
+                <?php endif; ?>
+                
+                <!-- Resend Button - Gold (same as login/register) -->
+                <button type="submit" class="w-full py-3 text-lg font-bold uppercase tracking-wider bg-gradient-to-r from-[#f2cf5b] via-[#f6d478] to-[#c9a227] hover:from-[#f6d478] hover:via-[#f2cf5b] hover:to-[#d4b040] text-white border-2 border-[#f2cf5b] hover:border-[#f6d478] transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(242,207,82,0.4)] rounded-md">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    <?php echo translate('resend_button', 'Resend Activation Email'); ?>
+                </button>
+                
+                <!-- Login Link -->
+                <div class="text-center pt-2 text-gray-300 text-sm">
+                    <?php echo translate('login_link', 'Already activated?'); ?>
+                    <a href="<?php echo htmlspecialchars($base_path . 'login'); ?>" class="text-[#f2cf5b] font-bold hover:text-yellow-300 hover:underline transition-colors">
+                        <?php echo translate('login_link_text_simple', 'Log in here'); ?>
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
-    <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>
-        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <?php endif; ?>
-    <?php include_once $project_root . 'includes/footer.php'; ?>
+</div>
+
+<?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<?php endif; ?>
+<?php include_once $project_root . 'includes/footer.php'; ?>
 </body>
 </html>
