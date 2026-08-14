@@ -67,8 +67,8 @@ return [
     'status_offline' => '🔴 离线',
     'players_online' => '👥 在线人数: %d',
     'players_online_none' => '👥 在线人数: 0',
-    'uptime' => '⏱️ 运行时间: %s',
-    'uptime_none' => '⏱️ 运行时间: 未知',
+    'uptime' => '运行时间: %s',
+    'uptime_none' => '运行时间: 未知',
     'uptime_format' => '%d 天 %s, %d 小时 %s, %d 分钟 %s', // Adjusted for Chinese grammar
     'uptime_days' => '天',
     'uptime_hours' => '小时',

@@ -2,6 +2,7 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
 // Include paths.php to access $project_root and $base_path
 require_once __DIR__ . '/paths.php';
 
@@ -12,21 +13,18 @@ if (!defined('ALLOWED_ACCESS')) {
 
 // Use $project_root for including config.settings.php
 require_once $project_root . 'includes/config.settings.php'; // load logo + socials
+
 // Include language detection
 require_once $project_root . 'languages/language.php';
 
 // Check if session is started; warn in source code if not
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    // phpcs:disable
     echo "<!-- WARNING: Session not started. Ensure session_start() is called in the parent script. -->\n";
-    // phpcs:enable
 }
 
 // Debug: Check if session variable is set (visible in source code only)
 if (!isset($_SESSION['user_id'])) {
-    // phpcs:disable
     echo "<!-- DEBUG: No user session detected. Ensure login script sets \$_SESSION['user_id']. -->\n";
-    // phpcs:enable
 }
 
 // Ensure $page_class is defined in the including page; default to 'default'
@@ -40,16 +38,11 @@ $currentUrl = rtrim($currentUrl, '/');
 function getLanguageUrl($lang) {
     global $currentUrl;
 
-    // Get current query parameters (excluding the path)
-    $query = $_GET; // This contains all current GET parameters
-
-    // Update or add the 'lang' parameter
+    $query = $_GET;
     $query['lang'] = $lang;
 
-    // Build the new query string
     $queryString = http_build_query($query);
 
-    // Return full URL with updated query
     return $currentUrl . '?' . $queryString;
 }
 
@@ -60,57 +53,66 @@ $email = 'user@example.com';
 $avatar = $base_path . 'img/accountimg/profile_pics/user.jpg'; // Default avatar
 $gmlevel = 0;
 $role = 'player';
+
 if (isset($_SESSION['user_id'])) {
     // Check if avatar is stored in session
     if (isset($_SESSION['avatar'])) {
         $avatar_filename = $_SESSION['avatar'] !== '' ? $_SESSION['avatar'] : 'user.jpg';
         $avatar = $base_path . 'img/accountimg/profile_pics/' . $avatar_filename;
     }
-    
+
     // Query site_db for points, tokens, avatar, and role
     $stmt_site = $site_db->prepare("
         SELECT points, tokens, avatar, role 
         FROM user_currencies 
         WHERE account_id = ?
     ");
+
     // Query auth_db for email
     $stmt_auth = $auth_db->prepare("
         SELECT email 
         FROM account 
         WHERE id = ?
     ");
-    
+
     if ($stmt_site && $stmt_auth) {
         // Bind and execute site_db query
         $stmt_site->bind_param('i', $_SESSION['user_id']);
         $stmt_site->execute();
         $result_site = $stmt_site->get_result();
-        
+
         // Bind and execute auth_db query
         $stmt_auth->bind_param('i', $_SESSION['user_id']);
         $stmt_auth->execute();
         $result_auth = $stmt_auth->get_result();
-        
+
         if ($result_site && $result_site->num_rows > 0 && $result_auth && $result_auth->num_rows > 0) {
             $row_site = $result_site->fetch_assoc();
             $row_auth = $result_auth->fetch_assoc();
-            
+
             $points = (int)$row_site['points'];
             $tokens = (int)$row_site['tokens'];
             $email = htmlspecialchars($row_auth['email'] ?? 'user@example.com', ENT_QUOTES, 'UTF-8');
             $role = $row_site['role'] ?? 'player';
-            
+
             // Check if avatar is valid in profile_avatars
             if (!empty($row_site['avatar'])) {
-                $stmt_check = $site_db->prepare("SELECT filename FROM profile_avatars WHERE filename = ? AND active = 1");
+                $stmt_check = $site_db->prepare("
+                    SELECT filename 
+                    FROM profile_avatars 
+                    WHERE filename = ? AND active = 1
+                ");
+
                 $stmt_check->bind_param('s', $row_site['avatar']);
                 $stmt_check->execute();
                 $check_result = $stmt_check->get_result();
+
                 if ($check_result->num_rows > 0) {
                     $avatar = $base_path . 'img/accountimg/profile_pics/' . htmlspecialchars($row_site['avatar'], ENT_QUOTES, 'UTF-8');
                 } else {
                     $avatar = $base_path . 'img/accountimg/profile_pics/user.jpg';
                 }
+
                 $stmt_check->close();
             } else {
                 $avatar = $base_path . 'img/accountimg/profile_pics/user.jpg';
@@ -118,6 +120,7 @@ if (isset($_SESSION['user_id'])) {
         } else {
             error_log("No user data found for user_id: {$_SESSION['user_id']} in user_currencies or account tables.");
         }
+
         $stmt_site->close();
         $stmt_auth->close();
     } else {
@@ -126,14 +129,17 @@ if (isset($_SESSION['user_id'])) {
 
     // Fetch GM level
     $stmt = $auth_db->prepare("SELECT gmlevel FROM account_access WHERE id = ?");
+
     if ($stmt) {
         $stmt->bind_param('i', $_SESSION['user_id']);
         $stmt->execute();
         $result = $stmt->get_result();
+
         if ($result->num_rows > 0) {
             $gmData = $result->fetch_assoc();
             $gmlevel = (int)$gmData['gmlevel'];
         }
+
         $stmt->close();
     } else {
         error_log("Failed to prepare statement for fetching gmlevel in header.");
@@ -142,6 +148,7 @@ if (isset($_SESSION['user_id'])) {
 
 // Get current language and flag
 $current_lang = $_SESSION['lang'] ?? 'en';
+
 $languages = [
     'en' => [
         'name' => 'English',
@@ -180,250 +187,505 @@ $languages = [
     ],
 ];
 
-$current_lang_name = $languages[$current_lang]['name'];
-$current_lang_code = $current_lang;
-
 // Fallback flag image if not found
 $fallback_flag_url = $base_path . 'languages/flags/world.png';
 $fallback_flag_path = $project_root . 'languages/flags/world.png';
+
 foreach ($languages as $code => &$lang_data) {
-    // Check if the flag file exists on the filesystem
     if (!file_exists($lang_data['flag_path'])) {
         error_log("Flag image not found: {$lang_data['flag_path']}. Using fallback: {$fallback_flag_url}");
         $lang_data['flag_url'] = $fallback_flag_url;
         $lang_data['flag_path'] = $fallback_flag_path;
     }
 }
+unset($lang_data);
+
+// Safety fallback if language is invalid
+if (!isset($languages[$current_lang])) {
+    $current_lang = 'en';
+}
+
+$current_lang_name = $languages[$current_lang]['name'];
+$current_lang_code = $current_lang;
 $current_lang_flag = $languages[$current_lang]['flag_url'];
 
 // Check if on auth page for transparent header
 $is_auth_page = in_array($page_class, ['login', 'register']);
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $current_lang; ?>">
+<html lang="<?php echo htmlspecialchars($current_lang_code, ENT_QUOTES, 'UTF-8'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="<?php echo $base_path; ?>">
+
     <?php if ($page_class === "how_to_play"): ?>
-        <title><?php echo $site_title_name . translate('how_to_play_title', 'How to Play');?> </title> 
+        <title><?php echo $site_title_name . translate('how_to_play_title', 'How to Play'); ?></title>
     <?php endif; ?>
+
     <link rel="icon" href="<?php echo $base_path . $site_logo; ?>" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<style>
-    /* ONLY what Tailwind CANNOT do */
-    :root {
-        --point-wow-gif: url('<?php echo $base_path; ?>img/pointer_wow.gif');
-        --hover-wow-gif: url('<?php echo $base_path; ?>img/hover_wow.gif');
-    }
-    
-    body {
-        cursor: var(--point-wow-gif) 16 16, auto;
-        padding-top: 112px;
-    }
-    
-    /* Transparent header for auth pages */
-    header.transparent-header {
-        background: rgba(0, 0, 0, 0.33) !important;
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
-    }
-    
-    /* Nav toggle - hamburger icon (Tailwind can't do pseudo-elements easily) */
-    .hamburger {
-        display: block;
-        width: 25px;
-        height: 3px;
-        background: #ffd700;
-        position: relative;
-        transition: all 0.3s ease;
-    }
-    .hamburger::before,
-    .hamburger::after {
-        content: '';
-        position: absolute;
-        width: 25px;
-        height: 3px;
-        background: #ffd700;
-        left: 0;
-        transition: all 0.3s ease;
-    }
-    .hamburger::before {
-        top: -8px;
-    }
-    .hamburger::after {
-        top: 8px;
-    }
-    
-    /* Mobile nav open state */
-    @media (max-width: 768px) {
-        header nav {
-            display: none;
-        }
-        header nav.nav-open {
-            display: flex !important;
-        }
-        body {
-            padding-top: 96px;
-        }
-        .nav-toggle {
-            display: block !important;
-        }
-        .nav-close {
-            display: block !important;
-        }
-    }
-    
-    @media (min-width: 769px) {
-        .nav-close {
-            display: none !important;
-        }
-    }
-</style>
-
-<body class="<?php echo $page_class; ?>">
-    <header class="fixed top-0 left-0 right-0 z-[1000] flex items-center justify-between px-4 md:px-8 py-4 border-b-3 border-[#1b9bf0] shadow-[0_4px_15px_rgba(0,0,50,0.5)] <?php echo $is_auth_page ? 'transparent-header' : 'bg-black/30'; ?>">
-        <!-- Logo -->
-        <a href="<?php echo $base_path; ?>" class="transition-transform duration-300 hover:scale-105 hover:drop-shadow-[0_0_8px_rgba(52,152,219,0.7)]">
-            <img src="<?php echo $base_path . $site_logo; ?>" alt="Sahtout Server Logo" class="h-20 align-middle">
-        </a>
-
-        <!-- Nav Toggle Button (Mobile) -->
-        <button class="nav-toggle hidden md:hidden bg-transparent border-none cursor-pointer p-2 z-[1002]" aria-label="Toggle navigation">
-            <span class="hamburger"></span>
-        </button>
-
-        <!-- Navigation -->
-        <nav class="flex items-center gap-2 flex-wrap max-md:flex-col max-md:w-full max-md:absolute max-md:top-full max-md:left-0 max-md:p-4 max-md:bg-gradient-to-br max-md:from-[rgba(10,10,10,0.8)] max-md:to-[rgba(26,10,10,0.8)] max-md:shadow-[0_4px_15px_rgba(52,152,219,0.5)] max-md:border-b-3 max-md:border-[#1b9bf0] <?php echo empty($_SESSION['user_id']) ? 'max-md:mx-auto' : ''; ?>">
-            <!-- Close Button (Mobile) -->
-            <button class="nav-close hidden max-md:block bg-[#e74c3c] border-none text-white text-xl p-2 rounded-full cursor-pointer transition-all duration-300 hover:bg-[#c0392b] hover:scale-110 hover:shadow-[0_2px_8px_rgba(231,76,60,0.5)]" aria-label="Close navigation">✖</button>
-            
-            <a href="<?php echo $base_path; ?>" class="font-['UnifrakturCook',sans-serif] text-white text-base font-bold px-3 py-1.5 rounded border border-[#1b9bf0] bg-gradient-to-br from-[rgba(27,155,240,0.85)] to-[rgba(25,158,185,0.75)] shadow-[0_2px_5px_rgba(0,0,0,0.3)] transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_12px_rgba(52,152,219,0.6)] hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.85)] max-md:w-4/5 max-md:text-center max-md:my-2 max-md:px-4 max-md:py-2">
-                <?php echo translate('nav_home', 'Home'); ?>
-            </a>
-            <a href="<?php echo $base_path; ?>how_to_play" class="font-['UnifrakturCook',sans-serif] text-white text-base font-bold px-3 py-1.5 rounded border border-[#1b9bf0] bg-gradient-to-br from-[rgba(27,155,240,0.85)] to-[rgba(25,158,185,0.75)] shadow-[0_2px_5px_rgba(0,0,0,0.3)] transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_12px_rgba(52,152,219,0.6)] hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.85)] max-md:w-4/5 max-md:text-center max-md:my-2 max-md:px-4 max-md:py-2">
-                <?php echo translate('nav_how_to_play', 'How to Play'); ?>
-            </a>
-            <a href="<?php echo $base_path; ?>news" class="font-['UnifrakturCook',sans-serif] text-white text-base font-bold px-3 py-1.5 rounded border border-[#1b9bf0] bg-gradient-to-br from-[rgba(27,155,240,0.85)] to-[rgba(25,158,185,0.75)] shadow-[0_2px_5px_rgba(0,0,0,0.3)] transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_12px_rgba(52,152,219,0.6)] hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.85)] max-md:w-4/5 max-md:text-center max-md:my-2 max-md:px-4 max-md:py-2">
-                <?php echo translate('nav_news', 'News'); ?>
-            </a>
-            <a href="<?php echo $base_path; ?>armory/solo_pvp" class="font-['UnifrakturCook',sans-serif] text-white text-base font-bold px-3 py-1.5 rounded border border-[#1b9bf0] bg-gradient-to-br from-[rgba(27,155,240,0.85)] to-[rgba(25,158,185,0.75)] shadow-[0_2px_5px_rgba(0,0,0,0.3)] transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_12px_rgba(52,152,219,0.6)] hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.85)] max-md:w-4/5 max-md:text-center max-md:my-2 max-md:px-4 max-md:py-2">
-                <?php echo translate('nav_armory', 'Armory'); ?>
-            </a>
-            <a href="<?php echo $base_path; ?>shop" class="font-['UnifrakturCook',sans-serif] text-white text-base font-bold px-3 py-1.5 rounded border border-[#1b9bf0] bg-gradient-to-br from-[rgba(27,155,240,0.85)] to-[rgba(25,158,185,0.75)] shadow-[0_2px_5px_rgba(0,0,0,0.3)] transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_12px_rgba(52,152,219,0.6)] hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.85)] max-md:w-4/5 max-md:text-center max-md:my-2 max-md:px-4 max-md:py-2">
-                <?php echo translate('nav_shop', 'Shop'); ?>
-            </a>
-            <?php if (empty($_SESSION['user_id'])): ?>
-                <a href="<?php echo $base_path; ?>register" class="register font-['UnifrakturCook',sans-serif] text-white text-base font-bold px-3 py-1.5 rounded border border-[#1b9bf0] bg-gradient-to-br from-[rgba(27,155,240,0.85)] to-[rgba(25,158,185,0.75)] shadow-[0_2px_5px_rgba(0,0,0,0.3)] transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_12px_rgba(52,152,219,0.6)] hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.85)] max-md:w-4/5 max-md:text-center max-md:my-2 max-md:px-4 max-md:py-2 max-md:mr-0">
-                    <?php echo translate('nav_register', 'Register'); ?>
-                </a>
-                <a href="<?php echo $base_path; ?>login" class="login font-['UnifrakturCook',sans-serif] text-white text-base font-bold px-3 py-1.5 rounded border border-[#1b9bf0] bg-gradient-to-br from-[rgba(27,155,240,0.85)] to-[rgba(25,158,185,0.75)] shadow-[0_2px_5px_rgba(0,0,0,0.3)] transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_12px_rgba(52,152,219,0.6)] hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.85)] max-md:w-4/5 max-md:text-center max-md:my-2 max-md:px-4 max-md:py-2 max-md:mr-0">
-                    <?php echo translate('nav_login', 'Login'); ?>
-                </a>
-            <?php else: ?>
-                <a href="<?php echo $base_path; ?>account" class="font-['UnifrakturCook',sans-serif] text-white text-base font-bold px-3 py-1.5 rounded border border-[#1b9bf0] bg-gradient-to-br from-[rgba(27,155,240,0.85)] to-[rgba(25,158,185,0.75)] shadow-[0_2px_5px_rgba(0,0,0,0.3)] transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_12px_rgba(52,152,219,0.6)] hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.85)] max-md:w-4/5 max-md:text-center max-md:my-2 max-md:px-4 max-md:py-2">
-                    <?php echo translate('nav_account', 'Account'); ?>
-                </a>
-            <?php endif; ?>
-        </nav>
-
-        <!-- User Profile (Logged In) -->
-        <?php if (!empty($_SESSION['user_id'])): ?>
-            <div class="user-profile flex items-center gap-4 ml-4 relative">
-                <div class="profile-info flex flex-col items-end max-md:hidden">
-                    <div class="user-currency flex gap-2 px-3 py-1 rounded shadow-[0_2px_6px_rgba(52,152,219,0.4)] text-sm">
-                        <span class="points inline-flex items-center gap-1.5 px-2 py-1 rounded text-sm font-semibold bg-gradient-to-br from-[#1b9bf0] to-[#199fb9] text-[#ffee00] border border-[#1b9bf0] transition-all duration-300 hover:translate-y-[-1px] hover:shadow-[0_2px_6px_rgba(52,152,219,0.5)]">
-                            <i class="fas fa-coins"></i> <?php echo $points; ?>
-                        </span>
-                        <span class="tokens inline-flex items-center gap-1.5 px-2 py-1 rounded text-sm font-semibold bg-gradient-to-br from-[#9b59b6] to-[#8e44ad] text-white border border-[#1b9bf0] transition-all duration-300 hover:translate-y-[-1px] hover:shadow-[0_2px_6px_rgba(155,89,182,0.5)]">
-                            <i class="fas fa-gem"></i> <?php echo $tokens; ?>
-                        </span>
-                    </div>
-                </div>
-                <div class="profile-dropdown relative inline-block">
-                    <img src="<?php echo $avatar; ?>" alt="User Profile" class="user-image w-15 h-15 rounded-full border-2 border-[#1b9bf0] shadow-[0_2px_5px_rgba(52,152,219,0.5)] object-cover cursor-pointer transition-all duration-300 hover:scale-110 hover:shadow-[0_4px_10px_rgba(52,152,219,0.6)] max-md:mr-[-20px]" id="profileToggle">
-                    <div class="dropdown-menu absolute right-0 top-full bg-gradient-to-br from-[rgba(10,10,10,0.8)] to-[rgba(26,10,10,0.8)] border-2 border-[#1b9bf0] rounded-lg py-2 z-[1001] hidden shadow-[0_6px_15px_rgba(52,152,219,0.6)] animate-[fadeIn_0.3s_ease-in-out] min-w-[220px] max-md:right-[-50px] max-md:w-[250px]" id="dropdownMenu">
-                        <div class="dropdown-header flex items-center px-4 py-3 bg-[rgba(52,152,219,0.1)] border-b border-[#1b9bf0]">
-                            <img src="<?php echo $avatar; ?>" alt="User Profile" class="dropdown-image w-12.5 h-12.5 rounded-full border-2 border-[#1b9bf0] shadow-[0_2px_5px_rgba(52,152,219,0.5)] mr-4 max-md:w-10 max-md:h-10">
-                            <div class="user-info flex flex-col flex-1 text-white">
-                                <span class="username font-semibold text-base max-md:text-base"><?php echo htmlspecialchars($_SESSION['username'] ?? 'User', ENT_QUOTES, 'UTF-8'); ?></span>
-                                <span class="email text-sm text-gray-300 max-md:text-sm"><?php echo $email; ?></span>
-                                <div class="dropdown-currency flex flex-col gap-1 mt-2 text-sm max-md:text-sm">
-                                    <span class="points flex items-center gap-2 text-white"><i class="fas fa-coins"></i> <?php echo translate('points', 'Points'); ?>: <?php echo $points; ?></span>
-                                    <span class="tokens flex items-center gap-2 text-[#9b59b6]"><i class="fas fa-gem"></i> <?php echo translate('tokens', 'Tokens'); ?>: <?php echo $tokens; ?></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="dropdown-divider h-[1px] bg-gradient-to-r from-transparent via-[#1b9bf0] to-transparent my-2"></div>
-                        <a href="<?php echo $base_path; ?>account" class="dropdown-item flex items-center px-4 py-3 text-white no-underline text-base transition-all duration-300 hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.7)] max-md:text-sm max-md:px-3 max-md:py-2">
-                            <i class="fas fa-user-circle mr-3 w-5 text-center"></i> <?php echo translate('account_settings', 'Account Settings'); ?>
-                        </a>
-                        <?php if ($gmlevel > 0 || $role === 'admin' || $role === 'moderator'): ?>
-                            <a href="<?php echo $base_path; ?>admin/dashboard" class="dropdown-item admin-panel flex items-center px-4 py-3 text-white no-underline text-base transition-all duration-300 hover:bg-gradient-to-br hover:from-[#1b9bf0] hover:to-[#199fb9] max-md:text-sm max-md:px-3 max-md:py-2">
-                                <i class="fas fa-cogs mr-3 w-5 text-center"></i> <?php echo translate('admin_panel', 'Admin Panel'); ?>
-                            </a>
-                        <?php endif; ?>
-                        <div class="dropdown-divider h-[1px] bg-gradient-to-r from-transparent via-[#1b9bf0] to-transparent my-2"></div>
-                        <a href="<?php echo $base_path; ?>vote" class="dropdown-item vote flex items-center px-4 py-3 text-white no-underline text-base transition-all duration-300 hover:bg-gradient-to-br hover:from-[#2ecc71] hover:to-[#27ae60] max-md:text-sm max-md:px-3 max-md:py-2">
-                            <i class="fas fa-vote-yea mr-3 w-5 text-center"></i> <?php echo translate('vote', 'Vote'); ?>
-                        </a>
-                        <div class="dropdown-divider h-[1px] bg-gradient-to-r from-transparent via-[#1b9bf0] to-transparent my-2"></div>
-                        <a href="<?php echo $base_path; ?>logout" class="dropdown-item logout flex items-center px-4 py-3 text-[#ff6b6b] no-underline text-base transition-all duration-300 hover:bg-gradient-to-br hover:from-[#e74c3c] hover:to-[#c0392b] hover:text-white max-md:text-sm max-md:px-3 max-md:py-2">
-                            <i class="fas fa-sign-out-alt mr-3 w-5 text-center"></i> <?php echo translate('logout', 'Logout'); ?>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <!-- Language Dropdown -->
-        <div class="lang-dropdown relative inline-block w-[150px] font-['Cinzel',serif] max-md:absolute max-md:top-2 max-md:right-2 max-md:w-10">
-            <div class="lang-selected flex items-center gap-2 px-3 py-2 border-2 border-[#1b9bf0] rounded-lg cursor-pointer bg-gradient-to-br from-[rgba(27,155,240,0.8)] to-[rgba(25,158,185,0.6)] text-white shadow-[0_0_12px_rgba(52,152,219,0.7)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_18px_rgba(52,152,219,0.8)] max-md:p-1 max-md:justify-center" id="langSelected">
-                <img src="<?php echo $current_lang_flag; ?>" alt="<?php echo $current_lang_name; ?>" class="w-5 h-3.5 rounded max-md:w-4 max-md:h-3" id="flagIcon">
-                <span id="langLabel" class="max-md:hidden"><?php echo $current_lang_name; ?></span>
-            </div>
-            <ul class="lang-options absolute top-full right-0 w-full bg-gradient-to-br from-[rgba(10,10,10,0.8)] to-[rgba(26,10,10,0.8)] border-2 border-[#1b9bf0] rounded-lg overflow-hidden shadow-[0_0_20px_rgba(52,152,219,0.7)] list-none m-1 p-0 hidden transition-all duration-300 z-[1000] max-md:mt-3 max-md:w-[124px]" id="langOptions">
-                <li data-value="en" data-flag="<?php echo $languages['en']['flag_url']; ?>" class="flex items-center gap-2.5 px-3 py-2.5 text-white cursor-pointer transition-all duration-300 hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.7)] hover:translate-x-1 max-md:text-sm max-md:px-1.5 max-md:py-1">
-                    <img src="<?php echo $languages['en']['flag_url']; ?>" alt="English" class="w-5 h-3.5 rounded max-md:w-4 max-md:h-3 max-md:mr-1"> English
-                </li>
-                <li data-value="fr" data-flag="<?php echo $languages['fr']['flag_url']; ?>" class="flex items-center gap-2.5 px-3 py-2.5 text-white cursor-pointer transition-all duration-300 hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.7)] hover:translate-x-1 max-md:text-sm max-md:px-1.5 max-md:py-1">
-                    <img src="<?php echo $languages['fr']['flag_url']; ?>" alt="French" class="w-5 h-3.5 rounded max-md:w-4 max-md:h-3 max-md:mr-1"> French
-                </li>
-                <li data-value="es" data-flag="<?php echo $languages['es']['flag_url']; ?>" class="flex items-center gap-2.5 px-3 py-2.5 text-white cursor-pointer transition-all duration-300 hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.7)] hover:translate-x-1 max-md:text-sm max-md:px-1.5 max-md:py-1">
-                    <img src="<?php echo $languages['es']['flag_url']; ?>" alt="Spanish" class="w-5 h-3.5 rounded max-md:w-4 max-md:h-3 max-md:mr-1"> Spanish
-                </li>
-                <li data-value="de" data-flag="<?php echo $languages['de']['flag_url']; ?>" class="flex items-center gap-2.5 px-3 py-2.5 text-white cursor-pointer transition-all duration-300 hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.7)] hover:translate-x-1 max-md:text-sm max-md:px-1.5 max-md:py-1">
-                    <img src="<?php echo $languages['de']['flag_url']; ?>" alt="German" class="w-5 h-3.5 rounded max-md:w-4 max-md:h-3 max-md:mr-1"> German
-                </li>
-                <li data-value="ru" data-flag="<?php echo $languages['ru']['flag_url']; ?>" class="flex items-center gap-2.5 px-3 py-2.5 text-white cursor-pointer transition-all duration-300 hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.7)] hover:translate-x-1 max-md:text-sm max-md:px-1.5 max-md:py-1">
-                    <img src="<?php echo $languages['ru']['flag_url']; ?>" alt="Russian" class="w-5 h-3.5 rounded max-md:w-4 max-md:h-3 max-md:mr-1"> Russian
-                </li>
-                <li data-value="pt" data-flag="<?php echo $languages['pt']['flag_url']; ?>" class="flex items-center gap-2.5 px-3 py-2.5 text-white cursor-pointer transition-all duration-300 hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.7)] hover:translate-x-1 max-md:text-sm max-md:px-1.5 max-md:py-1">
-                    <img src="<?php echo $languages['pt']['flag_url']; ?>" alt="Português" class="w-5 h-3.5 rounded max-md:w-4 max-md:h-3 max-md:mr-1"> Português
-                </li>
-                <li data-value="cn" data-flag="<?php echo $languages['cn']['flag_url']; ?>" class="flex items-center gap-2.5 px-3 py-2.5 text-white cursor-pointer transition-all duration-300 hover:bg-gradient-to-br hover:from-[rgba(41,128,185,0.9)] hover:to-[rgba(31,97,141,0.7)] hover:translate-x-1 max-md:text-sm max-md:px-1.5 max-md:py-1">
-                    <img src="<?php echo $languages['cn']['flag_url']; ?>" alt="中文" class="w-5 h-3.5 rounded max-md:w-4 max-md:h-3 max-md:mr-1"> 中文
-                </li>
-            </ul>
-        </div>
-    </header>
 
     <style>
-        /* Animation for dropdown */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* ============ CORE THEME VARIABLES & BASE ============ */
+        :root {
+            --point-wow-gif: url('<?php echo $base_path; ?>img/pointer_wow.gif');
+            --hover-wow-gif: url('<?php echo $base_path; ?>img/hover_wow.gif');
+            --gold-primary: #f2cf5b;
+            --gold-dark: #c9a227;
+            --gold-deep: #8a6a14;
+            --iron-bg: rgba(0,0,0,.4);
         }
-        .dropdown-menu.show {
-            display: block !important;
+
+        body {
+            cursor: var(--point-wow-gif) 16 16, auto;
+            padding-top: 80px;
         }
+
+        @media (min-width: 1024px) {
+            body {
+                padding-top: 96px;
+            }
+        }
+
+        /* ============ HEADER CONTAINER ============ */
+        header.main-header {
+            background: linear-gradient(180deg, rgba(10,14,22,.96), rgba(5,7,11,.96));
+            border-bottom: 1px solid rgba(201,162,39,.25);
+            box-shadow: 0 8px 24px rgba(0,0,0,.6);
+            z-index: 10000;
+            overflow: visible;
+        }
+
+        header.transparent-header {
+            background: rgba(5,7,11,0.55) !important;
+        }
+
+        .header-inner {
+            position: relative;
+            z-index: 10020;
+        }
+
+        /* ============ NAVIGATION LINKS ============ */
+        .nav-link {
+            position: relative;
+            padding: .6rem 1.2rem;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: .85rem;
+            letter-spacing: .04em;
+            color: #d8d8d8;
+            background: var(--iron-bg);
+            border: 1px solid rgba(255,255,255,.08);
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+            transition: all .25s ease;
+            text-decoration: none;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--gold-primary);
+            border-color: rgba(201,162,39,.5);
+            background: linear-gradient(180deg, rgba(201,162,39,.15), rgba(201,162,39,.05));
+            text-shadow: 0 0 8px rgba(242,207,82,.4);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            color: var(--gold-primary);
+            background: linear-gradient(180deg, rgba(201,162,39,.25), rgba(201,162,39,.08));
+            border-color: rgba(242,207,82,.65);
+            text-shadow: 0 0 10px rgba(242,207,82,.5);
+        }
+
+        /* ============ DROPDOWNS ============ */
+        #profileDropdownContainer,
+        #langDropdownContainer {
+            position: relative;
+        }
+
+        .wow-dropdown {
+            background: linear-gradient(180deg, rgba(22,25,32,.98), rgba(8,10,14,.98));
+            border: 1px solid rgba(201,162,39,.35);
+            box-shadow: 0 12px 32px rgba(0,0,0,.7), inset 0 0 40px rgba(0,0,0,.5);
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,.5));
+        }
+
+        .wow-dropdown::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border: 1px solid rgba(201,162,39,.15);
+            pointer-events: none;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            z-index: 0;
+        }
+
+        .dropdown-menu,
+        .lang-options {
+            position: absolute !important;
+            right: 0 !important;
+            left: auto !important;
+            top: 100% !important;
+            z-index: 10050 !important;
+            max-width: calc(100vw - 2rem);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .75rem 1.25rem;
+            color: #d8d8d8;
+            font-size: .9rem;
+            font-weight: 600;
+            transition: all .2s ease;
+            text-decoration: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(90deg, rgba(201,162,39,.15), transparent);
+            color: var(--gold-primary);
+            text-shadow: 0 0 8px rgba(242,207,82,.3);
+        }
+
+        .dropdown-item.danger {
+            color: #f87171;
+        }
+
+        .dropdown-item.danger:hover {
+            background: linear-gradient(90deg, rgba(220,38,38,.15), transparent);
+            color: #fca5a5;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            margin: .25rem 0;
+            background: linear-gradient(90deg, transparent, rgba(201,162,39,.4), transparent);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============ CURRENCY BADGES ============ */
+        .badge-gold {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .35rem .75rem;
+            background: linear-gradient(180deg, #f6d478 0%, var(--gold-dark) 48%, var(--gold-deep) 100%);
+            color: #1a1200;
+            font-weight: 800;
+            font-size: .8rem;
+            letter-spacing: .02em;
+            text-shadow: 0 1px 0 rgba(255,255,255,.35);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), inset 0 -4px 8px rgba(0,0,0,.25);
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+        }
+
+        .badge-iron {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .35rem .75rem;
+            background: linear-gradient(180deg, #5a4070 0%, #3a284d 55%, #1e1428 100%);
+            color: #e2d5f0;
+            font-weight: 800;
+            font-size: .8rem;
+            letter-spacing: .02em;
+            box-shadow: inset 0 0 0 1px rgba(160,120,255,.25), inset 0 -4px 8px rgba(0,0,0,.4);
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+        }
+
+        /* ============ AVATAR ============ */
+        .avatar-frame {
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--gold-dark);
+            box-shadow: 0 0 12px rgba(201,162,39,.4), inset 0 0 8px rgba(0,0,0,.8);
+            object-fit: cover;
+            cursor: pointer;
+            transition: all .3s ease;
+            clip-path: polygon(15% 0, 85% 0, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0 85%, 0 15%);
+        }
+
+        .avatar-frame:hover {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 20px rgba(242,207,82,.6), inset 0 0 8px rgba(0,0,0,.8);
+            transform: scale(1.05);
+        }
+
+        /* ============ LANGUAGE SWITCHER ============ */
+        .lang-btn {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .5rem .8rem;
+            background: var(--iron-bg);
+            border: 1px solid rgba(201,162,39,.3);
+            color: var(--gold-primary);
+            font-weight: 700;
+            font-size: .85rem;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+            transition: all .2s ease;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .lang-btn:hover {
+            border-color: var(--gold-primary);
+            background: linear-gradient(180deg, rgba(201,162,39,.2), rgba(201,162,39,.05));
+        }
+
+        #langLabel {
+            display: none;
+        }
+
+        @media (min-width: 480px) {
+            #langLabel {
+                display: inline;
+            }
+        }
+
+        /* ============ HAMBURGER ============ */
+        .hamburger {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--gold-primary);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger::before,
+        .hamburger::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 2px;
+            background: var(--gold-primary);
+            left: 0;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger::before {
+            top: -7px;
+        }
+
+        .hamburger::after {
+            top: 7px;
+        }
+
+        .hamburger.active {
+            background: transparent;
+        }
+
+        .hamburger.active::before {
+            transform: rotate(45deg);
+            top: 0;
+        }
+
+        .hamburger.active::after {
+            transform: rotate(-45deg);
+            top: 0;
+        }
+
+        /* ============ MOBILE NAV ============ */
+        @media (max-width: 1023px) {
+            header nav.nav-menu {
+                display: none;
+            }
+
+            header nav.nav-menu.nav-open {
+                display: flex !important;
+                flex-direction: column;
+                position: absolute !important;
+                top: 100% !important;
+                left: 0 !important;
+                right: 0 !important;
+                max-height: calc(100vh - 80px);
+                overflow-y: auto;
+                background: rgba(5,7,11,0.98);
+                border-bottom: 1px solid rgba(201,162,39,.35);
+                box-shadow: 0 20px 40px rgba(0,0,0,.75);
+                padding: 1.5rem;
+                gap: .75rem;
+                z-index: 10010;
+            }
+
+            header nav.nav-menu.nav-open .nav-link {
+                width: 100%;
+                text-align: center;
+                font-size: 1.05rem;
+                padding: 1rem;
+            }
+
+            .nav-close {
+                display: flex !important;
+                align-self: flex-end;
+                margin-bottom: .5rem;
+                z-index: 10015;
+            }
+        }
+
+        .dropdown-menu.show,
         .lang-options.show {
             display: block !important;
         }
     </style>
+</head>
+<body class="<?php echo htmlspecialchars($page_class, ENT_QUOTES, 'UTF-8'); ?>">
+
+    <header class="main-header fixed top-0 left-0 right-0 <?php echo $is_auth_page ? 'transparent-header' : ''; ?>">
+        <div class="header-inner max-w-[1600px] mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4">
+
+            <!-- Logo -->
+            <a href="<?php echo $base_path; ?>" class="flex-shrink-0 transition-transform duration-300 hover:scale-105 hover:drop-shadow-[0_0_12px_rgba(242,207,82,0.5)]">
+                <img src="<?php echo $base_path . $site_logo; ?>" alt="Server Logo" class="h-12 md:h-16 align-middle">
+            </a>
+
+            <!-- Nav Toggle Button (Mobile) -->
+            <button class="nav-toggle lg:hidden p-2" aria-label="Toggle navigation" style="z-index: 10025; position: relative;">
+                <span class="hamburger"></span>
+            </button>
+
+            <!-- Navigation -->
+            <nav class="nav-menu flex items-center gap-2 flex-wrap">
+                <!-- Close Button (Mobile) -->
+                <button class="nav-close hidden bg-red-600/80 border border-red-400 text-white w-10 h-10 rounded-full items-center justify-center hover:bg-red-700 transition text-xl" aria-label="Close navigation">
+                    ✖
+                </button>
+
+                <a href="<?php echo $base_path; ?>" class="nav-link <?php echo $page_class === 'home' ? 'active' : ''; ?>">
+                    <?php echo translate('nav_home', 'Home'); ?>
+                </a>
+
+                <a href="<?php echo $base_path; ?>how_to_play" class="nav-link <?php echo $page_class === 'how_to_play' ? 'active' : ''; ?>">
+                    <?php echo translate('nav_how_to_play', 'How to Play'); ?>
+                </a>
+
+                <a href="<?php echo $base_path; ?>news" class="nav-link <?php echo $page_class === 'news' ? 'active' : ''; ?>">
+                    <?php echo translate('nav_news', 'News'); ?>
+                </a>
+
+                <a href="<?php echo $base_path; ?>armory/solo_pvp" class="nav-link <?php echo strpos($page_class, 'armory') !== false ? 'active' : ''; ?>">
+                    <?php echo translate('nav_armory', 'Armory'); ?>
+                </a>
+
+                <a href="<?php echo $base_path; ?>shop" class="nav-link <?php echo $page_class === 'shop' ? 'active' : ''; ?>">
+                    <?php echo translate('nav_shop', 'Shop'); ?>
+                </a>
+
+                <?php if (empty($_SESSION['user_id'])): ?>
+                    <a href="<?php echo $base_path; ?>register" class="nav-link <?php echo $page_class === 'register' ? 'active' : ''; ?>">
+                        <?php echo translate('nav_register', 'Register'); ?>
+                    </a>
+
+                    <a href="<?php echo $base_path; ?>login" class="nav-link <?php echo $page_class === 'login' ? 'active' : ''; ?>">
+                        <?php echo translate('nav_login', 'Login'); ?>
+                    </a>
+                <?php else: ?>
+                    <a href="<?php echo $base_path; ?>account" class="nav-link <?php echo $page_class === 'account' ? 'active' : ''; ?>">
+                        <?php echo translate('nav_account', 'Account'); ?>
+                    </a>
+                <?php endif; ?>
+            </nav>
+
+            <!-- Right Side Controls -->
+            <div class="flex items-center gap-3 md:gap-4">
+
+                <!-- User Profile (Logged In) -->
+                <?php if (!empty($_SESSION['user_id'])): ?>
+                    <div class="hidden md:flex items-center gap-2">
+                        <span class="badge-gold"><i class="fas fa-coins"></i> <?php echo $points; ?></span>
+                        <span class="badge-iron"><i class="fas fa-gem"></i> <?php echo $tokens; ?></span>
+                    </div>
+
+                    <div id="profileDropdownContainer">
+                        <img src="<?php echo $avatar; ?>" alt="User Profile" class="avatar-frame" id="profileToggle">
+
+                        <div class="wow-dropdown dropdown-menu mt-3 w-64 hidden" id="dropdownMenu">
+                            <div class="p-4 border-b border-[rgba(201,162,39,0.2)] relative z-10">
+                                <div class="flex items-center gap-3">
+                                    <img src="<?php echo $avatar; ?>" alt="User" class="w-12 h-12 object-cover border border-[#c9a227]" style="clip-path: polygon(15% 0, 85% 0, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0 85%, 0 15%);">
+
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-[#f2cf5b] font-bold text-sm truncate" style="font-family:'Cinzel',serif;">
+                                            <?php echo htmlspecialchars($_SESSION['username'] ?? 'User', ENT_QUOTES, 'UTF-8'); ?>
+                                        </p>
+
+                                        <p class="text-gray-400 text-xs truncate"><?php echo $email; ?></p>
+
+                                        <div class="flex gap-2 mt-2">
+                                            <span class="badge-gold text-[10px] !py-1 !px-1.5"><i class="fas fa-coins"></i> <?php echo $points; ?></span>
+                                            <span class="badge-iron text-[10px] !py-1 !px-1.5"><i class="fas fa-gem"></i> <?php echo $tokens; ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="py-2 relative z-10">
+                                <a href="<?php echo $base_path; ?>account" class="dropdown-item">
+                                    <i class="fas fa-user-circle w-5 text-center text-[#f2cf5b]"></i>
+                                    <?php echo translate('account_settings', 'Account Settings'); ?>
+                                </a>
+
+                                <?php if ($gmlevel > 0 || $role === 'admin' || $role === 'moderator'): ?>
+                                    <a href="<?php echo $base_path; ?>admin/dashboard" class="dropdown-item">
+                                        <i class="fas fa-cogs w-5 text-center text-[#f2cf5b]"></i>
+                                        <?php echo translate('admin_panel', 'Admin Panel'); ?>
+                                    </a>
+                                <?php endif; ?>
+
+                                <div class="dropdown-divider"></div>
+
+                                <a href="<?php echo $base_path; ?>vote" class="dropdown-item">
+                                    <i class="fas fa-vote-yea w-5 text-center text-[#4ade80]"></i>
+                                    <?php echo translate('vote', 'Vote'); ?>
+                                </a>
+
+                                <div class="dropdown-divider"></div>
+
+                                <a href="<?php echo $base_path; ?>logout" class="dropdown-item danger">
+                                    <i class="fas fa-sign-out-alt w-5 text-center"></i>
+                                    <?php echo translate('logout', 'Logout'); ?>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Language Dropdown -->
+                <div id="langDropdownContainer">
+                    <div class="lang-btn" id="langSelected">
+                        <img src="<?php echo $current_lang_flag; ?>" alt="<?php echo htmlspecialchars($current_lang_name, ENT_QUOTES, 'UTF-8'); ?>" class="w-5 h-3.5 rounded-sm object-cover" id="flagIcon">
+                        <span id="langLabel"><?php echo htmlspecialchars($current_lang_name, ENT_QUOTES, 'UTF-8'); ?></span>
+                        <i class="fas fa-chevron-down text-[10px] ml-1"></i>
+                    </div>
+
+                    <ul class="wow-dropdown lang-options mt-3 w-44 hidden list-none p-0 m-0" id="langOptions">
+                        <?php foreach ($languages as $code => $lang_data): ?>
+                            <li data-value="<?php echo htmlspecialchars($code, ENT_QUOTES, 'UTF-8'); ?>"
+                                data-flag="<?php echo htmlspecialchars($lang_data['flag_url'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-name="<?php echo htmlspecialchars($lang_data['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                                class="dropdown-item !py-2 !px-3 text-sm">
+                                <img src="<?php echo htmlspecialchars($lang_data['flag_url'], ENT_QUOTES, 'UTF-8'); ?>"
+                                     alt="<?php echo htmlspecialchars($lang_data['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                                     class="w-5 h-3.5 rounded-sm object-cover">
+                                <span><?php echo htmlspecialchars($lang_data['name'], ENT_QUOTES, 'UTF-8'); ?></span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
     <script src="<?php echo $base_path; ?>assets/js/includes/header.js"></script>
 </body>
 </html>
