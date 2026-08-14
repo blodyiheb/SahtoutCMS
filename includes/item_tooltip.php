@@ -228,8 +228,6 @@ function generateTooltip($item) {
     if ($item['Quality'] == 7 && ($item['flags'] & 134221824) == 134221824) {
         $itemColor = '#e6cc80';
     }
-    // Log item color for debugging
-    error_log("item_tooltip.php: Item {$item['entry']} ({$item['name']}) Quality={$item['Quality']}, Color=$itemColor");
 
     $name = htmlspecialchars($item['name']);
     $desc = htmlspecialchars($item['description']);
@@ -237,7 +235,6 @@ function generateTooltip($item) {
     $reqLevel = $item['RequiredLevel'];
     $sell = $item['SellPrice'] ?? 0;
     $dur = $item['MaxDurability'] ?? 0;
-    // Only calculate speed for weapons (class = 2)
     $speed = ($item['class'] == 2 && $item['delay'] > 0) ? round($item['delay'] / 1000, 2) : null;
     $bonding = $bondingTypes[$item['bonding']] ?? null;
     $className = $classNames[$item['class']] ?? translate('unknown', 'Unknown');
@@ -251,14 +248,12 @@ function generateTooltip($item) {
             if ($item['AllowableClass'] & $bit) {
                 $color = $classColors[$bit] ?? '#ffffff';
                 $requiredClasses[] = "<span style='color:$color;'>$class</span>";
-                // Log class color for debugging
-                error_log("item_tooltip.php: Item {$item['entry']} class $class (bit $bit) assigned color $color");
             }
         }
     }
     $requiredClassesText = !empty($requiredClasses) ? translate('classes_label', 'Classes: ') . implode(', ', $requiredClasses) : null;
 
-    // Fetch spell effects for Use, Equip, Chance on Hit, and Soulstone triggers
+    // Fetch spell effects
     $spellEffects = [];
     $tableCheck = $world_db->query("SHOW TABLES LIKE 'armory_spell'");
     if ($tableCheck && $tableCheck->num_rows > 0) {
@@ -277,24 +272,15 @@ function generateTooltip($item) {
                     $result = $stmt->get_result();
                     if ($spell = $result->fetch_assoc()) {
                         $triggerText = $triggerFlags[$trigger] ?? translate('trigger_unknown', 'Unknown');
-                        // Note: Spell descriptions are typically stored in English, you might need a separate translation system for spells
                         $description = !empty($spell['Description_en_gb']) ? htmlspecialchars($spell['Description_en_gb']) : htmlspecialchars($spell['ToolTip_1'] ?? '');
                         if (!empty($description)) {
                             $spellEffects[] = "$triggerText: $description";
-                        } else {
-                            error_log("No description for spell ID $spellId (trigger $trigger) in item " . ($item['entry'] ?? 'unknown'));
                         }
-                    } else {
-                        error_log("Spell ID $spellId not found in armory_spell for item " . ($item['entry'] ?? 'unknown'));
                     }
                     $stmt->close();
-                } else {
-                    error_log("Invalid or unhandled trigger $trigger for spell ID $spellId in item " . ($item['entry'] ?? 'unknown'));
                 }
             }
         }
-    } else {
-        error_log("Table 'armory_spell' does not exist in database for item " . ($item['entry'] ?? 'unknown'));
     }
 
     ob_start();
@@ -309,42 +295,109 @@ function generateTooltip($item) {
         .item-name {
             color: <?= $itemColor ?> !important;
         }
+        .tooltip-container {
+            background: rgba(5, 7, 11, 0.95);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(201,162,39,0.3);
+            padding: 12px;
+            width: 320px;
+            color: #d1d5db;
+            font-size: 12px;
+            font-family: 'FrizQuadrata', Arial, sans-serif;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.8);
+        }
+        .tooltip-container .item-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .tooltip-container .item-level {
+            color: #e0b802;
+        }
+        .tooltip-container .item-bonding {
+            color: #ffd700;
+        }
+        .tooltip-container .item-stat {
+            color: #ffffff;
+        }
+        .tooltip-container .item-stat-green {
+            color: #1eff00;
+        }
+        .tooltip-container .item-damage {
+            color: #ffd100;
+        }
+        .tooltip-container .item-spell-effect {
+            color: #00ff00;
+        }
+        .tooltip-container .item-socket-bonus {
+            color: #888;
+        }
+        .tooltip-container .item-description {
+            color: #eee;
+            font-style: italic;
+        }
+        .tooltip-container .item-resistance {
+            color: #1eff00;
+        }
+        .tooltip-container .item-requires {
+            color: #ff8a8a;
+        }
     </style>
 
-    <div style="background:#1a1a1a;border:1px solid #444;padding:8px;width:300px;color:#ccc;font:12px Arial;border-radius:4px;font-family:FrizQuadrata,Arial,sans-serif;">
-        <div style="display:flex;justify-content:space-between;gap:8px;">
+    <div class="tooltip-container">
+        <!-- Header: Name and Level -->
+        <div class="flex justify-between items-start gap-2">
             <div>
-                <div class="item-name" style="font-weight:bold;font-size:14px;"><?= $name ?></div>
-                <?php if ($level): ?><div style="color:#e0b802;"><?= translate('item_level', 'Item Level') ?> <?= $level ?></div><?php endif; ?>
+                <div class="item-name"><?= $name ?></div>
+                <?php if ($level): ?>
+                    <div class="item-level text-xs"><?= translate('item_level', 'Item Level') ?> <?= $level ?></div>
+                <?php endif; ?>
             </div>
-            <div style="text-align:right;">
-                <div><?= $subclassName ?? '' ?></div>
-                <?php if ($speed): ?><div><?= translate('speed', 'Speed') ?> <?= $speed ?></div><?php endif; ?>
+            <div class="text-right text-xs">
+                <?php if ($subclassName): ?>
+                    <div><?= $subclassName ?></div>
+                <?php endif; ?>
+                <?php if ($speed): ?>
+                    <div><?= translate('speed', 'Speed') ?> <?= $speed ?></div>
+                <?php endif; ?>
             </div>
         </div>
 
-        <?php if ($bonding): ?><div><?= $bonding ?></div><?php endif; ?>
-        <?php if ($invType): ?><div><?= $invType ?></div><?php endif; ?>
-        <?php if ($className): ?><div><?= $className ?></div><?php endif; ?>
+        <!-- Bonding -->
+        <?php if ($bonding): ?>
+            <div class="item-bonding text-xs mt-1"><?= $bonding ?></div>
+        <?php endif; ?>
 
+        <!-- Item Type -->
+        <div class="text-xs text-gray-400">
+            <?php if ($invType): ?><?= $invType ?><?php endif; ?>
+            <?php if ($className): ?><?= $className ?><?php endif; ?>
+        </div>
+
+        <!-- Damage -->
         <?php
         if ($item['dmg_min1'] > 0 && $item['dmg_max1'] > 0):
             $min = $item['dmg_min1'];
             $max = $item['dmg_max1'];
         ?>
-            <div><?= $min ?> - <?= $max ?> <?= translate('damage', 'Damage') ?></div>
-            <div style="color:#ffd100;">(<?= formatDPS($min, $max, $item['delay']) ?> <?= translate('dps', 'damage per second') ?>)</div>
+            <div class="text-sm mt-1"><?= $min ?> - <?= $max ?> <?= translate('damage', 'Damage') ?></div>
+            <div class="item-damage text-sm">(<?= formatDPS($min, $max, $item['delay']) ?> <?= translate('dps', 'damage per second') ?>)</div>
         <?php endif; ?>
 
-        <?php if ($item['armor'] > 0): ?><div>+<?= $item['armor'] ?> <?= translate('armor', 'Armor') ?></div><?php endif; ?>
+        <!-- Armor -->
+        <?php if ($item['armor'] > 0): ?>
+            <div class="text-sm">+<?= $item['armor'] ?> <?= translate('armor', 'Armor') ?></div>
+        <?php endif; ?>
 
+        <!-- Normal Stats -->
         <?php for ($i = 1; $i <= 10; $i++):
             $type = $item["stat_type$i"];
             $value = $item["stat_value$i"];
             if ($type > 0 && $value != 0 && isset($normalStats[$type])): ?>
-                <div style="color:#ffffff;">+<?= $value ?> <?= $normalStats[$type] ?></div>
+                <div class="item-stat text-sm">+<?= $value ?> <?= $normalStats[$type] ?></div>
         <?php endif; endfor; ?>
 
+        <!-- Resistances -->
         <?php
         $resistances = [
             translate('resistance_holy', 'Holy') => $item['holy_res'], 
@@ -356,22 +409,22 @@ function generateTooltip($item) {
         ];
         foreach ($resistances as $school => $val):
             if ($val > 0): ?>
-                <div style="color:#1eff00;">+<?= $val ?> <?= $school ?> <?= translate('resistance', 'Resistance') ?></div>
+                <div class="item-resistance text-sm">+<?= $val ?> <?= $school ?> <?= translate('resistance', 'Resistance') ?></div>
         <?php endif; endforeach; ?>
 
         <!-- Sockets -->
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="flex items-center gap-2 mt-1 flex-wrap">
             <?php for ($i = 1; $i <= 3; $i++): ?>
                 <?php
                 $colorCode = $item["socketColor_$i"] ?? null;
                 if (isset($socketColors[$colorCode])):
                     $colorData = $socketColors[$colorCode];
                 ?>
-                    <div style="display: flex; align-items: center; gap: 4px;">
+                    <div class="flex items-center gap-1">
                         <img src="<?= $colorData['icon'] ?>"
                              alt="<?= $colorData['name'] ?> <?= translate('socket', 'socket') ?>"
-                             style="width: 16px; height: 16px; object-fit: contain;">
-                        <span style="font-size: 12px; color: <?= strtolower($colorData['name']) ?>;">
+                             class="w-4 h-4 object-contain">
+                        <span class="text-xs" style="color: <?= strtolower($colorData['name']) ?>;">
                             <?= $colorData['name'] ?>
                         </span>
                     </div>
@@ -379,27 +432,48 @@ function generateTooltip($item) {
             <?php endfor; ?>
         </div>
 
+        <!-- Socket Bonus -->
         <?php if (!empty($item['socketBonus'])): ?>
-            <div style="color:#888;"><?= translate('socket_bonus', 'Socket Bonus') ?>: <?= translate('spell_id', 'Spell ID') ?> <?= htmlspecialchars($item['socketBonus']) ?></div>
+            <div class="item-socket-bonus text-xs mt-1"><?= translate('socket_bonus', 'Socket Bonus') ?>: <?= translate('spell_id', 'Spell ID') ?> <?= htmlspecialchars($item['socketBonus']) ?></div>
         <?php endif; ?>
 
-        <?php if ($dur > 0): ?><div><?= translate('durability', 'Durability') ?> <?= $dur ?>/<?= $dur ?></div><?php endif; ?>
-        <?php if ($reqLevel): ?><div><?= translate('requires_level', 'Requires Level') ?> <?= $reqLevel ?></div><?php endif; ?>
-        <?php if ($requiredClassesText): ?><div><?= $requiredClassesText ?></div><?php endif; ?>
+        <!-- Durability -->
+        <?php if ($dur > 0): ?>
+            <div class="text-xs text-gray-400 mt-1"><?= translate('durability', 'Durability') ?> <?= $dur ?>/<?= $dur ?></div>
+        <?php endif; ?>
 
+        <!-- Required Level -->
+        <?php if ($reqLevel): ?>
+            <div class="item-requires text-sm"><?= translate('requires_level', 'Requires Level') ?> <?= $reqLevel ?></div>
+        <?php endif; ?>
+
+        <!-- Class Restrictions -->
+        <?php if ($requiredClassesText): ?>
+            <div class="text-sm"><?= $requiredClassesText ?></div>
+        <?php endif; ?>
+
+        <!-- Special Stats -->
         <?php for ($i = 1; $i <= 10; $i++):
             $type = $item["stat_type$i"];
             $value = $item["stat_value$i"];
             if ($type > 0 && $value != 0 && isset($specialStats[$type])): ?>
-                <div style="color:#00ff00;"><?= translate('equip', 'Equip') ?>: <?= translate('increases', 'Increases') ?> +<?= $value ?> <?= $specialStats[$type] ?></div>
+                <div class="item-spell-effect text-sm"><?= translate('equip', 'Equip') ?>: <?= translate('increases', 'Increases') ?> +<?= $value ?> <?= $specialStats[$type] ?></div>
         <?php endif; endfor; ?>
 
+        <!-- Spell Effects -->
         <?php foreach ($spellEffects as $effect): ?>
-            <div style="color:#00ff00;"><?= $effect ?></div>
+            <div class="item-spell-effect text-sm"><?= $effect ?></div>
         <?php endforeach; ?>
 
-        <?php if ($sell > 0): ?><div><?= translate('sell_price', 'Sell Price') ?>: <?= goldSilverCopper($sell) ?></div><?php endif; ?>
-        <?php if ($desc): ?><div style="margin-top:6px;color:#eee;font-style:italic;">"<?= $desc ?>"</div><?php endif; ?>
+        <!-- Sell Price -->
+        <?php if ($sell > 0): ?>
+            <div class="text-xs text-gray-400 mt-1"><?= translate('sell_price', 'Sell Price') ?>: <?= goldSilverCopper($sell) ?></div>
+        <?php endif; ?>
+
+        <!-- Description -->
+        <?php if ($desc): ?>
+            <div class="item-description text-sm mt-2 pt-2 border-t border-[rgba(201,162,39,0.1)]">"<?= $desc ?>"</div>
+        <?php endif; ?>
     </div>
     <?php
     return ob_get_clean();

@@ -268,6 +268,31 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
             z-index: 10020;
         }
 
+        /* ============ YELLOW PARALLELOGRAM ============ */
+        .parallelogram {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 180px;
+            height: 100%;
+            background: linear-gradient(135deg, #f2cf5b 0%, #c9a227 100%, #8a6a14 100%);
+            clip-path: polygon(0 0, 85% 0, 100% 100%, 0 100%);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .parallelogram::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(255,215,0,0.1), rgba(255,215,0,0.3));
+            clip-path: polygon(0 0, 85% 0, 100% 100%, 0 100%);
+        }
+
         /* ============ NAVIGATION LINKS ============ */
         .nav-link {
             position: relative;
@@ -542,10 +567,13 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
 <body class="<?php echo htmlspecialchars($page_class, ENT_QUOTES, 'UTF-8'); ?>">
 
     <header class="main-header fixed top-0 left-0 right-0 <?php echo $is_auth_page ? 'transparent-header' : ''; ?>">
-        <div class="header-inner max-w-[1600px] mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4">
+        <div class="header-inner max-w-[1600px] mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4" style="position: relative;">
+
+            <!-- Yellow Parallelogram -->
+            <div class="parallelogram"></div>
 
             <!-- Logo -->
-            <a href="<?php echo $base_path; ?>" class="flex-shrink-0 transition-transform duration-300 hover:scale-105 hover:drop-shadow-[0_0_12px_rgba(242,207,82,0.5)]">
+            <a href="<?php echo $base_path; ?>" class="flex-shrink-0 transition-transform duration-300 hover:scale-105 hover:drop-shadow-[0_0_12px_rgba(242,207,82,0.5)]" style="position: relative; z-index: 1;">
                 <img src="<?php echo $base_path . $site_logo; ?>" alt="Server Logo" class="h-12 md:h-16 align-middle">
             </a>
 
@@ -555,7 +583,7 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
             </button>
 
             <!-- Navigation -->
-            <nav class="nav-menu flex items-center gap-2 flex-wrap">
+            <nav class="nav-menu flex items-center gap-2 flex-wrap" style="position: relative; z-index: 1;">
                 <!-- Close Button (Mobile) -->
                 <button class="nav-close hidden bg-red-600/80 border border-red-400 text-white w-10 h-10 rounded-full items-center justify-center hover:bg-red-700 transition text-xl" aria-label="Close navigation">
                     ✖
@@ -597,7 +625,7 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
             </nav>
 
             <!-- Right Side Controls -->
-            <div class="flex items-center gap-3 md:gap-4">
+            <div class="flex items-center gap-3 md:gap-4" style="position: relative; z-index: 1;">
 
                 <!-- User Profile (Logged In) -->
                 <?php if (!empty($_SESSION['user_id'])): ?>

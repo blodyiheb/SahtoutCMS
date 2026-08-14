@@ -21,239 +21,266 @@ if (file_exists($realmsFile)) {
 ?>
 
 <style>
-    /* Background setup */
-    body {
-        background: url('<?php echo $base_path; ?>img/backgrounds/bg-howto.jpg') no-repeat center center fixed;
-        background-size: cover;
+    /* ============ CORE THEME VARIABLES ============ */
+    :root {
+        --gold-primary: #f2cf5b;
+        --gold-dark: #c9a227;
+        --gold-deep: #8a6a14;
+        --iron-bg: rgba(10,14,22,.85);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    /* ============ BACKGROUND IMAGE ONLY ============ */
+    body.how_to_play {
+        background: url('<?php echo $base_path; ?>img/backgrounds/bg-howto.jpg') no-repeat center center fixed !important;
+        background-size: cover !important;
         position: relative;
         min-height: 100vh;
     }
-
-    html {
-        scroll-behavior: smooth;
+    
+    /* Remove the dark overlay completely */
+    body.how_to_play::before {
+        display: none !important;
+        content: none !important;
+        background: none !important;
     }
 
-    /* Glassmorphic Cards - No Blur */
-    .step-card {
-        background: rgba(15, 23, 42, 0.75);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+    /* Remove any other overlays */
+    body.how_to_play::after {
+        display: none !important;
+        content: none !important;
+        background: none !important;
+    }
+
+    /* Make sure all content sits above the background */
+    body.how_to_play .relative.z-10 {
+        position: relative;
+        z-index: 10;
+    }
+
+    /* ============ TYPOGRAPHY & HERO ============ */
+    .wow-title {
+        font-family: 'Cinzel', serif;
+        font-weight: 900;
+        background: linear-gradient(180deg, #fff7d6 0%, #f2cf5b 35%, #c9a227 62%, #8a6a14 100%);
+        -webkit-background-clip: text; background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 4px 12px rgba(0,0,0,.9));
+        letter-spacing: .02em;
+    }
+
+    .tag-pill {
+        display: inline-flex; align-items: center; gap: .5rem;
+        padding: .4rem 1.2rem;
+        background: rgba(0,0,0,.6);
+        border: 1px solid rgba(201,162,39,.4);
+        clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        color: var(--gold-primary);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        text-shadow: 0 0 8px rgba(242,207,82,.3);
+    }
+
+    /* ============ STEP CARDS (PANELS) ============ */
+    .wow-step-card {
+        position: relative;
+        background: linear-gradient(180deg, rgba(22,25,32,.92), rgba(8,10,14,.9));
+        border: 1px solid rgba(201,162,39,.22);
+        box-shadow: 0 12px 32px rgba(0,0,0,.55), inset 0 0 60px rgba(0,0,0,.45);
+        clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         overflow: hidden;
         height: 100%;
         display: flex;
         flex-direction: column;
-        position: relative;
     }
     
-    .step-card:hover {
-        transform: translateY(-6px);
-        border-color: rgba(99, 102, 241, 0.4);
-        background: rgba(15, 23, 42, 0.85);
-        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7),
-                    0 0 30px 0 rgba(99, 102, 241, 0.15);
+    .wow-step-card::before {
+        content: ''; position: absolute; inset: 6px;
+        border: 1px solid rgba(201,162,39,.15);
+        pointer-events: none;
+        clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
     }
 
-    /* Step Badge - Only Number */
+    .wow-step-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(242,207,82,.6);
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 30px 0 rgba(242,207,82,.15);
+    }
+
+    /* Step Badge */
     .step-badge {
         position: absolute;
-        top: 1rem;
-        left: 1rem;
+        top: 1.25rem; left: 1.25rem;
         z-index: 10;
-        background: rgba(15, 23, 42, 0.85);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 0.35rem 0.85rem;
-        border-radius: 9999px;
-        display: flex;
-        align-items: center;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        width: 38px; height: 38px;
+        display: flex; align-items: center; justify-content: center;
+        background: linear-gradient(180deg, #f6d478 0%, var(--gold-dark) 48%, var(--gold-deep) 100%);
+        color: #1a1200;
+        font-weight: 900; font-size: 1.1rem; font-family: 'Cinzel', serif;
+        clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+        box-shadow: 0 4px 12px rgba(0,0,0,.6);
+        text-shadow: 0 1px 0 rgba(255,255,255,.35);
     }
 
-    .step-number {
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
-        box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
-        width: 26px;
-        height: 26px;
-        border-radius: 9999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #ffffff;
-        font-weight: 700;
-        font-size: 0.8rem;
-    }
-
-    /* Image Container - Fixed height for consistent sizing */
+    /* Image Container */
     .step-image-container {
-        padding: 1rem 1rem 0.5rem 1rem;
+        padding: 2rem 1.5rem 1rem 1.5rem;
         width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
         position: relative;
         flex-shrink: 0;
-        height: 220px;
+        height: 240px;
     }
     
     .step-image {
         max-width: 240px;
         width: 100%;
         height: auto;
-        max-height: 190px;
+        max-height: 200px;
         object-fit: contain;
-        border-radius: 0.75rem;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        margin: 0 auto;
+        border: 2px solid rgba(201,162,39,.3);
+        padding: 4px;
+        background: rgba(0,0,0,.5);
+        transition: all 0.5s ease;
     }
     
-    .step-card:hover .step-image {
-        transform: scale(1.02);
-        border-color: rgba(129, 140, 248, 0.4);
+    .wow-step-card:hover .step-image {
+        transform: scale(1.03);
+        border-color: rgba(242,207,82,.6);
+        box-shadow: 0 8px 20px rgba(0,0,0,.5);
     }
 
-    /* Text Content Container - Fixed height and consistent spacing */
+    /* Text Content */
     .step-content {
-        padding: 0.5rem 1.5rem 1.5rem 1.5rem;
+        padding: 0.5rem 1.75rem 1.75rem 1.75rem;
         flex: 1;
         display: flex;
         flex-direction: column;
-        min-height: 200px;
+        position: relative;
+        z-index: 1;
     }
 
-    .step-text-area {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .step-actions {
-        margin-top: auto;
-        padding-top: 0.75rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    .step-title {
+        font-family: 'Cinzel', serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--gold-primary);
+        margin-bottom: 0.75rem;
+        letter-spacing: 0.02em;
+        text-shadow: 0 2px 6px rgba(0,0,0,.9);
     }
 
     .step-content p {
-        color: #cbd5e1;
+        color: #d1d5db;
         font-size: 0.9rem;
         line-height: 1.6;
         margin-bottom: 0.5rem;
     }
 
-    .step-content p:last-child {
-        margin-bottom: 0;
-    }
-
-    .step-title {
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: #ffffff;
-        margin-bottom: 0.5rem;
-        letter-spacing: 0.025em;
-    }
-
-    /* Interactive Code Box */
+    /* Code Box */
     .code-box {
-        background: rgba(3, 7, 18, 0.75);
-        border: 1px solid rgba(99, 102, 241, 0.25);
+        background: rgba(0,0,0,.7);
+        border: 1px solid rgba(201,162,39,.35);
         font-family: 'Fira Code', 'Courier New', monospace;
+        padding: 0.85rem 1.1rem;
+        clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        margin-top: 0.75rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .code-box code {
+        color: #4ade80;
+        font-size: 0.875rem;
+    }
+
+    .code-box code span {
+        color: var(--gold-primary);
+        font-weight: 700;
+    }
+
+    .copy-btn {
+        padding: 0.4rem 0.85rem;
+        background: linear-gradient(180deg, #3a404d 0%, #232833 55%, #141821 100%);
+        color: #cfe1ff;
+        border: 1px solid rgba(120,160,255,.25);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
         transition: all 0.2s ease;
-        padding: 0.6rem 0.8rem;
-        border-radius: 0.75rem;
-        margin-top: 0.5rem;
+    }
+    .copy-btn:hover { filter: drop-shadow(0 0 8px rgba(59,130,246,.4)); }
+
+    /* ============ BUTTONS ============ */
+    .btn-game {
+        display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
+        padding: .85rem 1.5rem;
+        font-weight: 800; font-size: .85rem; letter-spacing: .04em; text-transform: uppercase;
+        clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        transition: transform .2s ease, filter .2s ease;
+        text-decoration: none;
+        width: 100%;
+    }
+    .btn-game:hover { transform: translateY(-2px) scale(1.02); }
+
+    .btn-gold {
+        background: linear-gradient(180deg, #f6d478 0%, #c9a227 48%, #8a6a14 100%);
+        color: #1a1200;
+        text-shadow: 0 1px 0 rgba(255,255,255,.35);
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), inset 0 -8px 14px rgba(0,0,0,.25);
+    }
+    .btn-gold:hover { filter: drop-shadow(0 0 12px rgba(242,207,82,.5)); }
+
+    .btn-iron {
+        background: linear-gradient(180deg, #3a404d 0%, #232833 55%, #141821 100%);
+        color: #cfe1ff;
+        box-shadow: inset 0 0 0 1px rgba(120,160,255,.25), inset 0 -8px 14px rgba(0,0,0,.4);
+    }
+    .btn-iron:hover { filter: drop-shadow(0 0 12px rgba(59,130,246,.4)); }
+
+    /* ============ CTA PANEL ============ */
+    .cta-panel {
+        position: relative;
+        background: linear-gradient(180deg, rgba(22,25,32,.92), rgba(8,10,14,.9));
+        border: 1px solid rgba(201,162,39,.3);
+        box-shadow: 0 12px 32px rgba(0,0,0,.55), inset 0 0 60px rgba(0,0,0,.45);
+        clip-path: polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px);
+        padding: 3.5rem 2rem;
+    }
+    .cta-panel::before {
+        content: ''; position: absolute; inset: 6px;
+        border: 1px solid rgba(201,162,39,.15);
+        pointer-events: none;
+        clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
     }
 
-    .code-box:hover {
-        border-color: rgba(129, 140, 248, 0.5);
-        box-shadow: inset 0 0 10px rgba(99, 102, 241, 0.1);
-    }
-
-    /* Text Glow & Gradient Animations */
-    .glow-text {
-        background: linear-gradient(135deg, #ffffff, #c084fc, #818cf8);
-        background-size: 200% 200%;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: shimmer 4s ease infinite;
-    }
-    
-    @keyframes shimmer {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-    }
-
-    /* CSS Animations */
+    /* ============ ANIMATIONS ============ */
     @keyframes fadeUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     
-    .fade-up {
-        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        opacity: 0;
-    }
-    
+    .fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
     .fade-up-delay-1 { animation-delay: 0.1s; }
     .fade-up-delay-2 { animation-delay: 0.2s; }
     .fade-up-delay-3 { animation-delay: 0.3s; }
     .fade-up-delay-4 { animation-delay: 0.4s; }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-        background: rgba(3, 7, 18, 0.8);
-    }
-    ::-webkit-scrollbar-thumb {
-        background: #4f46e5;
-        border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-        background: #6366f1;
-    }
-
-    /* Responsive adjustments */
+    /* ============ RESPONSIVE ============ */
     @media (max-width: 768px) {
-        .step-image-container {
-            height: 170px;
-            padding: 0.75rem 0.75rem 0.25rem 0.75rem;
-        }
-        
-        .step-image {
-            max-width: 180px;
-            max-height: 140px;
-        }
-        
-        .step-content {
-            padding: 0.25rem 1rem 1rem 1rem;
-            min-height: 170px;
-        }
-        
-        .step-content p {
-            font-size: 0.8rem;
-        }
-        
-        .step-title {
-            font-size: 1rem;
-        }
-        
-        .step-badge {
-            top: 0.75rem;
-            left: 0.75rem;
-            padding: 0.25rem 0.6rem;
-        }
-        
-        .step-number {
-            width: 22px;
-            height: 22px;
-            font-size: 0.7rem;
-        }
+        .step-image-container { height: 200px; padding: 1.5rem 1rem 0.5rem 1rem; }
+        .step-image { max-height: 160px; }
+        .step-content { padding: 0.5rem 1.25rem 1.25rem 1.25rem; }
+        .step-title { font-size: 1.15rem; }
+        .step-badge { width: 32px; height: 32px; font-size: 0.95rem; top: 1rem; left: 1rem; }
     }
 </style>
 
@@ -263,52 +290,42 @@ if (file_exists($realmsFile)) {
         <div class="container mx-auto max-w-6xl">
             
             <!-- Hero Header -->
-            <div class="text-center mb-14 fade-up">
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 border border-indigo-500/30 mb-4 backdrop-blur-md">
-                    <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-300">
-                        <?php echo translate('quickstart_guide', 'Quickstart Guide'); ?>
-                    </span>
+            <div class="text-center mb-16 fade-up relative z-10">
+                <div class="tag-pill mb-6">
+                    <span class="w-2 h-2 bg-[#f2cf5b] animate-pulse" style="clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"></span>
+                    <span><?php echo translate('quickstart_guide', 'Quickstart Guide'); ?></span>
                 </div>
                 
-                <h1 class="text-4xl md:text-6xl font-extrabold glow-text mb-4 tracking-tight drop-shadow-lg">
+                <h1 class="text-4xl md:text-6xl lg:text-7xl mb-6 wow-title">
                     <?php echo translate('how_to_play_title', 'How to Play'); ?>
                 </h1>
                 
-                <p class="text-base md:text-lg text-white max-w-2xl mx-auto leading-relaxed drop-shadow">
+                <p class="text-base md:text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
                     <?php echo translate('how_to_play_subtitle', 'Join our server in 4 simple steps and start your Wrath of the Lich King adventure today!'); ?>
                 </p>
             </div>
             
             <!-- 2x2 Steps Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 relative z-10">
                 
                 <!-- STEP 1 -->
-                <div class="step-card fade-up fade-up-delay-1 rounded-2xl">
-                    <!-- Image Container -->
+                <div class="wow-step-card fade-up fade-up-delay-1">
+                    <div class="step-badge">1</div>
                     <div class="step-image-container">
-                        <div class="step-badge">
-                            <span class="step-number">1</span>
-                        </div>
                         <img class="step-image" 
                              src="<?php echo $base_path; ?>img/howtoplay/down_register.jpg" 
                              alt="<?php echo translate('create_account_alt', 'Create Account'); ?>"
-                             loading="lazy">
+                             loading="lazy"
+                             onerror="this.style.display='none'">
                     </div>
                     
-                    <!-- Text Content Container -->
                     <div class="step-content">
-                        <div class="step-text-area">
-                            <h2 class="step-title">
-                                <?php echo translate('step_1_title', 'Create an Account'); ?>
-                            </h2>
-                            <p>
-                                <?php echo translate('step_1_desc', 'Register a free account using our website:'); ?>
-                            </p>
+                        <div class="flex-1">
+                            <h2 class="step-title"><?php echo translate('step_1_title', 'Create an Account'); ?></h2>
+                            <p><?php echo translate('step_1_desc', 'Register a free account using our website:'); ?></p>
                         </div>
-                        <div class="step-actions">
-                            <a class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-all duration-200 text-sm shadow-lg shadow-indigo-600/25" 
-                               href="<?php echo $base_path; ?>register">
+                        <div class="mt-4 pt-4 border-t border-white/5">
+                            <a class="btn-game btn-gold" href="<?php echo $base_path; ?>register">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                                 </svg>
@@ -322,39 +339,30 @@ if (file_exists($realmsFile)) {
                 </div>
                 
                 <!-- STEP 2 -->
-                <div class="step-card fade-up fade-up-delay-2 rounded-2xl">
-                    <!-- Image Container -->
+                <div class="wow-step-card fade-up fade-up-delay-2">
+                    <div class="step-badge">2</div>
                     <div class="step-image-container">
-                        <div class="step-badge">
-                            <span class="step-number">2</span>
-                        </div>
                         <img class="step-image" 
                              src="<?php echo $base_path; ?>img/howtoplay/down_download.png" 
                              alt="<?php echo translate('download_game_alt', 'Download Game'); ?>"
-                             loading="lazy">
+                             loading="lazy"
+                             onerror="this.style.display='none'">
                     </div>
                     
-                    <!-- Text Content Container -->
                     <div class="step-content">
-                        <div class="step-text-area">
-                            <h2 class="step-title">
-                                <?php echo translate('step_2_title', 'Download the Game'); ?>
-                            </h2>
-                            <p>
-                                <?php echo translate('step_2_desc', 'You need World of Warcraft: Wrath of the Lich King (3.3.5a). Choose your preferred download method:'); ?>
-                            </p>
+                        <div class="flex-1">
+                            <h2 class="step-title"><?php echo translate('step_2_title', 'Download the Game'); ?></h2>
+                            <p><?php echo translate('step_2_desc', 'You need World of Warcraft: Wrath of the Lich King (3.3.5a). Choose your preferred download method:'); ?></p>
                         </div>
-                        <div class="step-actions">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                <a class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-medium rounded-xl transition-all text-xs" 
-                                   href="<?php echo $base_path; ?>download">
+                        <div class="mt-4 pt-4 border-t border-white/5">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <a class="btn-game btn-iron !text-xs !py-2.5" href="<?php echo $base_path; ?>download">
                                     <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                     </svg>
                                     <?php echo translate('direct_download', 'Direct Download'); ?>
                                 </a>
-                                <a class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-medium rounded-xl transition-all text-xs" 
-                                   href="<?php echo $base_path; ?>download">
+                                <a class="btn-game btn-iron !text-xs !py-2.5" href="<?php echo $base_path; ?>download">
                                     <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                                     </svg>
@@ -366,46 +374,37 @@ if (file_exists($realmsFile)) {
                 </div>
                 
                 <!-- STEP 3 -->
-                <div class="step-card fade-up fade-up-delay-3 rounded-2xl">
-                    <!-- Image Container -->
+                <div class="wow-step-card fade-up fade-up-delay-3">
+                    <div class="step-badge">3</div>
                     <div class="step-image-container">
-                        <div class="step-badge">
-                            <span class="step-number">3</span>
-                        </div>
                         <img id="down_img_realm" class="step-image" 
                              src="<?php echo $base_path; ?>img/howtoplay/down_realmlist.png" 
                              alt="<?php echo translate('edit_realmlist_alt', 'Edit Realmlist'); ?>"
-                             loading="lazy">
+                             loading="lazy"
+                             onerror="this.style.display='none'">
                     </div>
                     
-                    <!-- Text Content Container -->
                     <div class="step-content">
-                        <div class="step-text-area">
-                            <h2 class="step-title">
-                                <?php echo translate('step_3_title', 'Set the Realmlist'); ?>
-                            </h2>
-                            <p>
-                                <?php echo translate('step_3_desc_1', 'Open your World of Warcraft folder, go to Data/enUS or Data/enGB, and find realmlist.wtf.'); ?>
-                            </p>
-                            <p>
-                                <?php echo translate('step_3_desc_2', 'Open it with Notepad and replace everything inside with:'); ?>
-                            </p>
+                        <div class="flex-1">
+                            <h2 class="step-title"><?php echo translate('step_3_title', 'Set the Realmlist'); ?></h2>
+                            <p><?php echo translate('step_3_desc_1', 'Open your World of Warcraft folder, go to Data/enUS or Data/enGB, and find realmlist.wtf.'); ?></p>
+                            <p><?php echo translate('step_3_desc_2', 'Open it with Notepad and replace everything inside with:'); ?></p>
                         </div>
-                        <div class="step-actions">
-                            <div class="code-box flex items-center justify-between gap-2">
-                                <code class="text-xs md:text-sm text-emerald-400 font-mono overflow-x-auto select-all">
-                                    set realmlist <span id="realmlist-text" class="text-indigo-300 font-semibold"><?php echo htmlspecialchars($realmlistIP); ?></span>
+                        <div class="mt-4 pt-4 border-t border-white/5">
+                            <div class="code-box flex items-center justify-between gap-3">
+                                <code class="overflow-x-auto select-all whitespace-nowrap">
+                                    set realmlist <span id="realmlist-text"><?php echo htmlspecialchars($realmlistIP); ?></span>
                                 </code>
                                 <button onclick="copyRealmlist()" 
                                         id="copy-btn"
-                                        class="px-2.5 py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/30 text-indigo-200 text-xs rounded-lg transition-all flex items-center gap-1 flex-shrink-0">
+                                        class="copy-btn flex items-center gap-1.5 flex-shrink-0">
                                     <svg id="copy-icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                     </svg>
                                     <span id="copy-status"><?php echo translate('copy', 'Copy'); ?></span>
                                 </button>
                             </div>
-                            <p class="text-xs text-slate-300 mt-2">
+                            <p class="text-xs text-gray-400 mt-3 italic">
                                 <?php echo translate('step_3_desc_3', 'Save the file and close it.'); ?>
                             </p>
                         </div>
@@ -413,32 +412,23 @@ if (file_exists($realmsFile)) {
                 </div>
                 
                 <!-- STEP 4 -->
-                <div class="step-card fade-up fade-up-delay-4 rounded-2xl">
-                    <!-- Image Container -->
+                <div class="wow-step-card fade-up fade-up-delay-4">
+                    <div class="step-badge">4</div>
                     <div class="step-image-container">
-                        <div class="step-badge">
-                            <span class="step-number">4</span>
-                        </div>
                         <img class="step-image" 
                              src="<?php echo $base_path; ?>img/howtoplay/down_wow.png" 
                              alt="<?php echo translate('launch_wow_alt', 'Launch WoW'); ?>"
-                             loading="lazy">
+                             loading="lazy"
+                             onerror="this.style.display='none'">
                     </div>
                     
-                    <!-- Text Content Container -->
                     <div class="step-content">
-                        <div class="step-text-area">
-                            <h2 class="step-title">
-                                <?php echo translate('step_4_title', 'Start Playing!'); ?>
-                            </h2>
-                            <p>
-                                <?php echo translate('step_4_desc_1', 'Open Wow.exe (not Launcher.exe) and log in using your account credentials.'); ?>
-                            </p>
-                            <p>
-                                <?php echo translate('step_4_desc_2', 'Enjoy your adventure on our server!'); ?>
-                            </p>
-                            <p class="mt-2 text-emerald-400 text-sm font-medium flex items-center gap-2">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <div class="flex-1">
+                            <h2 class="step-title"><?php echo translate('step_4_title', 'Start Playing!'); ?></h2>
+                            <p><?php echo translate('step_4_desc_1', 'Open Wow.exe (not Launcher.exe) and log in using your account credentials.'); ?></p>
+                            <p><?php echo translate('step_4_desc_2', 'Enjoy your adventure on our server!'); ?></p>
+                            <p class="mt-4 text-[#4ade80] text-sm font-semibold flex items-center gap-2" style="text-shadow: 0 0 8px rgba(74,222,128,.4);">
+                                <span class="w-2 h-2 bg-[#4ade80] animate-pulse" style="clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"></span>
                                 <?php echo translate('ready_to_play', 'Ready to play! Enjoy your adventure.'); ?>
                             </p>
                         </div>
@@ -448,16 +438,15 @@ if (file_exists($realmsFile)) {
             </div>
             
             <!-- Bottom CTA Section -->
-            <div class="mt-14 text-center fade-up">
-                <div class="bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 p-8 md:p-10 shadow-2xl relative overflow-hidden">
-                    <h3 class="text-2xl md:text-3xl font-extrabold text-white mb-2">
+            <div class="mt-20 text-center fade-up relative z-10">
+                <div class="cta-panel max-w-3xl mx-auto">
+                    <h3 class="text-2xl md:text-3xl font-extrabold text-white mb-3" style="font-family:'Cinzel',serif; text-shadow: 0 2px 8px rgba(0,0,0,.8);">
                         <?php echo translate('cta_title', 'Ready to Begin Your Journey?'); ?>
                     </h3>
-                    <p class="text-slate-200 text-sm md:text-base mb-6 max-w-xl mx-auto">
+                    <p class="text-gray-300 text-sm md:text-base mb-8 max-w-xl mx-auto">
                         <?php echo translate('cta_desc', 'Create an account now and start your adventure in the world of Azeroth!'); ?>
                     </p>
-                    <a class="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/25 transition-all duration-300 transform hover:-translate-y-0.5" 
-                       href="<?php echo $base_path; ?>register">
+                    <a class="btn-game btn-gold !w-auto !px-10 !py-4 text-base mx-auto" href="<?php echo $base_path; ?>register">
                         <span><?php echo translate('cta_button', 'Get Started Now'); ?></span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
@@ -480,11 +469,17 @@ function copyRealmlist() {
         const btn = document.getElementById('copy-btn');
         
         statusSpan.innerText = '<?php echo translate('copied', 'Copied!'); ?>';
-        btn.classList.add('bg-emerald-600/40', 'border-emerald-500/50', 'text-emerald-200');
+        
+        // Success state styling
+        btn.style.background = 'linear-gradient(180deg, #4ade80 0%, #16a34a 100%)';
+        btn.style.color = '#052e16';
+        btn.style.borderColor = 'rgba(74,222,128,.5)';
         
         setTimeout(() => {
             statusSpan.innerText = '<?php echo translate('copy', 'Copy'); ?>';
-            btn.classList.remove('bg-emerald-600/40', 'border-emerald-500/50', 'text-emerald-200');
+            btn.style.background = '';
+            btn.style.color = '';
+            btn.style.borderColor = '';
         }, 2000);
     });
 }

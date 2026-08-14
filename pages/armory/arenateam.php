@@ -133,140 +133,197 @@ if ($team) {
     }
 }
 
-// Render global website header (opens html/head/body and primary layout containers)
+// Render global website header
 require_once $project_root . 'includes/header.php';
 ?>
 
-<!-- Page Specific Assets -->
-<link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-<link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/armory/arenanavbar.css">
+<!-- Tailwind CSS -->
+<!-- Font Awesome for icons -->
+
 <style>
-    :root {
-        --bg-armory: url('<?php echo $base_path; ?>img/backgrounds/bg-armory.jpg');
-    }
-    
+    /* Page background - Show full background image without overlay */
     body {
-        background: var(--bg-armory) no-repeat center center fixed;
+        background: url('<?php echo $base_path; ?>img/backgrounds/bg-armory.jpg') no-repeat center center fixed;
         background-size: cover;
-        position: relative;
         min-height: 100vh;
         padding-top: 112px;
-    }
-
-    body::before {
-        display: none;
-    }
-
-    .arena-page-wrapper {
+        margin: 0;
         position: relative;
-        min-height: 100vh;
-        color: #f1f5f9;
     }
     
+    /* REMOVED: Dark overlay that was hiding the background */
+    
+    /* Main content wrapper */
     .arena-content {
         position: relative;
         z-index: 1;
     }
     
-    .wow-gold-gradient {
-        background: linear-gradient(180deg, #FFE89C 0%, #D4A341 50%, #8A641B 100%);
+    /* Glass effect container */
+    .glass-container {
+        background: rgba(5, 7, 11, 0.85);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(201,162,39,.22);
+        border-radius: 0;
+        padding: 2.5rem 2.5rem;
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.8), inset 0 0 60px rgba(0,0,0,.25);
+        position: relative;
+    }
+    
+    .glass-container::before {
+        content: ''; position: absolute; inset: 5px;
+        border: 1px solid rgba(201,162,39,.14);
+        pointer-events: none;
+    }
+    
+    .glass-container::after {
+        content: ''; position: absolute; inset: 0; pointer-events: none;
+        background:
+            linear-gradient(#e8c552,#e8c552) left top / 18px 2px,
+            linear-gradient(#e8c552,#e8c552) left top / 2px 18px,
+            linear-gradient(#e8c552,#e8c552) right top / 18px 2px,
+            linear-gradient(#e8c552,#e8c552) right top / 2px 18px,
+            linear-gradient(#e8c552,#e8c552) left bottom / 18px 2px,
+            linear-gradient(#e8c552,#e8c552) left bottom / 2px 18px,
+            linear-gradient(#e8c552,#e8c552) right bottom / 18px 2px,
+            linear-gradient(#e8c552,#e8c552) right bottom / 2px 18px;
+        background-repeat: no-repeat;
+    }
+    
+    /* Wow title gradient */
+    .wow-title {
+        font-family: 'Cinzel', serif;
+        font-weight: 900;
+        background: linear-gradient(180deg, #fff7d6 0%, #f2cf5b 35%, #c9a227 62%, #8a6a14 100%);
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
         background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 4px 12px rgba(0,0,0,.9));
+        letter-spacing: .02em;
     }
     
-    .wow-glass-panel {
-        background: rgba(15, 23, 42, 0.75);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(212, 163, 65, 0.2);
+    /* Captain row */
+    .captain-row {
+        background: rgba(242, 207, 82, 0.1) !important;
+        border-left: 3px solid #f2cf5b;
     }
     
-    .wow-glass-card {
-        background: rgba(30, 41, 59, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+    .captain-row:hover {
+        background: rgba(242, 207, 82, 0.2) !important;
+    }
+    
+    /* Member row hover */
+    .member-row:hover {
+        background: rgba(242, 207, 82, 0.08) !important;
+        cursor: pointer;
+    }
+    
+    .member-row {
         transition: all 0.2s ease-in-out;
     }
     
-    .wow-glass-card:hover {
-        border-color: rgba(212, 163, 65, 0.4);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.5);
-    }
-    
+    /* Table container - FIXED: Ensure horizontal scroll on mobile */
     .table-container {
-        background: rgba(15, 23, 42, 0.5);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
+        scrollbar-width: thin;
+        scrollbar-color: #f2cf5b #1f2937;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        display: block;
+        width: 100%;
     }
     
-    .captain-row {
-        background: rgba(252, 211, 77, 0.1);
-        border-left: 3px solid #fcd34d;
+    .table-container::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
     }
     
-    tbody tr:not(.captain-row):hover {
-        background: rgba(0, 120, 201, 0.3) !important;
-        transition: background-color 0.2s ease-in-out;
+    .table-container::-webkit-scrollbar-track {
+        background: #1f2937;
+        border-radius: 4px;
     }
     
-    .arena-nav-wrapper .nav-container {
-        border: 2px double #4338ca;
-        margin-top: 20px;
+    .table-container::-webkit-scrollbar-thumb {
+        background: #f2cf5b;
+        border-radius: 4px;
     }
-
+    
+    /* Table - FIXED: Ensure proper sizing */
+    .table-container table {
+        min-width: 600px;
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    /* FIXED: Table cells with proper padding and min-width */
+    .table-container th,
+    .table-container td {
+        padding: 12px 8px;
+        white-space: nowrap;
+    }
+    
+    /* Responsive table cells */
+    @media (max-width: 640px) {
+        .table-container th,
+        .table-container td {
+            padding: 10px 6px;
+            font-size: 0.75rem;
+        }
+    }
+    
+    /* Responsive */
     @media (max-width: 767px) {
         body {
             padding-top: 96px;
         }
+        
+        .glass-container {
+            padding: 1.5rem 0.75rem;
+        }
     }
 </style>
 
-<div class="arena-page-wrapper">
-    <div class="arena-content py-4 sm:py-8 px-3 sm:px-6">
-        <div class="container max-w-6xl mx-auto">
+<div class="arena-content min-h-screen flex items-start justify-center px-4 md:px-8 py-8">
+    <div class="container mx-auto max-w-7xl px-2 sm:px-4">
+        <!-- Main Container -->
+        <div class="glass-container">
             
             <?php if (!$team): ?>
                 <!-- Not Found Alert -->
-                <div class="wow-glass-panel rounded-2xl p-8 text-center max-w-2xl mx-auto shadow-2xl">
-                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/30">
-                        <svg class="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                        </svg>
+                <div class="text-center py-12">
+                    <div class="text-6xl mb-4 text-[rgba(201,162,39,0.3)]">
+                        <i class="fas fa-exclamation-triangle"></i>
                     </div>
-                    <p class="text-lg sm:text-xl font-semibold text-amber-400">
+                    <p class="text-2xl font-bold text-[#f2cf5b]">
                         <?php echo translate('arenateam_no_team', 'No arena team found.'); ?>
                     </p>
+                    <a href="<?php echo $base_path; ?>armory/solo_pvp" class="inline-block mt-6 px-6 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300">
+                        <i class="fas fa-arrow-left mr-2"></i> <?php echo translate('back_to_armory', 'Back to Armory'); ?>
+                    </a>
                 </div>
             <?php else: ?>
 
-                <!-- Main Team Hero Header -->
-                <div class="wow-glass-panel rounded-2xl p-6 sm:p-8 mb-8 shadow-2xl relative overflow-hidden">
-                    <div class="absolute -top-24 -right-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                    
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
-                        <div class="flex items-center gap-4 sm:gap-6 text-center sm:text-left">
-                            <div class="relative flex-shrink-0">
-                                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-500/20 to-slate-900 border border-amber-500/40 flex items-center justify-center shadow-lg">
-                                    <img src="<?php echo $base_path; ?>img/armory/arena.webp" alt="Arena Team" class="w-10 h-10 sm:w-12 sm:h-12 object-contain">
-                                </div>
+                <!-- Team Header -->
+                <div class="mb-8">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-none bg-[rgba(242,207,82,0.1)] border border-[rgba(201,162,39,0.3)] flex items-center justify-center flex-shrink-0">
+                                <img src="<?php echo $base_path; ?>img/armory/arena.webp" alt="Arena Team" class="w-10 h-10 object-contain">
                             </div>
                             <div>
-                                <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight wow-gold-gradient mb-1">
+                                <h1 class="wow-title text-3xl md:text-5xl font-bold">
                                     <?php echo htmlspecialchars($team['team_name']); ?>
                                 </h1>
-                                <p class="text-slate-400 text-sm sm:text-base flex items-center justify-center sm:justify-start gap-2">
-                                    <span><?php echo translate('arenateam_suffix', 'Arena Team'); ?></span>
+                                <p class="text-gray-400 text-sm flex items-center gap-2">
+                                    <i class="fas fa-tag text-[rgba(201,162,39,0.5)]"></i>
+                                    <?php echo translate('arenateam_suffix', 'Arena Team'); ?>
                                 </p>
                             </div>
                         </div>
-
-                        <!-- Bracket Badge -->
-                        <div class="flex-shrink-0">
-                            <span class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500/20 to-yellow-600/20 border border-amber-500/40 text-amber-300 font-bold text-lg sm:text-xl shadow-inner">
-                                <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                </svg>
+                        
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex items-center gap-2 px-5 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] font-bold text-lg">
+                                <i class="fas fa-trophy"></i>
                                 <?php echo getTeamTypeName($team['type']); ?>
                             </span>
                         </div>
@@ -274,92 +331,86 @@ require_once $project_root . 'includes/header.php';
                 </div>
 
                 <!-- Navigation Bar -->
-                <div class="arena-nav-wrapper mb-8">
-                    <?php include_once $project_root . 'includes/arenanavbar.php'; ?>
-                </div>
+                <?php include_once $project_root . 'includes/arenanavbar.php'; ?>
 
-                <!-- Team Statistics Section -->
-                <div class="wow-glass-panel rounded-2xl p-6 sm:p-8 mb-8 shadow-2xl">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl sm:text-2xl font-bold text-amber-400 flex items-center gap-3">
-                            <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                            <?php echo translate('arenateam_team_summary', 'Team Summary'); ?>
-                        </h2>
-                    </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                        <div class="wow-glass-card p-4 rounded-xl text-center">
-                            <p class="text-xs sm:text-sm text-slate-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_rating', 'Rating'); ?></p>
-                            <p class="text-2xl sm:text-3xl font-extrabold text-amber-300"><?php echo (int)$team['rating']; ?></p>
+                <!-- Team Statistics -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-[#f2cf5b] mb-4 flex items-center gap-2">
+                        <i class="fas fa-chart-bar"></i>
+                        <?php echo translate('arenateam_team_summary', 'Team Summary'); ?>
+                    </h2>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="bg-[rgba(0,0,0,0.3)] border border-[rgba(201,162,39,0.1)] p-4 text-center">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_rating', 'Rating'); ?></p>
+                            <p class="text-2xl font-extrabold text-[#f2cf5b]"><?php echo (int)$team['rating']; ?></p>
                         </div>
 
                         <?php 
                         $winrate = (float)$team['winrate'];
-                        $winrateColor = $winrate >= 60 ? 'text-emerald-400' : ($winrate >= 50 ? 'text-yellow-400' : 'text-red-400');
+                        $winrateColor = $winrate >= 60 ? 'text-[#2ecc71]' : ($winrate >= 50 ? 'text-[#f2cf5b]' : 'text-[#ef4444]');
                         ?>
-                        <div class="wow-glass-card p-4 rounded-xl text-center">
-                            <p class="text-xs sm:text-sm text-slate-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_winrate', 'Winrate'); ?></p>
-                            <p class="text-2xl sm:text-3xl font-extrabold <?php echo $winrateColor; ?>"><?php echo $winrate; ?>%</p>
+                        <div class="bg-[rgba(0,0,0,0.3)] border border-[rgba(201,162,39,0.1)] p-4 text-center">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_winrate', 'Winrate'); ?></p>
+                            <p class="text-2xl font-extrabold <?php echo $winrateColor; ?>"><?php echo $winrate; ?>%</p>
                         </div>
 
-                        <div class="wow-glass-card p-4 rounded-xl text-center">
-                            <p class="text-xs sm:text-sm text-slate-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_season_games', 'Season Games'); ?></p>
-                            <p class="text-2xl sm:text-3xl font-extrabold text-slate-100"><?php echo (int)$team['seasonGames']; ?></p>
+                        <div class="bg-[rgba(0,0,0,0.3)] border border-[rgba(201,162,39,0.1)] p-4 text-center">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_season_games', 'Season Games'); ?></p>
+                            <p class="text-2xl font-extrabold text-gray-200"><?php echo (int)$team['seasonGames']; ?></p>
                         </div>
 
-                        <div class="wow-glass-card p-4 rounded-xl text-center">
-                            <p class="text-xs sm:text-sm text-slate-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_season_wins', 'Season Wins'); ?></p>
-                            <p class="text-2xl sm:text-3xl font-extrabold text-emerald-400"><?php echo (int)$team['seasonWins']; ?></p>
+                        <div class="bg-[rgba(0,0,0,0.3)] border border-[rgba(201,162,39,0.1)] p-4 text-center">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_season_wins', 'Season Wins'); ?></p>
+                            <p class="text-2xl font-extrabold text-[#2ecc71]"><?php echo (int)$team['seasonWins']; ?></p>
                         </div>
 
-                        <div class="wow-glass-card p-4 rounded-xl text-center">
-                            <p class="text-xs sm:text-sm text-slate-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_season_losses', 'Season Losses'); ?></p>
-                            <p class="text-2xl sm:text-3xl font-extrabold text-rose-400"><?php echo (int)$team['seasonLosses']; ?></p>
+                        <div class="bg-[rgba(0,0,0,0.3)] border border-[rgba(201,162,39,0.1)] p-4 text-center">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_season_losses', 'Season Losses'); ?></p>
+                            <p class="text-2xl font-extrabold text-[#ef4444]"><?php echo (int)$team['seasonLosses']; ?></p>
                         </div>
 
-                        <div class="wow-glass-card p-4 rounded-xl text-center">
-                            <p class="text-xs sm:text-sm text-slate-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_week_games', 'Week Games'); ?></p>
-                            <p class="text-2xl sm:text-3xl font-extrabold text-slate-200"><?php echo isset($team['weekGames']) ? (int)$team['weekGames'] : 'N/A'; ?></p>
+                        <div class="bg-[rgba(0,0,0,0.3)] border border-[rgba(201,162,39,0.1)] p-4 text-center">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_week_games', 'Week Games'); ?></p>
+                            <p class="text-2xl font-extrabold text-gray-200"><?php echo isset($team['weekGames']) ? (int)$team['weekGames'] : '0'; ?></p>
                         </div>
 
-                        <div class="wow-glass-card p-4 rounded-xl text-center">
-                            <p class="text-xs sm:text-sm text-slate-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_week_wins', 'Week Wins'); ?></p>
-                            <p class="text-2xl sm:text-3xl font-extrabold text-emerald-400"><?php echo isset($team['weekWins']) ? (int)$team['weekWins'] : 'N/A'; ?></p>
+                        <div class="bg-[rgba(0,0,0,0.3)] border border-[rgba(201,162,39,0.1)] p-4 text-center">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_week_wins', 'Week Wins'); ?></p>
+                            <p class="text-2xl font-extrabold text-[#2ecc71]"><?php echo isset($team['weekWins']) ? (int)$team['weekWins'] : '0'; ?></p>
                         </div>
 
-                        <div class="wow-glass-card p-4 rounded-xl text-center">
-                            <p class="text-xs sm:text-sm text-slate-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_week_losses', 'Week Losses'); ?></p>
-                            <p class="text-2xl sm:text-3xl font-extrabold text-rose-400"><?php echo isset($team['weekLosses']) ? (int)$team['weekLosses'] : 'N/A'; ?></p>
+                        <div class="bg-[rgba(0,0,0,0.3)] border border-[rgba(201,162,39,0.1)] p-4 text-center">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1"><?php echo translate('arenateam_week_losses', 'Week Losses'); ?></p>
+                            <p class="text-2xl font-extrabold text-[#ef4444]"><?php echo isset($team['weekLosses']) ? (int)$team['weekLosses'] : '0'; ?></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Team Roster Section -->
-                <div class="wow-glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl">
-                    <h2 class="text-xl sm:text-2xl font-bold text-amber-400 mb-6 flex items-center gap-3">
-                        <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                        </svg>
+                <!-- Team Roster -->
+                <div>
+                    <h2 class="text-xl font-bold text-[#f2cf5b] mb-4 flex items-center gap-2">
+                        <i class="fas fa-users"></i>
                         <?php echo translate('arenateam_team_members', 'Team Members'); ?>
                     </h2>
 
-                    <div class="table-container overflow-x-auto rounded-xl border border-slate-800">
-                        <table class="w-full text-xs sm:text-sm text-left border-collapse">
+                    <!-- Table - FIXED: Added scroll wrapper -->
+                    <div class="table-container overflow-x-auto border border-[rgba(201,162,39,0.15)]">
+                        <table class="w-full text-sm text-left min-w-[600px]">
                             <thead>
-                                <tr class="bg-slate-900/90 border-b border-amber-500/20 text-amber-400 uppercase tracking-wider font-semibold">
-                                    <th class="py-4 px-6"><?php echo translate('arenateam_name', 'Name'); ?></th>
-                                    <th class="py-4 px-6 text-center"><?php echo translate('arenateam_faction', 'Faction'); ?></th>
-                                    <th class="py-4 px-6 text-center"><?php echo translate('arenateam_race', 'Race'); ?></th>
-                                    <th class="py-4 px-6 text-center"><?php echo translate('arenateam_class', 'Class'); ?></th>
-                                    <th class="py-4 px-6 text-center"><?php echo translate('arenateam_personal_rating', 'Personal Rating'); ?></th>
+                                <tr class="bg-[rgba(201,162,39,0.15)] border-b border-[rgba(201,162,39,0.2)] text-[#f2cf5b] uppercase tracking-wider font-semibold">
+                                    <th class="py-3 px-3 md:px-4 whitespace-nowrap"><?php echo translate('arenateam_name', 'Name'); ?></th>
+                                    <th class="py-3 px-3 md:px-4 text-center whitespace-nowrap"><?php echo translate('arenateam_faction', 'Faction'); ?></th>
+                                    <th class="py-3 px-3 md:px-4 text-center whitespace-nowrap"><?php echo translate('arenateam_race', 'Race'); ?></th>
+                                    <th class="py-3 px-3 md:px-4 text-center whitespace-nowrap"><?php echo translate('arenateam_class', 'Class'); ?></th>
+                                    <th class="py-3 px-3 md:px-4 text-center whitespace-nowrap"><?php echo translate('arenateam_personal_rating', 'Personal Rating'); ?></th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-800/60">
+                            <tbody class="divide-y divide-[rgba(201,162,39,0.05)]">
                                 <?php if (empty($orderedMembers)): ?>
                                     <tr>
-                                        <td colspan="5" class="py-8 px-6 text-center text-base text-amber-400/80">
+                                        <td colspan="5" class="py-8 px-4 text-center text-[#f2cf5b]">
+                                            <i class="fas fa-users-slash text-2xl block mb-2 text-[rgba(201,162,39,0.3)]"></i>
                                             <?php echo translate('arenateam_no_members', 'No members found.'); ?>
                                         </td>
                                     </tr>
@@ -369,38 +420,36 @@ require_once $project_root . 'includes/header.php';
                                         $faction = getFaction($member['race']); 
                                         $isCaptain = ($member['guid'] == $team['captainGuid']);
                                         ?>
-                                        <tr class="<?php echo $isCaptain ? 'captain-row' : 'hover:bg-slate-800/40'; ?> transition-colors duration-150 cursor-pointer" 
-                                            onclick="window.location='<?php echo $base_path; ?>pages/character.php?guid=<?php echo (int)$member['guid']; ?>';">
+                                        <tr class="<?php echo $isCaptain ? 'captain-row' : 'member-row'; ?> transition-colors duration-150" 
+                                            onclick="window.location='<?php echo $base_path; ?>character?guid=<?php echo (int)$member['guid']; ?>';" style="cursor:pointer;">
                                             
-                                            <td class="py-4 px-6 font-medium text-slate-100">
-                                                <div class="flex items-center gap-3">
+                                            <td class="py-3 px-3 md:px-4 font-medium text-gray-200 whitespace-nowrap">
+                                                <div class="flex items-center gap-2">
                                                     <?php if ($isCaptain): ?>
-                                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/20 border border-amber-400/40" title="Team Captain">
-                                                            <img src="<?php echo $base_path; ?>img/armory/leader.png" alt="Team Captain" class="w-3.5 h-3.5">
+                                                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[rgba(242,207,82,0.2)] border border-[rgba(201,162,39,0.4)]" title="Team Captain">
+                                                            <i class="fas fa-crown text-[10px] text-[#f2cf5b]"></i>
                                                         </span>
-                                                    <?php else: ?>
-                                                        <span class="w-6"></span>
                                                     <?php endif; ?>
-                                                    <span class="text-base hover:text-amber-300 transition-colors">
+                                                    <span class="hover:text-[#f2cf5b] transition-colors">
                                                         <?php echo htmlspecialchars($member['name']); ?>
                                                     </span>
                                                 </div>
                                             </td>
 
-                                            <td class="py-4 px-6 text-center">
-                                                <img src="<?php echo factionIconByName($faction); ?>" alt="<?php echo $faction; ?>" title="<?php echo $faction; ?>" class="inline-block w-7 h-7 rounded-lg shadow-sm">
+                                            <td class="py-3 px-3 md:px-4 text-center whitespace-nowrap">
+                                                <img src="<?php echo factionIconByName($faction); ?>" alt="<?php echo $faction; ?>" title="<?php echo $faction; ?>" class="inline-block w-6 h-6 rounded-full shadow-md">
                                             </td>
 
-                                            <td class="py-4 px-6 text-center">
-                                                <img src="<?php echo raceIcon($member['race'], $member['gender']); ?>" alt="Race" class="inline-block w-7 h-7 rounded-lg border border-slate-700 shadow-sm">
+                                            <td class="py-3 px-3 md:px-4 text-center whitespace-nowrap">
+                                                <img src="<?php echo raceIcon($member['race'], $member['gender']); ?>" alt="Race" class="inline-block w-6 h-6 rounded-full shadow-md border border-[rgba(201,162,39,0.1)]">
                                             </td>
 
-                                            <td class="py-4 px-6 text-center">
-                                                <img src="<?php echo classIcon($member['class']); ?>" alt="Class" class="inline-block w-7 h-7 rounded-lg border border-slate-700 shadow-sm">
+                                            <td class="py-3 px-3 md:px-4 text-center whitespace-nowrap">
+                                                <img src="<?php echo classIcon($member['class']); ?>" alt="Class" class="inline-block w-6 h-6 rounded-full shadow-md border border-[rgba(201,162,39,0.1)]">
                                             </td>
 
-                                            <td class="py-4 px-6 text-center">
-                                                <span class="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 font-semibold text-amber-300">
+                                            <td class="py-3 px-3 md:px-4 text-center whitespace-nowrap">
+                                                <span class="inline-block px-3 py-1 bg-[rgba(0,0,0,0.3)] border border-[rgba(201,162,39,0.15)] font-semibold text-[#f2cf5b] text-sm">
                                                     <?php echo (int)$member['personal_rating']; ?>
                                                 </span>
                                             </td>

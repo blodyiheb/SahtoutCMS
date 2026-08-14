@@ -23,6 +23,9 @@ $category_images = [
     'Set' => 'img/shopimg/icons/category_stuff.jpg'
 ];
 
+// Categories that should show tooltips
+$tooltip_categories = ['Mount', 'Pet', 'Stuff', 'Set'];
+
 $query = "
     SELECT si.item_id, si.category, si.name, si.description, si.image, si.point_cost, si.token_cost, si.stock, si.level_boost, si.at_login_flags, si.is_set, si.itemset_id, sit.entry AS sit_entry, sis.set_item_count
     FROM shop_items si
@@ -81,31 +84,29 @@ $status_message = '';
 if (isset($_GET['status'])) {
     switch ($_GET['status']) {
         case 'success':
-            $status_message = '<p class="status success">' . translate('shop_status_success', 'Purchase successful!') . '</p>';
+            $status_message = '<div class="bg-green-900/40 border border-green-600/40 text-green-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-check-circle text-green-400 text-lg"></i><span>' . translate('shop_status_success', 'Purchase successful!') . '</span></div>';
             break;
         case 'insufficient_funds':
-            $status_message = '<p class="status error">' . translate('shop_status_insufficient_funds', 'Insufficient points or tokens.') . '</p>';
+            $status_message = '<div class="bg-red-900/40 border border-red-600/40 text-red-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-circle text-red-400 text-lg"></i><span>' . translate('shop_status_insufficient_funds', 'Insufficient points or tokens.') . '</span></div>';
             break;
         case 'out_of_stock':
-            $status_message = '<p class="status error">' . translate('shop_status_out_of_stock', 'Item is out of stock.') . '</p>';
+            $status_message = '<div class="bg-red-900/40 border border-red-600/40 text-red-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-circle text-red-400 text-lg"></i><span>' . translate('shop_status_out_of_stock', 'Item is out of stock.') . '</span></div>';
             break;
         case 'error':
-            $status_message = '<p class="status error">' . translate('shop_status_error', 'An error occurred during purchase. Check server logs for details.') . '</p>';
-            break;
         case 'Database query error':
-            $status_message = '<p class="status error">' . translate('shop_status_db_error', 'Database error occurred. Contact support.') . '</p>';
+            $status_message = '<div class="bg-red-900/40 border border-red-600/40 text-red-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-circle text-red-400 text-lg"></i><span>' . translate('shop_status_error', 'An error occurred during purchase. Check server logs for details.') . '</span></div>';
             break;
         case 'character_online':
-            $status_message = '<p class="status error">' . translate('shop_status_character_online', 'Selected character must be logged out to complete the purchase.') . '</p>';
+            $status_message = '<div class="bg-yellow-900/40 border border-yellow-600/40 text-yellow-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i><span>' . translate('shop_status_character_online', 'Selected character must be logged out to complete the purchase.') . '</span></div>';
             break;
         case 'level_too_high':
-            $status_message = '<p class="status error">' . translate('shop_status_level_too_high', 'Your character\'s level is too high for this level boost.') . '</p>';
+            $status_message = '<div class="bg-yellow-900/40 border border-yellow-600/40 text-yellow-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i><span>' . translate('shop_status_level_too_high', 'Your character\'s level is too high for this level boost.') . '</span></div>';
             break;
         case 'character_not_found':
-            $status_message = '<p class="status error">' . translate('shop_status_character_not_found', 'Selected character not found or not owned.') . '</p>';
+            $status_message = '<div class="bg-red-900/40 border border-red-600/40 text-red-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-circle text-red-400 text-lg"></i><span>' . translate('shop_status_character_not_found', 'Selected character not found or not owned.') . '</span></div>';
             break;
         case 'cooldown_active':
-            $status_message = '<p class="status error">' . translate('shop_status_cooldown_active', 'Please wait 5 seconds before making another purchase.') . '</p>';
+            $status_message = '<div class="bg-yellow-900/40 border border-yellow-600/40 text-yellow-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i><span>' . translate('shop_status_cooldown_active', 'Please wait 5 seconds before making another purchase.') . '</span></div>';
             break;
     }
 }
@@ -130,180 +131,449 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<?php echo translate('shop_meta_description', 'Browse and purchase items, mounts, pets, gold, and services for '.$site_title_name . ' WoW Server'); ?>">
     <title><?php echo $site_title_name ." ".translate('shop_page_title', '- Shop'); ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/footer.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* Page background - Show full background image */
+        body {
+            background: url('<?php echo $base_path; ?>img/backgrounds/bg-shop.jpg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            padding-top: 112px;
+            margin: 0;
+            position: relative;
+        }
+        
+        /* Glass effect container */
+        .glass-container {
+            background: rgba(5, 7, 11, 0.65);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(201,162,39,.22);
+            border-radius: 0;
+            padding: 2.5rem 2.5rem;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.8), inset 0 0 60px rgba(0,0,0,.25);
+            position: relative;
+        }
+        
+        .glass-container::before {
+            content: ''; position: absolute; inset: 5px;
+            border: 1px solid rgba(201,162,39,.14);
+            pointer-events: none;
+        }
+        
+        .glass-container::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background:
+                linear-gradient(#e8c552,#e8c552) left top / 18px 2px,
+                linear-gradient(#e8c552,#e8c552) left top / 2px 18px,
+                linear-gradient(#e8c552,#e8c552) right top / 18px 2px,
+                linear-gradient(#e8c552,#e8c552) right top / 2px 18px,
+                linear-gradient(#e8c552,#e8c552) left bottom / 18px 2px,
+                linear-gradient(#e8c552,#e8c552) left bottom / 2px 18px,
+                linear-gradient(#e8c552,#e8c552) right bottom / 18px 2px,
+                linear-gradient(#e8c552,#e8c552) right bottom / 2px 18px;
+            background-repeat: no-repeat;
+        }
+        
+        /* Wow title gradient */
+        .wow-title {
+            font-family: 'Cinzel', serif;
+            font-weight: 900;
+            background: linear-gradient(180deg, #fff7d6 0%, #f2cf5b 35%, #c9a227 62%, #8a6a14 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,.9));
+            letter-spacing: .02em;
+        }
+        
+        /* Item card hover effect */
+        .item-card {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .item-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(201,162,39,0.4);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+            z-index: 20;
+        }
+        
+        /* Tooltip positioned on the right side */
+        .item-card .item-tooltip {
+            display: none;
+            position: absolute;
+            z-index: 100;
+            background: rgba(5,7,11,0.95);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(201,162,39,0.3);
+            padding: 1rem;
+            width: 320px;
+            color: #d1d5db;
+            font-size: 0.8rem;
+            top: 0;
+            left: calc(100% + 10px);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* Tooltip arrow pointing left */
+        .item-card .item-tooltip::before {
+            content: '';
+            position: absolute;
+            right: 100%;
+            top: 20px;
+            border: 8px solid transparent;
+            border-right-color: rgba(201,162,39,0.3);
+        }
+        
+        /* Show tooltip only for categories that have tooltips */
+        .item-card.has-tooltip:hover .item-tooltip {
+            display: block;
+        }
+        
+        /* Limited stock badge animation */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .limited-stock-badge {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Custom alert overlay */
+        .custom-alert-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .custom-alert-overlay.show {
+            display: flex;
+        }
+        
+        .custom-alert-overlay.fade-out {
+            animation: fadeOut 0.3s ease forwards;
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        /* Tab content animation */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .item-card .item-tooltip {
+                left: 50%;
+                top: 100%;
+                transform: translateX(-50%);
+                margin-top: 10px;
+                width: 280px;
+            }
+            
+            .item-card .item-tooltip::before {
+                right: auto;
+                top: auto;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border-right-color: transparent;
+                border-bottom-color: rgba(201,162,39,0.3);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding-top: 96px;
+            }
+            
+            .glass-container {
+                padding: 1.5rem 0.75rem;
+            }
+            
+            .item-card .item-tooltip {
+                width: 250px;
+                left: 50%;
+                top: 100%;
+                transform: translateX(-50%);
+                margin-top: 10px;
+            }
+            
+            .item-card .item-tooltip::before {
+                right: auto;
+                top: auto;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border-right-color: transparent;
+                border-bottom-color: rgba(201,162,39,0.3);
+            }
+        }
+    </style>
 </head>
-<body class="shop">
-    <div class="shop-container">
-        <h1><?php echo $site_title_name ." ". translate('shop_title', 'Server Shop'); ?></h1>
-        <?php if (!empty($_SESSION['user_id'])): ?>
-            <div class="user-balance">
-                <span class="points"><i class="fas fa-coins"></i> <?php echo translate('shop_points', 'Points'); ?>: <?php echo $points; ?></span>
-                <span class="tokens"><i class="fas fa-gem"></i> <?php echo translate('shop_tokens', 'Tokens'); ?>: <?php echo $tokens; ?></span>
-            </div>
-        <?php else: ?>
-            <p class="login-prompt"><?php echo str_replace('{base_path}', $base_path, translate('shop_login_prompt', 'Please <a href="{base_path}login">log in</a> to purchase items.')); ?></p>
-        <?php endif; ?>
+<body>
 
-        <?php echo $status_message; ?>
+<div class="shop-content relative z-10 min-h-screen flex items-start justify-center px-4 md:px-8 py-8">
+    <div class="container mx-auto max-w-7xl px-2 sm:px-4">
+        
+        <!-- Main Container -->
+        <div class="glass-container">
+            
+            <!-- Header -->
+            <h1 class="wow-title text-3xl md:text-5xl font-bold text-center mb-6">
+                <i class="fas fa-store text-[#f2cf5b] mr-2"></i>
+                <?php echo $site_title_name ." ". translate('shop_title', 'Server Shop'); ?>
+            </h1>
+            
+            <!-- User Balance -->
+            <?php if (!empty($_SESSION['user_id'])): ?>
+                <div class="flex flex-wrap justify-center gap-4 mb-6 p-4 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.1)]">
+                    <span class="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] font-semibold text-base">
+                        <i class="fas fa-coins"></i> <?php echo translate('shop_points', 'Points'); ?>: <?php echo $points; ?>
+                    </span>
+                    <span class="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(139,92,246,0.15)] border border-[rgba(139,92,246,0.3)] text-[#8b5cf6] font-semibold text-base">
+                        <i class="fas fa-gem"></i> <?php echo translate('shop_tokens', 'Tokens'); ?>: <?php echo $tokens; ?>
+                    </span>
+                </div>
+            <?php else: ?>
+                <div class="text-center text-gray-300 text-sm md:text-base p-4 bg-[rgba(242,207,82,0.08)] border border-[rgba(201,162,39,0.2)] mb-6">
+                    <i class="fas fa-info-circle text-[#f2cf5b] mr-2"></i>
+                    <?php echo str_replace('{base_path}', $base_path, translate('shop_login_prompt', 'Please <a href="{base_path}login" class="text-[#f2cf5b] hover:text-yellow-300 underline">log in</a> to purchase items.')); ?>
+                </div>
+            <?php endif; ?>
 
-        <nav class="shop-nav">
-            <?php foreach ($valid_categories as $category): ?>
-                <a href="#" 
-                   class="category-button <?php echo $selected_category === $category ? 'active' : ''; ?>" 
-                   data-category="<?php echo htmlspecialchars($category); ?>">
-                    <?php if (isset($category_images[$category])): ?>
-                        <img src="<?php echo $base_path . $category_images[$category]; ?>" alt="<?php echo translate('shop_category_' . strtolower($category) . '_icon', htmlspecialchars($category) . ' Icon'); ?>" class="category-icon">
-                    <?php endif; ?>
-                    <?php echo translate('shop_category_' . strtolower($category), htmlspecialchars($category)); ?>
-                </a>
-            <?php endforeach; ?>
-        </nav>
+            <!-- Status Messages -->
+            <?php echo $status_message; ?>
 
-        <?php if (empty($items)): ?>
-            <p class="no-items"><?php echo translate('shop_no_items', 'No items available.'); ?></p>
-        <?php else: ?>
-            <?php foreach ($items as $category => $category_items): ?>
-                <section class="shop-category" data-category="<?php echo htmlspecialchars($category); ?>" 
-                         style="display: <?php echo ($selected_category === 'All' || $selected_category === $category) ? 'block' : 'none'; ?>">
-                    <h2><?php echo translate('shop_category_' . strtolower($category), htmlspecialchars($category)); ?></h2>
-                    <div class="item-grid">
-                        <?php foreach ($category_items as $item): ?>
-                            <div class="item-card" data-entry="<?php echo $item['sit_entry'] ? htmlspecialchars($item['sit_entry']) : ''; ?>">
-                                <div class="item-image-container">
-                                    <img src="<?php echo $base_path . ($item['image'] ?? 'img/shop/placeholder.png'); ?>" alt="<?php echo str_replace('{name}', htmlspecialchars($item['name']), translate('shop_item_image_alt', '{name}')); ?>">
-                                    <?php if ($item['stock'] !== null && $item['stock'] < 10 && $item['stock'] > 0): ?>
-                                        <span class="limited-stock-badge">Limited Stock</span>
-                                    <?php endif; ?>
-                                </div>
-                                <h3><?php echo htmlspecialchars($item['name']); ?></h3>
-                                <p><?php echo htmlspecialchars($item['description'] ?? translate('shop_no_description', 'No description available.')); ?></p>
-                                <?php if ((int)$item['is_set'] === 1 && !empty($item['itemset_id'])): ?>
-                                    <p class="set-info">
-                                        <?php echo translate('shop_set_contains', 'Set') . ' #' . (int)$item['itemset_id'] . ' - ' . (int)($item['set_item_count'] ?? 0) . ' ' . translate('shop_items', 'items'); ?>
-                                    </p>
-                                <?php endif; ?>
-                                <?php if ($category === 'Service'): ?>
-                                    <?php if ($item['level_boost'] !== null): ?>
-                                        <p class="level-boost"><?php echo translate('shop_level_boost', 'Level Boost'); ?>: <?php echo $item['level_boost']; ?></p>
-                                    <?php endif; ?>
-                                    <?php if ($item['at_login_flags'] & 1): ?>
-                                        <p class="rename-character"><?php echo translate('shop_rename_character', 'Character Rename'); ?></p>
-                                    <?php endif; ?>
-                                    <?php if ($item['at_login_flags'] & 2): ?>
-                                        <p class="reset-spells"><?php echo translate('shop_reset_spells', 'Reset Spells'); ?></p>
-                                    <?php endif; ?>
-                                    <?php if ($item['at_login_flags'] & 4): ?>
-                                        <p class="reset-talents"><?php echo translate('shop_reset_talents', 'Reset Talents'); ?></p>
-                                    <?php endif; ?>
-                                    <?php if ($item['at_login_flags'] & 8): ?>
-                                        <p class="customize-character"><?php echo translate('shop_customize_character', 'Character Customization'); ?></p>
-                                    <?php endif; ?>
-                                    <?php if ($item['at_login_flags'] & 16): ?>
-                                        <p class="reset-pet-talents"><?php echo translate('shop_reset_pet_talents', 'Reset Pet Talents'); ?></p>
-                                    <?php endif; ?>
-                                    <?php if ($item['at_login_flags'] & 32): ?>
-                                        <p class="first-login"><?php echo translate('shop_first_login', 'First Login'); ?></p>
-                                    <?php endif; ?>
-                                    <?php if ($item['at_login_flags'] & 64): ?>
-                                        <p class="faction-change"><?php echo translate('shop_faction_change', 'Faction Change'); ?></p>
-                                    <?php endif; ?>
-                                    <?php if ($item['at_login_flags'] & 128): ?>
-                                        <p class="race-change"><?php echo translate('shop_race_change', 'Race Change'); ?></p>
-                                    <?php endif; ?>
-                                <?php endif; ?>
-                                <div class="item-tooltip">
-                                    <?php
-                                    if (in_array($category, ['Stuff', 'Pet', 'Mount']) && $item['sit_entry'] && (int)$item['is_set'] !== 1) {
-                                        $stmt_tooltip = $site_db->prepare("SELECT * FROM site_items WHERE entry = ?");
-                                        $stmt_tooltip->bind_param("i", $item['sit_entry']);
-                                        $stmt_tooltip->execute();
-                                        $result_tooltip = $stmt_tooltip->get_result();
-                                        if ($tooltip_data = $result_tooltip->fetch_assoc()) {
-                                            echo generateTooltip($tooltip_data);
-                                        }
-                                        $stmt_tooltip->close();
-                                    }
-                                    ?>
-                                </div>
-                                <div class="item-cost">
-                                    <?php if ($item['point_cost'] > 0): ?>
-                                        <span class="points"><i class="fas fa-coins"></i> <?php echo $item['point_cost']; ?></span>
-                                    <?php endif; ?>
-                                    <?php if ($item['token_cost'] > 0): ?>
-                                        <span class="tokens"><i class="fas fa-gem"></i> <?php echo $item['token_cost']; ?></span>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="item-stock">
-                                    <?php if ($item['stock'] !== null): ?>
-                                        <span><?php echo translate('shop_stock', 'Stock'); ?>: <?php echo $item['stock']; ?></span>
-                                    <?php else: ?>
-                                        <span><?php echo translate('shop_unlimited_stock', 'Unlimited Stock'); ?></span>
-                                    <?php endif; ?>
-                                </div>
-                                <?php if (!empty($_SESSION['user_id'])): ?>
-                                    <form action="<?php echo $base_path; ?>buy_item" method="POST" class="purchase-form">
-                                        <input type="hidden" name="item_id" value="<?php echo $item['item_id']; ?>">
-                                        <?php if (!empty($characters)): ?>
-                                            <select name="character_id" class="character-select" required>
-                                                <option value=""><?php echo translate('shop_select_character', 'Select a Character'); ?></option>
-                                                <?php foreach ($characters as $char): ?>
-                                                    <option value="<?php echo htmlspecialchars($char['id']); ?>">
-                                                        <?php echo htmlspecialchars($char['name']); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        <?php else: ?>
-                                            <p class="no-characters"><?php echo translate('shop_no_characters', 'No characters available.'); ?></p>
+            <!-- Category Navigation -->
+            <nav class="flex flex-wrap justify-center gap-2 mb-6 p-3 bg-[rgba(0,0,0,0.3)] border border-[rgba(201,162,39,0.1)]">
+                <?php foreach ($valid_categories as $category): ?>
+                    <a href="#" 
+                       class="category-button flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-2 rounded-none transition-all duration-300 <?php echo $selected_category === $category ? 'bg-[rgba(242,207,82,0.2)] border-[#f2cf5b] text-[#f2cf5b]' : 'bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.15)] text-gray-400 hover:border-[#f2cf5b] hover:text-white hover:bg-[rgba(242,207,82,0.05)]'; ?>" 
+                       data-category="<?php echo htmlspecialchars($category); ?>">
+                        <?php if (isset($category_images[$category])): ?>
+                            <img src="<?php echo $base_path . $category_images[$category]; ?>" alt="<?php echo translate('shop_category_' . strtolower($category) . '_icon', htmlspecialchars($category) . ' Icon'); ?>" class="w-8 h-8 rounded-full object-cover border border-[rgba(201,162,39,0.1)]">
+                        <?php endif; ?>
+                        <?php echo translate('shop_category_' . strtolower($category), htmlspecialchars($category)); ?>
+                    </a>
+                <?php endforeach; ?>
+            </nav>
+
+            <!-- Items -->
+            <?php if (empty($items)): ?>
+                <div class="text-center py-12 text-gray-400">
+                    <i class="fas fa-box-open text-4xl block mb-3 text-[rgba(201,162,39,0.3)]"></i>
+                    <?php echo translate('shop_no_items', 'No items available.'); ?>
+                </div>
+            <?php else: ?>
+                <?php foreach ($items as $category => $category_items): ?>
+                    <section class="tab-content <?php echo ($selected_category === 'All' || $selected_category === $category) ? 'active' : ''; ?>" data-category="<?php echo htmlspecialchars($category); ?>">
+                        <h2 class="text-2xl font-bold text-[#f2cf5b] mb-4 pb-2 border-b border-[rgba(201,162,39,0.15)]">
+                            <i class="fas fa-tag mr-2"></i>
+                            <?php echo translate('shop_category_' . strtolower($category), htmlspecialchars($category)); ?>
+                        </h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            <?php foreach ($category_items as $item): ?>
+                                <?php 
+                                $has_tooltip = in_array($category, $tooltip_categories) && $item['sit_entry'] && (int)$item['is_set'] !== 1;
+                                ?>
+                                <div class="item-card relative bg-[rgba(10,14,22,0.8)] border border-[rgba(201,162,39,0.12)] p-4 flex flex-col <?php echo $has_tooltip ? 'has-tooltip' : ''; ?>" data-entry="<?php echo $item['sit_entry'] ? htmlspecialchars($item['sit_entry']) : ''; ?>">
+                                    <!-- Image -->
+                                    <div class="relative w-full">
+                                        <img src="<?php echo $base_path . ($item['image'] ?? 'img/shop/placeholder.png'); ?>" alt="<?php echo str_replace('{name}', htmlspecialchars($item['name']), translate('shop_item_image_alt', '{name}')); ?>" class="w-full h-48 object-cover border border-[rgba(201,162,39,0.08)]">
+                                        <?php if ($item['stock'] !== null && $item['stock'] < 10 && $item['stock'] > 0): ?>
+                                            <span class="limited-stock-badge absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 border border-red-600 shadow-lg">Limited Stock</span>
                                         <?php endif; ?>
-                                        <button type="submit" class="buy-button" 
-                                                <?php echo ($item['stock'] === 0 && $item['stock'] !== null) || empty($characters) || $cooldown_active ? 'disabled' : ''; ?>
-                                                data-item-id="<?php echo $item['item_id']; ?>">
-                                            <?php echo $cooldown_active ? str_replace('{seconds}', $remaining_cooldown, translate('shop_wait_cooldown', 'Wait {seconds}s')) : translate('shop_buy_now', 'Buy Now'); ?>
-                                        </button>
-                                    </form>
-                                <?php else: ?>
-                                    <a href="<?php echo $base_path; ?>login" class="login-to-buy-button"><?php echo translate('shop_login_to_buy', 'Log in to Buy'); ?></a>
-                                <?php endif; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </section>
-            <?php endforeach; ?>
-        <?php endif; ?>
+                                    </div>
+                                    
+                                    <!-- Details -->
+                                    <h3 class="text-white text-lg font-bold mt-3 mb-1"><?php echo htmlspecialchars($item['name']); ?></h3>
+                                    <p class="text-gray-400 text-sm flex-1"><?php echo htmlspecialchars($item['description'] ?? translate('shop_no_description', 'No description available.')); ?></p>
+                                    
+                                    <?php if ((int)$item['is_set'] === 1 && !empty($item['itemset_id'])): ?>
+                                        <p class="text-[#89d2ff] text-xs font-semibold mt-1">
+                                            <i class="fas fa-cubes mr-1"></i>
+                                            <?php echo translate('shop_set_contains', 'Set') . ' #' . (int)$item['itemset_id'] . ' - ' . (int)($item['set_item_count'] ?? 0) . ' ' . translate('shop_items', 'items'); ?>
+                                        </p>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($category === 'Service'): ?>
+                                        <?php if ($item['level_boost'] !== null): ?>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-arrow-up mr-1"></i><?php echo translate('shop_level_boost', 'Level Boost'); ?>: <?php echo $item['level_boost']; ?></p>
+                                        <?php endif; ?>
+                                        <?php if ($item['at_login_flags'] & 1): ?>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-user-edit mr-1"></i><?php echo translate('shop_rename_character', 'Character Rename'); ?></p>
+                                        <?php endif; ?>
+                                        <?php if ($item['at_login_flags'] & 2): ?>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-magic mr-1"></i><?php echo translate('shop_reset_spells', 'Reset Spells'); ?></p>
+                                        <?php endif; ?>
+                                        <?php if ($item['at_login_flags'] & 4): ?>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-star mr-1"></i><?php echo translate('shop_reset_talents', 'Reset Talents'); ?></p>
+                                        <?php endif; ?>
+                                        <?php if ($item['at_login_flags'] & 8): ?>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-user-astronaut mr-1"></i><?php echo translate('shop_customize_character', 'Character Customization'); ?></p>
+                                        <?php endif; ?>
+                                        <?php if ($item['at_login_flags'] & 16): ?>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-paw mr-1"></i><?php echo translate('shop_reset_pet_talents', 'Reset Pet Talents'); ?></p>
+                                        <?php endif; ?>
+                                        <?php if ($item['at_login_flags'] & 64): ?>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-flag mr-1"></i><?php echo translate('shop_faction_change', 'Faction Change'); ?></p>
+                                        <?php endif; ?>
+                                        <?php if ($item['at_login_flags'] & 128): ?>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-users mr-1"></i><?php echo translate('shop_race_change', 'Race Change'); ?></p>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                    
+                                    <!-- Tooltip - Only for categories with tooltips -->
+                                    <?php if ($has_tooltip): ?>
+                                        <div class="item-tooltip">
+                                            <?php
+                                            if (in_array($category, $tooltip_categories) && $item['sit_entry'] && (int)$item['is_set'] !== 1) {
+                                                $stmt_tooltip = $site_db->prepare("SELECT * FROM site_items WHERE entry = ?");
+                                                $stmt_tooltip->bind_param("i", $item['sit_entry']);
+                                                $stmt_tooltip->execute();
+                                                $result_tooltip = $stmt_tooltip->get_result();
+                                                if ($tooltip_data = $result_tooltip->fetch_assoc()) {
+                                                    echo generateTooltip($tooltip_data);
+                                                }
+                                                $stmt_tooltip->close();
+                                            }
+                                            ?>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <!-- Cost -->
+                                    <div class="flex justify-center gap-4 mt-3 pt-2 border-t border-[rgba(201,162,39,0.08)]">
+                                        <?php if ($item['point_cost'] > 0): ?>
+                                            <span class="text-[#f2cf5b] font-semibold text-sm"><i class="fas fa-coins mr-1"></i> <?php echo $item['point_cost']; ?></span>
+                                        <?php endif; ?>
+                                        <?php if ($item['token_cost'] > 0): ?>
+                                            <span class="text-[#8b5cf6] font-semibold text-sm"><i class="fas fa-gem mr-1"></i> <?php echo $item['token_cost']; ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    
+                                    <!-- Stock -->
+                                    <div class="text-center text-gray-500 text-xs mt-1">
+                                        <?php if ($item['stock'] !== null): ?>
+                                            <span><?php echo translate('shop_stock', 'Stock'); ?>: <?php echo $item['stock']; ?></span>
+                                        <?php else: ?>
+                                            <span><?php echo translate('shop_unlimited_stock', 'Unlimited Stock'); ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    
+                                    <!-- Purchase -->
+                                    <?php if (!empty($_SESSION['user_id'])): ?>
+                                        <form action="<?php echo $base_path; ?>buy_item" method="POST" class="mt-3 purchase-form">
+                                            <input type="hidden" name="item_id" value="<?php echo $item['item_id']; ?>">
+                                            <?php if (!empty($characters)): ?>
+                                                <select name="character_id" class="w-full mb-2 px-3 py-2 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 text-sm focus:border-[#f2cf5b] focus:outline-none transition-colors" required>
+                                                    <option value=""><?php echo translate('shop_select_character', 'Select a Character'); ?></option>
+                                                    <?php foreach ($characters as $char): ?>
+                                                        <option value="<?php echo htmlspecialchars($char['id']); ?>">
+                                                            <?php echo htmlspecialchars($char['name']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            <?php else: ?>
+                                                <p class="text-red-400 text-xs text-center mb-2"><?php echo translate('shop_no_characters', 'No characters available.'); ?></p>
+                                            <?php endif; ?>
+                                            <button type="submit" class="buy-button w-full py-2.5 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold text-sm <?php echo ($item['stock'] === 0 && $item['stock'] !== null) || empty($characters) || $cooldown_active ? 'opacity-50 cursor-not-allowed hover:bg-[rgba(242,207,82,0.15)]' : ''; ?>" 
+                                                    <?php echo ($item['stock'] === 0 && $item['stock'] !== null) || empty($characters) || $cooldown_active ? 'disabled' : ''; ?>
+                                                    data-item-id="<?php echo $item['item_id']; ?>">
+                                                <?php echo $cooldown_active ? str_replace('{seconds}', $remaining_cooldown, translate('shop_wait_cooldown', 'Wait {seconds}s')) : translate('shop_buy_now', 'Buy Now'); ?>
+                                            </button>
+                                        </form>
+                                    <?php else: ?>
+                                        <a href="<?php echo $base_path; ?>login" class="login-to-buy-button block w-full text-center py-2.5 bg-[rgba(52,152,219,0.2)] border border-[rgba(52,152,219,0.3)] text-[#3498db] hover:bg-[rgba(52,152,219,0.3)] transition-all duration-300 font-semibold text-sm mt-3"><?php echo translate('shop_login_to_buy', 'Log in to Buy'); ?></a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </section>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            
+        </div>
     </div>
+</div>
 
-    <script>
+<!-- Custom Alert Overlay -->
+<div class="custom-alert-overlay" id="customAlert">
+    <div class="bg-[rgba(5,7,11,0.95)] border border-[rgba(201,162,39,0.3)] p-6 max-w-md w-full mx-4 text-center relative transform scale-90 transition-all duration-300" id="alertBox">
+        <button class="absolute top-2 right-3 text-gray-500 hover:text-[#f2cf5b] transition-colors text-xl" id="alertClose">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="w-16 h-16 mx-auto rounded-full bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] flex items-center justify-center text-3xl mb-3" id="alertIcon">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <h3 class="text-[#f2cf5b] text-xl font-bold mb-2" id="alertTitle">Information</h3>
+        <p class="text-gray-300 text-sm leading-relaxed" id="alertMessage">Message</p>
+        <div class="mt-4 flex flex-col sm:flex-row gap-2 justify-center" id="alertActions"></div>
+    </div>
+</div>
+
+<?php include_once $project_root . 'includes/footer.php'; ?>
+
+<script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Category filtering
         const buttons = document.querySelectorAll('.category-button');
-        const categories = document.querySelectorAll('.shop-category');
-        const noItemsMessage = document.querySelector('.no-items');
-
+        const categories = document.querySelectorAll('.tab-content');
+        
         buttons.forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
                 const selectedCategory = this.getAttribute('data-category');
-                buttons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                let hasItems = false;
+                
+                buttons.forEach(btn => {
+                    btn.classList.remove('bg-[rgba(242,207,82,0.2)]', 'border-[#f2cf5b]', 'text-[#f2cf5b]');
+                    btn.classList.add('bg-[rgba(10,14,22,0.6)]', 'border-[rgba(201,162,39,0.15)]', 'text-gray-400');
+                });
+                this.classList.add('bg-[rgba(242,207,82,0.2)]', 'border-[#f2cf5b]', 'text-[#f2cf5b]');
+                this.classList.remove('bg-[rgba(10,14,22,0.6)]', 'border-[rgba(201,162,39,0.15)]', 'text-gray-400');
+                
                 categories.forEach(category => {
                     if (selectedCategory === 'All' || category.getAttribute('data-category') === selectedCategory) {
+                        category.classList.add('active');
                         category.style.display = 'block';
-                        hasItems = true;
                     } else {
+                        category.classList.remove('active');
                         category.style.display = 'none';
                     }
                 });
-                if (noItemsMessage) {
-                    noItemsMessage.style.display = hasItems ? 'none' : 'block';
-                }
+                
                 const newUrl = window.location.pathname + '?category=' + encodeURIComponent(selectedCategory);
                 window.history.pushState({}, '', newUrl);
             });
         });
 
-        const purchaseForms = document.querySelectorAll('.purchase-form');
+        // Cooldown timer
         let remainingCooldown = <?php echo json_encode($remaining_cooldown); ?>;
         let isPurchaseBlocked = <?php echo json_encode($cooldown_active); ?>;
 
@@ -317,8 +587,11 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                 if (!button.hasAttribute('disabled') || button.getAttribute('disabled') === '') {
                     button.disabled = disabled;
                     button.textContent = disabled ? '<?php echo translate('shop_wait_cooldown', 'Wait {seconds}s'); ?>'.replace('{seconds}', seconds) : '<?php echo translate('shop_buy_now', 'Buy Now'); ?>';
-                    button.style.background = disabled ? '#666' : '#ffd700';
-                    button.style.cursor = disabled ? 'not-allowed' : 'pointer';
+                    if (disabled) {
+                        button.classList.add('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        button.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
                 }
             });
         }
@@ -337,7 +610,8 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
             }, 1000);
         }
 
-        purchaseForms.forEach(form => {
+        // Purchase form validation
+        document.querySelectorAll('.purchase-form').forEach(form => {
             form.addEventListener('submit', function(e) {
                 const characterSelect = this.querySelector('.character-select');
                 if (characterSelect && !characterSelect.value) {
@@ -353,17 +627,90 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
             });
         });
 
-        // Beautiful custom alert for login button
-        const loginButtons = document.querySelectorAll('.login-to-buy-button');
-        loginButtons.forEach(button => {
+        // Login to buy buttons
+        document.querySelectorAll('.login-to-buy-button').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
                 showLoginAlert();
             });
         });
 
-        const buyButtons = document.querySelectorAll('.buy-button:not([href])');
-        buyButtons.forEach(button => {
+        // Custom Alert System
+        function showCustomAlert(message, type = 'info') {
+            const overlay = document.getElementById('customAlert');
+            const alertBox = document.getElementById('alertBox');
+            const icon = document.getElementById('alertIcon');
+            const title = document.getElementById('alertTitle');
+            const msg = document.getElementById('alertMessage');
+            const actions = document.getElementById('alertActions');
+            
+            const icons = {
+                info: { class: 'fa-info-circle', title: 'Information' },
+                warning: { class: 'fa-exclamation-triangle', title: 'Warning' },
+                error: { class: 'fa-times-circle', title: 'Error' },
+                success: { class: 'fa-check-circle', title: 'Success' }
+            };
+            
+            const config = icons[type] || icons.info;
+            icon.innerHTML = `<i class="fas ${config.class}"></i>`;
+            title.textContent = config.title;
+            msg.textContent = message;
+            actions.innerHTML = '';
+            
+            overlay.classList.add('show');
+            alertBox.classList.remove('scale-90');
+            alertBox.classList.add('scale-100');
+            
+            // Auto close after 5 seconds for info
+            if (type === 'info') {
+                setTimeout(() => {
+                    closeAlert();
+                }, 5000);
+            }
+        }
+
+        function showLoginAlert() {
+            const overlay = document.getElementById('customAlert');
+            const alertBox = document.getElementById('alertBox');
+            const icon = document.getElementById('alertIcon');
+            const title = document.getElementById('alertTitle');
+            const msg = document.getElementById('alertMessage');
+            const actions = document.getElementById('alertActions');
+            
+            icon.innerHTML = '<i class="fas fa-lock"></i>';
+            title.textContent = 'Login Required';
+            msg.textContent = 'Please log in to purchase items from the shop.';
+            actions.innerHTML = `
+                <a href="<?php echo $base_path; ?>login" class="px-6 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold text-sm">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Log In Now
+                </a>
+                <button class="px-6 py-2 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-gray-300 hover:bg-[rgba(255,255,255,0.1)] transition-all duration-300 font-semibold text-sm" onclick="closeAlert()">
+                    Continue Browsing
+                </button>
+            `;
+            
+            overlay.classList.add('show');
+            alertBox.classList.remove('scale-90');
+            alertBox.classList.add('scale-100');
+        }
+
+        window.closeAlert = function() {
+            const overlay = document.getElementById('customAlert');
+            const alertBox = document.getElementById('alertBox');
+            alertBox.classList.remove('scale-100');
+            alertBox.classList.add('scale-90');
+            setTimeout(() => {
+                overlay.classList.remove('show');
+            }, 300);
+        };
+
+        document.getElementById('alertClose').addEventListener('click', closeAlert);
+        document.getElementById('customAlert').addEventListener('click', function(e) {
+            if (e.target === this) closeAlert();
+        });
+
+        // No characters alert
+        document.querySelectorAll('.buy-button:not([href])').forEach(button => {
             if (<?php echo json_encode(empty($characters)); ?>) {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -371,747 +718,9 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                 });
             }
         });
-
-        // Beautiful custom alert function
-        function showCustomAlert(message, type = 'info') {
-            // Remove any existing custom alert
-            const existingAlert = document.querySelector('.custom-alert-overlay');
-            if (existingAlert) {
-                existingAlert.remove();
-            }
-
-            // Create overlay
-            const overlay = document.createElement('div');
-            overlay.className = 'custom-alert-overlay';
-            
-            // Create alert container
-            const alertBox = document.createElement('div');
-            alertBox.className = `custom-alert ${type}`;
-            
-            // Set icon based on type
-            let icon = 'fa-info-circle';
-            let title = 'Information';
-            
-            if (type === 'warning') {
-                icon = 'fa-exclamation-triangle';
-                title = 'Warning';
-            } else if (type === 'error') {
-                icon = 'fa-times-circle';
-                title = 'Error';
-            } else if (type === 'success') {
-                icon = 'fa-check-circle';
-                title = 'Success';
-            }
-            
-            // Build alert HTML
-            alertBox.innerHTML = `
-                <div class="alert-icon">
-                    <i class="fas ${icon}"></i>
-                </div>
-                <div class="alert-content">
-                    <h3>${title}</h3>
-                    <p>${message}</p>
-                </div>
-                <button class="alert-close-btn">
-                    <i class="fas fa-times"></i>
-                </button>
-            `;
-            
-            overlay.appendChild(alertBox);
-            document.body.appendChild(overlay);
-            
-            // Add close button functionality
-            const closeBtn = alertBox.querySelector('.alert-close-btn');
-            closeBtn.addEventListener('click', function() {
-                overlay.classList.add('fade-out');
-                setTimeout(() => {
-                    overlay.remove();
-                }, 300);
-            });
-            
-            // Close when clicking outside
-            overlay.addEventListener('click', function(e) {
-                if (e.target === overlay) {
-                    overlay.classList.add('fade-out');
-                    setTimeout(() => {
-                        overlay.remove();
-                    }, 300);
-                }
-            });
-            
-            // Auto close after 5 seconds for info messages
-            if (type === 'info') {
-                setTimeout(() => {
-                    if (document.body.contains(overlay)) {
-                        overlay.classList.add('fade-out');
-                        setTimeout(() => {
-                            if (document.body.contains(overlay)) {
-                                overlay.remove();
-                            }
-                        }, 300);
-                    }
-                }, 5000);
-            }
-            
-            // Trigger animation
-            setTimeout(() => {
-                alertBox.classList.add('show');
-            }, 10);
-        }
-
-        // Specialized login alert
-        function showLoginAlert() {
-            // Remove any existing custom alert
-            const existingAlert = document.querySelector('.custom-alert-overlay');
-            if (existingAlert) {
-                existingAlert.remove();
-            }
-
-            // Create overlay
-            const overlay = document.createElement('div');
-            overlay.className = 'custom-alert-overlay';
-            
-            // Create alert container
-            const alertBox = document.createElement('div');
-            alertBox.className = 'custom-alert login-alert';
-            
-            // Build login alert HTML
-            alertBox.innerHTML = `
-                <div class="alert-icon">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <div class="alert-content">
-                    <h3>Login Required</h3>
-                    <p>Please log in to purchase items from the shop.</p>
-                    <div class="alert-actions">
-                        <a href="<?php echo $base_path; ?>login" class="alert-btn login-btn">
-                            <i class="fas fa-sign-in-alt"></i> Log In Now
-                        </a>
-                        <button class="alert-btn cancel-btn">Continue Browsing</button>
-                    </div>
-                </div>
-            `;
-            
-            overlay.appendChild(alertBox);
-            document.body.appendChild(overlay);
-            
-            // Add button functionality
-            const cancelBtn = alertBox.querySelector('.cancel-btn');
-            cancelBtn.addEventListener('click', function() {
-                overlay.classList.add('fade-out');
-                setTimeout(() => {
-                    overlay.remove();
-                }, 300);
-            });
-            
-            // Close when clicking outside
-            overlay.addEventListener('click', function(e) {
-                if (e.target === overlay) {
-                    overlay.classList.add('fade-out');
-                    setTimeout(() => {
-                        overlay.remove();
-                    }, 300);
-                }
-            });
-            
-            // Trigger animation
-            setTimeout(() => {
-                alertBox.classList.add('show');
-            }, 10);
-        }
     });
-    </script>
+</script>
 
-    <style>
-    body {
-        background: url('<?php echo $base_path; ?>img/backgrounds/bg-shop.jpg') no-repeat center center fixed;
-        background-size: cover;
-    }
-   .shop-container {
-        max-width: 1200px;
-        margin: 2rem auto;
-        padding: 0 1rem;
-        min-height: calc(100vh - 150px); /* Adjust 150px based on header/footer height */
-        display: flex;
-        flex-direction: column;
-    }
-    .shop-container h1 {
-        text-align: center;
-        color: #ffd700;
-        font-family: 'UnifrakturCook', cursive;
-        font-size: 2.5rem;
-        margin-bottom: 2rem;
-    }
-    .user-balance {
-        display: flex;
-        justify-content: center;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-        padding: 1rem;
-        background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(20, 20, 20, 0.9) 100%);
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    }
-    .user-balance span {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.6rem 1.2rem;
-        border-radius: 8px;
-        font-size: 1.2rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    .user-balance .points {
-        background: linear-gradient(135deg, #ffd700 0%, #f1c40f 100%);
-        color: #1a1a1a;
-        border: 2px solid #e6c200;
-    }
-    .user-balance .points:hover {
-        background: linear-gradient(135deg, #e6c200 0%, #d4ac0d 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(241, 196, 15, 0.5);
-    }
-    .user-balance .tokens {
-        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-        color: #fff;
-        border: 2px solid #8e44ad;
-    }
-    .user-balance .tokens:hover {
-        background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(155, 89, 182, 0.5);
-    }
-    .user-balance .points i, .user-balance .tokens i {
-        font-size: 1.3rem;
-    }
-    .login-prompt {
-        text-align: center;
-        color: #fff;
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
-        padding: 1rem;
-        background: rgba(0, 0, 0, 0.8);
-        border-radius: 8px;
-    }
-    .login-prompt a {
-        color: #ffd700;
-        text-decoration: none;
-    }
-    .login-prompt a:hover {
-        text-decoration: underline;
-    }
-    .shop-nav {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 1rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    }
-    .shop-nav a.category-button {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        text-decoration: none;
-        font-size: 1.1rem;
-        font-weight: 600;
-        padding: 0.8rem 1.5rem;
-        border-radius: 8px;
-        background: linear-gradient(135deg, #ffd700 0%, #f1c40f 100%);
-        color: #1a1a1a;
-        border: 2px solid #e6c200;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    .shop-nav a.category-button:hover {
-        background: linear-gradient(135deg, #e6c200 0%, #d4ac0d 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(241, 196, 15, 0.5);
-        color: #fff;
-    }
-    .shop-nav a.category-button.active {
-        background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-        color: #fff;
-        border-color: #d35400;
-        box-shadow: 0 4px 15px rgba(211, 84, 0, 0.5);
-        transform: scale(1.05);
-    }
-    .shop-nav a.category-button .category-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid #fff;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        transition: transform 0.3s ease;
-    }
-    .shop-nav a.category-button:hover .category-icon {
-        transform: scale(1.1);
-    }
-    .shop-nav a.category-button::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        transition: width 0.4s ease, height 0.4s ease;
-    }
-    .shop-nav a.category-button:hover::after {
-        width: 200%;
-        height: 200%;
-    }
-     .no-items {
-        text-align: center;
-        color: #fff;
-        font-size: 1.2rem;
-        padding: 1rem;
-        background: rgba(0, 0, 0, 0.8);
-        border-radius: 8px;
-        flex-grow: 1; /* Ensure no-items expands to push footer */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 200px; /* Minimum height for visibility */
-    }
-    .status {
-        text-align: center;
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        padding: 0.8rem 1.5rem;
-        border-radius: 8px;
-        animation: fadeIn 0.5s ease-in-out;
-    }
-    .status.success {
-        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-        color: #fff;
-        border: 2px solid #27ae60;
-        box-shadow: 0 4px 15px rgba(46, 204, 113, 0.5);
-    }
-    .status.error {
-        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-        border: 2px solid #c0392b;
-        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.5);
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .shop-category {
-        margin-bottom: 3rem;
-    }
-    .shop-category h2 {
-        color: #ffd700;
-        font-size: 1.8rem;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid #ffd700;
-        padding-bottom: 0.5rem;
-    }
-    .item-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 1.5rem;
-    }
-    .item-card {
-        background: rgba(0, 0, 0, 0.8);
-        border: 1px solid #ffd700;
-        border-radius: 8px;
-        padding: 1rem;
-        text-align: center;
-        transition: transform 0.3s ease;
-        position: relative;
-    }
-    .item-card:hover {
-        border: #00ff00 solid 2px;
-        cursor: pointer;
-    }
-    .item-card:hover .item-tooltip {
-        display: block;
-    }
-    .item-image-container {
-        position: relative;
-        width: 100%;
-    }
-    .item-card img {
-        width: 100%;
-        max-width: 110%;
-        max-height: 250px;
-        min-height: 250px;
-        object-fit: cover;
-        border-radius: 5px;
-        margin-bottom: 1rem;
-    }
-    .limited-stock-badge {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: #e74c3c;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        z-index: 10;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-    .item-card h3 {
-        color: #fff;
-        font-size: 1.2rem;
-        margin: 0.5rem 0;
-    }
-    .item-card p {
-        color: #ccc;
-        font-size: 0.9rem;
-        margin-bottom: 1rem;
-    }
-    .item-card .level-boost, .item-card .rename-character, .item-card .reset-spells, 
-    .item-card .reset-talents, .item-card .customize-character, .item-card .reset-pet-talents, 
-    .item-card .first-login, .item-card .faction-change, .item-card .race-change {
-        color: #00ff00;
-        font-size: 0.9rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
-    }
-    .item-card .set-info {
-        color: #89d2ff;
-        font-size: 0.9rem;
-        font-weight: 600;
-        margin-bottom: 0.75rem;
-    }
-    .item-cost {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-    .item-cost .points {
-        color: #f1c40f;
-    }
-    .item-cost .tokens {
-        color: #9b59b6;
-    }
-    .item-stock {
-        color: #fff;
-        font-size: 0.9rem;
-        margin-bottom: 1rem;
-    }
-    .buy-button {
-        background: #ffd700;
-        color: #000;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: background 0.3s;
-        width: 100%;
-        margin-top: 0.5rem;
-    }
-    .buy-button:hover {
-        background: #e6c200;
-    }
-    .buy-button:disabled {
-        background: #666;
-        cursor: not-allowed;
-    }
-    .login-to-buy-button {
-        display: inline-block;
-        background: linear-gradient(135deg, #3498db, #2980b9);
-        color: white;
-        text-decoration: none;
-        padding: 0.7rem 1rem;
-        border-radius: 5px;
-        font-size: 1rem;
-        font-weight: 600;
-        width: 100%;
-        margin-top: 0.5rem;
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    .login-to-buy-button:hover {
-        background: linear-gradient(135deg, #2980b9, #3498db);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
-        color: white;
-    }
-    .character-select {
-        width: 100%;
-        margin-bottom: 0.75rem;
-        padding: 0.4rem;
-        font-size: 0.95rem;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-    }
-    .no-characters {
-        color: #e74c3c;
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-    }
-    .item-tooltip {
-        display: none;
-        position: absolute;
-        top: 0;
-        left: 100%;
-        width: 300px;
-        z-index: 100;
-        margin-left: 10px;
-    }
-
-    /* Custom Alert Styles */
-    .custom-alert-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(5px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        animation: fadeIn 0.3s ease;
-    }
-
-    .custom-alert-overlay.fade-out {
-        animation: fadeOut 0.3s ease forwards;
-    }
-
-    .custom-alert {
-        background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-        border: 2px solid #ffd700;
-        border-radius: 16px;
-        padding: 2rem;
-        max-width: 400px;
-        width: 90%;
-        position: relative;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        transform: scale(0.9);
-        opacity: 0;
-        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    }
-
-    .custom-alert.show {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    .custom-alert .alert-icon {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        margin: -50px auto 1rem auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    .custom-alert.info .alert-icon {
-        background: linear-gradient(135deg, #3498db, #2980b9);
-        color: white;
-    }
-
-    .custom-alert.warning .alert-icon {
-        background: linear-gradient(135deg, #f39c12, #e67e22);
-        color: white;
-    }
-
-    .custom-alert.error .alert-icon {
-        background: linear-gradient(135deg, #e74c3c, #c0392b);
-        color: white;
-    }
-
-    .custom-alert.success .alert-icon {
-        background: linear-gradient(135deg, #2ecc71, #27ae60);
-        color: white;
-    }
-
-    .custom-alert.login-alert .alert-icon {
-        background: linear-gradient(135deg, #9b59b6, #8e44ad);
-        color: white;
-        animation: pulse 2s infinite;
-    }
-
-    .custom-alert h3 {
-        color: #ffd700;
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
-        text-align: center;
-    }
-
-    .custom-alert p {
-        color: #fff;
-        font-size: 1rem;
-        line-height: 1.5;
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .custom-alert .alert-close-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: none;
-        border: none;
-        color: #999;
-        font-size: 1.2rem;
-        cursor: pointer;
-        transition: color 0.3s ease;
-        padding: 5px;
-    }
-
-    .custom-alert .alert-close-btn:hover {
-        color: #ffd700;
-    }
-
-    .alert-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin-top: 1rem;
-    }
-
-    .alert-btn {
-        padding: 0.8rem 1.5rem;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .alert-btn.login-btn {
-        background: linear-gradient(135deg, #ffd700, #f39c12);
-        color: #1a1a1a;
-        box-shadow: 0 4px 15px rgba(241, 196, 15, 0.3);
-    }
-
-    .alert-btn.login-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(241, 196, 15, 0.5);
-    }
-
-    .alert-btn.cancel-btn {
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .alert-btn.cancel-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    @keyframes fadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-
-    /* Mobile Responsive for Alerts */
-    @media (max-width: 768px) {
-        .item-grid {
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        }
-        .shop-container h1 {
-            font-size: 2rem;
-        }
-        .shop-category h2 {
-            font-size: 1.5rem;
-        }
-        .user-balance {
-            flex-direction: column;
-            gap: 0.8rem;
-            padding: 0.8rem;
-        }
-        .user-balance span {
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
-        }
-        .user-balance .points i, .user-balance .tokens i {
-            font-size: 1.1rem;
-        }
-        .shop-nav {
-            gap: 0.8rem;
-            padding: 0.8rem;
-        }
-        .shop-nav a.category-button {
-            font-size: 1rem;
-            padding: 0.6rem 1.2rem;
-        }
-        .shop-nav .category-icon {
-            width: 32px;
-            height: 32px;
-        }
-        .status {
-            font-size: 1rem;
-            padding: 0.6rem 1rem;
-        }
-        .item-tooltip {
-            width: 250px;
-            left: 50%;
-            top: 100%;
-            transform: translateX(-50%);
-            margin-left: 0;
-            margin-top: 10px;
-        }
-        .custom-alert {
-            padding: 1.5rem;
-        }
-        .custom-alert .alert-icon {
-            width: 60px;
-            height: 60px;
-            font-size: 2rem;
-            margin-top: -40px;
-        }
-        .custom-alert h3 {
-            font-size: 1.3rem;
-        }
-        .alert-actions {
-            flex-direction: column;
-        }
-        .alert-btn {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-    </style>
-
-    <?php include_once $project_root . 'includes/footer.php'; ?>
 </body>
 </html>
 <?php 
