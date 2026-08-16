@@ -211,7 +211,7 @@ return [
     'err_write_soap_config'       => 'Não é possível escrever em',
     'msg_soap_saved'              => 'Configuração SOAP salva! Conta GM verificada.',
     'msg_soap_note'               => 'Certifique-se de que é GM',
-    'btn_proceed_to_finish'       => 'Prosseguir para Finalizar Instalação ➡️',
+    'btn_proceed_to_finish'       => 'Prosseguir para Finalizar Instalação',
     'important_steps'             => 'Passos Importantes:',
     'info_soap_li1'               => 'Certifique-se de que a conta GM existe no seu banco de dados Auth e tem nível GM 3 em <code>account_access</code> com <code>RealmID = -1</code>.',
     'info_soap_li2'               => 'Abra seu arquivo <code>worldserver.conf</code> e defina: <strong>SOAP.Enabled = 1</strong>',

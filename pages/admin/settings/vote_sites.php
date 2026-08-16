@@ -395,6 +395,7 @@ $page_class = 'vote-sites';
             border: 1px solid rgba(201,162,39,.22);
             box-shadow: 0 12px 32px rgba(0,0,0,.55), inset 0 0 60px rgba(0,0,0,.45);
         }
+
         .panel::before {
             content: '';
             position: absolute;
@@ -402,6 +403,7 @@ $page_class = 'vote-sites';
             border: 1px solid rgba(201,162,39,.14);
             pointer-events: none;
         }
+
         .panel::after {
             content: '';
             position: absolute;
@@ -492,6 +494,10 @@ $page_class = 'vote-sites';
             cursor: pointer;
         }
         .btn-danger:hover { transform: translateY(-2px) scale(1.02); }
+        .btn-danger.btn-sm {
+            padding: .4rem 1rem;
+            font-size: .75rem;
+        }
 
         .btn-edit {
             display: inline-flex;
@@ -511,6 +517,10 @@ $page_class = 'vote-sites';
             cursor: pointer;
         }
         .btn-edit:hover { transform: translateY(-2px) scale(1.02); }
+        .btn-edit.btn-sm {
+            padding: .4rem 1rem;
+            font-size: .75rem;
+        }
 
         .upload-area {
             border: 2px dashed rgba(201,162,39,.2);
@@ -532,6 +542,50 @@ $page_class = 'vote-sites';
         .main-content-area {
             transition: margin-left 0.3s ease;
             min-height: calc(100vh - 72px);
+            width: 100%;
+        }
+
+        .content-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .content-wrapper {
+                padding: 0 1.5rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .content-wrapper {
+                padding: 0 2rem;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .content-wrapper {
+                padding: 0 2.5rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .main-content-area.lg\:ml-0 {
+                margin-left: 0;
+            }
+            .main-content-area.lg\:ml-\[280px\] {
+                margin-left: 280px;
+            }
+        }
+
+        @media (max-width: 1023px) {
+            .main-content-area {
+                margin-left: 0 !important;
+                padding: 1rem;
+            }
+            .content-wrapper {
+                padding: 0 0.5rem;
+            }
         }
 
         .form-label {
@@ -583,19 +637,45 @@ $page_class = 'vote-sites';
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 0.05em;
-            padding: 1rem;
+            padding: 0.75rem;
             border-bottom: 2px solid rgba(201,162,39,.4);
             text-align: left;
+            white-space: nowrap;
         }
         .table-wow td {
-            padding: 1rem;
+            padding: 0.75rem;
             border-bottom: 1px solid rgba(201,162,39,.1);
             color: #d8d8d8;
             background: rgba(22, 25, 32, 0.6);
+            font-size: 0.85rem;
+            word-break: break-word;
         }
         .table-wow tr:hover td {
             background: rgba(30, 35, 45, 0.8);
         }
+
+        /* Delete Modal */
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-backdrop.show {
+            display: flex;
+        }
+        .modal-backdrop .panel {
+            max-width: 28rem;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
     </style>
 </head>
 <body>
@@ -608,7 +688,7 @@ $page_class = 'vote-sites';
         
         <!-- Main Content -->
         <main class="main-content-area flex-1 p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 lg:ml-[280px]">
-            <div class="max-w-[1400px] mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
+            <div class="content-wrapper">
                 <div class="space-y-4 md:space-y-6 lg:space-y-8">
                     
                     <h1 class="wow-title text-2xl md:text-3xl lg:text-4xl"><?php echo translate('page_title_manage_vote_sites', 'Manage Vote Sites'); ?></h1>
@@ -683,7 +763,7 @@ $page_class = 'vote-sites';
                                 <?php if ($site_data['button_image_url']): ?>
                                     <div class="mb-3 flex items-center gap-4">
                                         <img src="<?php echo htmlspecialchars($site_data['button_image_url']); ?>" alt="<?php echo translate('label_button_image', 'Button Image'); ?>" class="vote-image border border-[rgba(201,162,39,.2)] p-1 bg-[rgba(10,14,22,0.5)] rounded-sm">
-                                        <a href="<?php echo $base_path; ?>admin/settings/vote_sites?delete_image=<?php echo $site_id; ?>&csrf_token=<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>" class="btn-danger text-xs py-1.5 px-3" onclick="return confirm('<?php echo translate('confirm_delete_image', 'Are you sure you want to delete this image?'); ?>');">
+                                        <a href="<?php echo $base_path; ?>admin/settings/vote_sites?delete_image=<?php echo $site_id; ?>&csrf_token=<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>" class="btn-danger btn-sm" onclick="return confirm('<?php echo translate('confirm_delete_image', 'Are you sure you want to delete this image?'); ?>');">
                                             <i class="fas fa-trash"></i> <?php echo translate('btn_delete_image', 'Delete Image'); ?>
                                         </a>
                                     </div>
@@ -757,7 +837,7 @@ $page_class = 'vote-sites';
                         </h2>
 
                         <div class="overflow-x-auto -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8">
-                            <table class="w-full table-wow">
+                            <table class="w-full table-wow min-w-[600px]">
                                 <thead>
                                     <tr>
                                         <th><?php echo translate('label_callback_file_name', 'Callback File Name'); ?></th>
@@ -766,7 +846,7 @@ $page_class = 'vote-sites';
                                         <th class="hidden md:table-cell"><?php echo translate('label_url_format', 'URL Format'); ?></th>
                                         <th class="hidden lg:table-cell"><?php echo translate('label_button_image', 'Image'); ?></th>
                                         <th><?php echo translate('label_cooldown_hours', 'Cooldown'); ?></th>
-                                        <th><?php echo translate('label_reward_points', 'Points'); ?></th>
+                                        <th class="hidden xs:table-cell"><?php echo translate('label_reward_points', 'Points'); ?></th>
                                         <th class="hidden xl:table-cell"><?php echo translate('label_uses_callback', 'Callback'); ?></th>
                                         <th><?php echo translate('label_actions', 'Actions'); ?></th>
                                     </tr>
@@ -794,7 +874,7 @@ $page_class = 'vote-sites';
                                                     <?php endif; ?>
                                                 </td>
                                                 <td><?php echo htmlspecialchars($site['cooldown_hours']); ?></td>
-                                                <td><?php echo htmlspecialchars($site['reward_points']); ?></td>
+                                                <td class="hidden xs:table-cell"><?php echo htmlspecialchars($site['reward_points']); ?></td>
                                                 <td class="hidden xl:table-cell">
                                                     <span class="text-xs px-2 py-1 rounded-sm <?php echo $site['uses_callback'] ? 'bg-green-900/20 text-green-400 border border-green-500/30' : 'bg-gray-900/20 text-gray-400 border border-gray-500/30'; ?>">
                                                         <?php echo $site['uses_callback'] ? translate('option_yes', 'Yes') : translate('option_no', 'No'); ?>
@@ -802,14 +882,14 @@ $page_class = 'vote-sites';
                                                 </td>
                                                 <td>
                                                     <div class="flex flex-wrap gap-1.5">
-                                                        <a href="<?php echo $base_path; ?>admin/settings/vote_sites?id=<?php echo $site['id']; ?>" class="btn-edit text-xs py-1.5 px-2 md:px-3">
+                                                        <a href="<?php echo $base_path; ?>admin/settings/vote_sites?id=<?php echo $site['id']; ?>" class="btn-edit btn-sm">
                                                             <i class="fas fa-edit"></i>
                                                             <span class="hidden sm:inline"><?php echo translate('btn_edit', 'Edit'); ?></span>
                                                         </a>
-                                                        <a href="<?php echo $base_path; ?>admin/settings/vote_sites?delete=<?php echo $site['id']; ?>&csrf_token=<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>" class="btn-danger text-xs py-1.5 px-2 md:px-3" onclick="return confirm('<?php echo translate('confirm_delete', 'Are you sure you want to delete this vote site?'); ?>');">
+                                                        <button onclick="openDeleteModal(<?php echo $site['id']; ?>, '<?php echo htmlspecialchars($site['site_name']); ?>')" class="btn-danger btn-sm">
                                                             <i class="fas fa-trash"></i>
                                                             <span class="hidden sm:inline"><?php echo translate('btn_delete', 'Delete'); ?></span>
-                                                        </a>
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -824,7 +904,60 @@ $page_class = 'vote-sites';
         </main>
     </div>
 
+    <!-- Delete Modal -->
+    <div class="modal-backdrop" id="deleteModal">
+        <div class="panel p-6 md:p-8 relative">
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl" onclick="closeDeleteModal()">&times;</button>
+            <div class="text-center">
+                <div class="text-5xl text-red-500 mb-4">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 class="wow-title text-2xl mb-4"><?php echo translate('confirm_delete_title', 'Confirm Delete'); ?></h3>
+                <p class="text-gray-300 mb-2"><?php echo translate('confirm_delete_vote_site', 'Are you sure you want to delete this vote site?'); ?></p>
+                <p class="text-red-400 text-sm font-semibold" id="deleteSiteName"></p>
+                <p class="text-gray-500 text-xs mt-2"><?php echo translate('confirm_delete_irreversible', 'This action cannot be undone.'); ?></p>
+                <form method="GET" action="<?php echo $base_path; ?>admin/settings/vote_sites" class="flex justify-center gap-4 mt-6">
+                    <input type="hidden" name="delete" id="deleteSiteId" value="">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                    <button type="button" class="btn-iron" onclick="closeDeleteModal()">
+                        <?php echo translate('btn_cancel', 'Cancel'); ?>
+                    </button>
+                    <button type="submit" class="btn-danger">
+                        <i class="fas fa-trash"></i>
+                        <?php echo translate('btn_confirm_delete', 'Confirm Delete'); ?>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function openDeleteModal(id, name) {
+            document.getElementById('deleteSiteId').value = id;
+            document.getElementById('deleteSiteName').textContent = 'Site: ' + name;
+            document.getElementById('deleteModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDeleteModal();
+            }
+        });
+
+        // Close on overlay click
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             const uploadArea = document.getElementById('uploadArea');
             const fileInput = document.getElementById('button_image');

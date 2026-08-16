@@ -635,6 +635,16 @@ try {
             background: rgba(201,162,39,.08);
         }
 
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-backdrop .wow-panel {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
         .image-preview {
             max-height: 80px;
             margin-top: 0.75rem;
@@ -1005,15 +1015,28 @@ try {
                                                             <i class="fas fa-edit"></i>
                                                             <span class="hidden sm:inline"><?php echo translate('admin_shop_edit_button', 'Edit'); ?></span>
                                                         </button>
-                                                        <form method="POST" class="inline">
-                                                            <input type="hidden" name="action" value="delete">
-                                                            <input type="hidden" name="item_id" value="<?php echo $row['item_id']; ?>">
-                                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                                            <button type="submit" class="btn-game btn-danger text-xs py-1.5 px-2 md:px-3" onclick="return confirm('<?php echo translate('admin_shop_delete_confirm', 'Are you sure you want to delete this item?'); ?>');">
-                                                                <i class="fas fa-trash-alt"></i>
-                                                                <span class="hidden sm:inline"><?php echo translate('admin_shop_delete_button', 'Delete'); ?></span>
-                                                            </button>
-                                                        </form>
+                                                        <button type="button" class="btn-game btn-danger text-xs py-1.5 px-2 md:px-3" onclick="openModal('deleteModal-<?php echo $row['item_id']; ?>')">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                            <span class="hidden sm:inline"><?php echo translate('admin_shop_delete_button', 'Delete'); ?></span>
+                                                        </button>
+                                                    </div>
+
+                                                    <div id="deleteModal-<?php echo $row['item_id']; ?>" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-backdrop">
+                                                        <div class="wow-panel w-full max-w-md p-6 relative">
+                                                            <h3 class="wow-title text-xl mb-4"><?php echo translate('admin_shop_delete_modal_title', 'Delete Item'); ?></h3>
+                                                            <p class="text-gray-300 mb-6"><?php echo translate('admin_shop_delete_confirm', 'Are you sure you want to delete this item?'); ?></p>
+                                                            <form method="POST" class="flex justify-end gap-4">
+                                                                <input type="hidden" name="action" value="delete">
+                                                                <input type="hidden" name="item_id" value="<?php echo $row['item_id']; ?>">
+                                                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                                                <button type="button" class="btn-game btn-iron" onclick="closeModal('deleteModal-<?php echo $row['item_id']; ?>')">
+                                                                    <?php echo translate('admin_shop_cancel_button', 'Cancel'); ?>
+                                                                </button>
+                                                                <button type="submit" class="btn-game btn-danger">
+                                                                    <?php echo translate('admin_shop_confirm_delete_button', 'Confirm Delete'); ?>
+                                                                </button>
+                                                            </form>
+                                                        </div>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1054,6 +1077,22 @@ try {
     </div>
 
     <script>
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const categorySelect = document.getElementById('category');
             const form = document.getElementById('itemForm');

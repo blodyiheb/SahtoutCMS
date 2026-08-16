@@ -213,7 +213,7 @@ return [
     'err_write_soap_config'       => '无法写入',
     'msg_soap_saved'              => 'SOAP 配置已保存！GM 账户已验证。',
     'msg_soap_note'               => '确保它是 GM 账户',
-    'btn_proceed_to_finish'       => '进入完成安装 ➡️',
+    'btn_proceed_to_finish'       => '进入完成安装',
     'important_steps'             => '重要步骤：',
     'info_soap_li1'               => '确保 GM 账户存在于您的认证数据库中，并在 <code>account_access</code> 表中设置 <code>RealmID = -1</code> 和 GM 等级 3。',
     'info_soap_li2'               => '打开您的 <code>worldserver.conf</code> 文件并设置：<strong>SOAP.Enabled = 1</strong>',

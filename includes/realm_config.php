@@ -8,6 +8,6 @@ $realmlist = array (
     'name' => 'Sahtout Realm',
     'address' => '127.0.0.1',
     'port' => 8085,
-    'logo' => 'img/logos/realm1_logo.webp',
+    'logo' => 'img/logos/realm_logo.jpeg',
   ),
 );

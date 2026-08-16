@@ -9,6 +9,27 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'mode
     exit;
 }
 $page_class = $page_class ?? '';
+
+// Determine active page based on URL path
+$current_path = $_SERVER['REQUEST_URI'];
+$active_page = '';
+
+// Extract the page identifier from the URL
+if (strpos($current_path, 'admin/dashboard') !== false) {
+    $active_page = 'dashboard';
+} elseif (strpos($current_path, 'admin/users') !== false) {
+    $active_page = 'users';
+} elseif (strpos($current_path, 'admin/anews') !== false) {
+    $active_page = 'anews';
+} elseif (strpos($current_path, 'admin/characters') !== false) {
+    $active_page = 'characters';
+} elseif (strpos($current_path, 'admin/ashop') !== false) {
+    $active_page = 'shop';
+} elseif (strpos($current_path, 'admin/gm_cmd') !== false) {
+    $active_page = 'gm_cmd';
+} elseif (strpos($current_path, 'admin/settings') !== false) {
+    $active_page = 'settings';
+}
 ?>
 
 <!-- External Assets -->
@@ -155,7 +176,7 @@ $page_class = $page_class ?? '';
         <ul class="list-none p-0 m-0 flex flex-col gap-1">
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo $page_class === 'dashboard' ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'dashboard' || $active_page === 'dashboard') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/dashboard">
                     <i class="fas fa-tachometer-alt w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_dashboard', 'Dashboard'); ?>
@@ -163,7 +184,7 @@ $page_class = $page_class ?? '';
             </li>
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo $page_class === 'users' ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'users' || $active_page === 'users') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/users">
                     <i class="fas fa-users w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_users', 'User Management'); ?>
@@ -171,7 +192,7 @@ $page_class = $page_class ?? '';
             </li>
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo $page_class === 'anews' ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'anews' || $active_page === 'anews') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/anews">
                     <i class="fas fa-newspaper w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_news', 'News Management'); ?>
@@ -179,7 +200,7 @@ $page_class = $page_class ?? '';
             </li>
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo $page_class === 'characters' ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'characters' || $active_page === 'characters') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/characters">
                     <i class="fas fa-user-edit w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_characters', 'Character Management'); ?>
@@ -187,7 +208,7 @@ $page_class = $page_class ?? '';
             </li>
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo $page_class === 'shop' ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'shop' || $active_page === 'shop') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/ashop">
                     <i class="fas fa-shopping-cart w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_shop', 'Shop Management'); ?>
@@ -195,7 +216,7 @@ $page_class = $page_class ?? '';
             </li>
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo $page_class === 'gm_cmd' ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'gm_cmd' || $active_page === 'gm_cmd') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/gm_cmd">
                     <i class="fas fa-terminal w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_gm_commands', 'GM Commands'); ?>
@@ -203,7 +224,7 @@ $page_class = $page_class ?? '';
             </li>
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo $page_class === 'settings' ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'settings' || $active_page === 'settings') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/settings/general">
                     <i class="fas fa-cogs w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_settings', 'Settings'); ?>

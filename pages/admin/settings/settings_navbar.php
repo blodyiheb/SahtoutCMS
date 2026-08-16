@@ -5,245 +5,170 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'mode
 }
 
 $page_class = $page_class ?? '';
+
+// Determine active page based on URL path for settings
+$current_path = $_SERVER['REQUEST_URI'];
+$active_setting = '';
+
+if (strpos($current_path, 'admin/settings/general') !== false) {
+    $active_setting = 'general';
+} elseif (strpos($current_path, 'admin/settings/smtp') !== false) {
+    $active_setting = 'smtp';
+} elseif (strpos($current_path, 'admin/settings/recaptcha') !== false) {
+    $active_setting = 'recaptcha';
+} elseif (strpos($current_path, 'admin/settings/realm') !== false) {
+    $active_setting = 'realm';
+} elseif (strpos($current_path, 'admin/settings/soap') !== false) {
+    $active_setting = 'soap';
+} elseif (strpos($current_path, 'admin/settings/vote_sites') !== false) {
+    $active_setting = 'vote-sites';
+} elseif (strpos($current_path, 'admin/settings/page_manager') !== false) {
+    $active_setting = 'page_manager';
+}
+
+$is_active = function($setting) use ($page_class, $active_setting) {
+    return ($page_class === $setting || $active_setting === $setting);
+};
+
+// Base Tailwind classes for the <a> tag
+$link_base = 'group relative flex items-center gap-2 px-4 py-2.5 font-semibold text-xs tracking-wide transition-all duration-300 box-border w-full ';
+$link_base .= '[clip-path:polygon(8px_0,100%_0,100%_calc(100%-8px),calc(100%-8px)_100%,0_100%,0_8px)] ';
+
+// Mobile overrides for <a>
+$link_mobile = 'max-md:whitespace-normal max-md:justify-start max-md:px-4 max-md:py-3 max-md:border-b max-md:border-[rgba(201,162,39,0.1)] max-md:border-l-[3px] max-md:border-l-transparent max-md:[clip-path:polygon(6px_0,100%_0,100%_calc(100%-6px),calc(100%-6px)_100%,0_100%,0_6px)] max-md:min-h-[44px] max-md:text-sm ';
+
+// Desktop overrides for <a>
+$link_desktop = 'md:justify-center md:px-2 md:py-2.5 md:whitespace-nowrap md:min-h-[42px] md:border-b-2 md:border-transparent ';
+
+$icon_base = 'w-4 text-center text-sm transition-all duration-300 shrink-0 group-hover:text-[#f2cf5b] group-hover:scale-110 max-md:w-5 ';
+
+$get_link_classes = function($setting) use ($is_active, $link_base, $link_mobile, $link_desktop) {
+    $active = $is_active($setting);
+    
+    $active_classes = $active 
+        ? 'text-[#f2cf5b] bg-gradient-to-b from-[rgba(201,162,39,0.15)] to-[rgba(201,162,39,0.04)] border-b-[#f2cf5b] [text-shadow:0_0_12px_rgba(242,207,82,0.3)] shadow-[inset_0_-2px_20px_rgba(201,162,39,0.05)] max-md:border-l-[#f2cf5b] max-md:border-b-[rgba(201,162,39,0.1)]' 
+        : 'text-gray-400 bg-black/20 hover:text-gray-200 hover:bg-[rgba(201,162,39,0.08)] hover:border-b-[rgba(201,162,39,0.3)]';
+        
+    return $link_base . $link_mobile . $link_desktop . $active_classes;
+};
+
+$get_icon_classes = function($setting) use ($is_active, $icon_base) {
+    $active = $is_active($setting);
+    return $icon_base . ($active ? 'text-[#f2cf5b] [filter:drop-shadow(0_0_6px_rgba(242,207,82,0.4))]' : '');
+};
+
+$links = [
+    'general'      => ['icon' => 'fa-cog',        'label' => translate('settings_nav_general', 'General')],
+    'smtp'         => ['icon' => 'fa-envelope',   'label' => translate('settings_nav_smtp', 'SMTP')],
+    'recaptcha'    => ['icon' => 'fa-shield-alt', 'label' => translate('settings_nav_recaptcha', 'reCAPTCHA')],
+    'realm'        => ['icon' => 'fa-server',     'label' => translate('settings_nav_realm', 'Realm')],
+    'soap'         => ['icon' => 'fa-code',       'label' => translate('settings_nav_soap', 'SOAP')],
+    'vote-sites'   => ['icon' => 'fa-vote-yea',   'label' => translate('settings_nav_vote_sites', 'Vote Sites')],
+    'page_manager' => ['icon' => 'fa-file-alt',   'label' => translate('settings_nav_page_manager', 'Page Manager')],
+];
 ?>
 
-<style>
-    .settings-nav-link {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.6rem 1.2rem;
-        font-weight: 600;
-        font-size: 0.85rem;
-        letter-spacing: .04em;
-        color: #9ca3af;
-        text-decoration: none;
-        background: rgba(0,0,0,.2);
-        border-bottom: 2px solid transparent;
-        clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-        transition: all .25s ease;
-        white-space: nowrap;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .settings-nav-link:hover {
-        color: #e5e7eb;
-        background: rgba(201,162,39,.08);
-        border-bottom-color: rgba(201,162,39,.3);
-    }
-
-    .settings-nav-link.active {
-        color: #f2cf5b;
-        background: linear-gradient(180deg, rgba(201,162,39,.15), rgba(201,162,39,.04));
-        border-bottom-color: #f2cf5b;
-        text-shadow: 0 0 12px rgba(242,207,82,.3);
-        box-shadow: inset 0 -2px 20px rgba(201,162,39,.05);
-    }
-
-    .settings-nav-link i {
-        width: 18px;
-        text-align: center;
-        font-size: 0.9rem;
-        transition: all .3s ease;
-    }
-
-    .settings-nav-link:hover i {
-        color: #f2cf5b;
-        transform: scale(1.1);
-    }
-
-    .settings-nav-link.active i {
-        color: #f2cf5b;
-        filter: drop-shadow(0 0 6px rgba(242,207,82,.4));
-    }
-
-    .settings-nav-scroll {
-        scrollbar-width: thin;
-        scrollbar-color: rgba(201,162,39,.3) transparent;
-    }
-
-    .settings-nav-scroll::-webkit-scrollbar {
-        height: 4px;
-    }
-    .settings-nav-scroll::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    .settings-nav-scroll::-webkit-scrollbar-thumb {
-        background: rgba(201,162,39,.3);
-        border-radius: 2px;
-    }
-    .settings-nav-scroll::-webkit-scrollbar-thumb:hover {
-        background: rgba(201,162,39,.5);
-    }
-
-    .settings-mobile-toggle {
-        display: none;
-        background: transparent;
-        border: 1px solid rgba(201,162,39,.3);
-        color: #f2cf5b;
-        padding: 0.4rem 0.7rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
-        font-size: 1.1rem;
-    }
-
-    .settings-mobile-toggle:hover {
-        background: rgba(201,162,39,.15);
-        border-color: #f2cf5b;
-    }
-
-    @media (max-width: 767px) {
-        .settings-mobile-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .settings-nav-tabs {
-            display: none;
-            flex-direction: column;
-            width: 100%;
-            gap: 0.25rem;
-            padding-top: 0.75rem;
-        }
-
-        .settings-nav-tabs.open {
-            display: flex;
-        }
-
-        .settings-nav-link {
-            white-space: normal;
-            justify-content: center;
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid rgba(201,162,39,.1);
-            border-left: 3px solid transparent;
-            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
-        }
-
-        .settings-nav-link.active {
-            border-left-color: #f2cf5b;
-            border-bottom-color: rgba(201,162,39,.1);
-        }
-    }
-
-    @media (min-width: 768px) {
-        .settings-nav-tabs {
-            display: flex !important;
-            flex-wrap: nowrap;
-            gap: 0.25rem;
-        }
-    }
-</style>
-
 <!-- Settings Navbar -->
-<nav class="relative z-10 w-full">
-    <div class="panel px-3 md:px-4 py-2 md:py-3 flex items-center justify-between gap-3 flex-wrap">
-        
-        <h5 class="section-title text-sm md:text-base flex items-center gap-2 m-0">
-            <i class="fas fa-sliders-h text-[#f2cf5b]"></i>
-            <?php echo translate('settings_nav_menu', 'Settings Menu'); ?>
-        </h5>
+<nav class="settings-nav relative z-10 w-full">
+    <div class="panel px-3 md:px-4 py-2 md:py-3">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+            
+            <h5 class="section-title text-sm md:text-base flex items-center gap-2 m-0 shrink-0">
+                <i class="fas fa-sliders-h text-[#f2cf5b]"></i>
+                <?php echo translate('settings_nav_menu', 'Settings Menu'); ?>
+            </h5>
 
-        <button class="settings-mobile-toggle md:hidden" aria-label="Toggle settings navigation">
-            <i class="fas fa-bars"></i>
-        </button>
+            <!-- Mobile Toggle Button -->
+            <button class="settings-mobile-toggle flex md:hidden items-center justify-center min-w-[42px] min-h-[42px] px-2.5 py-1.5 text-lg text-[#f2cf5b] bg-transparent border border-[rgba(201,162,39,0.3)] cursor-pointer transition-all duration-300 [clip-path:polygon(4px_0,100%_0,100%_calc(100%-4px),calc(100%-4px)_100%,0_100%,0_4px)] shrink-0 hover:bg-[rgba(201,162,39,0.15)] hover:border-[#f2cf5b]" aria-label="Toggle settings navigation">
+                <i class="fas fa-bars"></i>
+            </button>
 
-        <ul class="settings-nav-tabs settings-nav-scroll flex items-center gap-0.5 overflow-x-auto flex-nowrap md:flex-wrap list-none p-0 m-0">
-            <li class="flex-shrink-0">
-                <a class="settings-nav-link <?php echo $page_class === 'general' ? 'active' : ''; ?>" 
-                   href="<?php echo $base_path; ?>admin/settings/general">
-                   <i class="fas fa-cog"></i> 
-                   <?php echo translate('settings_nav_general', 'General'); ?>
-                </a>
-            </li>
-            <li class="flex-shrink-0">
-                <a class="settings-nav-link <?php echo $page_class === 'smtp' ? 'active' : ''; ?>" 
-                   href="<?php echo $base_path; ?>admin/settings/smtp">
-                   <i class="fas fa-envelope"></i> 
-                   <?php echo translate('settings_nav_smtp', 'SMTP'); ?>
-                </a>
-            </li>
-            <li class="flex-shrink-0">
-                <a class="settings-nav-link <?php echo $page_class === 'recaptcha' ? 'active' : ''; ?>" 
-                   href="<?php echo $base_path; ?>admin/settings/recaptcha">
-                   <i class="fas fa-shield-alt"></i> 
-                   <?php echo translate('settings_nav_recaptcha', 'reCAPTCHA'); ?>
-                </a>
-            </li>
-            <li class="flex-shrink-0">
-                <a class="settings-nav-link <?php echo $page_class === 'realm' ? 'active' : ''; ?>" 
-                   href="<?php echo $base_path; ?>admin/settings/realm">
-                   <i class="fas fa-server"></i> 
-                   <?php echo translate('settings_nav_realm', 'Realm'); ?>
-                </a>
-            </li>
-            <li class="flex-shrink-0">
-                <a class="settings-nav-link <?php echo $page_class === 'soap' ? 'active' : ''; ?>" 
-                   href="<?php echo $base_path; ?>admin/settings/soap">
-                   <i class="fas fa-code"></i> 
-                   <?php echo translate('settings_nav_soap', 'SOAP'); ?>
-                </a>
-            </li>
-            <li class="flex-shrink-0">
-                <a class="settings-nav-link <?php echo $page_class === 'vote-sites' ? 'active' : ''; ?>" 
-                   href="<?php echo $base_path; ?>admin/settings/vote_sites">
-                   <i class="fas fa-vote-yea"></i> 
-                   <?php echo translate('settings_nav_vote_sites', 'Vote Sites'); ?>
-                </a>
-            </li>
-            <li class="flex-shrink-0">
-                <a class="settings-nav-link <?php echo $page_class === 'page_manager' ? 'active' : ''; ?>" 
-                   href="<?php echo $base_path; ?>admin/settings/page_manager">
-                   <i class="fas fa-file-alt"></i> 
-                   <?php echo translate('settings_nav_page_manager', 'Page Manager'); ?>
-                </a>
-            </li>
-        </ul>
+            <!-- Navigation Tabs (100% Width Flex Layout) -->
+            <ul id="settingsNavTabs" data-open="false" class="
+                flex flex-col w-full gap-1 max-h-0 overflow-hidden transition-all duration-300 ease-in-out opacity-0 pointer-events-none
+                data-[open=true]:max-h-[600px] data-[open=true]:opacity-100 data-[open=true]:pt-3 data-[open=true]:pb-2 data-[open=true]:pointer-events-auto
+                
+                md:flex-row md:flex-wrap md:justify-center md:gap-2 md:max-h-none md:opacity-100 md:overflow-visible md:pointer-events-auto md:py-0 md:transition-none
+                [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[rgba(201,162,39,0.3)] [&::-webkit-scrollbar-thumb:hover]:bg-[rgba(201,162,39,0.5)]
+            ">
+                <?php foreach ($links as $key => $data): ?>
+                    <!-- flex-1 forces buttons to share the 100% width equally -->
+                    <li class="flex-1 min-w-[110px] flex">
+                        <a class="<?php echo $get_link_classes($key); ?>" 
+                           href="<?php echo $base_path; ?>admin/settings/<?php echo str_replace('-', '_', $key); ?>">
+                           <i class="fas <?php echo $data['icon']; ?> <?php echo $get_icon_classes($key); ?>"></i> 
+                           <span><?php echo $data['label']; ?></span>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
     </div>
 </nav>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const toggleBtn = document.querySelector('.settings-mobile-toggle');
-    const navTabs = document.querySelector('.settings-nav-tabs');
+    const navTabs = document.getElementById('settingsNavTabs');
+    const nav = document.querySelector('.settings-nav');
     
     if (toggleBtn && navTabs) {
-        toggleBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            navTabs.classList.toggle('open');
-            const icon = this.querySelector('i');
+        function toggleMenu(e) {
+            if (e) e.stopPropagation();
+            // Toggle the data-open attribute to trigger Tailwind's data-[open=true] variants
+            const isOpen = navTabs.getAttribute('data-open') === 'true';
+            navTabs.setAttribute('data-open', !isOpen);
+            
+            const icon = toggleBtn.querySelector('i');
             if (icon) {
                 icon.classList.toggle('fa-bars');
                 icon.classList.toggle('fa-times');
             }
-        });
+        }
+        
+        function closeMenu() {
+            navTabs.setAttribute('data-open', 'false');
+            const icon = toggleBtn.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        }
+        
+        toggleBtn.addEventListener('click', toggleMenu);
         
         // Close on outside click (mobile)
         document.addEventListener('click', function(e) {
-            const nav = document.querySelector('.settings-nav');
             if (window.innerWidth < 768 && nav && !nav.contains(e.target)) {
-                navTabs.classList.remove('open');
-                const icon = toggleBtn.querySelector('i');
-                if (icon) {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
+                closeMenu();
             }
         });
         
-        // Close on nav click (mobile)
-        navTabs.querySelectorAll('.settings-nav-link').forEach(link => {
+        // Close on nav link click (mobile)
+        navTabs.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', function() {
                 if (window.innerWidth < 768) {
-                    navTabs.classList.remove('open');
-                    const icon = toggleBtn.querySelector('i');
-                    if (icon) {
-                        icon.classList.remove('fa-times');
-                        icon.classList.add('fa-bars');
-                    }
+                    closeMenu();
                 }
             });
+        });
+        
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && window.innerWidth < 768) {
+                closeMenu();
+            }
+        });
+        
+        // Handle window resize
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (window.innerWidth >= 768 && navTabs.getAttribute('data-open') === 'true') {
+                    closeMenu();
+                }
+            }, 250);
         });
     }
 });

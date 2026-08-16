@@ -303,10 +303,17 @@ $result = $site_db->query($query);
                         </div>
 
                         <div class="flex flex-wrap justify-center gap-4 mt-8">
-                            <a href="<?php echo $base_path; ?>register" class="btn-game btn-gold">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
-                                <?php echo translate('home_create_account', 'Create Account'); ?>
-                            </a>
+                            <?php if (!isset($_SESSION['user_id'])): ?>
+                                <a href="<?php echo $base_path; ?>register" class="btn-game btn-gold">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                                    <?php echo translate('home_create_account', 'Create Account'); ?>
+                                </a>
+                            <?php else: ?>
+                                <a href="<?php echo $base_path; ?>account" class="btn-game btn-gold">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                    <?php echo translate('home_my_account', 'My Account'); ?>
+                                </a>
+                            <?php endif; ?>
                             <a href="<?php echo $base_path; ?>download" class="btn-game btn-iron">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                 <?php echo translate('home_download', 'Download'); ?>
