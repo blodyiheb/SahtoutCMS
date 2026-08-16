@@ -21,8 +21,8 @@ $page_class = 'general';
     <meta name="robots" content="noindex">
     <title><?php echo translate('page_title_general', 'General Settings'); ?></title>
     <link rel="icon" href="<?php echo $base_path . $site_logo; ?>" type="image/x-icon">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
     
     <style>

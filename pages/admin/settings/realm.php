@@ -110,13 +110,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="robots" content="noindex">
     <title><?php echo translate('page_title_realm', 'Realm Configuration'); ?></title>
     <link rel="icon" href="<?php echo $base_path . $site_logo; ?>" type="image/x-icon">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
     
     <style>
-        /* Tailwind v4 CSS */
-        @import "tailwindcss";
-
         /* Custom styles that Tailwind CANNOT handle */
         body {
             min-height: 100vh;

@@ -14,7 +14,7 @@ if (file_exists($project_root . 'includes/config.settings.php')) {
     require_once $project_root . 'includes/config.settings.php';
 }
 ?>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
 
 <style>
     /* ============ FOOTER THEME VARIABLES ============ */

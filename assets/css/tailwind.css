@@ -3,9 +3,7 @@
 @layer theme, base, components, utilities;
 @layer theme {
   :root, :host {
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-      "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-      "Segoe UI Symbol", "Noto Color Emoji";
+    --font-sans: Inter, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
     --color-red-100: oklch(93.6% 0.032 17.717);
@@ -128,6 +126,11 @@
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
+    --color-gold-400: #fbbf24;
+    --color-gold-500: #f59e0b;
+    --color-gold-600: #d97706;
+    --color-gold-800: #92400e;
+    --font-cinzel: Cinzel, serif;
   }
 }
 @layer base {
@@ -1333,6 +1336,12 @@
       border-color: color-mix(in oklab, var(--color-emerald-500) 40%, transparent);
     }
   }
+  .border-gold-500\/30 {
+    border-color: color-mix(in srgb, #f59e0b 30%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-gold-500) 30%, transparent);
+    }
+  }
   .border-gray-500\/30 {
     border-color: color-mix(in srgb, oklch(55.1% 0.027 264.364) 30%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -1648,6 +1657,15 @@
       background-color: color-mix(in oklab, var(--color-emerald-900) 50%, transparent);
     }
   }
+  .bg-gold-500 {
+    background-color: var(--color-gold-500);
+  }
+  .bg-gold-500\/10 {
+    background-color: color-mix(in srgb, #f59e0b 10%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-gold-500) 10%, transparent);
+    }
+  }
   .bg-gray-900\/20 {
     background-color: color-mix(in srgb, oklch(21% 0.034 264.665) 20%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -1916,6 +1934,10 @@
     --tw-gradient-to: rgba(201,162,39,0.04);
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
+  .to-gold-500 {
+    --tw-gradient-to: var(--color-gold-500);
+    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+  }
   .to-red-700 {
     --tw-gradient-to: var(--color-red-700);
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
@@ -2118,6 +2140,9 @@
   }
   .font-\[\'Inter\'\] {
     font-family: 'Inter';
+  }
+  .font-cinzel {
+    font-family: var(--font-cinzel);
   }
   .font-mono {
     font-family: var(--font-mono);
@@ -2373,6 +2398,12 @@
   .text-emerald-400 {
     color: var(--color-emerald-400);
   }
+  .text-gold-400 {
+    color: var(--color-gold-400);
+  }
+  .text-gold-600 {
+    color: var(--color-gold-600);
+  }
   .text-gray-200 {
     color: var(--color-gray-200);
   }
@@ -2586,6 +2617,18 @@
       --tw-shadow-color: color-mix(in oklab, color-mix(in oklab, var(--color-black) 50%, transparent) var(--tw-shadow-alpha), transparent);
     }
   }
+  .shadow-gold-500\/20 {
+    --tw-shadow-color: color-mix(in srgb, #f59e0b 20%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      --tw-shadow-color: color-mix(in oklab, color-mix(in oklab, var(--color-gold-500) 20%, transparent) var(--tw-shadow-alpha), transparent);
+    }
+  }
+  .shadow-gold-600\/20 {
+    --tw-shadow-color: color-mix(in srgb, #d97706 20%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      --tw-shadow-color: color-mix(in oklab, color-mix(in oklab, var(--color-gold-600) 20%, transparent) var(--tw-shadow-alpha), transparent);
+    }
+  }
   .outline {
     outline-style: var(--tw-outline-style);
     outline-width: 1px;
@@ -2750,9 +2793,18 @@
       opacity: 100%;
     }
   }
+  .peer-checked\:bg-gold-500:is(:where(.peer):checked ~ *) {
+    background-color: var(--color-gold-500);
+  }
   .peer-focus\:ring-4:is(:where(.peer):focus ~ *) {
     --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .peer-focus\:ring-gold-800\/50:is(:where(.peer):focus ~ *) {
+    --tw-ring-color: color-mix(in srgb, #92400e 50%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      --tw-ring-color: color-mix(in oklab, var(--color-gold-800) 50%, transparent);
+    }
   }
   .peer-focus\:outline-none:is(:where(.peer):focus ~ *) {
     --tw-outline-style: none;
@@ -2871,6 +2923,14 @@
     .hover\:border-\[rgba\(242\,207\,82\,\.55\)\]:hover {
       border-color: rgba(242,207,82,.55);
     }
+    .hover\:border-gold-500\/30:hover {
+      border-color: color-mix(in srgb, #f59e0b 30%, transparent);
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:border-gold-500\/30:hover {
+        border-color: color-mix(in oklab, var(--color-gold-500) 30%, transparent);
+      }
+    }
     .hover\:border-green-500:hover {
       border-color: var(--color-green-500);
     }
@@ -2909,6 +2969,9 @@
     }
     .hover\:bg-\[rgba\(255\,255\,255\,0\.1\)\]:hover {
       background-color: rgba(255,255,255,0.1);
+    }
+    .hover\:bg-gold-400:hover {
+      background-color: var(--color-gold-400);
     }
     .hover\:bg-red-500\/10:hover {
       background-color: color-mix(in srgb, oklch(63.7% 0.237 25.331) 10%, transparent);
@@ -3023,6 +3086,9 @@
   .focus\:border-\[\#f2cf5b\]:focus {
     border-color: #f2cf5b;
   }
+  .focus\:border-gold-500:focus {
+    border-color: var(--color-gold-500);
+  }
   .focus\:shadow-\[0_0_15px_rgba\(242\,207\,82\,0\.2\)\]:focus {
     --tw-shadow: 0 0 15px var(--tw-shadow-color, rgba(242,207,82,0.2));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -3030,6 +3096,9 @@
   .focus\:ring-2:focus {
     --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .focus\:ring-gold-500:focus {
+    --tw-ring-color: var(--color-gold-500);
   }
   .focus\:outline-none:focus {
     --tw-outline-style: none;

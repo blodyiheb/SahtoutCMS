@@ -133,9 +133,9 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
     <title><?php echo $site_title_name ." ".translate('shop_page_title', '- Shop'); ?></title>
     
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
     <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     
     <style>
         /* Page background - Show full background image */

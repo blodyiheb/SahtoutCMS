@@ -11,8 +11,14 @@
     --color-wow-input: #2c2c2c;
     --color-wow-error: #e74c3c;
     --color-wow-success: #2ecc71;
+    --color-gold-400: #fbbf24;
+    --color-gold-500: #f59e0b;
+    --color-gold-600: #d97706;
+    --color-gold-800: #92400e;
     
     /* Custom font family */
+    --font-cinzel: Cinzel, serif;
+    --font-sans: Inter, sans-serif;
     --font-family-unifraktur: UnifrakturCook, serif;
     
     /* Custom border width */
