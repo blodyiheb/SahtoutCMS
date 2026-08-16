@@ -6,48 +6,66 @@ if (!defined('ALLOWED_ACCESS')) {
 }
 ?>
 
-<footer style="
-    background: rgba(20,10,5,0.95);
-    border-top: 2px solid #6b4226;
-    padding: 15px 0;
-    text-align: center;
-    box-shadow: 0 -2px 20px #6b4226;
-    position: relative;
-    z-index: 10;
-    font-family: 'Cinzel', serif;
-">
-    <p style="
-        margin: 0;
-        color: #f0e6d2;
-        font-size: 1em;
-    ">
-        <?= translate('footer_connect', '🌟 Connect with Me:') ?>
-        <a href="https://github.com/blodyiheb/SahtoutCMS" target="_blank" rel="noopener noreferrer" style="
-            color: #d4af37;
-            text-decoration: none;
-            margin: 0 12px;
-            transition: color 0.3s;
-        "><?= translate('footer_github', 'GitHub') ?></a>
-        |
-        <a href="https://www.youtube.com/@Blodyone" target="_blank" rel="noopener noreferrer" style="
-            color: #d4af37;
-            text-decoration: none;
-            margin: 0 12px;
-            transition: color 0.3s;
-        "><?= translate('footer_youtube', 'YouTube') ?></a>
-        |
-        <a href="https://discord.gg/chxXTXXQ6M" target="_blank" rel="noopener noreferrer" style="
-            color: #d4af37;
-            text-decoration: none;
-            margin: 0 12px;
-            transition: color 0.3s;
-        "><?= translate('footer_discord', 'Discord') ?></a>
+<!-- Installer Footer -->
+<footer class="glass-footer w-full border-t border-[rgba(160,130,60,0.3)] py-4 px-4 text-center shadow-[0_-2px_20px_rgba(139,115,60,0.3)] font-['Cinzel'] mt-auto">
+    
+    <!-- Social Links -->
+    <p class="text-[#e8dcc8] text-sm md:text-base m-0">
+        <span class="text-[#d4af37]">🌟 <?= translate('footer_connect', 'Connect with Me:') ?></span>
+        
+        <a href="https://github.com/blodyiheb/SahtoutCMS" target="_blank" rel="noopener noreferrer" class="text-[#d4af37] hover:text-[#e8c84a] transition-colors duration-300 mx-3 no-underline">
+            <i class="fab fa-github mr-1"></i> <?= translate('footer_github', 'GitHub') ?>
+        </a>
+        
+        <span class="text-[#6b5a3e]">|</span>
+        
+        <a href="https://www.youtube.com/@Blodyone" target="_blank" rel="noopener noreferrer" class="text-[#d4af37] hover:text-[#e8c84a] transition-colors duration-300 mx-3 no-underline">
+            <i class="fab fa-youtube mr-1"></i> <?= translate('footer_youtube', 'YouTube') ?>
+        </a>
+        
+        <span class="text-[#6b5a3e]">|</span>
+        
+        <a href="https://discord.gg/chxXTXXQ6M" target="_blank" rel="noopener noreferrer" class="text-[#d4af37] hover:text-[#e8c84a] transition-colors duration-300 mx-3 no-underline">
+            <i class="fab fa-discord mr-1"></i> <?= translate('footer_discord', 'Discord') ?>
+        </a>
     </p>
-    <p style="
-        margin: 5px 0 0 0;
-        font-size: 0.9em;
-        color: #7CFC00;
-    ">
-        &copy; <?= (int)date('Y') ?> Sahtout CMS. <?= translate('footer_all_rights', 'All rights reserved.') ?>
+    
+    <!-- Copyright -->
+    <p class="text-[#8fbc8f] text-xs md:text-sm mt-2 m-0">
+        <i class="far fa-copyright mr-1"></i>
+        <?= (int)date('Y') ?> Sahtout CMS. <?= translate('footer_all_rights', 'All rights reserved.') ?>
     </p>
 </footer>
+
+<style>
+    /* Glass-morphism effect with warm brown tones */
+    .glass-footer {
+        background: rgba(60, 40, 25, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        position: relative;
+        margin-top: auto;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+        .glass-footer p {
+            font-size: 0.8rem;
+        }
+        
+        .glass-footer a {
+            margin: 0 6px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .glass-footer p {
+            font-size: 0.7rem;
+        }
+        
+        .glass-footer a {
+            margin: 0 4px;
+            font-size: 0.7rem;
+        }
+    }
+</style>

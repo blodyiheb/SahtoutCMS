@@ -16,7 +16,7 @@ global $langCode;
 $langCode = isset($_SESSION['lang']) ? $_SESSION['lang'] : ($_GET['lang'] ?? 'en');
 
 // Supported languages
-$supported = ['en', 'fr', 'es', 'de', 'ru','pt'];
+$supported = ['en', 'fr', 'es', 'de', 'ru', 'pt', 'cn'];
 if (!in_array($langCode, $supported)) {
     $langCode = 'en';
 }
@@ -28,7 +28,8 @@ $langNames = [
     'es' => 'Español',
     'de' => 'Deutsch',
     'ru' => 'Русский',
-    'pt' => 'Português'
+    'pt' => 'Português',
+    'cn' => '中文'
 ];
 
 // Current language data
@@ -42,142 +43,131 @@ $currentFlagEsc = htmlspecialchars($currentFlag);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= translate('installer_title', 'Sahtout CMS Installer') ?></title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
     <style>
-        /* Navbar styles */
-        .navbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(135deg, #0a0a0a, #1a0a0a);
-            padding: 15px 30px;
-            border-bottom: 3px solid #cccf22;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.7);
-            position: sticky;
-            top: 0;
+        /* Only essential custom CSS for glass-morphism effects */
+        .glass-nav {
+            background: rgba(5, 7, 11, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(201,162,39,0.3);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+            position: relative;
             z-index: 999;
         }
-        .navbar img {
-            height: 60px;
-            margin-right: 20px;
-            border-radius: 8px;
-        }
-        .navbar .title {
-            font-family: 'Cinzel', serif;
-            font-size: 2em;
-            color: #ffd700;
-            text-shadow: 0 0 10px #000, 0 0 20px #d4af37;
-            font-weight: 700;
-            margin: 0;
-        }
-        /* Language Dropdown */
-        .lang-dropdown {
-            position: relative;
-            display: inline-block;
-            width: 160px;
-            font-family: 'Cinzel', serif;
-        }
+        
         .lang-selected {
-            background: #1a0a0a;
-            color: #ffd700;
-            padding: 8px 12px;
-            border: 1px solid #cccf22;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            background: rgba(10, 14, 22, 0.7);
             transition: all 0.3s ease;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
         }
+        
         .lang-selected:hover {
-            background: #2a2a2a;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+            background: rgba(10, 14, 22, 0.9);
         }
-        .lang-selected img {
-            width: 20px;
-            height: 15px;
-            border-radius: 2px;
-        }
+        
         .lang-options {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            width: 100%;
-            background: #1a0a0a;
-            border: 1px solid #cccf22;
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
-            list-style: none;
-            margin: 5px 0 0 0;
-            padding: 0;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            z-index: 1000;
+            background: rgba(5, 7, 11, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(201,162,39,0.25);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
         }
-        .lang-dropdown:hover .lang-options {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
+        
         .lang-options li {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            color: #ffd700;
-            cursor: pointer;
-            transition: background 0.2s ease;
+            transition: all 0.2s ease;
         }
+        
         .lang-options li:hover {
-            background: #2a2a2a;
+            background: rgba(242, 207, 82, 0.08);
         }
-        .lang-options li img {
+        
+        .flag-icon {
             width: 20px;
             height: 15px;
             border-radius: 2px;
+            object-fit: cover;
+        }
+        
+        @media (max-width: 768px) {
+            .flag-icon {
+                width: 16px;
+                height: 12px;
+            }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="navbar">
+    <!-- Navbar - Glass-morphism with Tailwind -->
+    <nav class="glass-nav flex flex-wrap items-center justify-between px-4 md:px-8 py-3 gap-2">
+        
         <!-- Logo and Title -->
-        <div style="display: flex; align-items: center;">
-            <img src="<?php echo $base_path; ?>install/logo.png" alt="<?= translate('logo_alt', 'Sahtout Logo') ?>">
-            <div class="title"><?= translate('installer_title', 'Sahtout CMS Installer') ?></div>
+        <div class="flex items-center">
+            <img src="<?php echo $base_path; ?>install/logo.png" alt="<?= translate('logo_alt', 'Sahtout Logo') ?>" class="h-10 md:h-12 mr-3 md:mr-4 rounded transition-transform duration-300 hover:scale-105">
+            <span class="font-['Cinzel'] text-xl md:text-2xl font-bold text-[#f2cf5b] tracking-wide drop-shadow-[0_0_20px_rgba(242,207,82,0.2)]">
+                <?= translate('installer_title', 'Sahtout CMS Installer') ?>
+            </span>
         </div>
+        
         <!-- Language Dropdown -->
-        <div class="lang-dropdown">
-            <div class="lang-selected" id="langSelected">
-                <img src="<?= $currentFlagEsc ?>" alt="<?= htmlspecialchars($currentLabel) ?>" id="flagIcon">
-                <span id="langLabel"><?= htmlspecialchars($currentLabel) ?></span>
+        <div class="relative inline-block min-w-[120px] md:min-w-[150px] font-['Cinzel'] lang-dropdown">
+            <div class="lang-selected flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] cursor-pointer hover:border-[rgba(201,162,39,0.6)] hover:shadow-[0_0_20px_rgba(242,207,82,0.1)]" id="langSelected">
+                <img src="<?= $currentFlagEsc ?>" alt="<?= htmlspecialchars($currentLabel) ?>" class="flag-icon" id="flagIcon">
+                <span class="text-sm md:text-base" id="langLabel"><?= htmlspecialchars($currentLabel) ?></span>
+                <i class="fas fa-chevron-down text-[10px] text-[rgba(242,207,82,0.6)] ml-1"></i>
             </div>
-            <ul class="lang-options">
-                <li data-value="en" data-flag="<?php echo $base_path; ?>languages/flags/en.png">
-                    <img src="<?php echo $base_path; ?>languages/flags/en.png" alt="English"> English
+            
+            <ul class="lang-options absolute top-full right-0 min-w-full mt-1 p-0 list-none opacity-0 invisible translate-y-[-8px] transition-all duration-300" style="z-index:1000;">
+                <li data-value="en" data-flag="<?php echo $base_path; ?>languages/flags/en.png" class="flex items-center gap-2.5 px-3 py-2.5 md:px-4 md:py-3 text-gray-300 hover:text-[#f2cf5b] cursor-pointer text-sm md:text-base">
+                    <img src="<?php echo $base_path; ?>languages/flags/en.png" alt="English" class="flag-icon"> English
                 </li>
-                <li data-value="fr" data-flag="<?php echo $base_path; ?>languages/flags/fr.png">
-                    <img src="<?php echo $base_path; ?>languages/flags/fr.png" alt="Français"> Français
+                <li data-value="fr" data-flag="<?php echo $base_path; ?>languages/flags/fr.png" class="flex items-center gap-2.5 px-3 py-2.5 md:px-4 md:py-3 text-gray-300 hover:text-[#f2cf5b] cursor-pointer text-sm md:text-base">
+                    <img src="<?php echo $base_path; ?>languages/flags/fr.png" alt="Français" class="flag-icon"> Français
                 </li>
-                <li data-value="es" data-flag="<?php echo $base_path; ?>languages/flags/es.png">
-                    <img src="<?php echo $base_path; ?>languages/flags/es.png" alt="Español"> Español
+                <li data-value="es" data-flag="<?php echo $base_path; ?>languages/flags/es.png" class="flex items-center gap-2.5 px-3 py-2.5 md:px-4 md:py-3 text-gray-300 hover:text-[#f2cf5b] cursor-pointer text-sm md:text-base">
+                    <img src="<?php echo $base_path; ?>languages/flags/es.png" alt="Español" class="flag-icon"> Español
                 </li>
-                <li data-value="de" data-flag="<?php echo $base_path; ?>languages/flags/de.png">
-                    <img src="<?php echo $base_path; ?>languages/flags/de.png" alt="Deutsch"> Deutsch
+                <li data-value="de" data-flag="<?php echo $base_path; ?>languages/flags/de.png" class="flex items-center gap-2.5 px-3 py-2.5 md:px-4 md:py-3 text-gray-300 hover:text-[#f2cf5b] cursor-pointer text-sm md:text-base">
+                    <img src="<?php echo $base_path; ?>languages/flags/de.png" alt="Deutsch" class="flag-icon"> Deutsch
                 </li>
-                <li data-value="ru" data-flag="<?php echo $base_path; ?>languages/flags/ru.png">
-                    <img src="<?php echo $base_path; ?>languages/flags/ru.png" alt="Русский"> Русский
+                <li data-value="ru" data-flag="<?php echo $base_path; ?>languages/flags/ru.png" class="flex items-center gap-2.5 px-3 py-2.5 md:px-4 md:py-3 text-gray-300 hover:text-[#f2cf5b] cursor-pointer text-sm md:text-base">
+                    <img src="<?php echo $base_path; ?>languages/flags/ru.png" alt="Русский" class="flag-icon"> Русский
                 </li>
-                <li data-value="pt" data-flag="<?php echo $base_path; ?>languages/flags/pt.png">
-                    <img src="<?php echo $base_path; ?>languages/flags/pt.png" alt="Português"> Português
+                <li data-value="pt" data-flag="<?php echo $base_path; ?>languages/flags/pt.png" class="flex items-center gap-2.5 px-3 py-2.5 md:px-4 md:py-3 text-gray-300 hover:text-[#f2cf5b] cursor-pointer text-sm md:text-base">
+                    <img src="<?php echo $base_path; ?>languages/flags/pt.png" alt="Português" class="flag-icon"> Português
+                </li>
+                <li data-value="cn" data-flag="<?php echo $base_path; ?>languages/flags/cn.png" class="flex items-center gap-2.5 px-3 py-2.5 md:px-4 md:py-3 text-gray-300 hover:text-[#f2cf5b] cursor-pointer text-sm md:text-base">
+                    <img src="<?php echo $base_path; ?>languages/flags/cn.png" alt="中文" class="flag-icon"> 中文
                 </li>
             </ul>
         </div>
-    </div>
+    </nav>
+    
     <script>
+        // Hover functionality for dropdown
+        const dropdown = document.querySelector('.lang-dropdown');
+        if (dropdown) {
+            const options = dropdown.querySelector('.lang-options');
+            
+            dropdown.addEventListener('mouseenter', function() {
+                options.classList.add('opacity-100', 'visible', 'translate-y-0');
+                options.classList.remove('opacity-0', 'invisible', '-translate-y-2');
+            });
+            
+            dropdown.addEventListener('mouseleave', function() {
+                options.classList.remove('opacity-100', 'visible', 'translate-y-0');
+                options.classList.add('opacity-0', 'invisible', '-translate-y-2');
+            });
+        }
+        
         document.querySelectorAll('.lang-options li').forEach(option => {
             option.addEventListener('click', function () {
                 const lang = this.getAttribute('data-value');

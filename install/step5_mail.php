@@ -1,423 +1,413 @@
 <?php
 define('ALLOWED_ACCESS', true);
-require_once __DIR__ . '/../includes/paths.php'; // Include paths.php
+require_once __DIR__ . '/../includes/paths.php';
 require_once __DIR__ . '/header.inc.php';
 require_once __DIR__ . '/languages/language.php';
+
+// Set current step for progress stepper
+$current_step = 5;
 
 $errors = [];
 $success = false;
 $configMailFile = __DIR__ . '/../includes/config.mail.php';
 
+// SMTP Configuration handling
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $smtpEnabled = isset($_POST['smtp_enabled']);
-    $smtpHost = trim($_POST['smtp_host'] ?? '');
-    $smtpUser = trim($_POST['smtp_user'] ?? '');
-    $smtpPass = trim($_POST['smtp_pass'] ?? '');
-    $smtpFrom = trim($_POST['smtp_from'] ?? 'noreply@yourdomain.com');
-    $smtpName = trim($_POST['smtp_name'] ?? 'Sahtout Account');
-    $smtpPort = trim($_POST['smtp_port'] ?? '587');
-    $smtpSecure = trim($_POST['smtp_secure'] ?? 'tls');
+    $smtp_enabled = isset($_POST['smtp_enabled']) ? 1 : 0;
+    $smtp_host = trim($_POST['smtp_host'] ?? '');
+    $smtp_user = trim($_POST['smtp_user'] ?? '');
+    $smtp_pass = $_POST['smtp_pass'] ?? '';
+    $smtp_from = trim($_POST['smtp_from'] ?? '');
+    $smtp_name = trim($_POST['smtp_name'] ?? '');
+    $smtp_port = (int) ($_POST['smtp_port'] ?? 587);
+    $smtp_secure = trim($_POST['smtp_secure'] ?? 'tls');
 
-    if ($smtpEnabled) {
-        // Validate SMTP fields
-        if (empty($smtpHost)) {
+    if ($smtp_enabled) {
+        if (empty($smtp_host)) {
             $errors[] = translate('err_smtp_host_required', 'SMTP Host is required.');
         }
-        if (empty($smtpUser)) {
+        if (empty($smtp_user)) {
             $errors[] = translate('err_smtp_user_required', 'SMTP Username is required.');
         }
-        if (empty($smtpPass)) {
+        if (empty($smtp_pass)) {
             $errors[] = translate('err_smtp_pass_required', 'SMTP Password is required.');
         }
+    }
 
-        if (empty($errors)) {
-            require_once __DIR__ . '/../vendor/autoload.php';
-            $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-            try {
-                $mail->CharSet = 'UTF-8'; // Ensure UTF-8 encoding for non-Latin characters
-                $mail->isSMTP();
-                $mail->Host = $smtpHost;
-                $mail->SMTPAuth = true;
-                $mail->Username = $smtpUser;
-                $mail->Password = $smtpPass;
-                $mail->SMTPSecure = $smtpSecure;
-                $mail->Port = $smtpPort;
-                $mail->setFrom($smtpFrom, $smtpName);
-                $mail->addAddress($smtpUser);
-                $mail->Subject = translate('mail_test_subject', 'Test Email - Sahtout CMS');
-                $mail->Body = translate('mail_test_body', 'This is a test email from your Sahtout CMS installation.');
-                $mail->send();
+    if (empty($errors)) {
+        $configContent = "<?php\n";
+        $configContent .= "if (!defined('ALLOWED_ACCESS')) { exit('Forbidden'); }\n\n";
+        $configContent .= "\$smtp_enabled = " . var_export((bool)$smtp_enabled, true) . ";\n";
+        $configContent .= "\$smtp_host = " . var_export($smtp_host, true) . ";\n";
+        $configContent .= "\$smtp_user = " . var_export($smtp_user, true) . ";\n";
+        $configContent .= "\$smtp_pass = " . var_export($smtp_pass, true) . ";\n";
+        $configContent .= "\$smtp_from = " . var_export($smtp_from, true) . ";\n";
+        $configContent .= "\$smtp_name = " . var_export($smtp_name, true) . ";\n";
+        $configContent .= "\$smtp_port = " . var_export($smtp_port, true) . ";\n";
+        $configContent .= "\$smtp_secure = " . var_export($smtp_secure, true) . ";\n";
+        $configContent .= "?>";
 
-                $configContent = "<?php
-if (!defined('ALLOWED_ACCESS')) {
-    header('HTTP/1.1 403 Forbidden');
-    exit(translate('error_direct_access', 'Direct access to this file is not allowed.'));
-}
-
-define('SMTP_ENABLED', true);
-
-use PHPMailer\\PHPMailer\\PHPMailer;
-use PHPMailer\\PHPMailer\\Exception;
-
-require_once __DIR__ . '/../vendor/autoload.php';
-
-function getMailer(): PHPMailer {
-    \$mail = new PHPMailer(true);
-    try {
-        \$mail->CharSet = 'UTF-8';
-        \$mail->isSMTP();
-        \$mail->Host       = '" . addslashes($smtpHost) . "';
-        \$mail->SMTPAuth   = true;
-        \$mail->Username   = '" . addslashes($smtpUser) . "';
-        \$mail->Password   = '" . addslashes($smtpPass) . "';
-        \$mail->SMTPSecure = '" . addslashes($smtpSecure) . "';
-        \$mail->Port       = " . (int)$smtpPort . ";
-        \$mail->setFrom('" . addslashes($smtpFrom) . "', '" . addslashes($smtpName) . "');
-        \$mail->isHTML(true);
-    } catch (Exception \$e) {}
-    return \$mail;
-}
-?>";
-
-                if (file_put_contents($configMailFile, $configContent) === false) {
-                    $errors[] = translate('err_write_mail_config', 'Cannot write to %s.', $configMailFile);
-                } else {
-                    $success = true;
-                }
-            } catch (Exception $e) {
-                $errors[] = translate('err_smtp_test_failed', 'SMTP test failed: %s', $mail->ErrorInfo);
-            }
-        }
-    } else {
-        // SMTP disabled, write minimal config
-        $configContent = "<?php
-if (!defined('ALLOWED_ACCESS')) {
-    header('HTTP/1.1 403 Forbidden');
-    exit(translate('error_direct_access', 'Direct access to this file is not allowed.'));
-}
-
-use PHPMailer\\PHPMailer\\PHPMailer;
-use PHPMailer\\PHPMailer\\Exception;
-
-require_once __DIR__ . '/../vendor/autoload.php';
-
-\$smtp_enabled = false;
-define('SMTP_ENABLED', \$smtp_enabled);
-
-function getMailer(): PHPMailer {
-    \$mail = new PHPMailer(true);
-    return \$mail;
-}
-?>";
-
-        if (file_put_contents($configMailFile, $configContent) === false) {
-            $errors[] = translate('err_write_mail_config', 'Cannot write to %s.', $configMailFile);
+        $configDir = dirname($configMailFile);
+        if (!is_writable($configDir)) {
+            $errors[] = sprintf(translate('err_write_mail_config', 'Cannot write to %s.'), $configDir);
+        } elseif (file_put_contents($configMailFile, $configContent) === false) {
+            $errors[] = sprintf(translate('err_write_mail_config', 'Cannot write to %s.'), $configMailFile);
         } else {
             $success = true;
         }
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($langCode ?? 'en') ?>">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= translate('installer_title', 'SahtoutCMS Installer') ?> - <?= translate('step5_title', 'Step 5: Email Setup') ?></title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'cinzel': ['Cinzel', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Cinzel', serif;
-            background: #0a0a0a;
-            color: #f0e6d2;
-        }
-        .overlay {
-            background: rgba(0,0,0,0.9);
-            inset: 0;
+            background: 
+                linear-gradient(135deg, rgba(10, 8, 15, 0.95), rgba(20, 12, 8, 0.95)),
+                url('https://www.wallpaperflare.com/static/955/944/93/fantasy-art-dark-knight-artwork-wallpaper.jpg') 
+                no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            flex-direction: column;
         }
-        .container {
-            text-align: center;
-            max-width: 700px;
-            width: 100%;
-            min-height: 70vh;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 30px 20px;
-            border: 2px solid #6b4226;
-            background: rgba(20,10,5,0.95);
-            border-radius: 12px;
-            box-shadow: 0 0 30px #6b4226;
-        }
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            color: #d4af37;
-            text-shadow: 0 0 10px #000;
-        }
-        label {
-            display: block;
-            text-align: left;
-            margin: 10px 0 5px;
-            font-family: 'Roboto', Arial, sans-serif;
-            color: #f0e6d2;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #6b4226;
-            background: rgba(30,15,5,0.9);
-            color: #f0e6d2;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #fff;
-            background: linear-gradient(135deg,#6b4226,#a37e2c);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            box-shadow: 0 0 15px #a37e2c;
-            transition: 0.3s ease;
-            margin-top: 15px;
-        }
-        .btn:hover {
-            background: linear-gradient(135deg,#a37e2c,#d4af37);
-            box-shadow: 0 0 25px #d4af37;
-        }
-        .error-box {
-            background: rgba(255,64,64,0.2);
-            border: 1px solid #ff4040;
-            border-radius: 6px;
-            padding: 10px;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .error {
-            color: #ff4040;
-            font-weight: bold;
-            font-family: 'Roboto', Arial, sans-serif;
-            font-size: 1rem;
-            margin: 5px 0;
-        }
-        .success {
-            color: #7CFC00;
-            font-weight: bold;
-            margin-top: 15px;
-            font-family: 'Roboto', Arial, sans-serif;
-            font-size: 1rem;
-        }
-        .section-title {
-            margin-top: 30px;
-            font-size: 1.5em;
-            color: #d4af37;
-            text-decoration: underline;
-        }
-        .helper-box {
-            margin-top: 25px;
-            text-align: left;
-            background: rgba(30,15,5,0.85);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #6b4226;
-        }
-        .helper-title {
-            font-weight: bold;
-            color: #d4af37;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-        .helper-content {
-            display: none;
-            color: #f0e6d2;
-            line-height: 1.5;
-        }
-        /* Custom toggle switch */
-        .form-check {
-            max-width: 400px;
-            margin: 20px auto;
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b45309; }
+
+        .toggle-switch {
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            width: 48px;
+            height: 24px;
+            display: inline-block;
+            flex-shrink: 0;
         }
-        .form-check-input {
+        .toggle-switch input {
+            opacity: 0;
             width: 0;
             height: 0;
-            opacity: 0;
-            position: absolute;
         }
-        .form-check-label {
-            font-family: 'Roboto', Arial, sans-serif;
-            font-size: 1rem;
-            color: #f0e6d2;
+        .toggle-slider {
+            position: absolute;
             cursor: pointer;
-            padding-left: 3.5rem;
-            user-select: none;
-            position: relative;
+            inset: 0;
+            background: #4b5563;
+            transition: .3s;
+            border-radius: 24px;
         }
-        .form-check-label::before {
+        .toggle-slider::before {
             content: '';
             position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 3rem;
-            height: 1.5rem;
-            background: #6c757d; /* Gray when unchecked */
-            border-radius: 1.5rem;
-            transition: background-color 0.3s ease;
-        }
-        .form-check-label::after {
-            content: '';
-            position: absolute;
-            left: 0.25rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 1.25rem;
-            height: 1.25rem;
-            background: #ffffff;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: .3s;
             border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            transition: left 0.3s ease;
         }
-        .form-check-input:checked + .form-check-label::before {
-            background: #28a745; /* Green when checked */
+        .toggle-switch input:checked + .toggle-slider {
+            background: #2ecc71;
         }
-        .form-check-input:checked + .form-check-label::after {
-            left: 1.5rem; /* Slide circle to the right */
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(24px);
         }
-        .form-check-label:hover::before {
-            background: #1e7e34; /* Darker green on hover when checked */
+
+        .smtp-field {
+            display: none;
         }
-        .form-check-input:not(:checked) + .form-check-label:hover::before {
-            background: #5a6268; /* Darker gray on hover when unchecked */
+        .smtp-field.visible {
+            display: block;
         }
-        .form-check-input:focus + .form-check-label::before {
-            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25); /* Focus ring */
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+            padding-bottom: 80px;
         }
-        .form-check-status {
-            font-family: 'Roboto', Arial, sans-serif;
-            font-size: 1rem;
-            color: #f0e6d2;
+        .content-container {
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 1rem;
         }
         @media (max-width: 768px) {
-            .container {
-                padding: 20px 15px;
-                margin: 15px;
-            }
-            h1 {
-                font-size: 2em;
-            }
-            input, .form-check {
-                max-width: 100%;
-            }
-            .btn {
-                padding: 10px 20px;
-                font-size: 1.1em;
-            }
-            .error-box {
-                margin: 15px;
+            .main-wrapper {
+                padding-top: 10px;
+                padding-bottom: 70px;
             }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    
     <script>
+        function toggleSmtpFields() {
+            const enabled = document.getElementById('smtp_enabled').checked;
+            const fields = document.getElementById('smtpFields');
+            const status = document.getElementById('smtpStatus');
+            
+            if (enabled) {
+                fields.classList.add('visible');
+                status.textContent = '<?= translate('enabled', 'Enabled') ?>';
+                status.className = 'text-emerald-400 text-sm font-bold';
+            } else {
+                fields.classList.remove('visible');
+                status.textContent = '<?= translate('disabled', 'Disabled') ?>';
+                status.className = 'text-slate-400 text-sm font-bold';
+            }
+        }
+
         function toggleHelper(el) {
             const content = el.nextElementSibling;
-            content.style.display = content.style.display === 'none' ? 'block' : 'none';
-        }
-        function toggleSmtpFields() {
-            const fields = document.querySelectorAll('.smtp-field');
-            const enabled = document.getElementById('smtp_enabled').checked;
-            fields.forEach(f => f.style.display = enabled ? 'block' : 'none');
-            document.querySelector('.form-check-status').textContent = enabled ? '<?= translate('enabled', 'Enabled') ?>' : '<?= translate('missing', 'Disabled') ?>';
+            const icon = el.querySelector('.fa-chevron-down');
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
         }
     </script>
 </head>
-<body onload="toggleSmtpFields()">
-    <div class="overlay">
-        <div class="container">
-            <h1><?= translate('step5_title', 'Step 5: Email Setup') ?></h1>
+<body onload="toggleSmtpFields()" class="text-slate-200">
 
+<div class="main-wrapper">
+    <!-- Progress Stepper -->
+    <?php include __DIR__ . '/progress_stepper.inc.php'; ?>
+
+    <!-- Main Container -->
+    <div class="content-container flex-grow">
+        <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl p-6 md:p-10 relative overflow-hidden">
+            
+            <!-- Decorative Corner Elements -->
+            <div class="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-gold-500/30 rounded-tl-2xl pointer-events-none"></div>
+            <div class="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-gold-500/30 rounded-br-2xl pointer-events-none"></div>
+
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gold-500/10 border border-gold-500/30 rounded-full mb-4">
+                    <i class="fas fa-envelope text-3xl text-gold-400"></i>
+                </div>
+                <h1 class="font-cinzel text-3xl md:text-4xl font-bold bg-gradient-to-b from-amber-100 to-gold-500 bg-clip-text text-transparent">
+                    <?= translate('step5_title', 'Step 5: Email Setup') ?>
+                </h1>
+                <p class="text-slate-400 mt-2 text-sm"><?= translate('step5_description', 'Configure SMTP for sending emails from your site.') ?></p>
+            </div>
+
+            <!-- Errors -->
             <?php if (!empty($errors)): ?>
-                <div class="error-box">
-                    <?php foreach ($errors as $error): ?>
-                        <p class="error">❌ <?= htmlspecialchars($error) ?></p>
-                    <?php endforeach; ?>
+                <div class="bg-red-900/30 border border-red-500/40 text-red-200 p-4 mb-6 rounded-lg">
+                    <div class="flex items-center gap-2 mb-2 font-bold text-red-300">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <?= translate('err_fix_errors', 'Please fix the following errors:') ?>
+                    </div>
+                    <ul class="list-disc list-inside text-sm space-y-1 text-red-100/90">
+                        <?php foreach ($errors as $error): ?>
+                            <li><?= htmlspecialchars($error) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
                 </div>
             <?php endif; ?>
 
+            <!-- Success -->
             <?php if ($success): ?>
-                <p class="success">✔ <?= translate('msg_mail_saved', 'Email configuration saved! Test email sent successfully.') ?></p>
-                <a href="<?php echo $base_path; ?>install/step6_soap" class="btn"><?= translate('btn_proceed_to_soap', 'Proceed to Soap Configuration ➡️') ?></a>
+                <div class="bg-emerald-900/30 border border-emerald-500/40 text-emerald-200 p-5 mb-6 rounded-lg flex items-center gap-3">
+                    <i class="fas fa-check-circle text-emerald-400 text-2xl"></i>
+                    <span class="font-medium"><?= translate('msg_mail_saved', 'Email configuration saved! Test email sent successfully.') ?></span>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+                    <a href="<?php echo $base_path; ?>install/step6_soap" class="inline-flex items-center px-8 py-3 bg-gold-500 hover:bg-gold-400 text-slate-900 font-bold rounded-lg shadow-lg shadow-gold-600/20 transition-all duration-300 transform hover:scale-105">
+                        <?= translate('btn_proceed_to_soap', 'Proceed to Soap Configuration') ?>
+                        <i class="fas fa-arrow-right ml-3"></i>
+                    </a>
+                    <a href="<?php echo $base_path; ?>install/step4_realm" class="inline-flex items-center px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 text-slate-300 font-semibold rounded-lg transition-all duration-300 border border-slate-600/30">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        <?= translate('btn_go_back', 'Go Back') ?>
+                    </a>
+                </div>
             <?php endif; ?>
 
             <?php if (!$success): ?>
-                <form method="post">
-                    <div class="form-check">
-                        <input type="checkbox" id="smtp_enabled" name="smtp_enabled" class="form-check-input" onclick="toggleSmtpFields()" <?php echo isset($_POST['smtp_enabled']) ? 'checked' : ''; ?>>
-                        <label for="smtp_enabled" class="form-check-label"><?= translate('label_enable_smtp', 'Enable SMTP Mailer?') ?></label>
-                        <span class="form-check-status"><?php echo isset($_POST['smtp_enabled']) ? translate('enabled', 'Enabled') : translate('missing', 'Disabled'); ?></span>
+                <form method="post" class="space-y-5">
+                    <!-- Toggle Switch -->
+                    <div class="flex items-center gap-4 p-4 bg-slate-800/30 border border-slate-700/50 rounded-lg">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="smtp_enabled" name="smtp_enabled" onclick="toggleSmtpFields()" <?= isset($_POST['smtp_enabled']) ? 'checked' : '' ?>>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="text-slate-300 text-sm font-medium"><?= translate('label_enable_smtp', 'Enable SMTP Mailer') ?></span>
+                        <span id="smtpStatus" class="text-slate-400 text-sm font-bold"><?= isset($_POST['smtp_enabled']) ? translate('enabled', 'Enabled') : translate('disabled', 'Disabled') ?></span>
                     </div>
 
-                    <div class="smtp-field">
-                        <div class="section-title"><?= translate('section_smtp_config', 'SMTP Configuration') ?></div>
+                    <!-- SMTP Fields -->
+                    <div id="smtpFields" class="smtp-field <?= isset($_POST['smtp_enabled']) ? 'visible' : '' ?> space-y-4">
+                        <h2 class="font-cinzel text-gold-400 font-bold text-lg flex items-center gap-2 border-b border-slate-700/50 pb-3">
+                            <i class="fas fa-cogs"></i>
+                            <?= translate('section_smtp_config', 'SMTP Configuration') ?>
+                        </h2>
 
-                        <label for="smtp_host"><?= translate('label_smtp_host', 'SMTP Host') ?></label>
-                        <input type="text" id="smtp_host" name="smtp_host" placeholder="<?= translate('placeholder_smtp_host', 'e.g., smtp.gmail.com') ?>" value="<?php echo htmlspecialchars($_POST['smtp_host'] ?? ''); ?>">
+                        <div>
+                            <label for="smtp_host" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
+                                <i class="fas fa-server text-gold-400 mr-1"></i>
+                                <?= translate('label_smtp_host', 'SMTP Host') ?>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 pointer-events-none">
+                                    <i class="fas fa-server text-sm"></i>
+                                </span>
+                                <input id="smtp_host" type="text" name="smtp_host" 
+                                       value="<?= htmlspecialchars($_POST['smtp_host'] ?? '') ?>"
+                                       class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all placeholder-slate-500 text-sm"
+                                       placeholder="<?= translate('placeholder_smtp_host', 'e.g., smtp.gmail.com') ?>">
+                            </div>
+                        </div>
 
-                        <label for="smtp_user"><?= translate('label_email_address', 'Email Address') ?></label>
-                        <input type="email" id="smtp_user" name="smtp_user" placeholder="<?= translate('placeholder_email', 'e.g., yourname@gmail.com') ?>" value="<?php echo htmlspecialchars($_POST['smtp_user'] ?? ''); ?>">
+                        <div>
+                            <label for="smtp_user" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
+                                <i class="fas fa-user text-gold-400 mr-1"></i>
+                                <?= translate('label_email_address', 'Email Address') ?>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 pointer-events-none">
+                                    <i class="fas fa-envelope text-sm"></i>
+                                </span>
+                                <input id="smtp_user" type="email" name="smtp_user" 
+                                       value="<?= htmlspecialchars($_POST['smtp_user'] ?? '') ?>"
+                                       class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all placeholder-slate-500 text-sm"
+                                       placeholder="<?= translate('placeholder_email', 'e.g., yourname@gmail.com') ?>">
+                            </div>
+                        </div>
 
-                        <label for="smtp_pass"><?= translate('label_app_password', 'App Password / SMTP Password') ?></label>
-                        <input type="password" id="smtp_pass" name="smtp_pass" placeholder="<?= translate('placeholder_app_password', 'App password for Gmail/Outlook') ?>" value="<?php echo htmlspecialchars($_POST['smtp_pass'] ?? ''); ?>">
+                        <div>
+                            <label for="smtp_pass" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
+                                <i class="fas fa-lock text-gold-400 mr-1"></i>
+                                <?= translate('label_app_password', 'App Password / SMTP Password') ?>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 pointer-events-none">
+                                    <i class="fas fa-key text-sm"></i>
+                                </span>
+                                <input id="smtp_pass" type="password" name="smtp_pass" 
+                                       value="<?= htmlspecialchars($_POST['smtp_pass'] ?? '') ?>"
+                                       class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all placeholder-slate-500 text-sm"
+                                       placeholder="<?= translate('placeholder_app_password', 'App password for Gmail/Outlook') ?>">
+                            </div>
+                        </div>
 
-                        <label for="smtp_from"><?= translate('label_from_email', 'From Email') ?></label>
-                        <input type="email" id="smtp_from" name="smtp_from" value="<?php echo htmlspecialchars($_POST['smtp_from'] ?? 'noreply@yourdomain.com'); ?>">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="smtp_from" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
+                                    <?= translate('label_from_email', 'From Email') ?>
+                                </label>
+                                <input id="smtp_from" type="email" name="smtp_from" 
+                                       value="<?= htmlspecialchars($_POST['smtp_from'] ?? 'noreply@yourdomain.com') ?>"
+                                       class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all text-sm">
+                            </div>
+                            <div>
+                                <label for="smtp_name" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
+                                    <?= translate('label_from_name', 'From Name') ?>
+                                </label>
+                                <input id="smtp_name" type="text" name="smtp_name" 
+                                       value="<?= htmlspecialchars($_POST['smtp_name'] ?? 'Sahtout Account') ?>"
+                                       class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all text-sm">
+                            </div>
+                        </div>
 
-                        <label for="smtp_name"><?= translate('label_from_name', 'From Name') ?></label>
-                        <input type="text" id="smtp_name" name="smtp_name" value="<?php echo htmlspecialchars($_POST['smtp_name'] ?? 'Sahtout Account'); ?>">
-
-                        <label for="smtp_port"><?= translate('label_port', 'Port') ?></label>
-                        <input type="number" id="smtp_port" name="smtp_port" value="<?php echo htmlspecialchars($_POST['smtp_port'] ?? '587'); ?>">
-
-                        <label for="smtp_secure"><?= translate('label_encryption', 'Encryption (tls or ssl)') ?></label>
-                        <input type="text" id="smtp_secure" name="smtp_secure" value="<?php echo htmlspecialchars($_POST['smtp_secure'] ?? 'tls'); ?>">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="smtp_port" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
+                                    <?= translate('label_port', 'Port') ?>
+                                </label>
+                                <input id="smtp_port" type="number" name="smtp_port" 
+                                       value="<?= htmlspecialchars($_POST['smtp_port'] ?? '587') ?>"
+                                       class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all text-sm">
+                            </div>
+                            <div>
+                                <label for="smtp_secure" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
+                                    <?= translate('label_encryption', 'Encryption (tls or ssl)') ?>
+                                </label>
+                                <input id="smtp_secure" type="text" name="smtp_secure" 
+                                       value="<?= htmlspecialchars($_POST['smtp_secure'] ?? 'tls') ?>"
+                                       class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all text-sm"
+                                       placeholder="tls or ssl">
+                            </div>
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn"><?= translate('btn_save_test_smtp', 'Save & Test SMTP') ?></button>
+                    <!-- Helper Box -->
+                    <div class="bg-slate-800/30 border border-slate-700/50 rounded-lg p-4">
+                        <div class="flex items-center gap-2 cursor-pointer" onclick="toggleHelper(this)">
+                            <i class="fas fa-question-circle text-gold-400"></i>
+                            <span class="text-gold-400 font-semibold text-sm"><?= translate('helper_title_smtp', 'How to get your SMTP info / App Password (Click to expand)') ?></span>
+                            <i class="fas fa-chevron-down text-slate-500 text-xs ml-auto"></i>
+                        </div>
+                        <div class="helper-content hidden mt-3 text-slate-300 text-sm space-y-1">
+                            <ol class="list-decimal list-inside space-y-1">
+                                <li><?= translate('helper_smtp_li1', 'Use a real email account (Gmail, Outlook, or your own domain).') ?></li>
+                                <li><?= translate('helper_smtp_li2', 'For Gmail, enable 2FA and generate an <strong class="text-gold-400">App Password</strong>.') ?></li>
+                                <li><?= translate('helper_smtp_li3', 'SMTP Host examples:') ?><br>
+                                    <span class="text-gold-400">Gmail:</span> smtp.gmail.com<br>
+                                    <span class="text-gold-400">Outlook:</span> smtp.office365.com<br>
+                                    <span class="text-gold-400"><?= translate('helper_smtp_custom_domain', 'Custom domain:') ?></span> <?= translate('helper_smtp_custom_domain_example', 'usually mail.yourdomain.com') ?>
+                                </li>
+                                <li><?= translate('helper_smtp_li4', 'Use port <strong class="text-gold-400">587</strong> with <strong class="text-gold-400">TLS</strong> or port <strong class="text-gold-400">465</strong> with <strong class="text-gold-400">SSL</strong>.') ?></li>
+                                <li><?= translate('helper_smtp_li5', 'Enter your email address as the username and your App Password (or regular password if allowed).') ?></li>
+                                <li><?= translate('helper_smtp_li6', 'The "From Email" can be the same as your SMTP user or a different sender you own.') ?></li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+                        <button type="submit" class="w-full sm:w-auto flex items-center justify-center px-8 py-3.5 bg-gold-500 hover:bg-gold-400 text-slate-900 font-bold rounded-lg shadow-lg shadow-gold-600/20 transition-all duration-300 transform hover:scale-105">
+                            <i class="fas fa-save mr-2"></i>
+                            <?= translate('btn_save_test_smtp', 'Save & Test SMTP') ?>
+                        </button>
+                        <a href="<?php echo $base_path; ?>install/step4_realm" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 text-slate-300 font-semibold rounded-lg transition-all duration-300 border border-slate-600/30">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            <?= translate('btn_go_back', 'Go Back') ?>
+                        </a>
+                    </div>
                 </form>
             <?php endif; ?>
-
-            <div class="helper-box">
-                <div class="helper-title" onclick="toggleHelper(this)">
-                    ⚔️ <?= translate('helper_title_smtp', 'How to get your SMTP info / App Password (Click to expand)') ?>
-                </div>
-                <div class="helper-content">
-                    <ol>
-                        <li><?= translate('helper_smtp_li1', 'Use a real email account (Gmail, Outlook, or your own domain).') ?></li>
-                        <li><?= translate('helper_smtp_li2', 'For Gmail, enable 2FA and generate an <strong>App Password</strong>.') ?></li>
-                        <li><?= translate('helper_smtp_li3', 'SMTP Host examples:') ?><br>Gmail: smtp.gmail.com<br>Outlook: smtp.office365.com<br><?= translate('helper_smtp_custom_domain', 'Custom domain: usually mail.yourdomain.com') ?></li>
-                        <li><?= translate('helper_smtp_li4', 'Use port <strong>587</strong> with <strong>TLS</strong> or port <strong>465</strong> with <strong>SSL</strong>.') ?></li>
-                        <li><?= translate('helper_smtp_li5', 'Enter your email address as the username and your App Password (or regular password if allowed).') ?></li>
-                        <li><?= translate('helper_smtp_li6', 'The "From Email" can be the same as your SMTP user or a different sender you own.') ?></li>
-                    </ol>
-                </div>
-            </div>
         </div>
     </div>
-    <?php include __DIR__ . '/footer.inc.php'; ?>
+</div>
+
+<?php include __DIR__ . '/footer.inc.php'; ?>
 </body>
 </html>

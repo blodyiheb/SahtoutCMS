@@ -3,6 +3,9 @@ define('ALLOWED_ACCESS', true);
 require_once __DIR__ . '/../includes/paths.php'; // Include paths.php
 include __DIR__ . '/header.inc.php';
 
+// Set current step for progress stepper
+$current_step = 7;
+
 // Check required config files
 $configFiles = [
     'Database config' => __DIR__ . '/../includes/config.php',
@@ -22,40 +25,174 @@ foreach ($configFiles as $name => $path) {
 <html lang="<?= htmlspecialchars($langCode ?? 'en') ?>">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= translate('installer_title') ?> - <?= translate('finish_title', 'Finish') ?></title>
-    <style>
-        body {margin:0;padding:0;font-family:'Cinzel', serif;background:#0a0a0a;color:#f0e6d2;}
-        .overlay {background: rgba(0,0,0,0.9); inset:0; display:flex; align-items:center; justify-content:center; padding:20px;}
-        .container {text-align:center; max-width:700px; width:100%; min-height:70vh; padding:30px 20px; border:2px solid #6b4226; background: rgba(20,10,5,0.95); border-radius:12px; box-shadow:0 0 30px #6b4226;}
-        h1 {font-size:2.5em; margin-bottom:20px; color:#d4af37; text-shadow:0 0 10px #000;}
-        p {margin-bottom:20px; line-height:1.5;}
-        .btn {display:inline-block; padding:12px 30px; font-size:1.2em; font-weight:bold; color:#fff; background: linear-gradient(135deg,#6b4226,#a37e2c); border:none; border-radius:8px; cursor:pointer; text-decoration:none; box-shadow:0 0 15px #a37e2c; transition:0.3s ease; margin-top:15px;}
-        .btn:hover {background: linear-gradient(135deg,#a37e2c,#d4af37); box-shadow:0 0 25px #d4af37;}
-        .error {color:#ff4040; font-weight:bold; margin-top:10px;}
-        .success {color:#7CFC00; font-weight:bold; margin-top:10px;}
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="overlay">
-        <div class="container">
-            <h1><?= translate('finish_title', 'Installer Complete') ?> ⚔️</h1>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'cinzel': ['Cinzel', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
-            <?php if (!empty($errors)): ?>
-                <div class="error">
-                    <?php foreach ($errors as $err): ?>
-                        <p><?= htmlspecialchars($err) ?></p>
-                    <?php endforeach; ?>
+    <style>
+        body {
+            background: 
+                linear-gradient(135deg, rgba(10, 8, 15, 0.95), rgba(20, 12, 8, 0.95)),
+                url('https://www.wallpaperflare.com/static/955/944/93/fantasy-art-dark-knight-artwork-wallpaper.jpg') 
+                no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b45309; }
+
+        /* Main content wrapper */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-top: 0px;
+            padding-bottom: 80px;
+        }
+
+        .content-container {
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Confetti-like decoration */
+        .celebration-icon {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @media (max-width: 768px) {
+            .main-wrapper {
+                padding-bottom: 70px;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-200">
+
+<div class="main-wrapper">
+    <!-- Progress Stepper -->
+    <?php include __DIR__ . '/progress_stepper.inc.php'; ?>
+
+    <div class="content-container flex-grow">
+        <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl p-6 md:p-10 relative overflow-hidden">
+            
+            <!-- Decorative Corner Elements -->
+            <div class="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-gold-500/30 rounded-tl-2xl pointer-events-none"></div>
+            <div class="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-gold-500/30 rounded-br-2xl pointer-events-none"></div>
+
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="celebration-icon inline-flex items-center justify-center w-20 h-20 bg-gold-500/10 border border-gold-500/30 rounded-full mb-4">
+                    <i class="fas fa-flag-checkered text-4xl text-gold-400"></i>
                 </div>
-                <p><?= translate('finish_errors_msg', 'Some required configuration files are missing. Please make sure all steps are completed.') ?></p>
+                <h1 class="font-cinzel text-3xl md:text-5xl font-bold bg-gradient-to-b from-amber-100 to-gold-500 bg-clip-text text-transparent">
+                    <?= translate('finish_title', 'Installer Complete') ?> ⚔️
+                </h1>
+                <p class="text-slate-400 mt-2 text-sm"><?= translate('finish_description', 'SahtoutCMS is ready for action!') ?></p>
+            </div>
+
+            <!-- Errors -->
+            <?php if (!empty($errors)): ?>
+                <div class="bg-red-900/30 border border-red-500/40 text-red-200 p-4 mb-6 rounded-lg">
+                    <div class="flex items-center gap-2 mb-2 font-bold text-red-300">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <?= translate('finish_errors_msg', 'Some required configuration files are missing. Please make sure all steps are completed.') ?>
+                    </div>
+                    <ul class="list-disc list-inside text-sm space-y-1 text-red-100/90">
+                        <?php foreach ($errors as $err): ?>
+                            <li><?= htmlspecialchars($err) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
             <?php else: ?>
-                <p class="success">✔ <?= translate('finish_all_present', 'All configuration files are present!') ?></p>
-                <p><?= translate('finish_congrats', 'Congratulations, SahtoutCMS is fully installed and ready to use.') ?></p>
-                <p><?= translate('finish_security_note', 'For security, it is strongly recommended to <strong>delete the "install" folder</strong> from your server.') ?></p>
-                <a href="<?php echo $base_path; ?>" class="btn"><?= translate('btn_go_to_homepage', 'Go to SahtoutCMS Homepage') ?></a>
+                <!-- Success -->
+                <div class="bg-emerald-900/30 border border-emerald-500/40 text-emerald-200 p-5 mb-6 rounded-lg flex items-center gap-3">
+                    <i class="fas fa-check-circle text-emerald-400 text-2xl"></i>
+                    <span class="font-medium"><?= translate('finish_all_present', 'All configuration files are present!') ?></span>
+                </div>
+                
+                <!-- Congratulations Message -->
+                <div class="text-center mb-6">
+                    <p class="text-slate-300 text-base leading-relaxed">
+                        <?= translate('finish_congrats', 'Congratulations, SahtoutCMS is fully installed and ready to use.') ?>
+                    </p>
+                </div>
+
+                <!-- Security Note -->
+                <div class="bg-amber-900/20 border border-amber-500/30 text-amber-200 p-4 mb-6 rounded-lg flex items-start gap-3">
+                    <i class="fas fa-shield-alt text-amber-400 text-xl mt-0.5"></i>
+                    <div>
+                        <p class="font-semibold text-sm"><?= translate('finish_security_note_title', 'Security Recommendation') ?></p>
+                        <p class="text-sm text-amber-200/80">
+                            <?= translate('finish_security_note', 'For security, it is strongly recommended to <strong class="text-amber-400">delete the "install" folder</strong> from your server.') ?>
+                        </p>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <!-- Button -->
+            <div class="text-center mt-6">
+                <a href="<?php echo $base_path; ?>" class="inline-flex items-center px-8 py-3.5 bg-gold-500 hover:bg-gold-400 text-slate-900 font-bold rounded-lg shadow-lg shadow-gold-600/20 transition-all duration-300 transform hover:scale-105">
+                    <i class="fas fa-home mr-2"></i>
+                    <?= translate('btn_go_to_homepage', 'Go to SahtoutCMS Homepage') ?>
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+
+            <!-- Optional: Go Back Button (if errors) -->
+            <?php if (!empty($errors)): ?>
+                <div class="text-center mt-4">
+                    <a href="<?= htmlspecialchars($base_path ?? '') ?>install/step6_soap" class="inline-flex items-center px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 text-slate-300 font-semibold rounded-lg transition-all duration-300 border border-slate-600/30">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        <?= translate('btn_go_back', 'Go Back') ?>
+                    </a>
+                </div>
             <?php endif; ?>
         </div>
     </div>
-    <?php include __DIR__ . '/footer.inc.php'; ?>
+</div>
+
+<?php include __DIR__ . '/footer.inc.php'; ?>
 </body>
 </html>

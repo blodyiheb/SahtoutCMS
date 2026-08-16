@@ -1,19 +1,12 @@
 <?php
-if (!defined('ALLOWED_ACCESS')) {
-    header('HTTP/1.1 403 Forbidden');
-    exit(translate('error_direct_access', 'Direct access to this file is not allowed.'));
-}
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require_once __DIR__ . '/../vendor/autoload.php';
+if (!defined('ALLOWED_ACCESS')) { exit('Forbidden'); }
 
 $smtp_enabled = false;
-define('SMTP_ENABLED', $smtp_enabled);
-
-function getMailer(): PHPMailer {
-    $mail = new PHPMailer(true);
-    return $mail;
-}
+$smtp_host = '';
+$smtp_user = '';
+$smtp_pass = '';
+$smtp_from = 'noreply@yourdomain.com';
+$smtp_name = 'Sahtout Account';
+$smtp_port = 587;
+$smtp_secure = 'tls';
 ?>

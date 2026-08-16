@@ -4,35 +4,42 @@ require_once __DIR__ . '/../includes/paths.php';
 require_once __DIR__ . '/header.inc.php';
 require_once __DIR__ . '/languages/language.php';
 
+// Set current step for progress stepper
+$current_step = 3;
+
 $errors   = [];
 $success  = false;
 $dbStatus = [];
 
-$configFile    = realpath(__DIR__ . '/../includes/config.php');
-$configCapFile = realpath(__DIR__ . '/../includes/config.cap.php');
+// Robust path handling for files that might not exist yet
+$cfgDir = realpath(__DIR__ . '/../includes');
+if (!$cfgDir) $cfgDir = __DIR__ . '/../includes';
+
+$configFile    = $cfgDir . '/config.php';
+$configCapFile = $cfgDir . '/config.cap.php';
 
 $default_site_key   = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
 $default_secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-/* --------------------------------------------------------------
-   Helper – create a mysqli connection and return [conn, error]
-   -------------------------------------------------------------- */
-function makeConnection(array $c): array
-{
+// Define default DB groups so they are available on GET requests
+$dbGroups = [
+    'auth'  => ['label' => translate('db_auth', 'Auth DB')],
+    'world' => ['label' => translate('db_world', 'World DB')],
+    'char'  => ['label' => translate('db_char', 'Char DB')],
+    'site'  => ['label' => translate('db_site', 'Site DB')],
+];
+
+function makeConnection(array $c): array {
     $conn  = null;
     $error = '';
-
     try {
         $conn = new mysqli($c['host'], $c['user'], $c['pass'], $c['name'], $c['port']);
-        if ($conn->connect_error) {
-            $error = $conn->connect_error;
-        }
+        if ($conn->connect_error) $error = $conn->connect_error;
     } catch (Throwable $e) {
         $error = $e->getMessage();
     }
-
     return [$conn, $error];
 }
 
@@ -46,14 +53,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($recaptcha_enabled && empty($recaptcha_secret_key))$recaptcha_secret_key = $default_secret_key;
 
     if ($recaptcha_enabled && (empty($recaptcha_site_key) || empty($recaptcha_secret_key))) {
-        $errors[] = translate('err_recaptcha_keys_required',
-            'reCAPTCHA Site Key and Secret Key are required when reCAPTCHA is enabled.');
+        $errors[] = translate('err_recaptcha_keys_required', 'reCAPTCHA Site Key and Secret Key are required when reCAPTCHA is enabled.');
     }
 
+    // Overwrite with POST data
     $dbGroups = [
         'auth' => [
             'label' => translate('db_auth', 'Auth DB'),
-            'name'  => trim($_POST['db_auth_name'] ?? ''),
+            'name'  => trim($_POST['db_auth_name'] ?? 'acore_auth'),
             'host'  => trim($_POST['db_auth_host'] ?? ''),
             'port'  => trim($_POST['db_auth_port'] ?? '3306'),
             'user'  => trim($_POST['db_auth_user'] ?? ''),
@@ -61,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ],
         'world' => [
             'label' => translate('db_world', 'World DB'),
-            'name'  => trim($_POST['db_world_name'] ?? ''),
+            'name'  => trim($_POST['db_world_name'] ?? 'acore_world'),
             'host'  => trim($_POST['db_world_host'] ?? ''),
             'port'  => trim($_POST['db_world_port'] ?? '3306'),
             'user'  => trim($_POST['db_world_user'] ?? ''),
@@ -69,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ],
         'char' => [
             'label' => translate('db_char', 'Char DB'),
-            'name'  => trim($_POST['db_char_name'] ?? ''),
+            'name'  => trim($_POST['db_char_name'] ?? 'acore_characters'),
             'host'  => trim($_POST['db_char_host'] ?? ''),
             'port'  => trim($_POST['db_char_port'] ?? '3306'),
             'user'  => trim($_POST['db_char_user'] ?? ''),
@@ -85,7 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ],
     ];
 
-    // === Validate inputs ===
     foreach ($dbGroups as $key => $g) {
         if (empty($g['host'])) $errors[] = translate('err_host_required', '[%s] Host is required', $g['label']);
         if (empty($g['user'])) $errors[] = translate('err_user_required', '[%s] Username is required', $g['label']);
@@ -95,11 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($g['name'])) $errors[] = translate('err_dbname_required', '[%s] Database name is required', $g['label']);
     }
 
-    // === Test connections & tables ===
     if (empty($errors)) {
         foreach ($dbGroups as $key => $g) {
             [$conn, $connError] = makeConnection($g);
-
             $status = ['success' => false, 'message' => ''];
 
             if ($connError) {
@@ -109,7 +113,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'auth'  => ['account', 'realmcharacters'],
                     'world' => ['creature_template', 'item_template'],
                     'char'  => ['characters', 'character_inventory'],
-                    'site'  => [],
                     default => [],
                 };
 
@@ -137,16 +140,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // === Write config files ===
     if (empty($errors)) {
         $cfg = "<?php\nif (!defined('ALLOWED_ACCESS')) exit('Direct access not allowed.');\n\n";
         foreach ($dbGroups as $key => $g) {
             $p = "db_{$key}_";
-            $cfg .= "\${$p}host = '" . addslashes($g['host']) . "';\n";
-            $cfg .= "\${$p}port = '" . addslashes($g['port']) . "';\n";
-            $cfg .= "\${$p}user = '" . addslashes($g['user']) . "';\n";
-            $cfg .= "\${$p}pass = '" . addslashes($g['pass']) . "';\n";
-            $cfg .= "\${$p}name = '" . addslashes($g['name']) . "';\n\n";
+            // Using var_export is much safer than addslashes for generating PHP code
+            $cfg .= "\${$p}host = " . var_export($g['host'], true) . ";\n";
+            $cfg .= "\${$p}port = " . var_export($g['port'], true) . ";\n";
+            $cfg .= "\${$p}user = " . var_export($g['user'], true) . ";\n";
+            $cfg .= "\${$p}pass = " . var_export($g['pass'], true) . ";\n";
+            $cfg .= "\${$p}name = " . var_export($g['name'], true) . ";\n\n";
         }
 
         $cfg .= "\$auth_db  = new mysqli(\$db_auth_host,  \$db_auth_user,  \$db_auth_pass,  \$db_auth_name,  \$db_auth_port);\n";
@@ -161,21 +164,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cfg .= "?>\n";
 
         $cap = "<?php\nif (!defined('ALLOWED_ACCESS')) exit('Direct access not allowed.');\n";
-        $cap .= "\$recaptcha_enabled    = " . ($recaptcha_enabled ? 'true' : 'false') . ";\n";
-        $cap .= "\$recaptcha_site_key   = '" . addslashes($recaptcha_site_key) . "';\n";
-        $cap .= "\$recaptcha_secret_key = '" . addslashes($recaptcha_secret_key) . "';\n";
+        $cap .= "\$recaptcha_enabled    = " . var_export((bool)$recaptcha_enabled, true) . ";\n";
+        $cap .= "\$recaptcha_site_key   = " . var_export($recaptcha_site_key, true) . ";\n";
+        $cap .= "\$recaptcha_secret_key = " . var_export($recaptcha_secret_key, true) . ";\n";
         $cap .= "define('RECAPTCHA_ENABLED', \$recaptcha_enabled);\n";
         $cap .= "define('RECAPTCHA_SITE_KEY', \$recaptcha_site_key);\n";
         $cap .= "define('RECAPTCHA_SECRET_KEY', \$recaptcha_secret_key);\n";
         $cap .= "?>\n";
 
-        $cfgDir = dirname($configFile);
-        $capDir = dirname($configCapFile);
-
         if (!is_writable($cfgDir)) {
             $errors[] = translate('err_config_dir_not_writable', 'Config directory not writable: %s', $cfgDir);
-        } elseif (!is_writable($capDir)) {
-            $errors[] = translate('err_cap_dir_not_writable', 'reCAPTCHA config directory not writable: %s', $capDir);
         } else {
             if (file_put_contents($configFile, $cfg) === false) {
                 $errors[] = translate('err_failed_write_config', 'Failed to write config.php');
@@ -193,183 +191,351 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+$db_icons = [
+    'auth' => 'fa-shield-halved',
+    'world' => 'fa-globe',
+    'char' => 'fa-users',
+    'site' => 'fa-database'
+];
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($langCode ?? 'en') ?>">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= translate('installer_title', 'SahtoutCMS Installer') ?> - <?= translate('step3_title', 'Step 3: Database & reCAPTCHA Setup') ?></title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'cinzel': ['Cinzel', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        :root {
-            --bg: #0a0a0a; --card: rgba(20,10,5,0.95); --accent: #6b4226; --gold: #d4af37;
-            --gold-h: #a37e2c; --text: #f0e6d2; --input: rgba(30,15,5,0.9); --border: #6b4226;
-            --err: #ff4040; --succ: #7CFC00; --warn: #ff9800;
+        body {
+            background: 
+                linear-gradient(135deg, rgba(10, 8, 15, 0.95), rgba(20, 12, 8, 0.95)),
+                url('https://www.wallpaperflare.com/static/955/944/93/fantasy-art-dark-knight-artwork-wallpaper.jpg') 
+                no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        * { box-sizing: border-box; }
-        body { margin:0; font-family:'Cinzel',serif; background:var(--bg); color:var(--text); }
-        .overlay { background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; padding:20px; min-height:100vh; }
-        .container { max-width:820px; width:100%; background:var(--card); border:2px solid var(--accent); border-radius:12px; padding:30px; box-shadow:0 0 30px var(--accent); max-height:95vh; overflow-y:auto; }
-        h1 { font-size:2.5em; color:var(--gold); text-align:center; margin:0 0 20px; text-shadow:0 0 10px #000; }
-        h2.section-title { margin:30px 0 15px; font-size:1.6em; color:var(--gold); text-decoration:underline; text-align:center; }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b45309; }
 
-        .db-group { background:rgba(40,20,10,0.7); border:1px solid var(--accent); border-radius:10px; padding:18px; margin-bottom:22px; position:relative; }
-        .db-group:hover { box-shadow:0 6px 18px rgba(212,175,55,0.2); border-color:var(--gold); }
-        .db-group h3 { margin:0 0 15px; color:var(--gold); font-size:1.3em; display:flex; align-items:center; gap:8px; }
-
-        .db-status {
-            position: absolute; top: 12px; right: 12px; font-weight: bold; font-size: 0.9rem;
-            max-width: 70%; word-wrap: break-word; overflow-wrap: break-word; line-height: 1.3; text-align: right;
+        /* Main content wrapper */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-top: 0px;
+            padding-bottom: 80px;
         }
-        .db-status.success { color: var(--succ); }
-        .db-status.error   { color: var(--err); }
 
-        .input-group { position:relative; margin-bottom:14px; }
-        .input-group label { display:block; margin-bottom:6px; font-family:'Roboto',sans-serif; color:var(--text); font-size:.95rem; font-weight:500; }
-        .input-group input { width:100%; padding:10px 12px 10px 38px; border-radius:6px; border:1px solid var(--border); background:var(--input); color:var(--text); font-family:'Roboto',sans-serif; transition:all 0.3s; }
-        .input-group input:focus { outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(212,175,55,0.3); }
-        .input-group .icon { position:absolute; left:10px; top:34px; color:var(--gold); font-size:1.1rem; }
+        .content-container {
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
 
-        .error-box { background:rgba(255,64,64,0.2); border:1px solid var(--err); border-radius:6px; padding:12px; margin:15px 0; }
-        .error { color:var(--err); font-weight:bold; margin:5px 0; font-family:'Roboto',sans-serif; font-size:.95rem; }
-        .success-msg { color:var(--succ); font-weight:bold; text-align:center; margin:15px 0; font-size:1.1rem; }
-
-        .btn { display:block; width:100%; max-width:400px; margin:25px auto 0; padding:14px; font-size:1.2em; font-weight:bold; color:white;
-                background:linear-gradient(135deg,var(--accent),var(--gold-h)); border:none; border-radius:8px; cursor:pointer; box-shadow:0 0 15px var(--gold-h); transition:0.3s; }
-        .btn:hover { background:linear-gradient(135deg,var(--gold-h),var(--gold)); box-shadow:0 0 25px var(--gold); }
-
-        .recaptcha-fields { display:none; margin-top:15px; }
-        .recaptcha-fields.active { display:block; }
-        .form-check { display:flex; align-items:center; justify-content:center; gap:10px; margin:20px 0; }
-        .form-check-input { display:none; }
-        .form-check-label { cursor:pointer; padding-left:3.5rem; position:relative; font-family:'Roboto',sans-serif; color:var(--text); }
-        .form-check-label::before { content:''; position:absolute; left:0; top:50%; transform:translateY(-50%); width:3rem; height:1.5rem; background:#6c757d; border-radius:1.5rem; transition:background 0.3s; }
-        .form-check-label::after { content:''; position:absolute; left:.25rem; top:50%; transform:translateY(-50%); width:1.25rem; height:1.25rem; background:white; border-radius:50%; box-shadow:0 2px 4px rgba(0,0,0,0.3); transition:left 0.3s; }
-        .form-check-input:checked + .form-check-label::before { background:#28a745; }
-        .form-check-input:checked + .form-check-label::after { left:1.5rem; }
-
-        .note { font-size:0.85rem; color:#a37e2c; font-style:italic; margin-top:5px; }
-
-        @media (max-width:768px) {
-            .container { padding:20px; }
-            h1 { font-size:2em; }
-            .db-group { padding:15px; }
-            .db-status { max-width: 65%; font-size: 0.85rem; }
+        @media (max-width: 768px) {
+            .main-wrapper {
+                padding-bottom: 70px;
+            }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleRecaptchaFields();
+        });
+
         function toggleRecaptchaFields() {
-            const f = document.querySelector('.recaptcha-fields');
+            const f = document.getElementById('recaptcha-fields');
             const e = document.getElementById('recaptcha_enabled').checked;
-            f.classList.toggle('active', e);
-            document.querySelector('.form-check-status').textContent = e ? '<?= translate('enabled', 'Enabled') ?>' : '<?= translate('disabled', 'Disabled') ?>';
+            if (e) {
+                f.classList.remove('hidden');
+            } else {
+                f.classList.add('hidden');
+            }
         }
     </script>
 </head>
-<body onload="toggleRecaptchaFields()">
-<div class="overlay">
-    <div class="container">
-        <h1><?= translate('installer_name', 'SahtoutCMS Installer') ?></h1>
-        <h2 class="section-title"><?= translate('step3_title', 'Step 3: Database & reCAPTCHA Setup') ?></h2>
+<body class="text-slate-200">
 
-        <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($dbStatus)): ?>
-            <?php foreach ($dbGroups as $key => $g): ?>
-                <?php $st = $dbStatus[$key]; ?>
-                <div class="db-group">
-                    <h3><i class="ri-<?= $key==='auth'?'shield-check':($key==='world'?'earth':($key==='char'?'user':'database')) ?>-line"></i> <?= $g['label'] ?></h3>
-                    <div class="db-status <?= $st['success'] ? 'success' : 'error' ?>">
-                        <?= $st['success'] ? translate('success', 'Success') : translate('error', 'Error') ?> <?= htmlspecialchars($st['message']) ?>
-                    </div>
+<div class="main-wrapper">
+    <!-- Progress Stepper -->
+    <?php include __DIR__ . '/progress_stepper.inc.php'; ?>
+
+    <div class="content-container flex-grow">
+        <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl p-6 md:p-10 relative overflow-hidden">
+            
+            <!-- Decorative Corner Elements -->
+            <div class="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-gold-500/30 rounded-tl-2xl pointer-events-none"></div>
+            <div class="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-gold-500/30 rounded-br-2xl pointer-events-none"></div>
+
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gold-500/10 border border-gold-500/30 rounded-full mb-4">
+                    <i class="fas fa-database text-3xl text-gold-400"></i>
                 </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-
-        <?php if (!empty($errors)): ?>
-            <div class="error-box">
-                <strong><?= translate('err_fix_errors', 'Please fix the following errors:') ?></strong>
-                <?php foreach ($errors as $e): ?>
-                    <div class="error"><?= htmlspecialchars($e) ?></div>
-                <?php endforeach; ?>
+                <h1 class="font-cinzel text-3xl md:text-4xl font-bold bg-gradient-to-b from-amber-100 to-gold-500 bg-clip-text text-transparent">
+                    <?= translate('step3_title', 'Step 3: Database & reCAPTCHA Setup') ?>
+                </h1>
+                <p class="text-slate-400 mt-2 text-sm"><?= translate('step3_description', 'Configure your database connections and security settings.') ?></p>
             </div>
-        <?php elseif ($success): ?>
-            <div class="success-msg">
-                <?= translate('msg_config_saved', 'All databases connected successfully! Config and reCAPTCHA files created.') ?>
-            </div>
-            <a href="<?= $base_path ?>install/step4_realm" class="btn">
-                <?= translate('btn_proceed_to_realm', 'Proceed to Step 4 Realm configuration') ?>
-            </a>
-        <?php endif; ?>
 
-        <?php if (!$success): ?>
-            <form method="post">
-                <?php foreach (['auth','world','char','site'] as $type): ?>
-                    <div class="db-group">
-                        <h3><i class="ri-<?= $type==='auth'?'shield-check':($type==='world'?'earth':($type==='char'?'user':'database')) ?>-line"></i> 
-                            <?= $dbGroups[$type]['label'] ?? translate("db_{$type}", ucfirst($type) . ' DB') ?>
-                        </h3>
-
-                        <div class="input-group">
-                            <label><?= translate('label_db_host', 'Host') ?></label>
-                            <span class="icon"><i class="ri-server-line"></i></span>
-                            <input type="text" name="db_<?= $type ?>_host"
-                                   value="<?= htmlspecialchars($_POST["db_{$type}_host"] ?? 'localhost') ?>" required>
+            <!-- Status Messages -->
+            <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($dbStatus)): ?>
+                <div class="mb-8 space-y-2">
+                    <?php foreach ($dbGroups as $key => $g): ?>
+                        <?php $st = $dbStatus[$key] ?? ['success' => false, 'message' => translate('unknown_status', 'Unknown status')]; ?>
+                        <div class="flex items-center justify-between p-3 rounded-lg <?= $st['success'] ? 'bg-emerald-900/20 border border-emerald-500/30' : 'bg-red-900/20 border border-red-500/30' ?>">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <i class="fas fa-<?= $db_icons[$key] ?? 'database' ?> text-gold-400 flex-shrink-0"></i>
+                                <span class="text-slate-200 font-medium text-sm flex-shrink-0"><?= htmlspecialchars($g['label']) ?></span>
+                                <span class="<?= $st['success'] ? 'text-emerald-400' : 'text-red-400' ?> font-bold text-sm flex-shrink-0">
+                                    <?= $st['success'] ? '✅ ' . translate('success', 'Success') : '❌ ' . translate('error', 'Error') ?>
+                                </span>
+                            </div>
+                            <span class="text-slate-300 text-sm break-words text-right max-w-[60%]" title="<?= htmlspecialchars($st['message']) ?>">
+                                <?= htmlspecialchars($st['message']) ?>
+                            </span>
                         </div>
-
-                        <div class="input-group">
-                            <label><?= translate('label_db_port', 'Port') ?> <small>(<?= translate('default', 'default') ?> 3306)</small></label>
-                            <span class="icon"><i class="ri-plug-line"></i></span>
-                            <input type="text" name="db_<?= $type ?>_port"
-                                   value="<?= htmlspecialchars($_POST["db_{$type}_port"] ?? '3306') ?>" required>
-                        </div>
-
-                        <div class="input-group">
-                            <label><?= translate('label_db_user', 'Username') ?></label>
-                            <span class="icon"><i class="ri-user-line"></i></span>
-                            <input type="text" name="db_<?= $type ?>_user"
-                                   value="<?= htmlspecialchars($_POST["db_{$type}_user"] ?? '') ?>" required>
-                        </div>
-
-                        <div class="input-group">
-                            <label><?= translate('label_db_pass', 'Password') ?></label>
-                            <span class="icon"><i class="ri-lock-password-line"></i></span>
-                            <input type="password" name="db_<?= $type ?>_pass"
-                                   value="<?= htmlspecialchars($_POST["db_{$type}_pass"] ?? '') ?>">
-                        </div>
-
-                        <div class="input-group">
-                            <label><?= translate('label_db_name', 'Database Name') ?></label>
-                            <span class="icon"><i class="ri-database-2-line"></i></span>
-                            <input type="text" name="db_<?= $type ?>_name"
-                                   value="<?= htmlspecialchars($_POST["db_{$type}_name"] ?? ($type==='site'?'sahtout_site':'')) ?>" required>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-
-                <div class="section-title"><?= translate('section_recaptcha', 'reCAPTCHA V2 Configuration') ?></div>
-                <div class="form-check">
-                    <input type="checkbox" id="recaptcha_enabled" name="recaptcha_enabled" class="form-check-input" onclick="toggleRecaptchaFields()" <?= isset($_POST['recaptcha_enabled']) ? 'checked' : '' ?>>
-                    <label for="recaptcha_enabled" class="form-check-label"><?= translate('label_recaptcha_enabled', 'Enable reCAPTCHA') ?></label>
-                    <span class="form-check-status"><?= isset($_POST['recaptcha_enabled']) ? translate('enabled', 'Enabled') : translate('disabled', 'Disabled') ?></span>
+                    <?php endforeach; ?>
                 </div>
+            <?php endif; ?>
 
-                <div class="recaptcha-fields <?= isset($_POST['recaptcha_enabled']) ? 'active' : '' ?>">
-                    <div class="input-group">
-                        <label><?= translate('label_recaptcha_site_key', 'Site Key') ?></label>
-                        <input type="text" name="recaptcha_site_key" placeholder="<?= translate('placeholder_recaptcha_default', 'Leave empty for default') ?>" value="<?= htmlspecialchars($_POST['recaptcha_site_key'] ?? '') ?>">
+            <!-- Errors -->
+            <?php if (!empty($errors)): ?>
+                <div class="bg-red-900/30 border border-red-500/40 text-red-200 p-4 mb-8 rounded-lg">
+                    <div class="flex items-center gap-2 mb-3 font-bold text-red-300">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <?= translate('err_fix_errors', 'Please fix the following errors:') ?>
+                        <span class="ml-auto text-xs bg-red-800/50 px-2 py-1 rounded-full">
+                            <?= count($errors) ?> <?= translate('errors_found', 'errors found') ?>
+                        </span>
                     </div>
-                    <div class="input-group">
-                        <label><?= translate('label_recaptcha_secret_key', 'Secret Key') ?></label>
-                        <input type="text" name="recaptcha_secret_key" placeholder="<?= translate('placeholder_recaptcha_default', 'Leave empty for default') ?>" value="<?= htmlspecialchars($_POST['recaptcha_secret_key'] ?? '') ?>">
+                    <div class="space-y-2">
+                        <?php foreach ($errors as $index => $e): ?>
+                            <div class="flex items-start gap-2 bg-red-950/30 p-3 rounded-lg border border-red-500/20">
+                                <span class="inline-flex items-center justify-center bg-red-800/50 text-red-300 font-mono text-xs w-6 h-6 rounded-full flex-shrink-0 mt-0.5"><?= $index + 1 ?></span>
+                                <span class="text-sm leading-relaxed break-words text-red-100/90"><?= htmlspecialchars($e) ?></span>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
-                    <p class="note"><?= translate('note_recaptcha_empty', 'Leave empty to use default test keys.') ?></p>
                 </div>
+            <?php endif; ?>
 
-                <button type="submit" class="btn"><?= translate('btn_test_save_db', 'Test & Save Settings') ?></button>
-            </form>
-        <?php endif; ?>
+            <!-- Success State -->
+            <?php if ($success): ?>
+                <div class="bg-emerald-900/30 border border-emerald-500/40 text-emerald-200 p-5 mb-8 rounded-lg flex items-center gap-3">
+                    <i class="fas fa-check-circle text-emerald-400 text-2xl"></i>
+                    <span class="font-medium"><?= translate('msg_config_saved', 'All databases connected successfully! Config and reCAPTCHA files created.') ?></span>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+                    <a href="<?= htmlspecialchars($base_path ?? '') ?>install/step4_realm" class="inline-flex items-center px-8 py-3 bg-gold-500 hover:bg-gold-400 text-slate-900 font-bold rounded-lg shadow-lg shadow-gold-600/20 transition-all duration-300 transform hover:scale-105">
+                        <?= translate('btn_proceed_to_realm', 'Proceed to Step 4 Realm configuration') ?>
+                        <i class="fas fa-arrow-right ml-3"></i>
+                    </a>
+                    <a href="<?= htmlspecialchars($base_path ?? '') ?>install/step2_check" class="inline-flex items-center px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 text-slate-300 font-semibold rounded-lg transition-all duration-300 border border-slate-600/30">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        <?= translate('btn_go_back', 'Go Back') ?>
+                    </a>
+                </div>
+            <?php endif; ?>
+
+            <!-- Form -->
+            <?php if (!$success): ?>
+                <form method="post" class="space-y-8">
+                    
+                    <!-- DB Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <?php foreach (['auth','world','char','site'] as $type): 
+                            $icon = $db_icons[$type] ?? 'fa-database';
+                            $label = $dbGroups[$type]['label'] ?? translate("db_{$type}", ucfirst($type) . ' DB');
+                            
+                            // Set default database names
+                            $default_db_name = match($type) {
+                                'auth' => 'acore_auth',
+                                'world' => 'acore_world',
+                                'char' => 'acore_characters',
+                                'site' => 'sahtout_site',
+                                default => ''
+                            };
+                        ?>
+                            <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-5 shadow-lg hover:border-gold-500/30 transition-all duration-300 flex flex-col">
+                                <h3 class="font-cinzel text-gold-400 font-bold text-lg mb-4 flex items-center gap-2 border-b border-slate-700/50 pb-3">
+                                    <i class="fas <?= $icon ?>"></i>
+                                    <?= $label ?>
+                                </h3>
+                                
+                                <div class="space-y-4 flex-grow">
+                                    <!-- Host -->
+                                    <div>
+                                        <label for="db_<?= $type ?>_host" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider"><?= translate('label_db_host', 'Host') ?></label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 pointer-events-none">
+                                                <i class="fas fa-server text-sm"></i>
+                                            </span>
+                                            <input id="db_<?= $type ?>_host" type="text" name="db_<?= $type ?>_host"
+                                                   value="<?= htmlspecialchars($_POST["db_{$type}_host"] ?? 'localhost') ?>"
+                                                   class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all placeholder-slate-500 text-sm"
+                                                   required placeholder="localhost">
+                                        </div>
+                                    </div>
+
+                                    <!-- Port & Name Row -->
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <div class="col-span-1">
+                                            <label for="db_<?= $type ?>_port" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider"><?= translate('label_db_port', 'Port') ?></label>
+                                            <input id="db_<?= $type ?>_port" type="text" name="db_<?= $type ?>_port"
+                                                   value="<?= htmlspecialchars($_POST["db_{$type}_port"] ?? '3306') ?>"
+                                                   class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all text-sm"
+                                                   required>
+                                        </div>
+                                        <div class="col-span-2">
+                                            <label for="db_<?= $type ?>_name" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider"><?= translate('label_db_name', 'Database') ?></label>
+                                            <input id="db_<?= $type ?>_name" type="text" name="db_<?= $type ?>_name"
+                                                   value="<?= htmlspecialchars($_POST["db_{$type}_name"] ?? $default_db_name) ?>"
+                                                   class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all text-sm"
+                                                   required>
+                                        </div>
+                                    </div>
+
+                                    <!-- User -->
+                                    <div>
+                                        <label for="db_<?= $type ?>_user" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider"><?= translate('label_db_user', 'Username') ?></label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 pointer-events-none">
+                                                <i class="fas fa-user text-sm"></i>
+                                            </span>
+                                            <input id="db_<?= $type ?>_user" type="text" name="db_<?= $type ?>_user"
+                                                   value="<?= htmlspecialchars($_POST["db_{$type}_user"] ?? '') ?>"
+                                                   class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all placeholder-slate-500 text-sm"
+                                                   required placeholder="root">
+                                        </div>
+                                    </div>
+
+                                    <!-- Password -->
+                                    <div>
+                                        <label for="db_<?= $type ?>_pass" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider"><?= translate('label_db_pass', 'Password') ?></label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 pointer-events-none">
+                                                <i class="fas fa-lock text-sm"></i>
+                                            </span>
+                                            <input id="db_<?= $type ?>_pass" type="password" name="db_<?= $type ?>_pass"
+                                                   value="<?= htmlspecialchars($_POST["db_{$type}_pass"] ?? '') ?>"
+                                                   class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all placeholder-slate-500 text-sm"
+                                                   placeholder="••••••••">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <!-- reCAPTCHA Section -->
+                    <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-6 shadow-lg">
+                        <h2 class="font-cinzel text-gold-400 font-bold text-xl mb-4 flex items-center gap-2">
+                            <i class="fas fa-shield-halved"></i>
+                            <?= translate('section_recaptcha', 'reCAPTCHA V2 Configuration') ?>
+                        </h2>
+
+                        <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-700/50">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="recaptcha_enabled" name="recaptcha_enabled" onchange="toggleRecaptchaFields()" class="sr-only peer" <?= isset($_POST['recaptcha_enabled']) ? 'checked' : '' ?>>
+                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gold-800/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gold-500"></div>
+                                <span class="ml-3 text-sm font-medium text-slate-300"><?= translate('label_recaptcha_enabled', 'Enable reCAPTCHA') ?></span>
+                            </label>
+                            <span class="text-xs font-bold px-2 py-1 rounded <?= isset($_POST['recaptcha_enabled']) ? 'bg-emerald-900/50 text-emerald-400' : 'bg-slate-700 text-slate-400' ?>">
+                                <?= isset($_POST['recaptcha_enabled']) ? translate('enabled', 'Enabled') : translate('disabled', 'Disabled') ?>
+                            </span>
+                        </div>
+
+                        <div id="recaptcha-fields" class="<?= isset($_POST['recaptcha_enabled']) ? '' : 'hidden' ?> space-y-4">
+                            <div>
+                                <label for="recaptcha_site_key" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider"><?= translate('label_recaptcha_site_key', 'Site Key') ?></label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 pointer-events-none">
+                                        <i class="fas fa-key text-sm"></i>
+                                    </span>
+                                    <input id="recaptcha_site_key" type="text" name="recaptcha_site_key" 
+                                           value="<?= htmlspecialchars($_POST['recaptcha_site_key'] ?? '') ?>"
+                                           class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all placeholder-slate-500 text-sm"
+                                           placeholder="<?= translate('placeholder_recaptcha_default', 'Leave empty for default') ?>">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="recaptcha_secret_key" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider"><?= translate('label_recaptcha_secret_key', 'Secret Key') ?></label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 pointer-events-none">
+                                        <i class="fas fa-key text-sm"></i>
+                                    </span>
+                                    <input id="recaptcha_secret_key" type="text" name="recaptcha_secret_key"
+                                           value="<?= htmlspecialchars($_POST['recaptcha_secret_key'] ?? '') ?>"
+                                           class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all placeholder-slate-500 text-sm"
+                                           placeholder="<?= translate('placeholder_recaptcha_default', 'Leave empty for default') ?>">
+                                </div>
+                            </div>
+
+                            <p class="text-gold-600 text-xs italic flex items-center gap-1 mt-2">
+                                <i class="fas fa-info-circle"></i>
+                                <?= translate('note_recaptcha_empty', 'Leave empty to use default test keys.') ?>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                        <button type="submit" class="w-full sm:w-auto flex items-center justify-center px-10 py-3.5 bg-gold-500 hover:bg-gold-400 text-slate-900 font-bold rounded-lg shadow-lg shadow-gold-600/20 transition-all duration-300 transform hover:scale-105">
+                            <i class="fas fa-save mr-2"></i>
+                            <?= translate('btn_test_save_db', 'Test & Save Settings') ?>
+                        </button>
+                        <a href="<?= htmlspecialchars($base_path ?? '') ?>install/step2_check" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 text-slate-300 font-semibold rounded-lg transition-all duration-300 border border-slate-600/30">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            <?= translate('btn_go_back', 'Go Back') ?>
+                        </a>
+                    </div>
+                </form>
+            <?php endif; ?>
+
+        </div>
     </div>
 </div>
+
 <?php include __DIR__ . '/footer.inc.php'; ?>
 </body>
 </html>

@@ -20,9 +20,6 @@ $query = "SELECT id, title, slug, image_url, post_date
           ORDER BY is_important DESC, post_date DESC 
           LIMIT 4";
 $result = $site_db->query($query);
-
-/* Decorative frame overlay (transparent-center PNG) */
-$frame_png = $base_path . 'img\backgrounds\bg-rightpanel.png';
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
@@ -37,20 +34,16 @@ $frame_png = $base_path . 'img\backgrounds\bg-rightpanel.png';
 
         * { font-family: 'Inter', sans-serif; }
 
-        /* ============ PURE-CSS GAMING BACKGROUND (no image) ============ */
+        /* ============ PURE-CSS GAMING BACKGROUND (Lighter & Cleaner) ============ */
         body {
             min-height: 100vh;
             position: relative;
             color: #d8d8d8;
-            background-color: #05070b;
+            background-color: #12161f; /* Lighter base color */
             background-image:
-                radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.14), transparent 65%),
-                radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.10), transparent 70%),
-                radial-gradient(1000px 700px at 110% 60%, rgba(220,38,38,.12), transparent 65%),
-                radial-gradient(700px 500px at 105% 10%, rgba(242,153,74,.08), transparent 70%),
-                repeating-linear-gradient(45deg, rgba(255,255,255,.015) 0 2px, transparent 2px 8px),
-                repeating-linear-gradient(-45deg, rgba(0,0,0,.35) 0 1px, transparent 1px 9px),
-                linear-gradient(180deg, #0a0e16 0%, #060810 45%, #03040a 100%);
+                radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.25), transparent 65%), /* Stronger Blue */
+                radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.20), transparent 70%),   /* Stronger Purple */
+                linear-gradient(180deg, #181e2a 0%, #12161f 45%, #0a0d14 100%);                  /* Lighter Vignette */
             background-attachment: fixed;
             overflow-x: hidden;
         }
@@ -59,16 +52,16 @@ $frame_png = $base_path . 'img\backgrounds\bg-rightpanel.png';
             content: '';
             position: fixed; inset: 0;
             background-image:
-                radial-gradient(2px 2px at 10% 20%, rgba(242,207,82,.7), transparent 55%),
-                radial-gradient(1.5px 1.5px at 30% 70%, rgba(242,207,82,.5), transparent 55%),
-                radial-gradient(2px 2px at 55% 40%, rgba(255,160,60,.55), transparent 55%),
-                radial-gradient(1.5px 1.5px at 75% 80%, rgba(242,207,82,.45), transparent 55%),
-                radial-gradient(2px 2px at 90% 25%, rgba(255,120,50,.5), transparent 55%),
-                radial-gradient(1.5px 1.5px at 45% 90%, rgba(120,160,255,.5), transparent 55%),
-                radial-gradient(2px 2px at 65% 10%, rgba(120,160,255,.45), transparent 55%);
+                radial-gradient(2px 2px at 10% 20%, rgba(242,207,82,.8), transparent 55%),
+                radial-gradient(1.5px 1.5px at 30% 70%, rgba(242,207,82,.6), transparent 55%),
+                radial-gradient(2px 2px at 55% 40%, rgba(255,160,60,.65), transparent 55%),
+                radial-gradient(1.5px 1.5px at 75% 80%, rgba(242,207,82,.55), transparent 55%),
+                radial-gradient(2px 2px at 90% 25%, rgba(255,120,50,.6), transparent 55%),
+                radial-gradient(1.5px 1.5px at 45% 90%, rgba(120,160,255,.6), transparent 55%),
+                radial-gradient(2px 2px at 65% 10%, rgba(120,160,255,.55), transparent 55%);
             background-size: 900px 700px;
             animation: emberDrift 45s linear infinite;
-            opacity: .55;
+            opacity: .65; /* Slightly more visible against lighter bg */
             pointer-events: none;
             z-index: 0;
         }
@@ -80,7 +73,7 @@ $frame_png = $base_path . 'img\backgrounds\bg-rightpanel.png';
         body::after {
             content: '';
             position: fixed; inset: 0;
-            background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.55) 100%);
+            background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.40) 100%); /* Lighter vignette */
             pointer-events: none;
             z-index: 0;
         }
@@ -262,110 +255,6 @@ $frame_png = $base_path . 'img\backgrounds\bg-rightpanel.png';
         .status-online  { color: #4ade80; text-shadow: 0 0 8px rgba(74,222,128,.5); }
         .status-offline { color: #f87171; text-shadow: 0 0 8px rgba(248,113,113,.5); }
 
-        /* =========================================================
-           SIDEBAR — FULLY RESPONSIVE (mobile / laptop / desktop)
-           ========================================================= */
-
-        /* MOBILE FIRST (<1024px): simple box, no frame */
-        .sidebar-frame {
-            position: relative;
-            width: 100%;
-            max-width: 440px;
-            margin: 0 auto;
-        }
-        .frame-overlay {
-            position: absolute; inset: 0;
-            width: 100%; height: 100%;
-            pointer-events: none; user-select: none;
-            z-index: 5;
-            object-fit: fill;
-            display: none;
-            filter: drop-shadow(0 6px 22px rgba(0,0,0,.55)) drop-shadow(0 0 14px rgba(242,207,82,.18));
-        }
-        .sidebar-content {
-            position: relative; z-index: 1;
-            padding: 20px;
-            min-height: 0;
-            color: #e7e7e7; font-size: .85rem;
-            text-shadow: 0 1px 3px rgba(0,0,0,.85);
-            background: linear-gradient(180deg, rgba(22,25,32,.92), rgba(8,10,14,.9));
-            border: 2px solid rgba(201,162,39,.22);
-            box-shadow: inset 0 0 30px rgba(201,162,39,.05);
-        }
-
-        /* LAPTOP (≥1024px): frame visible, still stacked & centered */
-        @media (min-width: 1024px) {
-            .frame-overlay { display: block; }
-            .sidebar-content {
-                background: none;
-                border: none;
-                padding: 70px 40px 80px;
-                min-height: 620px;
-                box-shadow: none;
-            }
-        }
-
-        /* DESKTOP (≥1280px): sidebar moves to the right rail + sticky */
-        @media (min-width: 1280px) {
-            .sidebar-frame {
-                position: sticky;
-                top: 20px;
-                margin-left: auto;
-                margin-right: 0;
-                align-self: flex-start;
-                z-index: 10;
-            }
-            .sidebar-content {
-                padding: 80px 45px 85px;
-                min-height: 660px;
-            }
-        }
-
-        /* LARGE DESKTOP (≥1400px): slight overhang past the right edge */
-        @media (min-width: 1400px) {
-            .sidebar-frame { margin-right: -30px; }
-            .sidebar-content {
-                padding: 85px 50px 90px;
-                min-height: 680px;
-            }
-        }
-
-        .sidebar-content h3 {
-            font-family: 'Cinzel', serif;
-            font-weight: 900;
-            font-size: 1.05rem;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            background: linear-gradient(180deg, #fff7d6 0%, #f2cf5b 35%, #c9a227 62%, #8a6a14 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,.9));
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: .5rem;
-            position: relative;
-            padding-bottom: .6rem;
-        }
-        @media (min-width: 1400px) {
-            .sidebar-content h3 { font-size: 1.1rem; }
-        }
-        .sidebar-content h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #f2cf5b 20%, #c9a227 50%, #f2cf5b 80%, transparent);
-            box-shadow: 0 0 12px rgba(242,207,82,.4);
-        }
-        .sidebar-content h3 svg {
-            color: #f2cf5b;
-            filter: drop-shadow(0 0 8px rgba(242,207,82,.6));
-            flex-shrink: 0;
-        }
-
         .ornate-divider {
             border: 0; height: 12px; margin: 24px 0; position: relative;
             background: linear-gradient(90deg, transparent, rgba(201,162,39,.55), transparent);
@@ -374,32 +263,6 @@ $frame_png = $base_path . 'img\backgrounds\bg-rightpanel.png';
             content: '◆'; position: absolute; left: 50%; top: 50%;
             transform: translate(-50%,-50%);
             color: #f2cf5b; font-size: 8px; text-shadow: 0 0 8px rgba(242,207,82,.8);
-        }
-
-        .sidebar-content iframe {
-            display: block; width: 100%;
-            border: 1px solid rgba(201,162,39,.22);
-            border-radius: 0;
-            background: rgba(0,0,0,.35);
-            filter: drop-shadow(0 4px 12px rgba(0,0,0,.4));
-        }
-
-        /* Status text colors */
-        .sidebar-content .status-online {
-            color: #4ade80;
-            text-shadow: 0 0 8px rgba(74,222,128,.5);
-        }
-        .sidebar-content .status-offline {
-            color: #f87171;
-            text-shadow: 0 0 8px rgba(248,113,113,.5);
-        }
-
-        /* Make status items look better */
-        .sidebar-content .space-y-2 > * {
-            padding: 6px 10px;
-            background: rgba(0,0,0,.25);
-            border-left: 2px solid rgba(201,162,39,.3);
-            border-radius: 0;
         }
     </style>
     <script>
@@ -414,8 +277,8 @@ $frame_png = $base_path . 'img\backgrounds\bg-rightpanel.png';
 
     <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
 
-        <!-- Responsive grid: 1 column below 1280px, content + 500px rail above -->
-        <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_500px] gap-6 md:gap-8">
+        <!-- Responsive grid: 1 column below xl, content + 380px rail above -->
+        <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_380px] gap-6 md:gap-8">
 
             <!-- ============ LEFT CONTENT ============ -->
             <div class="min-w-0 space-y-8 md:space-y-12">
@@ -581,15 +444,13 @@ $frame_png = $base_path . 'img\backgrounds\bg-rightpanel.png';
             </div>
 
             <!-- ============ RIGHT SIDE PANEL ============ -->
-            <div class="min-w-0">
-                <div class="sidebar-frame">
-
-                    <img class="frame-overlay" src="<?php echo htmlspecialchars($frame_png, ENT_QUOTES); ?>" alt="" aria-hidden="true" draggable="false">
-
-                    <div class="sidebar-content space-y-4">
-
+            <div class="hidden xl:block min-w-0">
+                <div class="sticky top-24">
+                    <div class="wow-panel p-6 space-y-6">
+                        
+                        <!-- Server Status -->
                         <div>
-                            <h3>
+                            <h3 class="wow-title text-lg mb-4 flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
                                 <?php echo translate('home_server_status', 'Server Status'); ?>
                             </h3>
@@ -599,33 +460,37 @@ $frame_png = $base_path . 'img\backgrounds\bg-rightpanel.png';
                                 ob_start();
                                 include $realm_status_file;
                                 $status_content = ob_get_clean();
-                                echo '<div class="space-y-2 text-xs">';
+                                echo '<div class="space-y-2 text-xs bg-black/30 p-3 border border-[#c9a227]/20 rounded-sm">';
                                 echo $status_content;
                                 echo '</div>';
                             } else {
-                                echo '<p class="status-offline text-xs">' . translate('home_realm_status_error', 'Error: Realm status unavailable.') . '</p>';
+                                echo '<p class="status-offline text-xs bg-black/30 p-3 border border-red-500/20 rounded-sm">' . translate('home_realm_status_error', 'Error: Realm status unavailable.') . '</p>';
                             }
                             ?>
                         </div>
 
                         <hr class="ornate-divider">
 
+                        <!-- Discord -->
                         <div>
-                            <h3>
+                            <h3 class="wow-title text-lg mb-4 flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.08.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/></svg>
                                 <?php echo translate('home_discord_title', 'Join Our Discord'); ?>
                             </h3>
-                            <iframe src="https://discord.com/widget?id=1405755152085815337&theme=dark"
-                                    width="100%"
-                                    height="340"
-                                    allowtransparency="true"
-                                    frameborder="0"
-                                    sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+                            <div class="bg-black/30 p-2 border border-[#c9a227]/20 rounded-sm">
+                                <iframe src="https://discord.com/widget?id=1405755152085815337&theme=dark"
+                                        width="100%"
+                                        height="340"
+                                        allowtransparency="true"
+                                        frameborder="0"
+                                        sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
+                                        class="rounded-sm"></iframe>
+                            </div>
                         </div>
+
                     </div>
                 </div>
             </div>
-        </div>
         </div>
     </main>
 

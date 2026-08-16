@@ -3,6 +3,9 @@ define('ALLOWED_ACCESS', true);
 require_once __DIR__ . '/../includes/paths.php'; // Include paths.php
 include __DIR__ . '/header.inc.php';
 
+// Set current step for progress stepper
+$current_step = 4;
+
 $errors = [];
 $success = false;
 $realmsFile = $project_root . 'includes/realm_config.php';
@@ -96,100 +99,267 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="<?php echo htmlspecialchars($langCode ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo translate('forge_title', 'Sahtout RealmForge'); ?> - <?php echo translate('step4_title', 'Phase 4: realm Setup'); ?></title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'cinzel': ['Cinzel', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        body {margin:0;padding:0;font-family:'Cinzel', serif;background:#0a0a0a;color:#f0e6d2;}
-        .overlay {background: rgba(0,0,0,0.9); inset:0; display:flex; align-items:center; justify-content:center; padding:20px;}
-        .container {text-align:center; max-width:700px; width:100%; min-height:70vh; max-height:90vh; overflow-y:auto; padding:30px 20px; border:2px solid #6b4226; background: rgba(20,10,5,0.95); border-radius:12px; box-shadow:0 0 30px #6b4226;}
-        h1 {font-size:2.5em; margin-bottom:20px; color:#d4af37; text-shadow:0 0 10px #000;}
-        label {display:block; text-align:left; margin:10px 0 5px;}
-        input {width:100%; padding:10px; border-radius:6px; border:1px solid #6b4226; background:rgba(30,15,5,0.9); color:#f0e6d2;}
-        .btn {display:inline-block; padding:12px 30px; font-size:1.2em; font-weight:bold; color:#fff; background: linear-gradient(135deg,#6b4226,#a37e2c); border:none; border-radius:8px; cursor:pointer; text-decoration:none; box-shadow:0 0 15px #a37e2c; transition:0.3s ease; margin-top:15px;}
-        .btn:hover {background: linear-gradient(135deg,#a37e2c,#d4af37); box-shadow:0 0 25px #d4af37;}
-        .error-box {background:rgba(100,0,0,0.4); padding:10px; border:1px solid #ff4040; border-radius:6px; margin-bottom:20px; text-align:left;}
-        .error {color:#ff4040; font-weight:bold; margin-top:5px;}
-        .success {color:#7CFC00; font-weight:bold; margin-top:15px;}
-        .section-title {margin-top:30px; font-size:1.5em; color:#d4af37; text-decoration: underline;}
-        .db-status {display: flex; align-items: center; margin: 5px 0;}
-        .db-status-icon {margin-right: 10px; font-size: 1.2em;}
-        .db-status-error {color: #ff4040;}
-        .db-status-success {color: #7CFC00;}
-        .note {font-size:0.9em; color:#a37e2c; margin-top:10px; text-align:left;}
-        .custom-file-upload {display: inline-block; width: 100%; text-align: center;}
-        .custom-file-upload input[type="file"] {display: none;}
-        .custom-file-upload .btn {
-            width: 200px; padding: 10px; text-align: center;
-            background: #0b71e6ff; border: 1px solid #6b4226; color: #fff;
-            border-radius: 6px; cursor: pointer; font-family: 'Cinzel', serif; font-size: 1em;
-            box-shadow: none; /* Override default .btn shadow */
+        body {
+            background: 
+                linear-gradient(135deg, rgba(10, 8, 15, 0.95), rgba(20, 12, 8, 0.95)),
+                url('https://www.wallpaperflare.com/static/955/944/93/fantasy-art-dark-knight-artwork-wallpaper.jpg') 
+                no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        .custom-file-upload .btn:hover {
-            background: #0a5bb4; /* Slightly darker blue on hover */
-            box-shadow: 0 0 15px #a37e2c; /* Match theme hover effect */
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b45309; }
+        
+        .file-upload-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: rgba(11, 113, 230, 0.15);
+            border: 1px solid rgba(11, 113, 230, 0.3);
+            color: #60a5fa;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
         }
-        .custom-file-upload .file-name {
-            margin-top: 5px; color: #a37e2c; font-size: 0.9em; text-align: center;
+        
+        .file-upload-btn:hover {
+            background: rgba(11, 113, 230, 0.25);
+            border-color: rgba(11, 113, 230, 0.5);
+            box-shadow: 0 0 30px rgba(11, 113, 230, 0.1);
+        }
+        
+        .file-upload-btn i {
+            margin-right: 8px;
+        }
+
+        /* Main content wrapper - FIXED spacing */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-top: 0px;
+            padding-bottom: 80px;
+        }
+
+        .content-container {
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-wrapper {
+                padding-bottom: 70px;
+            }
         }
     </style>
 </head>
-<body>
-<div class="overlay">
-    <div class="container">
-        <h1><?php echo translate('forge_name', '⚔️ RealmForge Setup'); ?></h1>
-        <h2 class="section-title"><?php echo translate('step4_title', 'Phase 4: realm Setup'); ?></h2>
+<body class="text-slate-200">
 
-        <?php if (!empty($errors)): ?>
-            <div class="error-box">
-                <strong><?php echo translate('err_fix_errors_realm', 'Resolve the following issues:'); ?></strong>
-                <?php foreach ($errors as $err): ?>
-                    <div class="db-status">
-                        <span class="db-status-icon db-status-error">❌</span>
-                        <span class="error"><?php echo htmlspecialchars($err); ?></span>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        <?php elseif ($success): ?>
-            <div class="db-status">
-                <span class="db-status-icon db-status-success">✔</span>
-                <span class="success"><?php echo translate('msg_realm_saved', 'realm configuration stored successfully!'); ?></span>
-            </div>
-            <a href="<?php echo $base_path; ?>install/step5_mail" class="btn"><?php echo translate('btn_proceed_to_mail', 'Advance to Email Configuration ➡️'); ?></a>
-        <?php endif; ?>
+<div class="main-wrapper">
+    <!-- Progress Stepper -->
+    <?php include __DIR__ . '/progress_stepper.inc.php'; ?>
 
-        <?php if (!$success): ?>
-            <form method="post" enctype="multipart/form-data">
-                <div class="section-title"><?php echo translate('section_realm_config', 'realm Configuration'); ?></div>
-                <label for="realm_name"><?php echo translate('label_realm_name', 'realm Name'); ?></label>
-                <input type="text" id="realm_name" name="realm_name" placeholder="<?php echo translate('placeholder_realm_name', 'Enter realm name'); ?>" value="<?php echo htmlspecialchars($_POST['realm_name'] ?? 'Sahtout realm'); ?>" required>
+    <!-- Main Container -->
+    <div class="content-container flex-grow">
+        <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl p-6 md:p-10 relative overflow-hidden">
+            
+            <!-- Decorative Corner Elements -->
+            <div class="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-gold-500/30 rounded-tl-2xl pointer-events-none"></div>
+            <div class="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-gold-500/30 rounded-br-2xl pointer-events-none"></div>
 
-                <label for="realm_ip"><?php echo translate('label_realm_ip', 'realm Address / Host'); ?></label>
-                <input type="text" id="realm_ip" name="realm_ip" placeholder="127.0.0.1" value="<?php echo htmlspecialchars($_POST['realm_ip'] ?? '127.0.0.1'); ?>" required>
-
-                <label for="realm_port"><?php echo translate('label_realm_port', 'realm Port'); ?></label>
-                <input type="number" id="realm_port" name="realm_port" placeholder="8085" value="<?php echo htmlspecialchars($_POST['realm_port'] ?? '8085'); ?>" required>
-
-                <label for="realm_logo"><?php echo translate('label_realm_logo', 'realm Emblem'); ?></label>
-                <div class="custom-file-upload">
-                    <input type="file" id="realm_logo" name="realm_logo" accept="image/png,image/svg+xml,image/jpeg,image/webp">
-                    <button type="button" class="btn" onclick="document.getElementById('realm_logo').click();"><?php echo translate('btn_choose_file', 'Select Emblem'); ?></button>
-                    <div class="file-name" id="file-name-realm"><?php echo translate('placeholder_realm_logo', 'Upload a PNG, SVG, JPG, or WebP emblem (max 2MB).'); ?></div>
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gold-500/10 border border-gold-500/30 rounded-full mb-4">
+                    <i class="fas fa-server text-3xl text-gold-400"></i>
                 </div>
+                <h1 class="font-cinzel text-3xl md:text-4xl font-bold bg-gradient-to-b from-amber-100 to-gold-500 bg-clip-text text-transparent">
+                    <?php echo translate('step4_title', 'Phase 4: Realm Setup'); ?>
+                </h1>
+                <p class="text-slate-400 mt-2 text-sm"><?php echo translate('step4_description', 'Configure your server realm settings.'); ?></p>
+            </div>
 
-                <p class="note"><?php echo translate('note_realm_config', 'Note: This configures the realm settings.'); ?></p>
-                <button type="submit" class="btn"><?php echo translate('btn_save_realm', 'Store realm Configuration'); ?></button>
-            </form>
-        <?php endif; ?>
+            <!-- Errors -->
+            <?php if (!empty($errors)): ?>
+                <div class="bg-red-900/30 border border-red-500/40 text-red-200 p-4 mb-6 rounded-lg">
+                    <div class="flex items-center gap-2 mb-2 font-bold text-red-300">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <?php echo translate('err_fix_errors_realm', 'Resolve the following issues:'); ?>
+                    </div>
+                    <ul class="list-disc list-inside text-sm space-y-1 text-red-100/90">
+                        <?php foreach ($errors as $err): ?>
+                            <li><?php echo htmlspecialchars($err); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
+            <!-- Success -->
+            <?php if ($success): ?>
+                <div class="bg-emerald-900/30 border border-emerald-500/40 text-emerald-200 p-5 mb-6 rounded-lg flex items-center gap-3">
+                    <i class="fas fa-check-circle text-emerald-400 text-2xl"></i>
+                    <span class="font-medium"><?php echo translate('msg_realm_saved', 'Realm configuration stored successfully!'); ?></span>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+                    <a href="<?php echo $base_path; ?>install/step5_mail" class="inline-flex items-center px-8 py-3 bg-gold-500 hover:bg-gold-400 text-slate-900 font-bold rounded-lg shadow-lg shadow-gold-600/20 transition-all duration-300 transform hover:scale-105">
+                        <?php echo translate('btn_proceed_to_mail', 'Advance to Email Configuration'); ?>
+                        <i class="fas fa-arrow-right ml-3"></i>
+                    </a>
+                    <a href="<?php echo $base_path; ?>install/step3_db" class="inline-flex items-center px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 text-slate-300 font-semibold rounded-lg transition-all duration-300 border border-slate-600/30">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        <?php echo translate('btn_go_back', 'Go Back'); ?>
+                    </a>
+                </div>
+            <?php endif; ?>
+
+            <!-- Form -->
+            <?php if (!$success): ?>
+                <form method="post" enctype="multipart/form-data" class="space-y-5">
+                    
+                    <!-- Realm Name -->
+                    <div>
+                        <label for="realm_name" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
+                            <i class="fas fa-tag text-gold-400 mr-1"></i>
+                            <?php echo translate('label_realm_name', 'Realm Name'); ?>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 pointer-events-none">
+                                <i class="fas fa-tag text-sm"></i>
+                            </span>
+                            <input id="realm_name" type="text" name="realm_name" 
+                                   value="<?php echo htmlspecialchars($_POST['realm_name'] ?? 'Sahtout Realm'); ?>"
+                                   class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all placeholder-slate-500 text-sm"
+                                   required placeholder="Enter realm name">
+                        </div>
+                    </div>
+
+                    <!-- Realm IP -->
+                    <div>
+                        <label for="realm_ip" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
+                            <i class="fas fa-network-wired text-gold-400 mr-1"></i>
+                            <?php echo translate('label_realm_ip', 'Realm Address / Host'); ?>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 pointer-events-none">
+                                <i class="fas fa-network-wired text-sm"></i>
+                            </span>
+                            <input id="realm_ip" type="text" name="realm_ip" 
+                                   value="<?php echo htmlspecialchars($_POST['realm_ip'] ?? '127.0.0.1'); ?>"
+                                   class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all placeholder-slate-500 text-sm"
+                                   required placeholder="127.0.0.1">
+                        </div>
+                    </div>
+
+                    <!-- Realm Port -->
+                    <div>
+                        <label for="realm_port" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
+                            <i class="fas fa-plug text-gold-400 mr-1"></i>
+                            <?php echo translate('label_realm_port', 'Realm Port'); ?>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 pointer-events-none">
+                                <i class="fas fa-plug text-sm"></i>
+                            </span>
+                            <input id="realm_port" type="number" name="realm_port" 
+                                   value="<?php echo htmlspecialchars($_POST['realm_port'] ?? '8085'); ?>"
+                                   class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all placeholder-slate-500 text-sm"
+                                   required placeholder="8085">
+                        </div>
+                    </div>
+
+                    <!-- Realm Logo -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
+                            <i class="fas fa-image text-gold-400 mr-1"></i>
+                            <?php echo translate('label_realm_logo', 'Realm Emblem'); ?>
+                        </label>
+                        <div class="custom-file-upload">
+                            <input type="file" id="realm_logo" name="realm_logo" accept="image/png,image/svg+xml,image/jpeg,image/webp" class="hidden">
+                            <button type="button" class="file-upload-btn" onclick="document.getElementById('realm_logo').click();">
+                                <i class="fas fa-upload"></i>
+                                <?php echo translate('btn_choose_file', 'Select Emblem'); ?>
+                            </button>
+                            <div id="file-name-realm" class="text-slate-500 text-xs mt-2 text-center">
+                                <?php echo translate('placeholder_realm_logo', 'Upload a PNG, SVG, JPG, or WebP emblem (max 2MB).'); ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Note -->
+                    <div class="flex items-start gap-2 p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg">
+                        <i class="fas fa-info-circle text-gold-400 mt-0.5"></i>
+                        <p class="text-slate-400 text-xs">
+                            <?php echo translate('note_realm_config', 'Note: This configures the realm settings.'); ?>
+                        </p>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+                        <button type="submit" class="w-full sm:w-auto flex items-center justify-center px-10 py-3.5 bg-gold-500 hover:bg-gold-400 text-slate-900 font-bold rounded-lg shadow-lg shadow-gold-600/20 transition-all duration-300 transform hover:scale-105">
+                            <i class="fas fa-save mr-2"></i>
+                            <?php echo translate('btn_save_realm', 'Store Realm Configuration'); ?>
+                        </button>
+                        <a href="<?php echo $base_path; ?>install/step3_db" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 text-slate-300 font-semibold rounded-lg transition-all duration-300 border border-slate-600/30">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            <?php echo translate('btn_go_back', 'Go Back'); ?>
+                        </a>
+                    </div>
+                </form>
+            <?php endif; ?>
+
+        </div>
     </div>
 </div>
+
 <?php include __DIR__ . '/footer.inc.php'; ?>
+
 <script>
     document.getElementById('realm_logo').addEventListener('change', function() {
         const fileName = this.files.length > 0 ? this.files[0].name : '<?php echo translate('placeholder_realm_logo', 'Upload a PNG, SVG, JPG, or WebP emblem (max 2MB).'); ?>';
