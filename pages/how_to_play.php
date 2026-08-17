@@ -416,7 +416,7 @@ if (file_exists($realmsFile)) {
                     <div class="step-badge">4</div>
                     <div class="step-image-container">
                         <img class="step-image" 
-                             src="<?php echo $base_path; ?>img/howtoplay/down_wow.png" 
+                             src="<?php echo $base_path; ?>img/howtoplay/down_wow.jpg" 
                              alt="<?php echo translate('launch_wow_alt', 'Launch WoW'); ?>"
                              loading="lazy"
                              onerror="this.style.display='none'">

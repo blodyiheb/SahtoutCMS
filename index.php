@@ -350,7 +350,8 @@ $result = $site_db->query($query);
                                 $slides = [
                                     ['img' => 'slide1.jpg', 'alt' => translate('slider_alt_1', 'World of Warcraft Scene 1')],
                                     ['img' => 'slide2.jpg', 'alt' => translate('slider_alt_2', 'World of Warcraft Scene 2')],
-                                    ['img' => 'slide3.jpg', 'alt' => translate('slider_alt_3', 'World of Warcraft Scene 3')]
+                                    ['img' => 'slide3.jpg', 'alt' => translate('slider_alt_3', 'World of Warcraft Scene 3')],
+                                    ['img' => 'slide4.jpg', 'alt' => translate('slider_alt_4', 'World of Warcraft Scene 4')]
                                 ];
                                 foreach ($slides as $slide):
                                 ?>
@@ -370,6 +371,7 @@ $result = $site_db->query($query);
                         <span class="dot active" data-slide="0"></span>
                         <span class="dot" data-slide="1"></span>
                         <span class="dot" data-slide="2"></span>
+                        <span class="dot" data-slide="3"></span>
                     </div>
                 </section>
 
