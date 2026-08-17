@@ -1,12 +1,15 @@
 <?php
 return [
-    'page_title_soap' => 'Ejecutor de Comandos SOAP',
-    'soap_title' => 'Ejecutar Comando SOAP',
-    'command_placeholder' => '.character nombre nivel 80',
+    'page_title_soap' => 'Ejecutor de comandos SOAP',
+    'soap_title' => 'Ejecutar comando SOAP',
+    'command_placeholder' => '.character name level 80',
     'run_command' => 'Ejecutar',
     'response_label' => 'Respuesta:',
     'error_no_command' => 'No se ingresó ningún comando.',
+    'quick_commands' => 'Comandos rápidos',
 
-    'gm_command_instructions' => 'Introduce tus comandos GM en el cuadro de abajo. Por ejemplo: <code>.character level NombreDelJugador 80</code>.',
-    'gm_command_docs' => 'Para la lista completa de comandos, consulta la <a href="https://www.azerothcore.org/wiki/gm-commands" target="_blank">Wiki de Comandos GM de AzerothCore</a>.',
+    // New keys for GM instructions
+    'gm_command_instructions' => 'Ingrese sus comandos GM en el cuadro a continuación. Por ejemplo: <code>.character level PlayerName 80</code>.',
+    'gm_command_docs' => 'Para una lista completa de comandos, consulte la <a href="https://www.azerothcore.org/wiki/gm-commands" target="_blank">Wiki de comandos GM de AzerothCore</a>.',
 ];
+?>

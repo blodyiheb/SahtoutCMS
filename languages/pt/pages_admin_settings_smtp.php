@@ -1,34 +1,54 @@
 <?php
 return [
+    // Page meta
+    'page_description_smtp' => 'Configurações SMTP para o servidor WoW Sahtout',
     'page_title_smtp' => 'Configurações SMTP',
-    'settings_smtp' => 'Configurações SMTP',
-    'msg_smtp_enabled' => 'O SMTP está atualmente ativado.',
-    'msg_smtp_disabled' => 'O SMTP está atualmente desativado.',
+
+    // Status
+    'status' => 'Status:',
+    'msg_smtp_enabled' => 'SMTP ativado',
+    'msg_smtp_disabled' => 'SMTP desativado',
+
+    // Errors
     'err_fix_errors' => 'Por favor, corrija os seguintes erros:',
-    'msg_smtp_saved' => 'Configurações SMTP salvas com sucesso!',
-    'label_smtp_enabled' => 'Ativar SMTP',
-    'label_smtp_host' => 'Host SMTP',
-    'label_email_address' => 'Endereço de Email',
-    'label_app_password' => 'Senha de App / Senha SMTP',
-    'label_from_email' => 'Email de Remetente',
-    'label_from_name' => 'Nome do Remetente',
-    'label_port' => 'Porta',
-    'label_encryption' => 'Criptografia (tls ou ssl)',
-    'placeholder_smtp_host' => 'ex.: smtp.gmail.com',
-    'placeholder_email' => 'ex.: seuemail@gmail.com',
-    'placeholder_app_password' => 'Senha de app para Gmail/Outlook',
-    'placeholder_from_email' => 'ex.: noreply@seudominio.com',
-    'placeholder_from_name' => 'ex.: Conta Sahtout',
-    'placeholder_port_tls_ssl' => '587 para TLS, 465 para SSL',
-    'placeholder_tls_or_ssl' => 'tls ou ssl',
-    'btn_save_test_smtp' => 'Salvar e Testar SMTP',
-    'error_direct_access' => 'Acesso direto a este arquivo não é permitido.',
-    'err_smtp_host_required' => 'O Host SMTP é obrigatório.',
-    'err_smtp_user_required' => 'O Usuário SMTP é obrigatório.',
-    'err_smtp_pass_required' => 'A Senha SMTP é obrigatória.',
-    'err_smtp_test_failed' => 'Falha no teste SMTP: %s',
-    'err_config_dir_not_writable' => 'O diretório de configuração não é gravável: %s',
+    'err_smtp_host_required' => 'O host SMTP é obrigatório.',
+    'err_smtp_user_required' => 'O usuário SMTP é obrigatório.',
+    'err_smtp_pass_required' => 'A senha SMTP é obrigatória.',
+    'err_smtp_test_failed' => 'O teste SMTP falhou:',
+    'err_config_dir_not_writable' => 'O diretório de configuração não tem permissão de escrita: %s',
     'err_failed_write_config' => 'Falha ao escrever o arquivo de configuração: %s',
-    'mail_test_subject' => 'Email de Teste - Sahtout CMS',
-    'mail_test_body' => 'Este é um email de teste enviado a partir das configurações administrativas do seu Sahtout CMS.',
+    'error_direct_access' => 'O acesso direto a este arquivo não é permitido.',
+
+    // Mail test
+    'mail_test_subject' => 'E-mail de teste - Sahtout CMS',
+    'mail_test_body' => 'Este é um e-mail de teste das configurações de administração do Sahtout CMS.',
+
+    // Success
+    'msg_smtp_saved' => 'Configurações SMTP salvas com sucesso!',
+
+    // Section titles
+    'settings_smtp' => 'Configurações SMTP',
+
+    // Labels
+    'label_smtp_enabled' => 'Ativar SMTP',
+    'help_smtp_enabled' => 'Ative para enviar e-mails via servidor SMTP.',
+    'label_smtp_host' => 'Host SMTP',
+    'placeholder_smtp_host' => 'ex., smtp.gmail.com',
+    'label_email_address' => 'Endereço de e-mail',
+    'placeholder_email' => 'ex., seu.nome@gmail.com',
+    'label_app_password' => 'Senha de aplicativo / SMTP',
+    'placeholder_app_password' => 'Senha de aplicativo para Gmail/Outlook',
+    'help_smtp_pass' => 'Para Gmail, use uma senha de aplicativo. Para outros provedores, use sua senha de e-mail.',
+    'label_from_email' => 'E-mail remetente',
+    'placeholder_from_email' => 'ex., noreply@seudominio.com',
+    'label_from_name' => 'Nome remetente',
+    'placeholder_from_name' => 'ex., Conta Sahtout',
+    'label_port' => 'Porta',
+    'placeholder_port_tls_ssl' => '587 para TLS',
+    'label_encryption' => 'Criptografia',
+    'help_smtp_secure' => 'A maioria dos provedores usa TLS na porta 587.',
+
+    // Buttons
+    'btn_save_test_smtp' => 'Salvar e testar SMTP',
 ];
+?>

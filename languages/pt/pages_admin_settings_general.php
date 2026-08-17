@@ -1,56 +1,50 @@
 <?php
 return [
-    // Configurações gerais
-    'page_title_general' => 'Configurações Gerais',
-    'settings_general' => 'Configurações Gerais',
-    'label_website_logo' => 'Logo do Site',
-    'label_social_media' => 'Links de Redes Sociais',
-    'btn_choose_file' => 'Escolher Arquivo',
-    'btn_save_settings' => 'Salvar Configurações',
-    'msg_settings_saved' => 'Configurações atualizadas com sucesso!',
+    // Page meta
+    'page_description_general' => 'Configurações gerais para o servidor WoW Sahtout',
+    'page_title_general' => 'Configurações gerais',
 
-    // Placeholders para redes sociais
+    // Messages
+    'msg_settings_saved' => 'Configurações atualizadas com sucesso!',
+    'err_fix_errors' => 'Erro:',
+
+    // Section titles
+    'settings_general' => 'Configurações gerais',
+
+    // Website Title
+    'label_website_title' => 'Título do site',
+    'placeholder_site_title' => 'ex. Meu Site Incrível',
+    'help_site_title' => 'Este título aparece na aba do navegador, cabeçalho do site e SEO.',
+
+    // YouTube
+    'label_youtube_embed' => 'Link de incorporação do YouTube em destaque',
+    'help_youtube_embed' => 'Cole um link do YouTube (watch, short ou embed). O sistema o normalizará para uma URL de incorporação.',
+    'label_youtube_title' => 'Título do vídeo',
+    'placeholder_youtube_title' => 'Vídeo em destaque',
+    'help_youtube_title' => 'Este título aparece centralizado acima do vídeo.',
+    'label_youtube_description' => 'Descrição do vídeo',
+    'placeholder_youtube_description' => 'Assista a um vídeo em destaque aqui...',
+    'help_youtube_description' => 'Este texto aparece abaixo do título no painel de vídeo.',
+
+    // Logo
+    'label_website_logo' => 'Enviar logotipo',
+    'help_logo' => 'Envie uma nova imagem de logotipo. Formatos PNG, JPG ou SVG suportados (máx. 3 MB).',
+
+    // Social Media
+    'label_social_media' => 'Links de redes sociais',
     'placeholder_facebook' => 'URL do Facebook',
-    'placeholder_twitter' => 'URL do Twitter (X)',
+    'placeholder_twitter' => 'URL do Twitter',
     'placeholder_tiktok' => 'URL do TikTok',
     'placeholder_youtube' => 'URL do YouTube',
-    'placeholder_discord' => 'URL de Convite do Discord',
-    'placeholder_twitch' => 'URL do Twitch',
+    'placeholder_discord' => 'URL do Discord',
+    'placeholder_twitch' => 'URL da Twitch',
     'placeholder_kick' => 'URL do Kick',
     'placeholder_instagram' => 'URL do Instagram',
     'placeholder_github' => 'URL do GitHub',
     'placeholder_linkedin' => 'URL do LinkedIn',
-    'placeholder_logo' => 'Envie uma imagem PNG, SVG ou JPG (máx. 3MB) para usar como logo do site.',
+    'help_social_links' => 'Insira as URLs completas dos seus perfis sociais. Deixe em branco para ocultar.',
 
-    // Texto alternativo para redes sociais
-    'footer_logo_alt' => 'Logo do Servidor Sahtout',
-    'facebook_alt' => 'Facebook',
-    'twitter_alt' => 'Twitter (X)',
-    'tiktok_alt' => 'TikTok',
-    'youtube_alt' => 'YouTube',
-    'discord_alt' => 'Discord',
-    'twitch_alt' => 'Twitch',
-    'kick_alt' => 'Kick',
-    'instagram_alt' => 'Instagram',
-    'github_alt' => 'GitHub',
-    'linkedin_alt' => 'LinkedIn',
-
-    // Mensagens de erro
-    'error_csrf_invalid' => 'Token CSRF inválido.',
-    'error_access_denied' => 'Acesso negado.',
-    'error_direct_access' => 'Acesso direto não permitido.',
-    'error_file_too_large' => 'O tamanho do arquivo excede 3MB.',
-    'error_invalid_file_type' => 'Tipo de arquivo inválido. Apenas PNG, SVG ou JPG são permitidos.',
-    'error_file_upload_failed' => 'Falha ao enviar o logo. Verifique as permissões do servidor.',
-    'error_file_write_failed' => 'O arquivo de configuração não é gravável.',
-    'error_invalid_facebook' => 'URL do Facebook inválida.',
-    'error_invalid_twitter' => 'URL do Twitter (X) inválida.',
-    'error_invalid_tiktok' => 'URL do TikTok inválida.',
-    'error_invalid_youtube' => 'URL do YouTube inválida.',
-    'error_invalid_discord' => 'URL do Discord inválida.',
-    'error_invalid_twitch' => 'URL do Twitch inválida.',
-    'error_invalid_kick' => 'URL do Kick inválida.',
-    'error_invalid_instagram' => 'URL do Instagram inválida.',
-    'error_invalid_github' => 'URL do GitHub inválida.',
-    'error_invalid_linkedin' => 'URL do LinkedIn inválida.',
+    // Buttons
+    'btn_save_settings' => 'Salvar todas as configurações',
 ];
+?>

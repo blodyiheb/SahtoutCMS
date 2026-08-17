@@ -1,27 +1,38 @@
 <?php
 return [
-    'page_title_realm' => 'Конфигурация реалма',
-    'section_realm_config' => 'Конфигурация реалма',
+    // Page meta
+    'page_description_realm' => 'Настройка игрового мира для сервера WoW Sahtout',
+    'page_title_realm' => 'Настройка игрового мира',
+
+    // Errors
     'err_fix_errors' => 'Пожалуйста, исправьте следующие ошибки:',
-    'msg_realm_saved' => 'Конфигурация реалма успешно сохранена!',
-    'label_realm_name' => 'Название реалма',
-    'label_realm_ip' => 'IP / Хост реалма',
-    'label_realm_port' => 'Порт реалма',
-    'label_realm_logo' => 'Логотип реалма',
-    'placeholder_realm_name' => 'Введите название реалма',
-    'placeholder_realm_logo' => 'Загрузите изображение PNG, SVG, JPG или WebP (макс. 2 МБ) для логотипа реалма.',
-    'btn_choose_file' => 'Выбрать файл',
-    'btn_save_realm' => 'Сохранить конфигурацию реалма',
-    'note_realm_config' => 'Примечание: Это настраивает параметры для одного реалма.',
-    'err_realm_name_required' => 'Название реалма обязательно.',
-    'err_realm_ip_required' => 'IP реалма обязателен.',
-    'err_realm_port_invalid' => 'Порт реалма должен быть действительным числом (1-65535).',
-    'err_read_realm_config' => 'Не удалось прочитать файл конфигурации реалма: %s',
-    'err_update_realm_config' => 'Ошибка при обновлении конфигурации реалма: $realmlist не найден или недействителен.',
-    'err_config_dir_not_writable' => 'Каталог конфигурации не доступен для записи: %s',
-    'err_write_realm_config' => 'Не удалось записать файл конфигурации реалма: %s',
-    'error_realm_logo_too_large' => 'Размер логотипа реалма превышает 2 МБ.',
-    'error_invalid_realm_logo_type' => 'Недопустимый тип файла. Разрешены только PNG, SVG, JPG или WebP.',
-    'error_realm_logo_upload_failed' => 'Не удалось загрузить логотип реалма. Проверьте права доступа на сервере.',
+    'err_realm_name_required' => 'Требуется название игрового мира.',
+    'err_realm_ip_required' => 'Требуется IP-адрес игрового мира.',
+    'err_realm_port_invalid' => 'Порт игрового мира должен быть допустимым числом (1-65535).',
+    'error_realm_logo_too_large' => 'Размер логотипа игрового мира превышает 2 МБ.',
+    'error_invalid_realm_logo_type' => 'Неверный тип файла. Разрешены только PNG, SVG, JPG или WebP.',
+    'error_realm_logo_upload_failed' => 'Каталог загрузки недоступен или недоступен для записи.',
+    'err_config_dir_not_writable' => 'Каталог конфигурации недоступен для записи: %s',
+    'err_write_realm_config' => 'Не удалось записать файл конфигурации игрового мира: %s',
+
+    // Success
+    'msg_realm_saved' => 'Настройки игрового мира успешно сохранены!',
+
+    // Section titles
+    'section_realm_config' => 'Настройка игрового мира',
+
+    // Labels
+    'label_current_logo' => 'Текущий логотип',
+    'label_realm_name' => 'Название игрового мира',
+    'placeholder_realm_name' => 'Введите название игрового мира',
+    'label_realm_ip' => 'IP / Хост игрового мира',
+    'label_realm_port' => 'Порт игрового мира',
+    'label_realm_logo' => 'Логотип игрового мира',
+    'placeholder_realm_logo' => 'Нажмите или перетащите, чтобы загрузить новый логотип',
+    'note_realm_logo' => 'Загрузите новый логотип для вашего игрового мира. Оставьте пустым, чтобы сохранить текущий логотип.',
+    'note_realm_config' => 'Это настраивает параметры для одного игрового мира.',
+
+    // Buttons
+    'btn_save_realm' => 'Сохранить настройки игрового мира',
 ];
 ?>

@@ -1,26 +1,38 @@
 <?php
 return [
-    'page_title_realm' => 'Configuração do Realm',
-    'section_realm_config' => 'Configuração do Realm',
+    // Page meta
+    'page_description_realm' => 'Configuração do reino para o servidor WoW Sahtout',
+    'page_title_realm' => 'Configuração do reino',
+
+    // Errors
     'err_fix_errors' => 'Por favor, corrija os seguintes erros:',
-    'msg_realm_saved' => 'Configuração do realm salva com sucesso!',
-    'label_realm_name' => 'Nome do Realm',
-    'label_realm_ip' => 'IP / Host do Realm',
-    'label_realm_port' => 'Porta do Realm',
-    'label_realm_logo' => 'Logo do Realm',
-    'placeholder_realm_name' => 'Digite o nome do realm',
-    'placeholder_realm_logo' => 'Envie uma imagem PNG, SVG, JPG ou WebP (máx. 2MB) para o logo do realm.',
-    'btn_choose_file' => 'Escolher Arquivo',
-    'btn_save_realm' => 'Salvar Configuração do Realm',
-    'note_realm_config' => 'Observação: Isso configura as definições para um único realm.',
-    'err_realm_name_required' => 'O Nome do Realm é obrigatório.',
-    'err_realm_ip_required' => 'O IP do Realm é obrigatório.',
-    'err_realm_port_invalid' => 'A Porta do Realm deve ser um número válido (1-65535).',
-    'err_read_realm_config' => 'Não é possível ler o arquivo de configuração do realm: %s',
-    'err_update_realm_config' => 'Falha ao atualizar a configuração do realm: $realmlist não encontrado ou inválido.',
-    'err_config_dir_not_writable' => 'O diretório de configuração não é gravável: %s',
-    'err_write_realm_config' => 'Não é possível escrever no arquivo de configuração do realm: %s',
-    'error_realm_logo_too_large' => 'O tamanho do logo do realm excede 2MB.',
+    'err_realm_name_required' => 'O nome do reino é obrigatório.',
+    'err_realm_ip_required' => 'O IP do reino é obrigatório.',
+    'err_realm_port_invalid' => 'A porta do reino deve ser um número válido (1-65535).',
+    'error_realm_logo_too_large' => 'O tamanho do logo do reino excede 2 MB.',
     'error_invalid_realm_logo_type' => 'Tipo de arquivo inválido. Apenas PNG, SVG, JPG ou WebP são permitidos.',
-    'error_realm_logo_upload_failed' => 'Falha ao enviar o logo do realm. Verifique as permissões do servidor.',
+    'error_realm_logo_upload_failed' => 'O diretório de upload não está acessível ou não tem permissão de escrita.',
+    'err_config_dir_not_writable' => 'O diretório de configuração não tem permissão de escrita: %s',
+    'err_write_realm_config' => 'Não foi possível escrever o arquivo de configuração do reino: %s',
+
+    // Success
+    'msg_realm_saved' => 'Configuração do reino salva com sucesso!',
+
+    // Section titles
+    'section_realm_config' => 'Configuração do reino',
+
+    // Labels
+    'label_current_logo' => 'Logo atual',
+    'label_realm_name' => 'Nome do reino',
+    'placeholder_realm_name' => 'Digite o nome do reino',
+    'label_realm_ip' => 'IP / Host do reino',
+    'label_realm_port' => 'Porta do reino',
+    'label_realm_logo' => 'Logo do reino',
+    'placeholder_realm_logo' => 'Clique ou arraste para enviar um novo logo',
+    'note_realm_logo' => 'Envie um novo logo para seu reino. Deixe vazio para manter o logo atual.',
+    'note_realm_config' => 'Isso configura as definições para um único reino.',
+
+    // Buttons
+    'btn_save_realm' => 'Salvar configuração do reino',
 ];
+?>

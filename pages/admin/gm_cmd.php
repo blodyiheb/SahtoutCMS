@@ -335,20 +335,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <span class="command-history-item text-xs md:text-sm" onclick="document.querySelector('input[name=command]').value='.character level '; document.querySelector('input[name=command]').focus();">
                                     <i class="fas fa-chevron-right cmd-icon"></i>.character level
                                 </span>
-                                <span class="command-history-item text-xs md:text-sm" onclick="document.querySelector('input[name=command]').value='.modify money '; document.querySelector('input[name=command]').focus();">
-                                    <i class="fas fa-chevron-right cmd-icon"></i>.modify money
+                                <span class="command-history-item text-xs md:text-sm" onclick="document.querySelector('input[name=command]').value='.send money '; document.querySelector('input[name=command]').focus();">
+                                    <i class="fas fa-chevron-right cmd-icon"></i>.send money
                                 </span>
-                                <span class="command-history-item text-xs md:text-sm" onclick="document.querySelector('input[name=command]').value='.tele '; document.querySelector('input[name=command]').focus();">
-                                    <i class="fas fa-chevron-right cmd-icon"></i>.tele
-                                </span>
-                                <span class="command-history-item text-xs md:text-sm" onclick="document.querySelector('input[name=command]').value='.npc add '; document.querySelector('input[name=command]').focus();">
-                                    <i class="fas fa-chevron-right cmd-icon"></i>.npc add
-                                </span>
-                                <span class="command-history-item text-xs md:text-sm" onclick="document.querySelector('input[name=command]').value='.go '; document.querySelector('input[name=command]').focus();">
-                                    <i class="fas fa-chevron-right cmd-icon"></i>.go
-                                </span>
-                                <span class="command-history-item text-xs md:text-sm" onclick="document.querySelector('input[name=command]').value='.learn '; document.querySelector('input[name=command]').focus();">
-                                    <i class="fas fa-chevron-right cmd-icon"></i>.learn
+                                <span class="command-history-item text-xs md:text-sm" onclick="document.querySelector('input[name=command]').value='.teleport name '; document.querySelector('input[name=command]').focus();">
+                                    <i class="fas fa-chevron-right cmd-icon"></i>.teleport name
                                 </span>
                             </div>
                         </div>

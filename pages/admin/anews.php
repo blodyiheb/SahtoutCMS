@@ -25,6 +25,21 @@ $default_image_url = 'img/newsimg/news.png';
 
 if (!file_exists($base_upload_dir)) mkdir($base_upload_dir, 0755, true);
 
+function adminNewsImageSrc($image_url) {
+    global $base_path, $default_image_url;
+
+    $image_url = trim((string)$image_url);
+    if ($image_url === '') {
+        $image_url = $default_image_url;
+    }
+
+    if (preg_match('#^(https?:)?//#i', $image_url) || str_starts_with($image_url, 'data:') || str_starts_with($image_url, '/')) {
+        return $image_url;
+    }
+
+    return $base_path . ltrim($image_url, '/');
+}
+
 $log_dir = $project_root . 'logs/';
 $log_file = $log_dir . 'upload_errors.log';
 if (!file_exists($log_dir)) mkdir($log_dir, 0755, true);
@@ -198,6 +213,7 @@ $news_result = $stmt->get_result();
     <meta name="robots" content="noindex">
     <title><?php echo translate('admin_news_page_title', 'News Management'); ?></title>
     <link rel="icon" href="<?php echo $base_path . $site_logo; ?>" type="image/x-icon">
+    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
     <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
     
@@ -388,6 +404,14 @@ $news_result = $stmt->get_result();
 
         .category-badge:hover {
             transform: scale(1.05);
+        }
+
+        .news-thumb {
+            width: 82px;
+            height: 52px;
+            object-fit: cover;
+            border: 1px solid rgba(201,162,39,.3);
+            background: rgba(10, 14, 22, 0.8);
         }
 
         .toggle-switch {
@@ -590,9 +614,9 @@ $news_result = $stmt->get_result();
                                         <div id="uploadPlaceholder">
                                             <i class="fas fa-cloud-upload-alt text-3xl text-[#c9a227]/40 mb-2"></i>
                                             <p class="text-sm text-gray-400"><?php echo translate('admin_news_image_help', 'Click or drag to upload image'); ?></p>
-                                            <p class="text-xs text-gray-500 mt-1">Max 2MB • JPG, PNG, GIF</p>
+                                            <p class="text-xs text-gray-500 mt-1"><?php echo translate('admin_news_max_filesize', 'Max 2MB • JPG, PNG, GIF'); ?></p>
                                         </div>
-                                        <img id="image_preview" class="hidden mx-auto max-h-40 rounded-sm mt-2 border border-[#c9a227]/30" src="" alt="Preview">
+                                        <img id="image_preview" class="hidden mx-auto max-h-40 rounded-sm mt-2 border border-[#c9a227]/30" src="" alt="<?php echo translate('admin_news_image_preview_alt', 'Image Preview'); ?>">
                                     </div>
                                 </div>
                             </div>
@@ -608,7 +632,7 @@ $news_result = $stmt->get_result();
                                         <i class="fas fa-exclamation-triangle"></i>
                                         <?php echo translate('admin_news_label_is_important', 'Mark as Important'); ?>
                                     </label>
-                                    <p class="text-xs text-gray-500 mt-1">Important news will be highlighted and appear at the top</p>
+                                    <p class="text-xs text-gray-500 mt-1"><?php echo translate('admin_news_important_help', 'Important news will be highlighted and appear at the top'); ?></p>
                                 </div>
                             </div>
 
@@ -628,6 +652,7 @@ $news_result = $stmt->get_result();
                             <table class="wow-table">
                                 <thead>
                                     <tr>
+                                        <th class="hidden sm:table-cell"><?php echo translate('admin_news_table_image', 'Image'); ?></th>
                                         <th><?php echo translate('admin_news_table_title', 'Title'); ?></th>
                                         <th class="hidden md:table-cell"><?php echo translate('admin_news_table_category', 'Category'); ?></th>
                                         <th class="hidden lg:table-cell"><?php echo translate('admin_news_table_posted_by', 'Posted By'); ?></th>
@@ -639,7 +664,7 @@ $news_result = $stmt->get_result();
                                 <tbody>
                                     <?php if ($news_result->num_rows === 0): ?>
                                         <tr>
-                                            <td colspan="6" class="text-center text-gray-400 py-6 md:py-8">
+                                            <td colspan="7" class="text-center text-gray-400 py-6 md:py-8">
                                                 <i class="fas fa-newspaper text-3xl md:text-4xl text-gray-600 block mb-3"></i>
                                                 <?php echo translate('admin_news_no_news', 'No news available.'); ?>
                                             </td>
@@ -651,6 +676,9 @@ $news_result = $stmt->get_result();
                                             $colors = $category_colors[$category] ?? $category_colors['other'];
                                             ?>
                                             <tr>
+                                                <td class="hidden sm:table-cell">
+                                                    <img src="<?php echo htmlspecialchars(adminNewsImageSrc($news['image_url'] ?? $default_image_url)); ?>" alt="<?php echo htmlspecialchars($news['title']); ?>" class="news-thumb">
+                                                </td>
                                                 <td class="font-semibold text-white text-sm md:text-base">
                                                     <a href="<?php echo $base_path; ?>news?slug=<?php echo urlencode(htmlspecialchars($news['slug'])); ?>" class="hover:text-[#f2cf5b] transition-colors">
                                                         <?php echo htmlspecialchars($news['title']); ?>
@@ -676,11 +704,11 @@ $news_result = $stmt->get_result();
                                                 </td>
                                                 <td class="text-right">
                                                     <div class="flex justify-end gap-2">
-                                                        <button onclick="openModal('editModal-<?php echo $news['id']; ?>')" class="btn-game btn-iron text-xs py-2 px-3">
+                                                        <button type="button" onclick="openModal('editModal-<?php echo $news['id']; ?>')" class="btn-game btn-iron text-xs py-2 px-3">
                                                             <i class="fas fa-edit"></i>
                                                             <?php echo translate('admin_news_edit_button', 'Edit'); ?>
                                                         </button>
-                                                        <button onclick="openModal('deleteModal-<?php echo $news['id']; ?>')" class="btn-game btn-danger text-xs py-2 px-3">
+                                                        <button type="button" onclick="openModal('deleteModal-<?php echo $news['id']; ?>')" class="btn-game btn-danger text-xs py-2 px-3">
                                                             <i class="fas fa-trash"></i>
                                                             <?php echo translate('admin_news_delete_button', 'Delete'); ?>
                                                         </button>
@@ -701,20 +729,20 @@ $news_result = $stmt->get_result();
                                                         <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($news['image_url'] ?? $default_image_url); ?>">
                                                         
                                                         <div>
-                                                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide">Title</label>
+                                                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_news_label_title', 'Title'); ?></label>
                                                             <input type="text" name="title" class="wow-input" value="<?php echo htmlspecialchars($news['title']); ?>" required>
                                                         </div>
                                                         <div>
-                                                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide">Slug</label>
+                                                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_news_label_slug', 'Slug'); ?></label>
                                                             <input type="text" name="slug" class="wow-input" value="<?php echo htmlspecialchars($news['slug'] ?? ''); ?>">
                                                         </div>
                                                         <div>
-                                                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide">Content</label>
+                                                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_news_label_content', 'Content'); ?></label>
                                                             <textarea name="content" class="wow-textarea" rows="4" required><?php echo htmlspecialchars($news['content']); ?></textarea>
                                                         </div>
                                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                             <div>
-                                                                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide">Category</label>
+                                                                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_news_label_category', 'Category'); ?></label>
                                                                 <select name="category" class="wow-select">
                                                                     <?php foreach ($category_colors as $key => $color): ?>
                                                                         <option value="<?php echo $key; ?>" <?php echo $news['category'] === $key ? 'selected' : ''; ?> style="color: <?php echo $color['text']; ?>; background: rgba(10, 14, 22, 0.8);">
@@ -724,11 +752,11 @@ $news_result = $stmt->get_result();
                                                                 </select>
                                                             </div>
                                                             <div>
-                                                                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide">Image</label>
+                                                                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_news_label_image', 'Image Upload'); ?></label>
                                                                 <div class="upload-area rounded-sm p-3 text-center">
                                                                     <input type="file" name="image" class="hidden edit-image-input" accept="image/jpeg,image/png,image/gif">
-                                                                    <img class="image-preview mx-auto max-h-24 rounded-sm cursor-pointer border border-[#c9a227]/30" src="<?php echo htmlspecialchars($news['image_url'] ?? $default_image_url); ?>" alt="Preview">
-                                                                    <p class="text-xs text-gray-500 mt-1">Click image to change</p>
+                                                                    <img class="image-preview mx-auto max-h-24 rounded-sm cursor-pointer border border-[#c9a227]/30" src="<?php echo htmlspecialchars(adminNewsImageSrc($news['image_url'] ?? $default_image_url)); ?>" alt="<?php echo translate('admin_news_image_preview_alt', 'Image Preview'); ?>">
+                                                                    <p class="text-xs text-gray-500 mt-1"><?php echo translate('admin_news_image_edit_help', 'Click image to change'); ?></p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -739,12 +767,12 @@ $news_result = $stmt->get_result();
                                                             </label>
                                                             <span class="text-sm font-semibold text-red-400 flex items-center gap-2">
                                                                 <i class="fas fa-exclamation-triangle"></i>
-                                                                Mark as Important
+                                                                <?php echo translate('admin_news_label_is_important', 'Mark as Important'); ?>
                                                             </span>
                                                         </div>
                                                         <div class="flex justify-end gap-4 pt-4">
-                                                            <button type="button" class="btn-game btn-iron" onclick="closeModal('editModal-<?php echo $news['id']; ?>')">Cancel</button>
-                                                            <button type="submit" class="btn-game btn-gold">Save Changes</button>
+                                                            <button type="button" class="btn-game btn-iron" onclick="closeModal('editModal-<?php echo $news['id']; ?>')"><?php echo translate('admin_news_cancel_button', 'Cancel'); ?></button>
+                                                            <button type="submit" class="btn-game btn-gold"><?php echo translate('admin_news_save_button', 'Save Changes'); ?></button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -759,8 +787,8 @@ $news_result = $stmt->get_result();
                                                         <input type="hidden" name="action" value="delete">
                                                         <input type="hidden" name="id" value="<?php echo $news['id']; ?>">
                                                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                                        <button type="button" class="btn-game btn-iron" onclick="closeModal('deleteModal-<?php echo $news['id']; ?>')">Cancel</button>
-                                                        <button type="submit" class="btn-game btn-danger">Confirm Delete</button>
+                                                        <button type="button" class="btn-game btn-iron" onclick="closeModal('deleteModal-<?php echo $news['id']; ?>')"><?php echo translate('admin_news_cancel_button', 'Cancel'); ?></button>
+                                                        <button type="submit" class="btn-game btn-danger"><?php echo translate('admin_news_delete_button', 'Delete'); ?></button>
                                                     </form>
                                                 </div>
                                             </div>
@@ -819,6 +847,10 @@ $news_result = $stmt->get_result();
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.modal-backdrop[id]').forEach(function(modal) {
+                document.body.appendChild(modal);
+            });
+
             const uploadArea = document.getElementById('uploadArea');
             const imageInput = document.getElementById('image');
             const imagePreview = document.getElementById('image_preview');
@@ -849,7 +881,7 @@ $news_result = $stmt->get_result();
                     if (this.files && this.files[0]) {
                         const file = this.files[0];
                         if (file.size > 2 * 1024 * 1024) {
-                            alert('File size exceeds 2MB limit.');
+                            alert('<?php echo translate('admin_news_js_file_size_exceeded', 'File size exceeds 2MB limit.'); ?>');
                             this.value = '';
                             return;
                         }

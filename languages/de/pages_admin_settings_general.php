@@ -1,57 +1,50 @@
 <?php
 return [
-    // General settings
+    // Page meta
+    'page_description_general' => 'Allgemeine Einstellungen für den Sahtout WoW-Server',
     'page_title_general' => 'Allgemeine Einstellungen',
-    'settings_general' => 'Allgemeine Einstellungen',
-    'label_website_logo' => 'Website-Logo',
-    'label_social_media' => 'Social-Media-Links',
-    'btn_choose_file' => 'Datei auswählen',
-    'btn_save_settings' => 'Einstellungen speichern',
+
+    // Messages
     'msg_settings_saved' => 'Einstellungen erfolgreich aktualisiert!',
-    
-    // Social media placeholders
+    'err_fix_errors' => 'Fehler:',
+
+    // Section titles
+    'settings_general' => 'Allgemeine Einstellungen',
+
+    // Website Title
+    'label_website_title' => 'Website-Titel',
+    'placeholder_site_title' => 'z.B. Meine Toller Seite',
+    'help_site_title' => 'Dieser Titel erscheint im Browser-Tab, im Seitenkopf und bei SEO.',
+
+    // YouTube
+    'label_youtube_embed' => 'Featured YouTube-Einbettungslink',
+    'help_youtube_embed' => 'Fügen Sie einen YouTube-Link (watch, short oder embed) ein. Das System normalisiert ihn zu einer Einbettungs-URL.',
+    'label_youtube_title' => 'Video-Titel',
+    'placeholder_youtube_title' => 'Featured Video',
+    'help_youtube_title' => 'Dieser Titel erscheint zentriert über dem Video.',
+    'label_youtube_description' => 'Video-Beschreibung',
+    'placeholder_youtube_description' => 'Schauen Sie sich hier ein Featured-Video an...',
+    'help_youtube_description' => 'Dieser Text erscheint unter dem Titel im Videobereich.',
+
+    // Logo
+    'label_website_logo' => 'Logo hochladen',
+    'help_logo' => 'Laden Sie ein neues Logo-Bild hoch. PNG, JPG oder SVG unterstützt (max. 3 MB).',
+
+    // Social Media
+    'label_social_media' => 'Social-Media-Links',
     'placeholder_facebook' => 'Facebook-URL',
-    'placeholder_twitter' => 'Twitter (X) URL',
-    'placeholder_tiktok' => 'TikTok URL',
+    'placeholder_twitter' => 'Twitter-URL',
+    'placeholder_tiktok' => 'TikTok-URL',
     'placeholder_youtube' => 'YouTube-URL',
-    'placeholder_discord' => 'Discord-Einladungs-URL',
+    'placeholder_discord' => 'Discord-URL',
     'placeholder_twitch' => 'Twitch-URL',
     'placeholder_kick' => 'Kick-URL',
     'placeholder_instagram' => 'Instagram-URL',
     'placeholder_github' => 'GitHub-URL',
     'placeholder_linkedin' => 'LinkedIn-URL',
-    'placeholder_logo' => 'Laden Sie ein PNG-, SVG- oder JPG-Bild (max. 3 MB) hoch, um es als Website-Logo zu verwenden.',
-    
-    // Social media alt text
-    'footer_logo_alt' => 'Sahtout Server Logo',
-    'facebook_alt' => 'Facebook',
-    'twitter_alt' => 'Twitter (X)',
-    'tiktok_alt' => 'TikTok',
-    'youtube_alt' => 'YouTube',
-    'discord_alt' => 'Discord',
-    'twitch_alt' => 'Twitch',
-    'kick_alt' => 'Kick',
-    'instagram_alt' => 'Instagram',
-    'github_alt' => 'GitHub',
-    'linkedin_alt' => 'LinkedIn',
-    
-    // Error messages
-    'error_csrf_invalid' => 'Ungültiges CSRF-Token.',
-    'error_access_denied' => 'Zugriff verweigert.',
-    'error_direct_access' => 'Direkter Zugriff nicht erlaubt.',
-    'error_file_too_large' => 'Dateigröße überschreitet das Limit von 3 MB.',
-    'error_invalid_file_type' => 'Ungültiges Dateiformat. Nur PNG, SVG oder JPG erlaubt.',
-    'error_file_upload_failed' => 'Fehler beim Hochladen des Logos. Überprüfen Sie die Serverberechtigungen.',
-    'error_file_write_failed' => 'Konfigurationsdatei ist nicht schreibbar.',
-    'error_invalid_facebook' => 'Ungültige Facebook-URL.',
-    'error_invalid_twitter' => 'Ungültige Twitter (X) URL.',
-    'error_invalid_tiktok' => 'Ungültige TikTok URL.',
-    'error_invalid_youtube' => 'Ungültige YouTube-URL.',
-    'error_invalid_discord' => 'Ungültige Discord-URL.',
-    'error_invalid_twitch' => 'Ungültige Twitch-URL.',
-    'error_invalid_kick' => 'Ungültige Kick-URL.',
-    'error_invalid_instagram' => 'Ungültige Instagram-URL.',
-    'error_invalid_github' => 'Ungültige GitHub-URL.',
-    'error_invalid_linkedin' => 'Ungültige LinkedIn-URL.',
+    'help_social_links' => 'Geben Sie die vollständigen URLs Ihrer Social-Media-Profile ein. Lassen Sie leer, um auszublenden.',
+
+    // Buttons
+    'btn_save_settings' => 'Alle Einstellungen speichern',
 ];
 ?>

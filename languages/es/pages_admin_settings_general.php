@@ -1,57 +1,50 @@
 <?php
 return [
-    // General settings
+    // Page meta
+    'page_description_general' => 'Configuración general para el servidor WoW Sahtout',
     'page_title_general' => 'Configuración general',
-    'settings_general' => 'Configuración general',
-    'label_website_logo' => 'Logo del sitio',
-    'label_social_media' => 'Enlaces de redes sociales',
-    'btn_choose_file' => 'Elegir archivo',
-    'btn_save_settings' => 'Guardar configuración',
+
+    // Messages
     'msg_settings_saved' => '¡Configuración actualizada con éxito!',
-    
-    // Social media placeholders
+    'err_fix_errors' => 'Error:',
+
+    // Section titles
+    'settings_general' => 'Configuración general',
+
+    // Website Title
+    'label_website_title' => 'Título del sitio web',
+    'placeholder_site_title' => 'ej. Mi Sitio Increíble',
+    'help_site_title' => 'Este título aparece en la pestaña del navegador, el encabezado del sitio y el SEO.',
+
+    // YouTube
+    'label_youtube_embed' => 'Enlace de YouTube destacado',
+    'help_youtube_embed' => 'Pega un enlace de YouTube (watch, short o embed). El sistema lo normalizará a una URL de inserción.',
+    'label_youtube_title' => 'Título del video',
+    'placeholder_youtube_title' => 'Video destacado',
+    'help_youtube_title' => 'Este título aparece centrado encima del video.',
+    'label_youtube_description' => 'Descripción del video',
+    'placeholder_youtube_description' => 'Mira un video destacado aquí...',
+    'help_youtube_description' => 'Este texto aparece debajo del título en el panel de video.',
+
+    // Logo
+    'label_website_logo' => 'Subir logotipo',
+    'help_logo' => 'Sube una nueva imagen de logotipo. Formatos PNG, JPG o SVG admitidos (máx. 3 MB).',
+
+    // Social Media
+    'label_social_media' => 'Enlaces de redes sociales',
     'placeholder_facebook' => 'URL de Facebook',
-    'placeholder_twitter' => 'URL de Twitter (X)',
+    'placeholder_twitter' => 'URL de Twitter',
     'placeholder_tiktok' => 'URL de TikTok',
     'placeholder_youtube' => 'URL de YouTube',
-    'placeholder_discord' => 'URL de invitación de Discord',
+    'placeholder_discord' => 'URL de Discord',
     'placeholder_twitch' => 'URL de Twitch',
     'placeholder_kick' => 'URL de Kick',
     'placeholder_instagram' => 'URL de Instagram',
     'placeholder_github' => 'URL de GitHub',
     'placeholder_linkedin' => 'URL de LinkedIn',
-    'placeholder_logo' => 'Sube una imagen PNG, SVG o JPG (máx. 3 MB) para usar como logo del sitio.',
-    
-    // Social media alt text
-    'footer_logo_alt' => 'Logo del servidor Sahtout',
-    'facebook_alt' => 'Facebook',
-    'twitter_alt' => 'Twitter (X)',
-    'tiktok_alt' => 'TikTok',
-    'youtube_alt' => 'YouTube',
-    'discord_alt' => 'Discord',
-    'twitch_alt' => 'Twitch',
-    'kick_alt' => 'Kick',
-    'instagram_alt' => 'Instagram',
-    'github_alt' => 'GitHub',
-    'linkedin_alt' => 'LinkedIn',
-    
-    // Error messages
-    'error_csrf_invalid' => 'Token CSRF inválido.',
-    'error_access_denied' => 'Acceso denegado.',
-    'error_direct_access' => 'Acceso directo no permitido.',
-    'error_file_too_large' => 'El tamaño del archivo excede el límite de 3 MB.',
-    'error_invalid_file_type' => 'Formato de archivo inválido. Solo se permiten PNG, SVG o JPG.',
-    'error_file_upload_failed' => 'Error al subir el logo. Verifica los permisos del servidor.',
-    'error_file_write_failed' => 'No se pudo escribir el archivo de configuración.',
-    'error_invalid_facebook' => 'URL de Facebook inválida.',
-    'error_invalid_twitter' => 'URL de Twitter (X) inválida.',
-    'error_invalid_tiktok' => 'URL de TikTok inválida.',
-    'error_invalid_youtube' => 'URL de YouTube inválida.',
-    'error_invalid_discord' => 'URL de Discord inválida.',
-    'error_invalid_twitch' => 'URL de Twitch inválida.',
-    'error_invalid_kick' => 'URL de Kick inválida.',
-    'error_invalid_instagram' => 'URL de Instagram inválida.',
-    'error_invalid_github' => 'URL de GitHub inválida.',
-    'error_invalid_linkedin' => 'URL de LinkedIn inválida.',
+    'help_social_links' => 'Ingresa las URL completas de tus perfiles sociales. Deja en blanco para ocultar.',
+
+    // Buttons
+    'btn_save_settings' => 'Guardar toda la configuración',
 ];
 ?>

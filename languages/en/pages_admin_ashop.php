@@ -96,6 +96,8 @@ return [
     'admin_shop_image_alt' => 'Item Image',
     'admin_shop_no_image' => 'No Image',
     'admin_shop_delete_confirm' => 'Are you sure you want to delete this item?',
+    'admin_shop_delete_modal_title' => 'Delete Item',
+    'admin_shop_confirm_delete_button' => 'Confirm Delete',
     'admin_shop_pagination_aria' => 'Page navigation',
     'admin_shop_previous' => 'Previous',
     'admin_shop_next' => 'Next',
@@ -104,6 +106,8 @@ return [
     'admin_shop_js_required_fields' => 'Please fill in all required fields.',
     'admin_shop_js_invalid_itemset_id' => 'Please provide a valid item set ID.',
     'admin_shop_js_select_entry' => 'Please select an item entry.',
-    'admin_shop_js_invalid_level_boost' => 'Level boost must be between 2 and 255.'
+    'admin_shop_js_invalid_level_boost' => 'Level boost must be between 2 and 255.',
+    'admin_shop_edit_button' => 'Edit',
+    'admin_shop_delete_button' => 'Delete',
 ];
 ?>

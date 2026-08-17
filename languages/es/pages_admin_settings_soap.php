@@ -1,29 +1,49 @@
 <?php
 return [
-    'title_soap_settings' => 'Configuración de SOAP',
-    'header_soap_settings' => 'Configuración de SOAP',
-    'status_soap_configured' => 'SOAP está actualmente configurado.',
-    'status_soap_not_configured' => 'SOAP no está configurado.',
-    'error_box_title' => 'Por favor, corrige los siguientes errores:',
-    'success_soap_settings_saved' => '¡Configuración de SOAP guardada exitosamente!',
-    'label_soap_url' => 'URL de SOAP',
-    'label_soap_user' => 'Nombre de usuario de la cuenta GM',
-    'label_soap_pass' => 'Contraseña de SOAP',
-    'placeholder_soap_url' => 'por ejemplo, http://127.0.0.1:7878',
-    'placeholder_soap_user' => 'Debe ser nivel GM 3',
-    'placeholder_soap_pass' => 'Contraseña de SOAP = Contraseña de la cuenta',
-    'button_save_verify_soap' => 'Guardar y verificar SOAP',
-    'info_box_title' => 'Pasos importantes (haz clic para expandir)',
-    'info_step_1' => 'Asegúrate de que la cuenta GM exista en tu base de datos Auth y tenga nivel GM 3 en <code>account_access</code> con <code>RealmID = -1</code>.',
-    'info_step_2' => 'Abre tu archivo <code>worldserver.conf</code> y configura: <strong>SOAP.Enabled = 1</strong>',
-    'info_step_3' => 'Asegúrate de que el puerto SOAP en <code>soap_url</code> sea correcto y accesible.',
-    'error_soap_url_required' => 'La URL de SOAP es obligatoria.',
+    // Page meta
+    'page_description_soap' => 'Configuración SOAP para el servidor WoW Sahtout',
+    'title_soap_settings' => 'Configuración SOAP',
+
+    // Status
+    'status' => 'Estado:',
+    'status_soap_configured' => 'SOAP configurado',
+    'status_soap_not_configured' => 'SOAP no configurado',
+
+    // Errors
+    'error_box_title' => 'Por favor, corrija los siguientes errores:',
+    'error_soap_url_required' => 'La URL SOAP es obligatoria.',
     'error_soap_user_required' => 'El nombre de usuario de la cuenta GM es obligatorio.',
-    'error_soap_pass_required' => 'La contraseña de SOAP es obligatoria.',
-    'error_db_query' => 'Error en la consulta de la base de datos: %s',
+    'error_soap_pass_required' => 'La contraseña SOAP es obligatoria.',
+    'error_db_query' => 'Error de consulta de base de datos: %s',
     'error_account_not_exist' => 'La cuenta %s no existe en la base de datos Auth.',
     'error_account_not_gm_level_3' => 'La cuenta %s existe pero no es de nivel GM 3.',
-    'error_config_dir_not_writable' => 'El directorio de configuración no es escribible: %s',
-    'error_config_file_write_failed' => 'No se pudo escribir el archivo de configuración: %s',
+    'error_config_dir_not_writable' => 'El directorio de configuración no tiene permisos de escritura: %s',
+    'error_config_file_write_failed' => 'Error al escribir el archivo de configuración: %s',
+
+    // Success
+    'success_soap_settings_saved' => '¡Configuración SOAP guardada con éxito!',
+
+    // Section titles
+    'header_soap_settings' => 'Configuración SOAP',
+
+    // Labels
+    'label_soap_url' => 'URL SOAP',
+    'placeholder_soap_url' => 'ej., http://127.0.0.1:7878',
+    'help_soap_url' => 'La URL donde se ejecuta el servicio SOAP de su servidor WoW.',
+    'label_soap_user' => 'Nombre de usuario de la cuenta GM',
+    'placeholder_soap_user' => 'Debe ser de nivel GM 3',
+    'help_soap_user' => 'La cuenta debe tener nivel GM 3 en la base de datos.',
+    'label_soap_pass' => 'Contraseña SOAP',
+    'placeholder_soap_pass' => 'Contraseña SOAP = Contraseña de la cuenta',
+    'help_soap_pass' => 'Esta es la contraseña de la cuenta GM anterior.',
+
+    // Buttons
+    'button_save_verify_soap' => 'Guardar y verificar SOAP',
+
+    // Info Box
+    'info_box_title' => 'Pasos importantes',
+    'info_step_1' => 'Asegúrese de que la cuenta GM exista en su base de datos Auth y tenga nivel GM 3 en <code>account_access</code> con <code>RealmID = -1</code>.',
+    'info_step_2' => 'Abra su archivo <code>worldserver.conf</code> y establezca: <strong>SOAP.Enabled = 1</strong>',
+    'info_step_3' => 'Asegúrese de que el puerto SOAP en <code>soap_url</code> sea correcto y accesible.',
 ];
 ?>

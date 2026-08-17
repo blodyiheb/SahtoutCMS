@@ -36,17 +36,20 @@ CREATE TABLE IF NOT EXISTS `character_teleport_log` (
 -- Listage des données de la table sahtout_site.character_teleport_log : ~0 rows (environ)
 
 -- Listage de la structure de table sahtout_site. failed_logins
-CREATE TABLE IF NOT EXISTS `failed_logins` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `ip_address` varchar(45) NOT NULL,
-  `username` varchar(255) DEFAULT NULL,
-  `attempts` int DEFAULT '0',
-  `last_attempt` int NOT NULL,
-  `block_until` int DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_ip_address` (`ip_address`),
-  KEY `idx_last_attempt` (`last_attempt`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf16;
+DROP TABLE IF EXISTS `failed_logins`;
+
+CREATE TABLE `failed_logins` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `ip_address` varchar(45) NOT NULL,
+    `username` varchar(255) NOT NULL,
+    `attempts` int NOT NULL DEFAULT 0,
+    `last_attempt` int NOT NULL,
+    `block_until` int DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_ip_username` (`ip_address`, `username`),
+    KEY `idx_last_attempt` (`last_attempt`),
+    KEY `idx_block_until` (`block_until`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Listage des données de la table sahtout_site.failed_logins : ~0 rows (environ)
 
@@ -228,7 +231,7 @@ INSERT INTO `shop_items` (`item_id`, `category`, `name`, `description`, `image`,
 	(24, 'Mount', 'Ashes of al\'ar', NULL, 'img/shopimg/items/phnx.jpg', 150, 20, 3, '2025-10-05 21:55:05', 32458, 0, NULL, 0, 1),
 	(102, 'Stuff', 'Bulwark of Azzinoth Shield', 'Bulwark of Azzinoth shield', 'img/shopimg/items/shield.png', 300, 350, NULL, '2025-08-02 04:12:51', 32375, 0, NULL, 0, 1),
 	(103, 'Stuff', 'Warglaive of Azzinoth sword', NULL, 'img/shopimg/items/azzinoth_sword1.jpg', 199, 299, NULL, '2025-10-05 20:43:12', 32837, 0, NULL, 0, 1),
-	(104, 'Stuff', 'Thunderfury Sword', 'Thunderfury, Blessed Blade of the Windseeker', 'img/shopimg/items/thunderfury2.png', 200, 200, NULL, '2025-08-02 04:12:43', 19019, 0, NULL, 0, 1),
+	(104, 'Stuff', 'Thunderfury Sword', 'Thunderfury, Blessed Blade of the Windseeker', 'img/shopimg/items/thunderfury2.jpg', 200, 200, NULL, '2025-08-02 04:12:43', 19019, 0, NULL, 0, 1),
 	(105, 'Stuff', 'Onslaught Battle-Helm', 'Onslaught Battle-Helm', 'img/shopimg/items//warrior_helm.png', 150, 100, NULL, '2025-08-02 04:12:27', 30972, 0, NULL, 0, 1);
 
 -- Listage de la structure de table sahtout_site. site_items

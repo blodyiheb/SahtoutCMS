@@ -1789,6 +1789,12 @@
   .bg-transparent {
     background-color: transparent;
   }
+  .bg-yellow-900\/20 {
+    background-color: color-mix(in srgb, oklch(42.1% 0.095 57.708) 20%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-yellow-900) 20%, transparent);
+    }
+  }
   .bg-yellow-900\/30 {
     background-color: color-mix(in srgb, oklch(42.1% 0.095 57.708) 30%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -2440,6 +2446,9 @@
   .text-neutral-100 {
     color: var(--color-neutral-100);
   }
+  .text-red-100 {
+    color: var(--color-red-100);
+  }
   .text-red-100\/90 {
     color: color-mix(in srgb, oklch(93.6% 0.032 17.717) 90%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -2868,6 +2877,9 @@
   .peer-checked\:after\:border-white:is(:where(.peer):checked ~ *)::after {
     content: var(--tw-content);
     border-color: var(--color-white);
+  }
+  .last\:mb-0:last-child {
+    margin-bottom: 0px;
   }
   .last\:border-0:last-child {
     border-style: var(--tw-border-style);

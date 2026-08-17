@@ -60,7 +60,7 @@ $update_message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'update') {
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-            $update_message = '<div class="bg-red-900/40 border border-red-500/50 text-red-300 px-4 py-3 rounded-sm mb-6 flex items-center gap-3">' . translate('admin_users_csrf_error', 'CSRF token validation failed.') . '</div>';
+            $update_message = alert_danger(translate('admin_users_csrf_error', 'CSRF token validation failed.'));
         } else {
             $account_id = (int)$_POST['account_id'];
             $points = (int)$_POST['points'];
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $email = trim($_POST['email']);
             
             $stmt = $site_db->prepare("UPDATE " . DB_SITE . ".user_currencies SET points = ?, tokens = ?, role = ? WHERE account_id = ?");
-            $stmt->bind_param("iiss", $points, $tokens, $role, $account_id);
+            $stmt->bind_param("iisi", $points, $tokens, $role, $account_id);
             $success = $stmt->execute();
             $stmt->close();
             
@@ -79,14 +79,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $stmt->close();
             
             if ($success) {
-                $update_message = '<div class="bg-green-900/40 border border-green-500/50 text-green-300 px-4 py-3 rounded-sm mb-6 flex items-center gap-3">' . translate('admin_users_update_success', 'User updated successfully.') . '</div>';
+                $update_message = alert_success(translate('admin_users_update_success', 'User updated successfully.'));
             } else {
-                $update_message = '<div class="bg-red-900/40 border border-red-500/50 text-red-300 px-4 py-3 rounded-sm mb-6 flex items-center gap-3">' . translate('admin_users_update_failed', 'Failed to update user.') . '</div>';
+                $update_message = alert_danger(translate('admin_users_update_failed', 'Failed to update user.'));
             }
         }
     } elseif ($_POST['action'] === 'manage_account') {
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-            $update_message = '<div class="bg-red-900/40 border border-red-500/50 text-red-300 px-4 py-3 rounded-sm mb-6 flex items-center gap-3">' . translate('admin_users_csrf_error', 'CSRF token validation failed.') . '</div>';
+            $update_message = alert_danger(translate('admin_users_csrf_error', 'CSRF token validation failed.'));
         } else {
             $account_id = (int)$_POST['account_id'];
             $ban_action = $_POST['ban_action'] ?? '';
@@ -134,12 +134,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 }
             }
             if ($success && empty($update_message)) {
-                $update_message = '<div class="bg-green-900/40 border border-green-500/50 text-green-300 px-4 py-3 rounded-sm mb-6 flex items-center gap-3">' . translate('admin_users_action_success', 'Action completed successfully.') . '</div>';
+                $update_message = alert_success(translate('admin_users_action_success', 'Action completed successfully.'));
             } elseif (empty($update_message)) {
-                $update_message = '<div class="bg-red-900/40 border border-red-500/50 text-red-300 px-4 py-3 rounded-sm mb-6 flex items-center gap-3">' . translate('admin_users_action_failed', 'Failed to complete action.') . '</div>';
+                $update_message = alert_danger(translate('admin_users_action_failed', 'Failed to complete action.'));
             }
         }
     }
+}
+
+// Alert helper functions
+function alert_danger($msg) {
+    return '<div class="bg-red-900/40 border border-red-500/50 text-red-300 px-4 py-3 rounded-sm mb-6 flex items-center gap-3">' . $msg . '</div>';
+}
+function alert_success($msg) {
+    return '<div class="bg-green-900/40 border border-green-500/50 text-green-300 px-4 py-3 rounded-sm mb-6 flex items-center gap-3">' . $msg . '</div>';
 }
 
 // Count total website users
@@ -316,7 +324,7 @@ function getRaceIcon($race, $gender) {
     $gender_folder = ($gender == 1) ? 'female' : 'male';
     $race_name = $races[$race] ?? 'default';
     $image = $race_name . '.png';
-    return '<img src="' . $base_path . 'img/accountimg/race/' . $gender_folder . '/' . $image . '" alt="Race" class="w-5 h-5 inline-block">';
+    return '<img src="' . $base_path . 'img/accountimg/race/' . $gender_folder . '/' . $image . '" alt="' . translate('admin_users_race_alt', 'Race') . '" class="w-5 h-5 inline-block">';
 }
 
 function getClassIcon($class) {
@@ -326,14 +334,14 @@ function getClassIcon($class) {
         5 => 'priest.webp', 6 => 'deathknight.webp', 7 => 'shaman.webp', 8 => 'mage.webp',
         9 => 'warlock.webp', 11 => 'druid.webp'
     ];
-    return '<img src="' . $base_path . 'img/accountimg/class/' . ($icons[$class] ?? 'default.jpg') . '" alt="Class" class="w-5 h-5 inline-block">';
+    return '<img src="' . $base_path . 'img/accountimg/class/' . ($icons[$class] ?? 'default.jpg') . '" alt="' . translate('admin_users_class_alt', 'Class') . '" class="w-5 h-5 inline-block">';
 }
 
 function getFactionIcon($race) {
     global $base_path;
     $allianceRaces = [1, 3, 4, 7, 11];
     $faction = in_array($race, $allianceRaces) ? 'alliance.png' : 'horde.png';
-    return '<img src="' . $base_path . 'img/accountimg/faction/' . $faction . '" alt="Faction" class="w-4 h-4 inline-block">';
+    return '<img src="' . $base_path . 'img/accountimg/faction/' . $faction . '" alt="' . translate('admin_users_faction_alt', 'Faction') . '" class="w-4 h-4 inline-block">';
 }
 
 function getOnlineStatus($online) {
@@ -354,22 +362,6 @@ function getGMLevel($gmlevel) {
         return '<span class="text-gray-400">' . translate('admin_users_gmlevel_player', 'Player') . '</span>';
     }
     return '<span class="text-cyan-400 font-semibold">' . translate('admin_users_gmlevel_prefix', 'GM Level') . ' ' . $gmlevel . '</span>';
-}
-
-// Build query string for pagination (only include non-empty values)
-function buildQueryString($exclude = []) {
-    $params = [];
-    $fields = ['search_username', 'search_email', 'role_filter', 'ban_filter', 'gmlevel_filter', 'sort_id', 'tab'];
-    foreach ($fields as $field) {
-        if (isset($_GET[$field]) && $_GET[$field] !== '' && !in_array($field, $exclude)) {
-            $params[$field] = $_GET[$field];
-        }
-    }
-    // Always include tab if set
-    if (isset($_GET['tab']) && !in_array('tab', $exclude)) {
-        $params['tab'] = $_GET['tab'];
-    }
-    return http_build_query($params);
 }
 ?>
 <!DOCTYPE html>
@@ -545,8 +537,22 @@ function buildQueryString($exclude = []) {
         .tab-link.active { color: #f2cf5b; border-bottom-color: #f2cf5b; }
 
         .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-backdrop.active {
+            display: flex;
+        }
+        .modal-backdrop .panel {
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .avatar-img {
@@ -748,60 +754,18 @@ function buildQueryString($exclude = []) {
                                                     <td class="font-semibold text-white text-sm md:text-base"><?php echo htmlspecialchars($user['username']); ?></td>
                                                     <td class="hidden md:table-cell text-gray-400 text-sm"><?php echo htmlspecialchars($user['email'] ?? translate('admin_users_email_not_set', 'Not set')); ?></td>
                                                     <td>
-                                                        <img src="<?php echo $base_path . 'img/accountimg/profile_pics/' . (!empty($user['avatar']) ? htmlspecialchars($user['avatar']) : 'user.jpg'); ?>" class="avatar-img" alt="Avatar">
+                                                        <img src="<?php echo $base_path . 'img/accountimg/profile_pics/' . (!empty($user['avatar']) ? htmlspecialchars($user['avatar']) : 'user.jpg'); ?>" class="avatar-img" alt="<?php echo translate('admin_users_avatar_alt', 'Avatar'); ?>">
                                                     </td>
                                                     <td class="text-sm md:text-base"><?php echo htmlspecialchars($user['points']); ?></td>
                                                     <td class="hidden sm:table-cell text-sm md:text-base"><?php echo htmlspecialchars($user['tokens']); ?></td>
                                                     <td><span class="status-<?php echo htmlspecialchars($user['role']); ?> text-sm md:text-base"><?php echo ucfirst(translate('admin_users_role_' . $user['role'], ucfirst($user['role']))); ?></span></td>
                                                     <td class="hidden lg:table-cell text-sm text-gray-400"><?php echo $user['last_updated'] ? date('M j, Y', strtotime($user['last_updated'])) : translate('admin_users_never', 'Never'); ?></td>
                                                     <td>
-                                                        <button class="btn-iron btn-iron-sm" onclick="openModal('editModal-<?php echo $user['account_id']; ?>')">
+                                                        <button type="button" class="btn-iron btn-iron-sm open-modal-btn" data-modal="editModal-<?php echo $user['account_id']; ?>">
                                                             <i class="fas fa-edit"></i> <?php echo translate('admin_users_edit_button', 'Edit'); ?>
                                                         </button>
                                                     </td>
                                                 </tr>
-
-                                                <!-- Edit Modal -->
-                                                <div id="editModal-<?php echo $user['account_id']; ?>" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-backdrop">
-                                                    <div class="panel w-full max-w-lg p-6 md:p-8 relative max-h-[90vh] overflow-y-auto">
-                                                        <button class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl" onclick="closeModal('editModal-<?php echo $user['account_id']; ?>')">&times;</button>
-                                                        <h3 class="wow-title text-2xl mb-6"><?php echo translate('admin_users_edit_modal_title', 'Edit User: ') . htmlspecialchars($user['username']); ?></h3>
-                                                        <form method="POST" action="<?php echo $base_path; ?>admin/users">
-                                                            <input type="hidden" name="action" value="update">
-                                                            <input type="hidden" name="account_id" value="<?php echo $user['account_id']; ?>">
-                                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                                            
-                                                            <div class="mb-4">
-                                                                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_username', 'Username'); ?></label>
-                                                                <input type="text" class="input-dark" value="<?php echo htmlspecialchars($user['username']); ?>" disabled>
-                                                            </div>
-                                                            <div class="mb-4">
-                                                                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_email', 'Email'); ?></label>
-                                                                <input type="email" name="email" class="input-dark" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" required>
-                                                            </div>
-                                                            <div class="mb-4">
-                                                                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_points', 'Points'); ?></label>
-                                                                <input type="number" name="points" class="input-dark" value="<?php echo htmlspecialchars($user['points']); ?>" required>
-                                                            </div>
-                                                            <div class="mb-4">
-                                                                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_tokens', 'Tokens'); ?></label>
-                                                                <input type="number" name="tokens" class="input-dark" value="<?php echo htmlspecialchars($user['tokens']); ?>" required>
-                                                            </div>
-                                                            <div class="mb-4">
-                                                                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_role', 'Role'); ?></label>
-                                                                <select name="role" class="input-dark">
-                                                                    <option value="player" <?php echo $user['role'] === 'player' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_player', 'Player'); ?></option>
-                                                                    <option value="moderator" <?php echo $user['role'] === 'moderator' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_moderator', 'Moderator'); ?></option>
-                                                                    <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_admin', 'Admin'); ?></option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="flex justify-end gap-4 pt-4">
-                                                                <button type="button" class="btn-iron" onclick="closeModal('editModal-<?php echo $user['account_id']; ?>')"><?php echo translate('admin_users_cancel_button', 'Cancel'); ?></button>
-                                                                <button type="submit" class="btn-gold"><?php echo translate('admin_users_save_button', 'Save'); ?></button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                </div>
                                             <?php endwhile; ?>
                                         <?php endif; ?>
                                         <?php $users_result->free(); ?>
@@ -877,7 +841,7 @@ function buildQueryString($exclude = []) {
                                                     <td><?php echo getGMLevel($account['gmlevel'] ?? null); ?></td>
                                                     <td>
                                                         <?php if (!empty($account['characters'])): ?>
-                                                            <button class="btn-iron btn-iron-sm" onclick="openModal('charsModal-<?php echo $account['id']; ?>')">
+                                                            <button type="button" class="btn-iron btn-iron-sm open-modal-btn" data-modal="charsModal-<?php echo $account['id']; ?>">
                                                                 <i class="fas fa-users"></i> <?php echo count($account['characters']); ?>
                                                             </button>
                                                         <?php else: ?>
@@ -885,93 +849,11 @@ function buildQueryString($exclude = []) {
                                                         <?php endif; ?>
                                                     </td>
                                                     <td>
-                                                        <button class="btn-iron btn-iron-sm" onclick="openModal('manageModal-<?php echo $account['id']; ?>')">
+                                                        <button type="button" class="btn-iron btn-iron-sm open-modal-btn" data-modal="manageModal-<?php echo $account['id']; ?>">
                                                             <i class="fas fa-cog"></i> <?php echo translate('admin_users_manage_button', 'Manage'); ?>
                                                         </button>
                                                     </td>
                                                 </tr>
-
-                                                <!-- Characters Modal -->
-                                                <div id="charsModal-<?php echo $account['id']; ?>" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-backdrop">
-                                                    <div class="panel w-full max-w-2xl p-6 md:p-8 relative max-h-[90vh] overflow-y-auto">
-                                                        <button class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl" onclick="closeModal('charsModal-<?php echo $account['id']; ?>')">&times;</button>
-                                                        <h3 class="wow-title text-2xl mb-6 flex items-center gap-3">
-                                                            <i class="fas fa-users text-[#f2cf5b]"></i>
-                                                            <?php echo translate('admin_users_characters_title', 'Characters for') . ' ' . htmlspecialchars($account['username']); ?>
-                                                            <span class="text-sm text-gray-400">(<?php echo count($account['characters']); ?> <?php echo translate('admin_users_total', 'total'); ?>)</span>
-                                                        </h3>
-                                                        <div class="character-grid">
-                                                            <?php foreach ($account['characters'] as $char): ?>
-                                                                <div class="character-item">
-                                                                    <?php echo getFactionIcon($char['race']); ?>
-                                                                    <?php echo getRaceIcon($char['race'], $char['gender']); ?>
-                                                                    <?php echo getClassIcon($char['class']); ?>
-                                                                    <span class="char-name"><?php echo htmlspecialchars($char['name']); ?></span>
-                                                                    <span class="char-level">Lv <?php echo $char['level']; ?></span>
-                                                                </div>
-                                                            <?php endforeach; ?>
-                                                        </div>
-                                                        <div class="flex justify-end pt-4 mt-4 border-t border-[rgba(201,162,39,.1)]">
-                                                            <button class="btn-iron" onclick="closeModal('charsModal-<?php echo $account['id']; ?>')"><?php echo translate('admin_users_close_button', 'Close'); ?></button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Manage Modal -->
-                                                <div id="manageModal-<?php echo $account['id']; ?>" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-backdrop">
-                                                    <div class="panel w-full max-w-lg p-6 md:p-8 relative max-h-[90vh] overflow-y-auto">
-                                                        <button class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl" onclick="closeModal('manageModal-<?php echo $account['id']; ?>')">&times;</button>
-                                                        <h3 class="wow-title text-2xl mb-6"><?php echo translate('admin_users_manage_modal_title', 'Manage Account: ') . htmlspecialchars($account['username']); ?></h3>
-                                                        <form method="POST" action="<?php echo $base_path; ?>admin/users">
-                                                            <input type="hidden" name="action" value="manage_account">
-                                                            <input type="hidden" name="account_id" value="<?php echo $account['id']; ?>">
-                                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                                            
-                                                            <div class="mb-4">
-                                                                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_action', 'Action'); ?></label>
-                                                                <select name="ban_action" class="input-dark" id="banAction-<?php echo $account['id']; ?>" onchange="toggleBanFields('<?php echo $account['id']; ?>')">
-                                                                    <option value="change_gm_role"><?php echo translate('admin_users_action_change_gm_role', 'Change GM Role'); ?></option>
-                                                                    <option value="ban"><?php echo translate('admin_users_action_ban', 'Ban Account'); ?></option>
-                                                                    <?php if (!empty($account['banInfo'])): ?>
-                                                                        <option value="unban"><?php echo translate('admin_users_action_unban', 'Unban Account'); ?></option>
-                                                                    <?php endif; ?>
-                                                                </select>
-                                                            </div>
-                                                            
-                                                            <div id="banFields-<?php echo $account['id']; ?>" class="hidden">
-                                                                <div class="mb-4">
-                                                                    <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_ban_reason', 'Ban Reason'); ?></label>
-                                                                    <input type="text" name="ban_reason" class="input-dark" placeholder="<?php echo translate('admin_users_ban_reason_placeholder', 'Enter ban reason'); ?>">
-                                                                </div>
-                                                                <div class="mb-4">
-                                                                    <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_ban_duration', 'Ban Duration'); ?></label>
-                                                                    <select name="ban_duration" class="input-dark">
-                                                                        <option value="3600"><?php echo translate('admin_users_ban_duration_1hour', '1 Hour'); ?></option>
-                                                                        <option value="86400"><?php echo translate('admin_users_ban_duration_1day', '1 Day'); ?></option>
-                                                                        <option value="604800"><?php echo translate('admin_users_ban_duration_7days', '7 Days'); ?></option>
-                                                                        <option value="2592000"><?php echo translate('admin_users_ban_duration_30days', '30 Days'); ?></option>
-                                                                        <option value="permanent"><?php echo translate('admin_users_ban_duration_permanent', 'Permanent'); ?></option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            <div class="mb-4">
-                                                                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_gm_level', 'GM Level'); ?></label>
-                                                                <select name="gmlevel" class="input-dark">
-                                                                    <option value="player" <?php echo is_null($account['gmlevel']) ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_player', 'Player'); ?></option>
-                                                                    <option value="1" <?php echo isset($account['gmlevel']) && $account['gmlevel'] === 1 ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_1', 'GM Level 1'); ?></option>
-                                                                    <option value="2" <?php echo isset($account['gmlevel']) && $account['gmlevel'] === 2 ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_2', 'GM Level 2'); ?></option>
-                                                                    <option value="3" <?php echo isset($account['gmlevel']) && $account['gmlevel'] === 3 ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_3', 'GM Level 3'); ?></option>
-                                                                </select>
-                                                            </div>
-                                                            
-                                                            <div class="flex justify-end gap-4 pt-4">
-                                                                <button type="button" class="btn-iron" onclick="closeModal('manageModal-<?php echo $account['id']; ?>')"><?php echo translate('admin_users_cancel_button', 'Cancel'); ?></button>
-                                                                <button type="submit" class="btn-gold"><?php echo translate('admin_users_apply_button', 'Apply'); ?></button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                </div>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </tbody>
@@ -1006,30 +888,227 @@ function buildQueryString($exclude = []) {
         </main>
     </div>
 
-    <script>
-        function openModal(id) {
-            document.getElementById(id).classList.remove('hidden');
-            document.getElementById(id).classList.add('flex');
+    <!-- Modals Container - All modals go here -->
+    <div id="modals-container">
+        <!-- Edit Modals for Website Users -->
+        <?php 
+        // Reset and re-fetch users for modals
+        $stmt = $site_db->prepare($users_query);
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
         }
-        
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-            document.getElementById(id).classList.remove('flex');
+        $stmt->execute();
+        $modal_users_result = $stmt->get_result();
+        while ($user = $modal_users_result->fetch_assoc()): 
+        ?>
+            <div id="editModal-<?php echo $user['account_id']; ?>" class="modal-backdrop">
+                <div class="panel w-full max-w-lg p-6 md:p-8 relative max-h-[90vh] overflow-y-auto">
+                    <button type="button" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl close-modal-btn" data-modal="editModal-<?php echo $user['account_id']; ?>">&times;</button>
+                    <h3 class="wow-title text-2xl mb-6"><?php echo translate('admin_users_edit_modal_title', 'Edit User: ') . htmlspecialchars($user['username']); ?></h3>
+                    <form method="POST" action="<?php echo $base_path; ?>admin/users">
+                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="account_id" value="<?php echo $user['account_id']; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_username', 'Username'); ?></label>
+                            <input type="text" class="input-dark" value="<?php echo htmlspecialchars($user['username']); ?>" disabled>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_email', 'Email'); ?></label>
+                            <input type="email" name="email" class="input-dark" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_points', 'Points'); ?></label>
+                            <input type="number" name="points" class="input-dark" value="<?php echo htmlspecialchars($user['points']); ?>" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_tokens', 'Tokens'); ?></label>
+                            <input type="number" name="tokens" class="input-dark" value="<?php echo htmlspecialchars($user['tokens']); ?>" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_role', 'Role'); ?></label>
+                            <select name="role" class="input-dark">
+                                <option value="player" <?php echo $user['role'] === 'player' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_player', 'Player'); ?></option>
+                                <option value="moderator" <?php echo $user['role'] === 'moderator' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_moderator', 'Moderator'); ?></option>
+                                <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_admin', 'Admin'); ?></option>
+                            </select>
+                        </div>
+                        <div class="flex justify-end gap-4 pt-4">
+                            <button type="button" class="btn-iron close-modal-btn" data-modal="editModal-<?php echo $user['account_id']; ?>"><?php echo translate('admin_users_cancel_button', 'Cancel'); ?></button>
+                            <button type="submit" class="btn-gold"><?php echo translate('admin_users_save_button', 'Save'); ?></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <?php endwhile; 
+        $modal_users_result->free();
+        $stmt->close();
+        ?>
+
+        <!-- Character Modals for In-Game Accounts -->
+        <?php foreach ($accounts as $account): ?>
+            <!-- Characters Modal -->
+            <div id="charsModal-<?php echo $account['id']; ?>" class="modal-backdrop">
+                <div class="panel w-full max-w-2xl p-6 md:p-8 relative max-h-[90vh] overflow-y-auto">
+                    <button type="button" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl close-modal-btn" data-modal="charsModal-<?php echo $account['id']; ?>">&times;</button>
+                    <h3 class="wow-title text-2xl mb-6 flex items-center gap-3">
+                        <i class="fas fa-users text-[#f2cf5b]"></i>
+                        <?php echo translate('admin_users_characters_title', 'Characters for') . ' ' . htmlspecialchars($account['username']); ?>
+                        <span class="text-sm text-gray-400">(<?php echo isset($account['characters']) ? count($account['characters']) : 0; ?> <?php echo translate('admin_users_total', 'total'); ?>)</span>
+                    </h3>
+                    <div class="character-grid">
+                        <?php if (!empty($account['characters'])): ?>
+                            <?php foreach ($account['characters'] as $char): ?>
+                                <div class="character-item">
+                                    <?php echo getFactionIcon($char['race']); ?>
+                                    <?php echo getRaceIcon($char['race'], $char['gender']); ?>
+                                    <?php echo getClassIcon($char['class']); ?>
+                                    <span class="char-name"><?php echo htmlspecialchars($char['name']); ?></span>
+                                    <span class="char-level"><?php echo translate('admin_users_level_prefix', 'Lv'); ?> <?php echo $char['level']; ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="text-gray-400 col-span-full text-center"><?php echo translate('admin_users_no_characters', 'No characters found.'); ?></p>
+                        <?php endif; ?>
+                    </div>
+                    <div class="flex justify-end pt-4 mt-4 border-t border-[rgba(201,162,39,.1)]">
+                        <button type="button" class="btn-iron close-modal-btn" data-modal="charsModal-<?php echo $account['id']; ?>"><?php echo translate('admin_users_close_button', 'Close'); ?></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Modal -->
+            <div id="manageModal-<?php echo $account['id']; ?>" class="modal-backdrop">
+                <div class="panel w-full max-w-lg p-6 md:p-8 relative max-h-[90vh] overflow-y-auto">
+                    <button type="button" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl close-modal-btn" data-modal="manageModal-<?php echo $account['id']; ?>">&times;</button>
+                    <h3 class="wow-title text-2xl mb-6"><?php echo translate('admin_users_manage_modal_title', 'Manage Account: ') . htmlspecialchars($account['username']); ?></h3>
+                    <form method="POST" action="<?php echo $base_path; ?>admin/users">
+                        <input type="hidden" name="action" value="manage_account">
+                        <input type="hidden" name="account_id" value="<?php echo $account['id']; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_action', 'Action'); ?></label>
+                            <select name="ban_action" class="input-dark ban-action-select" data-account-id="<?php echo $account['id']; ?>">
+                                <option value="change_gm_role"><?php echo translate('admin_users_action_change_gm_role', 'Change GM Role'); ?></option>
+                                <option value="ban"><?php echo translate('admin_users_action_ban', 'Ban Account'); ?></option>
+                                <?php if (!empty($account['banInfo'])): ?>
+                                    <option value="unban"><?php echo translate('admin_users_action_unban', 'Unban Account'); ?></option>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        
+                        <div class="ban-fields-<?php echo $account['id']; ?>" style="display:none;">
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_ban_reason', 'Ban Reason'); ?></label>
+                                <input type="text" name="ban_reason" class="input-dark" placeholder="<?php echo translate('admin_users_ban_reason_placeholder', 'Enter ban reason'); ?>">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_ban_duration', 'Ban Duration'); ?></label>
+                                <select name="ban_duration" class="input-dark">
+                                    <option value="3600"><?php echo translate('admin_users_ban_duration_1hour', '1 Hour'); ?></option>
+                                    <option value="86400"><?php echo translate('admin_users_ban_duration_1day', '1 Day'); ?></option>
+                                    <option value="604800"><?php echo translate('admin_users_ban_duration_7days', '7 Days'); ?></option>
+                                    <option value="2592000"><?php echo translate('admin_users_ban_duration_30days', '30 Days'); ?></option>
+                                    <option value="permanent"><?php echo translate('admin_users_ban_duration_permanent', 'Permanent'); ?></option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_gm_level', 'GM Level'); ?></label>
+                            <select name="gmlevel" class="input-dark">
+                                <option value="player" <?php echo is_null($account['gmlevel']) ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_player', 'Player'); ?></option>
+                                <option value="1" <?php echo isset($account['gmlevel']) && $account['gmlevel'] == 1 ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_1', 'GM Level 1'); ?></option>
+                                <option value="2" <?php echo isset($account['gmlevel']) && $account['gmlevel'] == 2 ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_2', 'GM Level 2'); ?></option>
+                                <option value="3" <?php echo isset($account['gmlevel']) && $account['gmlevel'] == 3 ? 'selected' : ''; ?>><?php echo translate('admin_users_gmlevel_3', 'GM Level 3'); ?></option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex justify-end gap-4 pt-4">
+                            <button type="button" class="btn-iron close-modal-btn" data-modal="manageModal-<?php echo $account['id']; ?>"><?php echo translate('admin_users_cancel_button', 'Cancel'); ?></button>
+                            <button type="submit" class="btn-gold"><?php echo translate('admin_users_apply_button', 'Apply'); ?></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+    <script>
+        // Modal functions
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            modal.classList.add('active');
         }
 
-        function toggleBanFields(id) {
-            const action = document.getElementById('banAction-' + id);
-            const banFields = document.getElementById('banFields-' + id);
-            if (action && banFields) {
-                banFields.style.display = action.value === 'ban' ? 'block' : 'none';
-            }
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            modal.classList.remove('active');
         }
+
+        // Event listeners for opening modals
+        document.addEventListener('click', function(e) {
+            // Open modal button
+            const openBtn = e.target.closest('.open-modal-btn');
+            if (openBtn) {
+                e.preventDefault();
+                const modalId = openBtn.getAttribute('data-modal');
+                if (modalId) {
+                    openModal(modalId);
+                }
+                return;
+            }
+
+            // Close modal button
+            const closeBtn = e.target.closest('.close-modal-btn');
+            if (closeBtn) {
+                e.preventDefault();
+                const modalId = closeBtn.getAttribute('data-modal');
+                if (modalId) {
+                    closeModal(modalId);
+                }
+                return;
+            }
+
+            // Click outside modal to close
+            if (e.target.classList.contains('modal-backdrop') && e.target.classList.contains('active')) {
+                closeModal(e.target.id);
+            }
+        });
+
+        // Toggle ban fields
+        document.addEventListener('change', function(e) {
+            const select = e.target.closest('.ban-action-select');
+            if (select) {
+                const accountId = select.getAttribute('data-account-id');
+                const banFields = document.querySelector('.ban-fields-' + accountId);
+                if (banFields) {
+                    banFields.style.display = select.value === 'ban' ? 'block' : 'none';
+                }
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-backdrop.active').forEach(function(modal) {
+                    modal.classList.remove('active');
+                });
+            }
+        });
 
         // Initialize ban fields on page load
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('[id^="banAction-"]').forEach(function(el) {
-                const id = el.id.replace('banAction-', '');
-                toggleBanFields(id);
+            document.querySelectorAll('.ban-action-select').forEach(function(select) {
+                const accountId = select.getAttribute('data-account-id');
+                const banFields = document.querySelector('.ban-fields-' + accountId);
+                if (banFields) {
+                    banFields.style.display = select.value === 'ban' ? 'block' : 'none';
+                }
             });
         });
     </script>
