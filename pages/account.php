@@ -4,6 +4,7 @@ define('ALLOWED_ACCESS', true);
 require_once __DIR__ . '/../includes/paths.php'; // Include paths.php
 require_once $project_root . 'includes/session.php';
 require_once $project_root . 'includes/srp6.php';
+require_once $project_root . 'includes/config.mail.php';
 require_once $project_root . 'languages/language.php'; // Include language file for translations
 
 // Early session validation
@@ -40,6 +41,72 @@ if (isset($_SESSION['debug_errors'])) {
     unset($_SESSION['debug_errors']);
 }
 
+function isSmtpEnabled(): bool {
+    global $smtp_enabled;
+    return isset($smtp_enabled) && $smtp_enabled === true;
+}
+
+function sendAccountSecurityEmail(string $username, string $email, string $eventType, ?string $newEmail = null): bool {
+    global $base_path;
+
+    if (!isSmtpEnabled()) {
+        return false;
+    }
+
+    try {
+        $mail = getMailer();
+        $mail->addAddress($email, $username);
+
+        $logo_path = __DIR__ . '/../img/logo.png';
+        if (file_exists($logo_path)) {
+            $mail->AddEmbeddedImage($logo_path, 'logo_cid');
+        }
+
+        $is_email_change = $eventType === 'email_changed';
+        $subject = $is_email_change
+            ? translate('email_subject_email_changed', 'Account Email Changed')
+            : translate('email_subject_password_changed', 'Account Password Changed');
+        $success_message = $is_email_change
+            ? translate('email_account_email_changed', 'The email address on your account has been changed.')
+            : translate('email_account_password_changed', 'The password on your account has been changed.');
+        $details = $is_email_change && $newEmail
+            ? sprintf(translate('email_account_new_email', 'New email address: %s'), htmlspecialchars($newEmail))
+            : translate('email_account_password_notice', 'You can continue logging in with your new password.');
+        $warning = translate('email_contact_support', 'If you did not perform this action, please contact support immediately.');
+
+        $mail->Subject = $subject;
+        $mail->Body = "<html><body style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0a0e16; color: #d8d8d8;'>";
+        $mail->Body .= "<div style='background: linear-gradient(135deg, #161920, #0a0e16); border: 1px solid rgba(201,162,39,0.22); padding: 30px; border-radius: 8px;'>";
+
+        if (file_exists($logo_path)) {
+            $mail->Body .= "<div style='text-align: center; margin-bottom: 20px;'><img src='cid:logo_cid' alt='Sahtout logo' style='max-width: 200px;'></div>";
+        }
+
+        $greeting = translate('email_greeting', 'Welcome, {username}!');
+        $mail->Body .= "<h2 style='color: #f2cf5b; font-family: Cinzel, serif; text-align: center;'>" . str_replace('{username}', htmlspecialchars($username), $greeting) . "</h2>";
+        $mail->Body .= "<div style='text-align: center; background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 20px; border-radius: 8px; margin: 20px 0;'>";
+        $mail->Body .= "<p style='font-size: 18px; color: #2ecc71;'>" . $success_message . "</p>";
+        $mail->Body .= "<p style='font-size: 14px; color: #d8d8d8;'>" . $details . "</p>";
+        $mail->Body .= "</div>";
+        $mail->Body .= "<div style='background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.2); padding: 15px; border-radius: 8px; margin: 20px 0;'>";
+        $mail->Body .= "<p style='font-size: 13px; color: #e74c3c; text-align: center;'>" . $warning . "</p>";
+        $mail->Body .= "</div>";
+        $mail->Body .= "</div></body></html>";
+
+        $mail->AltBody = $success_message . "\n\n" . html_entity_decode(strip_tags($details), ENT_QUOTES, 'UTF-8') . "\n\n" . $warning . "\n\n" . translate('login_button', 'Login Now') . ': ' . $base_path . 'login';
+
+        if (!$mail->send()) {
+            error_log("Failed to send account security email to {$email}: " . $mail->ErrorInfo);
+            return false;
+        }
+
+        return true;
+    } catch (Exception $e) {
+        error_log("Account security email failed for {$email}: " . $e->getMessage());
+        return false;
+    }
+}
+
 // Handle form submissions before any output
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($auth_db->connect_error || $char_db->connect_error || $site_db->connect_error) {
@@ -73,18 +140,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $current_email = $result_current->num_rows === 1 ? $result_current->fetch_assoc()['email'] : '';
             $stmt_current->close();
 
-            // If new email is the same as current, allow update (no-op)
-            if ($new_email !== $current_email) {
-                // Check if email is used by another account
-                $stmt_check_email = $auth_db->prepare("SELECT id FROM account WHERE email = ? AND id != ?");
-                $stmt_check_email->bind_param('si', $new_email, $_SESSION['user_id']);
-                $stmt_check_email->execute();
-                $result = $stmt_check_email->get_result();
-                if ($result->num_rows > 0) {
-                    throw new Exception(translate('error_email_in_use', 'Email already in use by another account'));
-                }
-                $stmt_check_email->close();
+            if (strcasecmp(trim($new_email), trim($current_email)) === 0) {
+                throw new Exception(translate('error_email_same_as_current', 'New email must be different from your current email'));
             }
+
+            // Check if email is used by another account
+            $stmt_check_email = $auth_db->prepare("SELECT id FROM account WHERE email = ? AND id != ?");
+            $stmt_check_email->bind_param('si', $new_email, $_SESSION['user_id']);
+            $stmt_check_email->execute();
+            $result = $stmt_check_email->get_result();
+            if ($result->num_rows > 0) {
+                throw new Exception(translate('error_email_in_use', 'Email already in use by another account'));
+            }
+            $stmt_check_email->close();
 
             // Verify current password
             $stmt_verify = $auth_db->prepare("SELECT salt, verifier FROM account WHERE id = ?");
@@ -117,6 +185,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_log->execute();
             $stmt_log->close();
 
+            if ($current_email !== '') {
+                sendAccountSecurityEmail($_SESSION['username'], $current_email, 'email_changed', $new_email);
+            }
+
             $_SESSION['message'] = translate('message_email_updated', 'Email updated successfully!');
             header("Location: {$base_path}account");
             exit();
@@ -141,7 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception(translate('error_password_too_short', 'Password must be at least 6 characters'));
             }
 
-            $stmt = $auth_db->prepare("SELECT salt, verifier FROM account WHERE id = ?");
+            $stmt = $auth_db->prepare("SELECT salt, verifier, email FROM account WHERE id = ?");
             $stmt->bind_param('i', $_SESSION['user_id']);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -151,6 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             $row = $result->fetch_assoc();
+            $account_email = $row['email'] ?? '';
             if (!SRP6::VerifyPassword($_SESSION['username'], $current_password, $row['salt'], $row['verifier'])) {
                 throw new Exception(translate('error_incorrect_password', 'Current password is incorrect'));
             }
@@ -172,6 +245,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_log->bind_param('is', $_SESSION['user_id'], $action);
             $stmt_log->execute();
             $stmt_log->close();
+
+            if ($account_email !== '') {
+                sendAccountSecurityEmail($_SESSION['username'], $account_email, 'password_changed');
+            }
 
             $_SESSION['message'] = translate('message_password_changed', 'Password changed successfully!');
             header("Location: {$base_path}account");

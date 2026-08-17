@@ -196,7 +196,16 @@ return [
 'btn_save_test_smtp' => 'Enregistrer et tester SMTP',
 'helper_smtp_custom_domain_example' => 'généralement mail.votredomaine.com',
 'helper_smtp_li6' => 'L\'"Email de l\'expéditeur" peut être le même que votre utilisateur SMTP ou un autre expéditeur que vous possédez.',
-    // ========================================
+   'err_smtp_from_required'      => 'L\'email de provenance est requis.',
+'err_smtp_port_invalid'       => 'Le port doit être compris entre 1 et 65535.',
+'err_smtp_secure_invalid'     => 'Le chiffrement doit être tls, ssl ou vide.',
+'msg_test_email_sent_to'      => 'Email de test envoyé à %s',
+'msg_mail_saved_disabled'     => 'Configuration email enregistrée avec SMTP désactivé.',
+'info_test_email'             => 'Un email de test sera envoyé à votre adresse email pour vérifier la configuration.',
+'smtp_mail_enabled'           => 'Activé',
+'smtp_mail_missing'           => 'Désactivé',
+'btn_go_back'                 => 'Retour',
+// ========================================
     // === STEP6_SOAP.PHP ===
     // ========================================
     'step6_title'                 => 'Étape 6 : Configuration SOAP',

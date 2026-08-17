@@ -197,7 +197,16 @@ return [
 'btn_save_test_smtp' => '保存并测试 SMTP',
 'helper_smtp_custom_domain_example' => '通常是 mail.yourdomain.com',
 'helper_smtp_li6' => '"发件人邮箱" 可以与 SMTP 用户相同，也可以是您拥有的其他发件地址。',
-    // ========================================
+   'err_smtp_from_required'      => '发件人邮箱是必填项。',
+'err_smtp_port_invalid'       => '端口必须在 1 到 65535 之间。',
+'err_smtp_secure_invalid'     => '加密方式必须为 tls、ssl 或留空。',
+'msg_test_email_sent_to'      => '测试邮件已发送至 %s',
+'msg_mail_saved_disabled'     => '已保存邮件配置，SMTP 已禁用。',
+'info_test_email'             => '将向您的邮箱发送一封测试邮件以验证配置。',
+'smtp_mail_enabled'           => '已启用',
+'smtp_mail_missing'           => '已禁用',
+'btn_go_back'                 => '返回',
+// ========================================
     // === STEP6_SOAP.PHP ===
     // ========================================
     'step6_title'                 => '步骤 6：SOAP 设置',

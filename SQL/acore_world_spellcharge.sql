@@ -1,3 +1,5 @@
+USE `acore_world`;
+
 /*For mounts and pets*/
 UPDATE item_template
 SET spellcharges_1 = -1

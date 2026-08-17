@@ -48,6 +48,111 @@ if (!$stmt_cleanup->execute()) {
 }
 $stmt_cleanup->close();
 
+// Make sure getMailer function exists
+if (!function_exists('getMailer')) {
+    function getMailer() {
+        global $smtp_enabled, $smtp_host, $smtp_user, $smtp_pass, $smtp_from, $smtp_name, $smtp_port, $smtp_secure;
+        
+        require_once __DIR__ . '/../vendor/autoload.php';
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        
+        try {
+            $mail->CharSet = 'UTF-8';
+            
+            // Check if SMTP is enabled
+            if (isset($smtp_enabled) && $smtp_enabled === true) {
+                $mail->isSMTP();
+                $mail->Host = $smtp_host ?? '';
+                $mail->SMTPAuth = true;
+                $mail->Username = $smtp_user ?? '';
+                $mail->Password = $smtp_pass ?? '';
+                $mail->SMTPSecure = $smtp_secure ?? 'tls';
+                $mail->Port = isset($smtp_port) ? (int)$smtp_port : 587;
+                $mail->setFrom($smtp_from ?? 'noreply@yourdomain.com', $smtp_name ?? 'Sahtout Account');
+            } else {
+                // Fallback to PHP mail() function
+                $mail->isMail();
+                $mail->setFrom('noreply@yourdomain.com', 'Sahtout Account');
+            }
+            
+            $mail->isHTML(true);
+        } catch (Exception $e) {
+            error_log("Failed to create mailer: " . $e->getMessage());
+        }
+        
+        return $mail;
+    }
+}
+
+// Make sure sendResetEmail function exists
+if (!function_exists('sendResetEmail')) {
+    function sendResetEmail($username, $email, $token) {
+        global $errors, $site_url, $base_path;
+        
+        try {
+            $mail = getMailer();
+            $mail->addAddress($email, $username);
+            
+            // Add logo if exists
+            $logo_path = __DIR__ . '/../img/logo.png';
+            if (file_exists($logo_path)) {
+                $mail->AddEmbeddedImage($logo_path, 'logo_cid');
+            }
+            
+            $mail->Subject = translate('email_subject', 'Password Reset Request');
+            $reset_link = $site_url . "reset_password?token=" . urlencode($token);
+            
+            // Build HTML email
+            $mail->Body = "<html><body style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0a0e16; color: #d8d8d8;'>";
+            $mail->Body .= "<div style='background: linear-gradient(135deg, #161920, #0a0e16); border: 1px solid rgba(201,162,39,0.22); padding: 30px; border-radius: 8px;'>";
+            
+            // Logo
+            if (file_exists($logo_path)) {
+                $mail->Body .= "<div style='text-align: center; margin-bottom: 20px;'>
+                    <img src='cid:logo_cid' alt='Sahtout logo' style='max-width: 200px;'>
+                </div>";
+            }
+            
+            // Greeting
+            $greeting = translate('email_greeting', 'Welcome, {username}!');
+            $mail->Body .= "<h2 style='color: #f2cf5b; font-family: Cinzel, serif; text-align: center;'>" . str_replace('{username}', htmlspecialchars($username), $greeting) . "</h2>";
+            
+            // Request message
+            $mail->Body .= "<p style='text-align: center; font-size: 16px;'>" . translate('email_request', 'You requested a password reset. Please click the button below to reset your password:') . "</p>";
+            
+            // Reset button
+            $button_text = translate('email_button', 'Reset Password');
+            $mail->Body .= "<div style='text-align: center; margin: 30px 0;'>
+                <a href='$reset_link' style='background: linear-gradient(180deg, #f6d478, #c9a227, #8a6a14); color: #1a1200; padding: 14px 35px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;'>
+                    $button_text
+                </a>
+            </div>";
+            
+            // Expiry warning
+            $mail->Body .= "<p style='text-align: center; font-size: 13px; color: #96aac8;'>" . translate('email_expiry', 'This link will expire in 1 minute. If you didn\'t request this, please ignore this email.') . "</p>";
+            
+            // Plain text link fallback
+            $mail->Body .= "<hr style='border-color: rgba(201,162,39,0.1); margin: 20px 0;'>";
+            $mail->Body .= "<p style='text-align: center; font-size: 12px; color: #6a7a8a;'>If the button doesn't work, copy and paste this link into your browser:</p>";
+            $mail->Body .= "<p style='text-align: center; font-size: 12px; word-break: break-all;'><a href='$reset_link' style='color: #f2cf5b;'>$reset_link</a></p>";
+            
+            $mail->Body .= "</div></body></html>";
+            
+            // Alternative text for email clients that don't support HTML
+            $alt_body = translate('email_request', 'You requested a password reset.') . "\n\n";
+            $alt_body .= translate('email_button', 'Reset Password') . ": " . $reset_link . "\n\n";
+            $alt_body .= translate('email_expiry', 'This link will expire in 1 minute. If you didn\'t request this, please ignore this email.');
+            $mail->AltBody = $alt_body;
+            
+            return $mail->send();
+        } catch (Exception $e) {
+            error_log("Email sending failed for {$email}: " . $e->getMessage());
+            $errors[] = translate('error_email_failed', 'Failed to send reset email. Please contact support.') . ' ' . $e->getMessage();
+            return false;
+        }
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username_or_email = trim($_POST['username_or_email'] ?? '');
 
@@ -171,7 +276,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     $stmt_insert = $site_db->prepare("INSERT INTO password_resets (email, token, expires_at, used) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 MINUTE), 0)");
                                     $stmt_insert->bind_param('ss', $email, $token);
                                     if ($stmt_insert->execute()) {
-                                        if (defined('SMTP_ENABLED') && SMTP_ENABLED) {
+                                        // Check if SMTP is enabled from config.mail.php
+                                        global $smtp_enabled;
+                                        $is_smtp_enabled = isset($smtp_enabled) && $smtp_enabled === true;
+                                        
+                                        if ($is_smtp_enabled) {
                                             $email_sent = sendResetEmail($username, $email, $token);
                                             if ($email_sent) {
                                                 $success = translate('success_email_sent', 'If the provided username or email exists, a password reset link has been sent.');
@@ -179,6 +288,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 $errors[] = translate('error_email_failed', 'Failed to send reset email. Please contact support.');
                                             }
                                         } else {
+                                            // SMTP is disabled - show admin contact message
                                             $success = translate('success_no_email', 'A reset password token has been created. Contact the admin to provide you the link to change your password.');
                                         }
                                     } else {
@@ -198,27 +308,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
-function sendResetEmail($username, $email, $token) {
-    global $errors, $site_url;
-    try {
-        $mail = getMailer();
-        $mail->addAddress($email, $username);
-        $mail->AddEmbeddedImage('logo.png', 'logo_cid');
-        $mail->Subject = translate('email_subject', 'Password Reset Request');
-        $reset_link = $site_url. "reset_password?token=$token";
-        $mail->Body = "<h2>" . str_replace('{username}', htmlspecialchars($username), translate('email_greeting', 'Welcome, {username}!')) . "</h2>
-            <img src='cid:logo_cid' alt='Sahtout logo'>
-            <p>" . translate('email_request', 'You requested a password reset. Please click the button below to reset your password:') . "</p>
-            <p><a href='$reset_link' style='background-color:#ffd700;color:#000;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;'>" . translate('email_button', 'Reset Password') . "</a></p>
-            <p>" . translate('email_expiry', 'This link will expire in 1 minute. If you didn\'t request this, please ignore this email.') . "</p>";
-        return $mail->send();
-    } catch (Exception $e) {
-        error_log("Email sending failed for {$email}: " . $e->getMessage());
-        $errors[] = translate('error_email_failed', 'Failed to send email: ') . $e->getMessage();
-        return false;
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -227,7 +316,7 @@ function sendResetEmail($username, $email, $token) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content="<?php echo translate('meta_description', 'Request a password reset link for your World of Warcraft server account.'); ?>">
-    <title><?php echo $site_title_name ." ". translate('page_title', 'Forgot Password'); ?></title>
+    <title><?php echo $site_title_name ." ". translate('page_title', ' - Forgot Password'); ?></title>
     
     <!-- Tailwind CSS -->
     <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
@@ -380,7 +469,7 @@ function sendResetEmail($username, $email, $token) {
                 
                 <!-- Login Link -->
                 <div class="text-center pt-2 text-gray-300 text-sm">
-                    <?php echo translate('remembered_password', 'Remembered your password?'); ?>
+                    <?php echo translate('remembered_password', 'Did you remember your password?'); ?>
                     <a href="<?php echo htmlspecialchars($base_path . 'login'); ?>" class="text-[#f2cf5b] font-bold hover:text-yellow-300 hover:underline transition-colors">
                         <?php echo translate('login_link_text_simple', 'Log in here'); ?>
                     </a>

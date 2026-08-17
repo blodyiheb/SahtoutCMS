@@ -195,7 +195,16 @@ return [
 'btn_save_test_smtp' => 'Salvar e testar SMTP',
 'helper_smtp_custom_domain_example' => 'geralmente mail.seudominio.com',
 'helper_smtp_li6' => 'O "Email do Remetente" pode ser o mesmo que seu usuário SMTP ou um remetente diferente que você possua.',
-    // ========================================
+    'err_smtp_from_required'      => 'O e-mail de origem é obrigatório.',
+'err_smtp_port_invalid'       => 'A porta deve estar entre 1 e 65535.',
+'err_smtp_secure_invalid'     => 'A criptografia deve ser tls, ssl ou vazia.',
+'msg_test_email_sent_to'      => 'E-mail de teste enviado para %s',
+'msg_mail_saved_disabled'     => 'Configuração de e-mail salva com SMTP desativado.',
+'info_test_email'             => 'Um e-mail de teste será enviado para seu endereço de e-mail para verificar a configuração.',
+'smtp_mail_enabled'           => 'Ativado',
+'smtp_mail_missing'           => 'Desativado',
+'btn_go_back'                 => 'Voltar',
+// ========================================
     // === STEP6_SOAP.PHP ===
     // ========================================
     'step6_title'                 => 'Passo 6: Configuração SOAP',

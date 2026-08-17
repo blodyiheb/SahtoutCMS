@@ -20,6 +20,8 @@ return [
     'error_database' => 'Database error: ',
     'error_no_account' => 'No matching unactivated account found',
     'error_update_failed' => 'Update failed: ',
-    'error_email_failed' => 'Failed to send email: '
+    'error_email_failed' => 'Failed to send email: ',
+    'success_email_sent' => 'Activation email sent successfully to %s',
+'login_link_text_simple' => 'Log in here',
 ];
 ?>

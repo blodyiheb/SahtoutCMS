@@ -18,13 +18,139 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 $errors = [];
 $success = '';
 $test_username = isset($_GET['username']) && !empty($_GET['username']) ? strtoupper(trim($_GET['username'])) : '';
 $test_email = '';
+
+// Make sure getMailer function exists (fallback)
+if (!function_exists('getMailer')) {
+    function getMailer() {
+        global $smtp_enabled, $smtp_host, $smtp_user, $smtp_pass, $smtp_from, $smtp_name, $smtp_port, $smtp_secure;
+        
+        require_once __DIR__ . '/../vendor/autoload.php';
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        
+        try {
+            $mail->CharSet = 'UTF-8';
+            
+            // Check if SMTP is enabled
+            if (isset($smtp_enabled) && $smtp_enabled === true) {
+                $mail->isSMTP();
+                $mail->Host = $smtp_host ?? '';
+                $mail->SMTPAuth = true;
+                $mail->Username = $smtp_user ?? '';
+                $mail->Password = $smtp_pass ?? '';
+                $mail->SMTPSecure = $smtp_secure ?? 'tls';
+                $mail->Port = isset($smtp_port) ? (int)$smtp_port : 587;
+                $mail->setFrom($smtp_from ?? 'noreply@yourdomain.com', $smtp_name ?? 'Sahtout Account');
+            } else {
+                // Fallback to PHP mail() function
+                $mail->isMail();
+                $mail->setFrom('noreply@yourdomain.com', 'Sahtout Account');
+            }
+            
+            $mail->isHTML(true);
+        } catch (Exception $e) {
+            error_log("Failed to create mailer: " . $e->getMessage());
+        }
+        
+        return $mail;
+    }
+}
+
+// Function to send activation email with inline styles (same as original forgot_password)
+function sendActivationEmail($username, $email, $token) {
+    global $errors, $success, $site_url, $project_root, $base_path;
+    
+    try {
+        $mail = getMailer();
+        $mail->addAddress($email, $username);
+        
+        // Add logo if exists
+        $logo_path = __DIR__ . '/../img/logo.png';
+        if (file_exists($logo_path)) {
+            $mail->AddEmbeddedImage($logo_path, 'logo_cid');
+        }
+        
+        $mail->Subject = translate('email_subject', 'Activate Your Account');
+        $activation_link = $site_url . "activate?token=" . urlencode($token);
+        
+        // Build HTML Email with inline styling (same as original forgot_password)
+        $mail->Body = "<html><body style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0a0e16; color: #d8d8d8;'>";
+        $mail->Body .= "<div style='background: linear-gradient(135deg, #161920, #0a0e16); border: 1px solid rgba(201,162,39,0.22); padding: 30px; border-radius: 8px;'>";
+        
+        // Logo
+        if (file_exists($logo_path)) {
+            $mail->Body .= "<div style='text-align: center; margin-bottom: 20px;'>
+                <img src='cid:logo_cid' alt='Sahtout logo' style='max-width: 200px;'>
+            </div>";
+        }
+        
+        // Greeting
+        $greeting = translate('email_greeting', 'Welcome, {username}!');
+        $mail->Body .= "<h2 style='color: #f2cf5b; font-family: Cinzel, serif; text-align: center;'>" . str_replace('{username}', htmlspecialchars($username), $greeting) . "</h2>";
+        
+        // Thank you message
+        $mail->Body .= "<p style='text-align: center; font-size: 16px;'>" . translate('email_thanks', 'Thank you for registering. Please click the button below to activate your account:') . "</p>";
+        
+        // Activation button
+        $button_text = translate('email_button', 'Activate Account');
+        $mail->Body .= "<div style='text-align: center; margin: 30px 0;'>
+            <a href='$activation_link' style='background: linear-gradient(180deg, #f6d478, #c9a227, #8a6a14); color: #1a1200; padding: 14px 35px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;'>
+                $button_text
+            </a>
+        </div>";
+        
+        // Ignore message
+        $mail->Body .= "<p style='text-align: center; font-size: 13px; color: #96aac8;'>" . translate('email_ignore', 'If you didn\'t request this, please ignore this email.') . "</p>";
+        
+        // Plain text link fallback
+        $mail->Body .= "<hr style='border-color: rgba(201,162,39,0.1); margin: 20px 0;'>";
+        $mail->Body .= "<p style='text-align: center; font-size: 12px; color: #6a7a8a;'>If the button doesn't work, copy and paste this link into your browser:</p>";
+        $mail->Body .= "<p style='text-align: center; font-size: 12px; word-break: break-all;'><a href='$activation_link' style='color: #f2cf5b;'>$activation_link</a></p>";
+        
+        $mail->Body .= "</div></body></html>";
+        
+        // Alternative text for email clients that don't support HTML
+        $alt_body = translate('email_thanks', 'Thank you for registering. Please click the link below to activate your account:') . "\n\n";
+        $alt_body .= translate('email_button', 'Activate Account') . ": " . $activation_link . "\n\n";
+        $alt_body .= translate('email_ignore', 'If you didn\'t request this, please ignore this email.');
+        $mail->AltBody = $alt_body;
+        
+        if ($mail->send()) {
+            $success = sprintf(translate('success_email_sent', 'Activation email sent successfully to %s'), htmlspecialchars($email));
+            return true;
+        } else {
+            $errors[] = translate('error_email_failed', 'Failed to send email: ') . $mail->ErrorInfo;
+            return false;
+        }
+    } catch (Exception $e) {
+        error_log("Email sending failed for {$email}: " . $e->getMessage());
+        $errors[] = translate('error_email_failed', 'Email error: ') . $e->getMessage();
+        return false;
+    }
+}
+
+function updateToken($db, $username, $email, $new_token) {
+    global $errors;
+    $stmt = $db->prepare("UPDATE pending_accounts SET token = ?, created_at = NOW() WHERE username = ? AND email = ? AND activated = 0");
+    if (!$stmt) {
+        $errors[] = translate('error_database', 'Database error: ') . $db->error;
+        return false;
+    }
+    $stmt->bind_param('sss', $new_token, $username, $email);
+    if ($stmt->execute()) {
+        if ($stmt->affected_rows === 0) {
+            $errors[] = translate('error_no_account', 'No matching unactivated account found');
+            return false;
+        }
+        return true;
+    } else {
+        $errors[] = translate('error_update_failed', 'Update failed: ') . $stmt->error;
+        return false;
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $test_username = strtoupper(trim($_POST['username'] ?? ''));
@@ -50,52 +176,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (updateToken($site_db, $test_username, $test_email, $new_token)) {
             sendActivationEmail($test_username, $test_email, $new_token);
         }
-    }
-}
-
-function updateToken($db, $username, $email, $new_token) {
-    global $errors;
-    $stmt = $db->prepare("UPDATE pending_accounts SET token = ?, created_at = NOW() WHERE username = ? AND email = ? AND activated = 0");
-    if (!$stmt) {
-        $errors[] = translate('error_database', 'Database error: ') . $db->error;
-        return false;
-    }
-    $stmt->bind_param('sss', $new_token, $username, $email);
-    if ($stmt->execute()) {
-        if ($stmt->affected_rows === 0) {
-            $errors[] = translate('error_no_account', 'No matching unactivated account found');
-            return false;
-        }
-        return true;
-    } else {
-        $errors[] = translate('error_update_failed', 'Update failed: ') . $stmt->error;
-        return false;
-    }
-}
-function sendActivationEmail($username, $email, $token) {
-    global $errors, $success, $site_url;
-
-    try {
-        $mail = getMailer();
-        $mail->addAddress($email, $username);
-        $mail->AddEmbeddedImage('logo.png', 'logo_cid');
-        $mail->Subject = translate('email_subject', '[RESEND] Activate Your Account');
-
-        $activation_link = $site_url . "activate?token=$token";
-
-        $mail->Body = "<h2>" . str_replace('{username}', htmlspecialchars($username), translate('email_greeting', 'Welcome, {username}!')) . "</h2>
-            <img src='cid:logo_cid' alt='Sahtout logo'>
-            <p>" . translate('email_thanks', 'Thank you for registering. Please click the button below to activate your account:') . "</p>
-            <p><a href='$activation_link' style='background-color:#ffd700;color:#000;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;'>" . translate('email_button', 'Activate Account') . "</a></p>
-            <p>" . translate('email_ignore', 'If you didn\'t request this, please ignore this email.') . "</p>";
-
-        if ($mail->send()) {
-            $success = translate('success_email_sent', 'Activation email sent successfully to %s', htmlspecialchars($email));
-        } else {
-            $errors[] = translate('error_email_failed', 'Failed to send email: ') . $mail->ErrorInfo;
-        }
-    } catch (Exception $e) {
-        $errors[] = translate('error_email_failed', 'Email error: ') . $e->getMessage();
     }
 }
 ?>

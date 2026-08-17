@@ -196,7 +196,16 @@ return [
 'btn_save_test_smtp' => 'Guardar y probar SMTP',
 'helper_smtp_custom_domain_example' => 'generalmente mail.tudominio.com',
 'helper_smtp_li6' => 'El "Correo del remitente" puede ser el mismo que su usuario SMTP o un remitente diferente que posea.',
-    // ========================================
+   'err_smtp_from_required'      => 'El correo de origen es obligatorio.',
+'err_smtp_port_invalid'       => 'El puerto debe estar entre 1 y 65535.',
+'err_smtp_secure_invalid'     => 'El cifrado debe ser tls, ssl o estar vacío.',
+'msg_test_email_sent_to'      => 'Correo de prueba enviado a %s',
+'msg_mail_saved_disabled'     => 'Configuración de correo guardada con SMTP desactivado.',
+'info_test_email'             => 'Se enviará un correo de prueba a su dirección de correo para verificar la configuración.',
+'smtp_mail_enabled'           => 'Activado',
+'smtp_mail_missing'           => 'Desactivado',
+'btn_go_back'                 => 'Volver',
+// ========================================
     // === STEP6_SOAP.PHP ===
     // ========================================
     'step6_title'                 => 'Paso 6: Configuración SOAP',

@@ -196,6 +196,15 @@ return [
 'btn_save_test_smtp' => 'Save & Test SMTP',
 'helper_smtp_custom_domain_example' => 'usually mail.yourdomain.com',
 'helper_smtp_li6' => 'The "From Email" can be the same as your SMTP user or a different sender you own.',
+'err_smtp_from_required'      => 'From Email is required.',
+'err_smtp_port_invalid'       => 'Port must be between 1 and 65535.',
+'err_smtp_secure_invalid'     => 'Encryption must be tls, ssl, or empty.',
+'msg_test_email_sent_to'      => 'Test email sent to %s',
+'msg_mail_saved_disabled'     => 'Email configuration saved with SMTP disabled.',
+'info_test_email'             => 'A test email will be sent to your email address to verify the configuration.',
+'smtp_mail_enabled'           => 'Enabled',
+'smtp_mail_missing'           => 'Disabled',
+'btn_go_back'                 => 'Go Back',
     // ========================================
     // === STEP6_SOAP.PHP ===
     // ========================================

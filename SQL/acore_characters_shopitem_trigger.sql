@@ -4,6 +4,8 @@
 -- SE du serveur:                Linux
 -- HeidiSQL Version:             12.13.0.7147
 -- --------------------------------------------------------
+USE `acore_characters`;
+
 ALTER TABLE `mail` MODIFY `id` INT UNSIGNED NOT NULL AUTO_INCREMENT;
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET NAMES utf8 */;

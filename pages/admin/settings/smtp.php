@@ -27,19 +27,51 @@ $current_smtp_port = '587';
 $current_smtp_secure = 'tls';
 
 if (file_exists($configMailFile)) {
+    // Include the config file to load variables
     include $configMailFile;
-    $smtp_status = defined('SMTP_ENABLED') && SMTP_ENABLED ? 'enabled' : 'disabled';
+    
+    // Check if SMTP is enabled using the variable from config.mail.php
+    $smtp_status = (isset($smtp_enabled) && $smtp_enabled === true) ? 'enabled' : 'disabled';
+    
     if ($smtp_status === 'enabled') {
-        require_once $project_root . 'vendor/autoload.php';
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        $mail = getMailer();
-        $current_smtp_host = $mail->Host;
-        $current_smtp_user = $mail->Username;
-        $current_smtp_pass = '';
-        $current_smtp_from = $mail->From;
-        $current_smtp_name = $mail->FromName;
-        $current_smtp_port = $mail->Port;
-        $current_smtp_secure = $mail->SMTPSecure;
+        // Require autoload if not already loaded
+        if (!class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
+            require_once $project_root . 'vendor/autoload.php';
+        }
+        
+        // Check if getMailer function exists, if not, create it
+        if (!function_exists('getMailer')) {
+            // Define the function if it doesn't exist
+            function getMailer() {
+                global $smtp_host, $smtp_user, $smtp_pass, $smtp_from, $smtp_name, $smtp_port, $smtp_secure;
+                $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+                try {
+                    $mail->CharSet = 'UTF-8';
+                    $mail->isSMTP();
+                    $mail->Host = $smtp_host;
+                    $mail->SMTPAuth = true;
+                    $mail->Username = $smtp_user;
+                    $mail->Password = $smtp_pass;
+                    $mail->SMTPSecure = $smtp_secure;
+                    $mail->Port = (int)$smtp_port;
+                    $mail->setFrom($smtp_from, $smtp_name);
+                    $mail->isHTML(true);
+                } catch (Exception $e) {}
+                return $mail;
+            }
+        }
+        
+        // Now call getMailer() safely
+        if (function_exists('getMailer')) {
+            $mail = getMailer();
+            $current_smtp_host = $mail->Host;
+            $current_smtp_user = $mail->Username;
+            $current_smtp_pass = '';
+            $current_smtp_from = $mail->From;
+            $current_smtp_name = $mail->FromName;
+            $current_smtp_port = $mail->Port;
+            $current_smtp_secure = $mail->SMTPSecure;
+        }
     }
 }
 
@@ -63,8 +95,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($smtpPass)) {
             $errors[] = translate('err_smtp_pass_required', 'SMTP Password is required.');
         }
+        if (empty($smtpFrom)) {
+            $errors[] = translate('err_smtp_from_required', 'From Email is required.');
+        }
+        
+        // Validate port
+        if (!is_numeric($smtpPort) || $smtpPort < 1 || $smtpPort > 65535) {
+            $errors[] = translate('err_smtp_port_invalid', 'Port must be between 1 and 65535.');
+        }
+        
+        // Validate encryption
+        if (!in_array($smtpSecure, ['tls', 'ssl', ''])) {
+            $errors[] = translate('err_smtp_secure_invalid', 'Encryption must be tls, ssl, or empty.');
+        }
     }
 
+    // Test SMTP connection if enabled and no errors
     if (empty($errors) && $smtp_enabled) {
         require_once $project_root . 'vendor/autoload.php';
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
@@ -76,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail->Username = $smtpUser;
             $mail->Password = $smtpPass;
             $mail->SMTPSecure = $smtpSecure;
-            $mail->Port = $smtpPort;
+            $mail->Port = (int)$smtpPort;
             $mail->setFrom($smtpFrom, $smtpName);
             $mail->addAddress($smtpUser);
             $mail->Subject = translate('mail_test_subject', 'Test Email - Sahtout CMS');
@@ -95,7 +141,7 @@ if (!defined('ALLOWED_ACCESS')) {
     exit(translate('error_direct_access', 'Direct access to this file is not allowed.'));
 }
 
-define('SMTP_ENABLED', true);
+\$smtp_enabled = true;
 
 use PHPMailer\\PHPMailer\\PHPMailer;
 use PHPMailer\\PHPMailer\\Exception;
@@ -126,13 +172,12 @@ if (!defined('ALLOWED_ACCESS')) {
     exit(translate('error_direct_access', 'Direct access to this file is not allowed.'));
 }
 
+\$smtp_enabled = false;
+
 use PHPMailer\\PHPMailer\\PHPMailer;
 use PHPMailer\\PHPMailer\\Exception;
 
 require_once __DIR__ . '/../vendor/autoload.php';
-
-\$smtp_enabled = false;
-define('SMTP_ENABLED', \$smtp_enabled);
 
 function getMailer(): PHPMailer {
     \$mail = new PHPMailer(true);
@@ -362,7 +407,7 @@ function getMailer(): PHPMailer {
                             <!-- Enable SMTP Toggle -->
                             <div class="flex items-center gap-4 p-4 rounded-sm bg-[rgba(201,162,39,0.05)] border border-[rgba(201,162,39,0.1)]">
                                 <label class="toggle-switch">
-                                    <input type="checkbox" id="smtp_enabled" name="smtp_enabled" <?php echo isset($_POST['smtp_enabled']) || $smtp_status === 'enabled' ? 'checked' : ''; ?>>
+                                    <input type="checkbox" id="smtp_enabled" name="smtp_enabled" <?php echo (isset($_POST['smtp_enabled']) || $smtp_status === 'enabled') ? 'checked' : ''; ?>>
                                     <span class="toggle-slider"></span>
                                 </label>
                                 <div>
@@ -375,7 +420,7 @@ function getMailer(): PHPMailer {
                             </div>
 
                             <!-- SMTP Fields -->
-                            <div class="smtp-fields <?php echo isset($_POST['smtp_enabled']) || $smtp_status === 'enabled' ? 'active' : ''; ?> space-y-4">
+                            <div class="smtp-fields <?php echo (isset($_POST['smtp_enabled']) || $smtp_status === 'enabled') ? 'active' : ''; ?> space-y-4">
                                 <div>
                                     <label for="smtp_host" class="form-label text-[#f2cf5b] font-bold text-sm 
                                                                      tracking-wider block mb-2 
@@ -471,7 +516,8 @@ function getMailer(): PHPMailer {
                                                       focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
                                                       placeholder:text-[#96aac8]/40"
                                                placeholder="<?php echo translate('placeholder_port_tls_ssl', '587 for TLS'); ?>" 
-                                               value="<?php echo htmlspecialchars($_POST['smtp_port'] ?? $current_smtp_port); ?>">
+                                               value="<?php echo htmlspecialchars($_POST['smtp_port'] ?? $current_smtp_port); ?>"
+                                               min="1" max="65535">
                                     </div>
                                     <div>
                                         <label for="smtp_secure" class="form-label text-[#f2cf5b] font-bold text-sm 
@@ -485,9 +531,9 @@ function getMailer(): PHPMailer {
                                                        focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
                                                        focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
                                                        placeholder:text-[#96aac8]/40">
-                                            <option value="tls" <?php echo ($_POST['smtp_secure'] ?? $current_smtp_secure) === 'tls' ? 'selected' : ''; ?>>TLS (Recommended)</option>
-                                            <option value="ssl" <?php echo ($_POST['smtp_secure'] ?? $current_smtp_secure) === 'ssl' ? 'selected' : ''; ?>>SSL</option>
-                                            <option value="" <?php echo ($_POST['smtp_secure'] ?? $current_smtp_secure) === '' ? 'selected' : ''; ?>>None</option>
+                                            <option value="tls" <?php echo (isset($_POST['smtp_secure']) ? $_POST['smtp_secure'] : $current_smtp_secure) === 'tls' ? 'selected' : ''; ?>>TLS (Recommended)</option>
+                                            <option value="ssl" <?php echo (isset($_POST['smtp_secure']) ? $_POST['smtp_secure'] : $current_smtp_secure) === 'ssl' ? 'selected' : ''; ?>>SSL</option>
+                                            <option value="" <?php echo (isset($_POST['smtp_secure']) ? $_POST['smtp_secure'] : $current_smtp_secure) === '' ? 'selected' : ''; ?>>None</option>
                                         </select>
                                         <div class="text-[#6a7a8a] text-xs mt-1"><?php echo translate('help_smtp_secure', 'Most providers use TLS on port 587.'); ?></div>
                                     </div>

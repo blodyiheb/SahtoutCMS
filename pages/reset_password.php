@@ -25,31 +25,117 @@ $valid_token = false;
 $email = '';
 $username = '';
 
+// Make sure getMailer function exists (fallback)
+if (!function_exists('getMailer')) {
+    function getMailer() {
+        global $smtp_enabled, $smtp_host, $smtp_user, $smtp_pass, $smtp_from, $smtp_name, $smtp_port, $smtp_secure;
+        
+        require_once __DIR__ . '/../vendor/autoload.php';
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        
+        try {
+            $mail->CharSet = 'UTF-8';
+            
+            // Check if SMTP is enabled
+            if (isset($smtp_enabled) && $smtp_enabled === true) {
+                $mail->isSMTP();
+                $mail->Host = $smtp_host ?? '';
+                $mail->SMTPAuth = true;
+                $mail->Username = $smtp_user ?? '';
+                $mail->Password = $smtp_pass ?? '';
+                $mail->SMTPSecure = $smtp_secure ?? 'tls';
+                $mail->Port = isset($smtp_port) ? (int)$smtp_port : 587;
+                $mail->setFrom($smtp_from ?? 'noreply@yourdomain.com', $smtp_name ?? 'Sahtout Account');
+            } else {
+                // Fallback to PHP mail() function
+                $mail->isMail();
+                $mail->setFrom('noreply@yourdomain.com', 'Sahtout Account');
+            }
+            
+            $mail->isHTML(true);
+        } catch (Exception $e) {
+            error_log("Failed to create mailer: " . $e->getMessage());
+        }
+        
+        return $mail;
+    }
+}
+
+// Function to send confirmation email with improved template
+function sendResetConfirmationEmail($username, $email) {
+    global $errors, $project_root, $base_path;
+    
+    try {
+        $mail = getMailer();
+        $mail->addAddress($email, $username);
+        
+        // Add logo if exists
+        $logo_path = __DIR__ . '/../img/logo.png';
+        if (file_exists($logo_path)) {
+            $mail->AddEmbeddedImage($logo_path, 'logo_cid');
+        }
+        
+        $mail->Subject = translate('email_subject_confirmation', 'Password Reset Confirmation');
+        
+        // Build HTML email
+        $mail->Body = "<html><body style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0a0e16; color: #d8d8d8;'>";
+        $mail->Body .= "<div style='background: linear-gradient(135deg, #161920, #0a0e16); border: 1px solid rgba(201,162,39,0.22); padding: 30px; border-radius: 8px;'>";
+        
+        // Logo
+        if (file_exists($logo_path)) {
+            $mail->Body .= "<div style='text-align: center; margin-bottom: 20px;'>
+                <img src='cid:logo_cid' alt='Sahtout logo' style='max-width: 200px;'>
+            </div>";
+        }
+        
+        // Greeting
+        $greeting = translate('email_greeting', 'Welcome, {username}!');
+        $mail->Body .= "<h2 style='color: #f2cf5b; font-family: Cinzel, serif; text-align: center;'>" . str_replace('{username}', htmlspecialchars($username), $greeting) . "</h2>";
+        
+        // Success message
+        $mail->Body .= "<div style='text-align: center; background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 20px; border-radius: 8px; margin: 20px 0;'>";
+        $mail->Body .= "<p style='font-size: 18px; color: #2ecc71;'><i class='fas fa-check-circle'></i> " . translate('email_success', 'Your password has been successfully reset.') . "</p>";
+        $mail->Body .= "<p style='font-size: 14px; color: #d8d8d8;'>" . translate('email_can_login', 'You can now log in to your account with your new password.') . "</p>";
+        $mail->Body .= "</div>";
+        
+        // Security warning
+        $mail->Body .= "<div style='background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.2); padding: 15px; border-radius: 8px; margin: 20px 0;'>";
+        $mail->Body .= "<p style='font-size: 13px; color: #e74c3c; text-align: center;'>" . translate('email_contact_support', 'If you did not perform this action, please contact support immediately.') . "</p>";
+        $mail->Body .= "</div>";
+        
+        // Login button
+        $login_url = $base_path . 'login';
+        $mail->Body .= "<div style='text-align: center; margin: 30px 0;'>
+            <a href='$login_url' style='background: linear-gradient(180deg, #f6d478, #c9a227, #8a6a14); color: #1a1200; padding: 14px 35px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;'>
+                " . translate('login_button', 'Login Now') . "
+            </a>
+        </div>";
+        
+        $mail->Body .= "</div></body></html>";
+        
+        // Alternative text for email clients that don't support HTML
+        $alt_body = translate('email_success', 'Your password has been successfully reset.') . "\n\n";
+        $alt_body .= translate('email_can_login', 'You can now log in to your account with your new password.') . "\n\n";
+        $alt_body .= translate('email_contact_support', 'If you did not perform this action, please contact support immediately.') . "\n\n";
+        $alt_body .= translate('login_button', 'Login Now') . ": " . $login_url;
+        $mail->AltBody = $alt_body;
+        
+        if (!$mail->send()) {
+            error_log("Failed to send confirmation email to {$email}: " . $mail->ErrorInfo);
+            return false;
+        }
+        return true;
+    } catch (Exception $e) {
+        error_log("Email sending failed for {$email}: " . $e->getMessage());
+        return false;
+    }
+}
+
 // Generate nonce for form submission
 if (!isset($_SESSION['reset_nonce'])) {
     $_SESSION['reset_nonce'] = bin2hex(random_bytes(16));
 }
 $nonce = $_SESSION['reset_nonce'];
-
-// Function to send confirmation email
-function sendResetConfirmationEmail($username, $email) {
-    global $errors, $project_root;
-    try {
-        $mail = getMailer();
-        $mail->addAddress($email, $username);
-        $mail->AddEmbeddedImage('logo.png', 'logo_cid');
-        $mail->Subject = translate('email_subject_confirmation', 'Password Reset Confirmation');
-        $mail->Body = "<h2>" . str_replace('{username}', htmlspecialchars($username), translate('email_greeting', 'Welcome, {username}!')) . "</h2>
-            <img src='cid:logo_cid' alt='Sahtout logo'>
-            <p>" . translate('email_success', 'Your password has been successfully reset.') . "</p>
-            <p>" . translate('email_contact_support', 'If you did not perform this action, please contact support immediately.') . "</p>";
-        if (!$mail->send()) {
-            $errors[] = translate('error_email_failed', 'Failed to send confirmation email: ') . $mail->ErrorInfo;
-        }
-    } catch (Exception $e) {
-        $errors[] = translate('error_email_failed', 'Email error: ') . $e->getMessage();
-    }
-}
 
 if ($token) {
     // Delete expired or used tokens
@@ -138,11 +224,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
                 $stmt2->bind_param('s', $token);
                 $stmt2->execute();
                 $stmt2->close();
-                // Send confirmation email only if SMTP is enabled
-                if (defined('SMTP_ENABLED') && SMTP_ENABLED) {
-                    sendResetConfirmationEmail($username, $email);
+                
+                // Send confirmation email if SMTP is enabled
+                global $smtp_enabled;
+                $is_smtp_enabled = isset($smtp_enabled) && $smtp_enabled === true;
+                
+                if ($is_smtp_enabled) {
+                    $email_sent = sendResetConfirmationEmail($username, $email);
+                    if (!$email_sent) {
+                        // Email failed but password was reset - still show success with a warning
+                        $success = translate('success_password_reset', 'Your password has been successfully reset. You can now log in.');
+                    } else {
+                        $success = translate('success_password_reset', 'Your password has been successfully reset. You can now log in.');
+                    }
+                } else {
+                    $success = translate('success_password_reset', 'Your password has been successfully reset. You can now log in.');
                 }
-                $success = translate('success_password_reset', 'Your password has been successfully reset. You can now log in.');
+                
                 // Clear nonce and token to prevent re-submission
                 unset($_SESSION['reset_nonce']);
                 $token = '';

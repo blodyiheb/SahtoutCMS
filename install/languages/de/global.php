@@ -196,7 +196,16 @@ return [
 'btn_save_test_smtp' => 'SMTP speichern & testen',
 'helper_smtp_custom_domain_example' => 'normalerweise mail.ihredomain.com',
 'helper_smtp_li6' => 'Die "Absender-E-Mail" kann dieselbe wie Ihr SMTP-Benutzer oder ein anderer Absender sein, den Sie besitzen.',
-    // ========================================
+   'err_smtp_from_required'      => 'Absender-E-Mail ist erforderlich.',
+'err_smtp_port_invalid'       => 'Der Port muss zwischen 1 und 65535 liegen.',
+'err_smtp_secure_invalid'     => 'Die Verschlüsselung muss tls, ssl oder leer sein.',
+'msg_test_email_sent_to'      => 'Test-E-Mail gesendet an %s',
+'msg_mail_saved_disabled'     => 'E-Mail-Konfiguration mit deaktiviertem SMTP gespeichert.',
+'info_test_email'             => 'Eine Test-E-Mail wird an Ihre E-Mail-Adresse gesendet, um die Konfiguration zu überprüfen.',
+'smtp_mail_enabled'           => 'Aktiviert',
+'smtp_mail_missing'           => 'Deaktiviert',
+'btn_go_back'                 => 'Zurück',
+// ========================================
     // === STEP6_SOAP.PHP ===
     // ========================================
     'step6_title'                 => 'Schritt 6: SOAP-Einrichtung',
