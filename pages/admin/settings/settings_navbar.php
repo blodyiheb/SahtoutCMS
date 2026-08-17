@@ -30,33 +30,6 @@ $is_active = function($setting) use ($page_class, $active_setting) {
     return ($page_class === $setting || $active_setting === $setting);
 };
 
-// Base Tailwind classes for the <a> tag
-$link_base = 'group relative flex items-center gap-2 px-4 py-2.5 font-semibold text-xs tracking-wide transition-all duration-300 box-border w-full ';
-$link_base .= '[clip-path:polygon(8px_0,100%_0,100%_calc(100%-8px),calc(100%-8px)_100%,0_100%,0_8px)] ';
-
-// Mobile overrides for <a>
-$link_mobile = 'max-md:whitespace-normal max-md:justify-start max-md:px-4 max-md:py-3 max-md:border-b max-md:border-[rgba(201,162,39,0.1)] max-md:border-l-[3px] max-md:border-l-transparent max-md:[clip-path:polygon(6px_0,100%_0,100%_calc(100%-6px),calc(100%-6px)_100%,0_100%,0_6px)] max-md:min-h-[44px] max-md:text-sm ';
-
-// Desktop overrides for <a>
-$link_desktop = 'md:justify-center md:px-2 md:py-2.5 md:whitespace-nowrap md:min-h-[42px] md:border-b-2 md:border-transparent ';
-
-$icon_base = 'w-4 text-center text-sm transition-all duration-300 shrink-0 group-hover:text-[#f2cf5b] group-hover:scale-110 max-md:w-5 ';
-
-$get_link_classes = function($setting) use ($is_active, $link_base, $link_mobile, $link_desktop) {
-    $active = $is_active($setting);
-    
-    $active_classes = $active 
-        ? 'text-[#f2cf5b] bg-gradient-to-b from-[rgba(201,162,39,0.15)] to-[rgba(201,162,39,0.04)] border-b-[#f2cf5b] [text-shadow:0_0_12px_rgba(242,207,82,0.3)] shadow-[inset_0_-2px_20px_rgba(201,162,39,0.05)] max-md:border-l-[#f2cf5b] max-md:border-b-[rgba(201,162,39,0.1)]' 
-        : 'text-gray-400 bg-black/20 hover:text-gray-200 hover:bg-[rgba(201,162,39,0.08)] hover:border-b-[rgba(201,162,39,0.3)]';
-        
-    return $link_base . $link_mobile . $link_desktop . $active_classes;
-};
-
-$get_icon_classes = function($setting) use ($is_active, $icon_base) {
-    $active = $is_active($setting);
-    return $icon_base . ($active ? 'text-[#f2cf5b] [filter:drop-shadow(0_0_6px_rgba(242,207,82,0.4))]' : '');
-};
-
 $links = [
     'general'      => ['icon' => 'fa-cog',        'label' => translate('settings_nav_general', 'General')],
     'smtp'         => ['icon' => 'fa-envelope',   'label' => translate('settings_nav_smtp', 'SMTP')],
@@ -68,36 +41,139 @@ $links = [
 ];
 ?>
 
+<style>
+    /* Only keep what Tailwind CANNOT do */
+    
+    /* Custom clip-path for nav items - Tailwind doesn't support this */
+    .nav-clip {
+        clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    }
+    
+    /* Mobile clip-path variant */
+    .nav-clip-mobile {
+        clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    }
+    
+    /* Panel with gold corners AND inner border */
+    .panel-corners {
+        position: relative;
+    }
+    
+    /* Outer gold corner decorations */
+    .panel-corners::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            linear-gradient(#e8c552,#e8c552) left top / 18px 2px,
+            linear-gradient(#e8c552,#e8c552) left top / 2px 18px,
+            linear-gradient(#e8c552,#e8c552) right top / 18px 2px,
+            linear-gradient(#e8c552,#e8c552) right top / 2px 18px,
+            linear-gradient(#e8c552,#e8c552) left bottom / 18px 2px,
+            linear-gradient(#e8c552,#e8c552) left bottom / 2px 18px,
+            linear-gradient(#e8c552,#e8c552) right bottom / 18px 2px,
+            linear-gradient(#e8c552,#e8c552) right bottom / 2px 18px;
+        background-repeat: no-repeat;
+    }
+    
+    /* Inner border inset (the missing piece) */
+    .panel-corners::before {
+        content: '';
+        position: absolute;
+        inset: 5px;
+        border: 1px solid rgba(201,162,39,.14);
+        pointer-events: none;
+    }
+    
+    /* Section title font */
+    .section-title {
+        font-family: 'Cinzel', serif;
+    }
+</style>
+
 <!-- Settings Navbar -->
-<nav class="settings-nav relative z-10 w-full">
-    <div class="panel px-3 md:px-4 py-2 md:py-3">
+<nav class="relative z-10 w-full">
+    <div class="relative bg-gradient-to-b from-[#161920]/92 to-[#080a0e]/90 
+                border border-[#c9a227]/[0.22] 
+                shadow-[0_12px_32px_rgba(0,0,0,.55),inset_0_0_60px_rgba(0,0,0,.45)]
+                px-3 md:px-4 py-2 md:py-3 panel-corners">
+        
         <div class="flex items-center justify-between gap-3 flex-wrap">
             
-            <h5 class="section-title text-sm md:text-base flex items-center gap-2 m-0 shrink-0">
+            <h5 class="section-title text-sm md:text-base flex items-center gap-2 m-0 shrink-0 
+                       text-[#f2cf5b] font-bold drop-shadow-[0_0_12px_rgba(201,162,39,.35),0_2px_4px_rgba(0,0,0,.8)]">
                 <i class="fas fa-sliders-h text-[#f2cf5b]"></i>
                 <?php echo translate('settings_nav_menu', 'Settings Menu'); ?>
             </h5>
 
             <!-- Mobile Toggle Button -->
-            <button class="settings-mobile-toggle flex md:hidden items-center justify-center min-w-[42px] min-h-[42px] px-2.5 py-1.5 text-lg text-[#f2cf5b] bg-transparent border border-[rgba(201,162,39,0.3)] cursor-pointer transition-all duration-300 [clip-path:polygon(4px_0,100%_0,100%_calc(100%-4px),calc(100%-4px)_100%,0_100%,0_4px)] shrink-0 hover:bg-[rgba(201,162,39,0.15)] hover:border-[#f2cf5b]" aria-label="Toggle settings navigation">
+            <button class="settings-mobile-toggle flex md:hidden items-center justify-center 
+                           min-w-[42px] min-h-[42px] px-2.5 py-1.5 text-lg text-[#f2cf5b] 
+                           bg-transparent border border-[rgba(201,162,39,0.3)] 
+                           hover:bg-[rgba(201,162,39,0.15)] hover:border-[#f2cf5b] 
+                           cursor-pointer transition-all duration-300 shrink-0
+                           [clip-path:polygon(4px_0,100%_0,100%_calc(100%-4px),calc(100%-4px)_100%,0_100%,0_4px)]" 
+                        aria-label="Toggle settings navigation">
                 <i class="fas fa-bars"></i>
             </button>
 
-            <!-- Navigation Tabs (100% Width Flex Layout) -->
-            <ul id="settingsNavTabs" data-open="false" class="
-                flex flex-col w-full gap-1 max-h-0 overflow-hidden transition-all duration-300 ease-in-out opacity-0 pointer-events-none
-                data-[open=true]:max-h-[600px] data-[open=true]:opacity-100 data-[open=true]:pt-3 data-[open=true]:pb-2 data-[open=true]:pointer-events-auto
+            <!-- Navigation Tabs -->
+            <ul id="settingsNavTabs" data-open="false" 
+                class="flex flex-col w-full gap-1 max-h-0 overflow-hidden 
+                       transition-all duration-300 ease-in-out opacity-0 pointer-events-none
+                       data-[open=true]:max-h-[600px] data-[open=true]:opacity-100 
+                       data-[open=true]:pt-3 data-[open=true]:pb-2 data-[open=true]:pointer-events-auto
+                       
+                       md:flex-row md:flex-wrap md:justify-center md:gap-2 
+                       md:max-h-none md:opacity-100 md:overflow-visible 
+                       md:pointer-events-auto md:py-0 md:transition-none
+                       [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent 
+                       [&::-webkit-scrollbar-thumb]:bg-[rgba(201,162,39,0.3)] 
+                       [&::-webkit-scrollbar-thumb:hover]:bg-[rgba(201,162,39,0.5)]">
                 
-                md:flex-row md:flex-wrap md:justify-center md:gap-2 md:max-h-none md:opacity-100 md:overflow-visible md:pointer-events-auto md:py-0 md:transition-none
-                [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[rgba(201,162,39,0.3)] [&::-webkit-scrollbar-thumb:hover]:bg-[rgba(201,162,39,0.5)]
-            ">
-                <?php foreach ($links as $key => $data): ?>
-                    <!-- flex-1 forces buttons to share the 100% width equally -->
+                <?php foreach ($links as $key => $data): 
+                    $active = $is_active($key);
+                    
+                    // Base classes for all nav items
+                    $base_classes = 'group relative flex items-center gap-2 px-4 py-2.5 
+                                    font-semibold text-xs tracking-wide 
+                                    transition-all duration-300 box-border w-full nav-clip
+                                    max-md:whitespace-normal max-md:justify-start 
+                                    max-md:px-4 max-md:py-3 max-md:border-b max-md:border-[rgba(201,162,39,0.1)] 
+                                    max-md:border-l-[3px] max-md:border-l-transparent 
+                                    max-md:nav-clip-mobile max-md:min-h-[44px] max-md:text-sm
+                                    md:justify-center md:px-2 md:py-2.5 md:whitespace-nowrap 
+                                    md:min-h-[42px] md:border-b-2 md:border-transparent';
+                    
+                    // Active/Inactive state classes
+                    if ($active) {
+                        $state_classes = 'text-[#f2cf5b] 
+                                         bg-gradient-to-b from-[rgba(201,162,39,0.15)] to-[rgba(201,162,39,0.04)] 
+                                         border-b-[#f2cf5b] 
+                                         [text-shadow:0_0_12px_rgba(242,207,82,0.3)] 
+                                         shadow-[inset_0_-2px_20px_rgba(201,162,39,0.05)] 
+                                         max-md:border-l-[#f2cf5b] max-md:border-b-[rgba(201,162,39,0.1)]';
+                    } else {
+                        $state_classes = 'text-gray-400 bg-black/20 
+                                         hover:text-gray-200 hover:bg-[rgba(201,162,39,0.08)] 
+                                         hover:border-b-[rgba(201,162,39,0.3)]';
+                    }
+                    
+                    // Icon classes
+                    $icon_classes = 'w-4 text-center text-sm transition-all duration-300 
+                                    shrink-0 group-hover:text-[#f2cf5b] group-hover:scale-110 
+                                    max-md:w-5';
+                    
+                    if ($active) {
+                        $icon_classes .= ' text-[#f2cf5b] [filter:drop-shadow(0_0_6px_rgba(242,207,82,0.4))]';
+                    }
+                ?>
                     <li class="flex-1 min-w-[110px] flex">
-                        <a class="<?php echo $get_link_classes($key); ?>" 
+                        <a class="<?php echo $base_classes . ' ' . $state_classes; ?>" 
                            href="<?php echo $base_path; ?>admin/settings/<?php echo str_replace('-', '_', $key); ?>">
-                           <i class="fas <?php echo $data['icon']; ?> <?php echo $get_icon_classes($key); ?>"></i> 
-                           <span><?php echo $data['label']; ?></span>
+                            <i class="fas <?php echo $data['icon']; ?> <?php echo $icon_classes; ?>"></i> 
+                            <span><?php echo $data['label']; ?></span>
                         </a>
                     </li>
                 <?php endforeach; ?>
@@ -110,12 +186,11 @@ $links = [
 document.addEventListener('DOMContentLoaded', function() {
     const toggleBtn = document.querySelector('.settings-mobile-toggle');
     const navTabs = document.getElementById('settingsNavTabs');
-    const nav = document.querySelector('.settings-nav');
+    const nav = document.querySelector('nav');
     
     if (toggleBtn && navTabs) {
         function toggleMenu(e) {
             if (e) e.stopPropagation();
-            // Toggle the data-open attribute to trigger Tailwind's data-[open=true] variants
             const isOpen = navTabs.getAttribute('data-open') === 'true';
             navTabs.setAttribute('data-open', !isOpen);
             
@@ -137,14 +212,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         toggleBtn.addEventListener('click', toggleMenu);
         
-        // Close on outside click (mobile)
         document.addEventListener('click', function(e) {
             if (window.innerWidth < 768 && nav && !nav.contains(e.target)) {
                 closeMenu();
             }
         });
         
-        // Close on nav link click (mobile)
         navTabs.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', function() {
                 if (window.innerWidth < 768) {
@@ -153,14 +226,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Close on Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && window.innerWidth < 768) {
                 closeMenu();
             }
         });
         
-        // Handle window resize
         let resizeTimer;
         window.addEventListener('resize', function() {
             clearTimeout(resizeTimer);

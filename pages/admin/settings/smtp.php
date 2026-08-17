@@ -174,35 +174,19 @@ function getMailer(): PHPMailer {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
     
     <style>
+        /* Only keep what Tailwind CANNOT do */
+        
+        /* Font families */
         * { font-family: 'Inter', sans-serif; }
-
-        body {
-            min-height: 100vh;
-            color: #d8d8d8;
-            background: #05070b;
-            background-image:
-                radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.14), transparent 65%),
-                radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.10), transparent 70%),
-                linear-gradient(180deg, #0a0e16 0%, #060810 45%, #03040a 100%);
-            background-attachment: fixed;
-        }
-
-        .panel {
+        .wow-title, .section-title, .form-label { font-family: 'Cinzel', serif; }
+        
+        /* Panel with gold corners AND inner border */
+        .panel-gold-corners {
             position: relative;
-            background: linear-gradient(180deg, rgba(22,25,32,.92), rgba(8,10,14,.9));
-            border: 1px solid rgba(201,162,39,.22);
-            box-shadow: 0 12px 32px rgba(0,0,0,.55), inset 0 0 60px rgba(0,0,0,.45);
         }
-
-        .panel::before {
-            content: '';
-            position: absolute;
-            inset: 5px;
-            border: 1px solid rgba(201,162,39,.14);
-            pointer-events: none;
-        }
-
-        .panel::after {
+        
+        /* Outer gold corner decorations */
+        .panel-gold-corners::after {
             content: '';
             position: absolute;
             inset: 0;
@@ -218,84 +202,22 @@ function getMailer(): PHPMailer {
                 linear-gradient(#e8c552,#e8c552) right bottom / 2px 18px;
             background-repeat: no-repeat;
         }
-
-        .wow-title {
-            font-family: 'Cinzel', serif;
-            font-weight: 900;
-            background: linear-gradient(180deg, #fff7d6 0%, #f2cf5b 35%, #c9a227 62%, #8a6a14 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 3px 6px rgba(0,0,0,.85));
+        
+        /* Inner border inset */
+        .panel-gold-corners::before {
+            content: '';
+            position: absolute;
+            inset: 5px;
+            border: 1px solid rgba(201,162,39,.14);
+            pointer-events: none;
         }
-
-        .section-title {
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            color: #f2cf5b;
-            text-shadow: 0 0 12px rgba(201,162,39,.35), 0 2px 4px rgba(0,0,0,.8);
-        }
-
-        .btn-gold {
-            display: inline-flex;
-            align-items: center;
-            gap: .55rem;
-            padding: .75rem 1.5rem;
-            font-weight: 800;
-            font-size: .85rem;
-            letter-spacing: .04em;
-            text-transform: uppercase;
+        
+        /* Custom clip-path for buttons */
+        .btn-clip {
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            transition: transform .2s ease;
-            background: linear-gradient(180deg, #f6d478 0%, #c9a227 48%, #8a6a14 100%);
-            color: #1a1200;
-            text-shadow: 0 1px 0 rgba(255,255,255,.35);
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), inset 0 -8px 14px rgba(0,0,0,.25);
-            border: none;
-            cursor: pointer;
         }
-        .btn-gold:hover { transform: translateY(-2px) scale(1.02); }
-
-        .btn-iron {
-            display: inline-flex;
-            align-items: center;
-            gap: .55rem;
-            padding: .75rem 1.5rem;
-            font-weight: 800;
-            font-size: .85rem;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            transition: transform .2s ease;
-            background: linear-gradient(180deg, #3a404d 0%, #232833 55%, #141821 100%);
-            color: #cfe1ff;
-            box-shadow: inset 0 0 0 1px rgba(120,160,255,.25), inset 0 -8px 14px rgba(0,0,0,.4);
-            border: none;
-            cursor: pointer;
-        }
-        .btn-iron:hover { transform: translateY(-2px) scale(1.02); }
-
-        .input-dark {
-            background: rgba(10, 14, 22, 0.8);
-            border: 1px solid rgba(201,162,39,.3);
-            color: #e5e7eb;
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-            outline: none;
-            width: 100%;
-        }
-        .input-dark:focus {
-            border-color: #f2cf5b;
-            box-shadow: 0 0 10px rgba(242,207,82,.2);
-            background: rgba(15, 20, 30, 0.9);
-        }
-        .input-dark::placeholder { color: rgba(150, 170, 200, 0.4); }
-
-        .input-dark:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
+        
+        /* Custom toggle switch - Tailwind doesn't have built-in toggle */
         .toggle-switch {
             position: relative;
             width: 48px;
@@ -340,50 +262,16 @@ function getMailer(): PHPMailer {
             transform: translateX(20px);
             background: white;
         }
-
+        
+        /* SMTP fields toggle */
         .smtp-fields {
             display: none;
         }
         .smtp-fields.active {
             display: block;
         }
-
-        .alert-success-wow {
-            background: rgba(46, 204, 113, 0.15);
-            border: 1px solid rgba(46, 204, 113, 0.4);
-            color: #2ecc71;
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        .alert-success-wow i {
-            font-size: 1.2rem;
-        }
-
-        .alert-danger-wow {
-            background: rgba(231, 76, 60, 0.15);
-            border: 1px solid rgba(231, 76, 60, 0.4);
-            color: #e74c3c;
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        .alert-danger-wow i {
-            font-size: 1.2rem;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.4rem 1rem;
-            font-weight: 700;
-            font-size: 0.85rem;
-            border-radius: 3px;
-            border: 1px solid transparent;
-        }
+        
+        /* Status badge */
         .status-badge.enabled {
             background: rgba(46, 204, 113, 0.15);
             border-color: rgba(46, 204, 113, 0.4);
@@ -394,76 +282,14 @@ function getMailer(): PHPMailer {
             border-color: rgba(231, 76, 60, 0.4);
             color: #e74c3c;
         }
-
-        .form-label {
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            color: #f2cf5b;
-            text-shadow: 0 0 12px rgba(201,162,39,.15), 0 2px 4px rgba(0,0,0,.8);
-            font-size: 0.9rem;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .form-text {
-            color: #6a7a8a;
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
-        }
-
-        /* Main content area - works with sidebar */
-        .main-content-area {
-            transition: margin-left 0.3s ease;
-            min-height: calc(100vh - 72px);
-            width: 100%;
-        }
-
-        .content-wrapper {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        @media (min-width: 640px) {
-            .content-wrapper {
-                padding: 0 1.5rem;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .content-wrapper {
-                padding: 0 2rem;
-            }
-        }
-
-        @media (min-width: 1280px) {
-            .content-wrapper {
-                padding: 0 2.5rem;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .main-content-area.lg\:ml-0 {
-                margin-left: 0;
-            }
-            .main-content-area.lg\:ml-\[280px\] {
-                margin-left: 280px;
-            }
-        }
-
-        @media (max-width: 1023px) {
-            .main-content-area {
-                margin-left: 0 !important;
-                padding: 1rem;
-            }
-            .content-wrapper {
-                padding: 0 0.5rem;
-            }
-        }
     </style>
 </head>
-<body>
+<body class="min-h-screen text-[#d8d8d8] bg-[#05070b] bg-fixed"
+      style="background-image: 
+        radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.14), transparent 65%),
+        radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.10), transparent 70%),
+        linear-gradient(180deg, #0a0e16 0%, #060810 45%, #03040a 100%);">
+    
     <?php include $project_root . 'includes/header.php'; ?>
 
     <div class="flex relative min-h-screen">
@@ -473,10 +299,14 @@ function getMailer(): PHPMailer {
         
         <!-- Main Content -->
         <main class="main-content-area flex-1 p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 lg:ml-[280px]">
-            <div class="content-wrapper">
+            <div class="max-w-[1400px] mx-auto px-1 sm:px-4 md:px-6 lg:px-8 xl:px-10">
                 <div class="space-y-4 md:space-y-6 lg:space-y-8">
                     
-                    <h1 class="wow-title text-2xl md:text-3xl lg:text-4xl"><?php echo translate('page_title_smtp', 'SMTP Settings'); ?></h1>
+                    <h1 class="wow-title text-2xl md:text-3xl lg:text-4xl font-black 
+                               bg-gradient-to-b from-[#fff7d6] via-[#f2cf5b] via-[#c9a227] to-[#8a6a14] 
+                               bg-clip-text text-transparent drop-shadow-[0_3px_6px_rgba(0,0,0,.85)]">
+                        <?php echo translate('page_title_smtp', 'SMTP Settings'); ?>
+                    </h1>
 
                     <!-- Settings Navbar -->
                     <?php include $project_root . 'pages/admin/settings/settings_navbar.php'; ?>
@@ -484,7 +314,8 @@ function getMailer(): PHPMailer {
                     <!-- Status Badge -->
                     <div class="flex items-center gap-3">
                         <span class="text-gray-400 text-sm font-semibold"><?php echo translate('status', 'Status:'); ?></span>
-                        <span class="status-badge <?php echo $smtp_status === 'enabled' ? 'enabled' : 'disabled'; ?>">
+                        <span class="status-badge <?php echo $smtp_status === 'enabled' ? 'enabled' : 'disabled'; ?> 
+                                     inline-flex items-center gap-2 px-4 py-1.5 font-bold text-sm border rounded-sm">
                             <i class="fas <?php echo $smtp_status === 'enabled' ? 'fa-check-circle' : 'fa-times-circle'; ?>"></i>
                             <?php echo translate(
                                 $smtp_status === 'enabled' ? 'msg_smtp_enabled' : 'msg_smtp_disabled',
@@ -495,8 +326,9 @@ function getMailer(): PHPMailer {
 
                     <!-- Success / Error Messages -->
                     <?php if (!empty($errors)): ?>
-                        <div class="alert-danger-wow rounded-sm">
-                            <i class="fas fa-exclamation-circle"></i>
+                        <div class="bg-[#e74c3c]/15 border border-[#e74c3c]/40 text-[#e74c3c] 
+                                    p-4 rounded-sm flex items-start gap-3">
+                            <i class="fas fa-exclamation-circle text-xl mt-0.5"></i>
                             <div>
                                 <strong><?php echo translate('err_fix_errors', 'Please fix the following errors:'); ?></strong>
                                 <?php foreach ($errors as $err): ?>
@@ -507,15 +339,21 @@ function getMailer(): PHPMailer {
                     <?php endif; ?>
 
                     <?php if ($success): ?>
-                        <div class="alert-success-wow rounded-sm">
-                            <i class="fas fa-check-circle"></i>
+                        <div class="bg-[#2ecc71]/15 border border-[#2ecc71]/40 text-[#2ecc71] 
+                                    p-4 rounded-sm flex items-center gap-3">
+                            <i class="fas fa-check-circle text-xl"></i>
                             <span><?php echo translate('msg_smtp_saved', 'SMTP settings saved successfully!'); ?></span>
                         </div>
                     <?php endif; ?>
 
                     <!-- SMTP Settings Form -->
-                    <div class="panel p-4 md:p-6 lg:p-8">
-                        <h2 class="section-title text-lg md:text-xl mb-4 md:mb-6 flex items-center gap-3">
+                    <div class="relative bg-gradient-to-b from-[#161920]/92 to-[#080a0e]/90 
+                                border border-[#c9a227]/[0.22] 
+                                shadow-[0_12px_32px_rgba(0,0,0,.55),inset_0_0_60px_rgba(0,0,0,.45)]
+                                p-4 md:p-6 lg:p-8 panel-gold-corners">
+                        
+                        <h2 class="section-title text-lg md:text-xl mb-4 md:mb-6 flex items-center gap-3 
+                                   text-[#f2cf5b] font-bold drop-shadow-[0_0_12px_rgba(201,162,39,.35),0_2px_4px_rgba(0,0,0,.8)]">
                             <i class="fas fa-envelope text-[#f2cf5b]"></i>
                             <?php echo translate('settings_smtp', 'SMTP Settings'); ?>
                         </h2>
@@ -539,51 +377,130 @@ function getMailer(): PHPMailer {
                             <!-- SMTP Fields -->
                             <div class="smtp-fields <?php echo isset($_POST['smtp_enabled']) || $smtp_status === 'enabled' ? 'active' : ''; ?> space-y-4">
                                 <div>
-                                    <label for="smtp_host" class="form-label"><?php echo translate('label_smtp_host', 'SMTP Host'); ?></label>
-                                    <input type="text" id="smtp_host" name="smtp_host" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_smtp_host', 'e.g., smtp.gmail.com'); ?>" value="<?php echo htmlspecialchars($_POST['smtp_host'] ?? $current_smtp_host); ?>">
+                                    <label for="smtp_host" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                     tracking-wider block mb-2 
+                                                                     drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                        <?php echo translate('label_smtp_host', 'SMTP Host'); ?>
+                                    </label>
+                                    <input type="text" id="smtp_host" name="smtp_host" 
+                                           class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                                  bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                                  focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                                  focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                                  placeholder:text-[#96aac8]/40"
+                                           placeholder="<?php echo translate('placeholder_smtp_host', 'e.g., smtp.gmail.com'); ?>" 
+                                           value="<?php echo htmlspecialchars($_POST['smtp_host'] ?? $current_smtp_host); ?>">
                                 </div>
 
                                 <div>
-                                    <label for="smtp_user" class="form-label"><?php echo translate('label_email_address', 'Email Address'); ?></label>
-                                    <input type="email" id="smtp_user" name="smtp_user" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_email', 'e.g., yourname@gmail.com'); ?>" value="<?php echo htmlspecialchars($_POST['smtp_user'] ?? $current_smtp_user); ?>">
+                                    <label for="smtp_user" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                     tracking-wider block mb-2 
+                                                                     drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                        <?php echo translate('label_email_address', 'Email Address'); ?>
+                                    </label>
+                                    <input type="email" id="smtp_user" name="smtp_user" 
+                                           class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                                  bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                                  focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                                  focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                                  placeholder:text-[#96aac8]/40"
+                                           placeholder="<?php echo translate('placeholder_email', 'e.g., yourname@gmail.com'); ?>" 
+                                           value="<?php echo htmlspecialchars($_POST['smtp_user'] ?? $current_smtp_user); ?>">
                                 </div>
 
                                 <div>
-                                    <label for="smtp_pass" class="form-label"><?php echo translate('label_app_password', 'App Password / SMTP Password'); ?></label>
-                                    <input type="password" id="smtp_pass" name="smtp_pass" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_app_password', 'App password for Gmail/Outlook'); ?>" value="<?php echo htmlspecialchars($_POST['smtp_pass'] ?? $current_smtp_pass); ?>">
-                                    <div class="form-text"><?php echo translate('help_smtp_pass', 'For Gmail, use an App Password. For other providers, use your email password.'); ?></div>
+                                    <label for="smtp_pass" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                     tracking-wider block mb-2 
+                                                                     drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                        <?php echo translate('label_app_password', 'App Password / SMTP Password'); ?>
+                                    </label>
+                                    <input type="password" id="smtp_pass" name="smtp_pass" 
+                                           class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                                  bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                                  focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                                  focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                                  placeholder:text-[#96aac8]/40"
+                                           placeholder="<?php echo translate('placeholder_app_password', 'App password for Gmail/Outlook'); ?>" 
+                                           value="<?php echo htmlspecialchars($_POST['smtp_pass'] ?? $current_smtp_pass); ?>">
+                                    <div class="text-[#6a7a8a] text-xs mt-1"><?php echo translate('help_smtp_pass', 'For Gmail, use an App Password. For other providers, use your email password.'); ?></div>
                                 </div>
 
                                 <div>
-                                    <label for="smtp_from" class="form-label"><?php echo translate('label_from_email', 'From Email'); ?></label>
-                                    <input type="email" id="smtp_from" name="smtp_from" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_from_email', 'e.g., noreply@yourdomain.com'); ?>" value="<?php echo htmlspecialchars($_POST['smtp_from'] ?? $current_smtp_from); ?>">
+                                    <label for="smtp_from" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                     tracking-wider block mb-2 
+                                                                     drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                        <?php echo translate('label_from_email', 'From Email'); ?>
+                                    </label>
+                                    <input type="email" id="smtp_from" name="smtp_from" 
+                                           class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                                  bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                                  focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                                  focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                                  placeholder:text-[#96aac8]/40"
+                                           placeholder="<?php echo translate('placeholder_from_email', 'e.g., noreply@yourdomain.com'); ?>" 
+                                           value="<?php echo htmlspecialchars($_POST['smtp_from'] ?? $current_smtp_from); ?>">
                                 </div>
 
                                 <div>
-                                    <label for="smtp_name" class="form-label"><?php echo translate('label_from_name', 'From Name'); ?></label>
-                                    <input type="text" id="smtp_name" name="smtp_name" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_from_name', 'e.g., Sahtout Account'); ?>" value="<?php echo htmlspecialchars($_POST['smtp_name'] ?? $current_smtp_name); ?>">
+                                    <label for="smtp_name" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                     tracking-wider block mb-2 
+                                                                     drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                        <?php echo translate('label_from_name', 'From Name'); ?>
+                                    </label>
+                                    <input type="text" id="smtp_name" name="smtp_name" 
+                                           class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                                  bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                                  focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                                  focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                                  placeholder:text-[#96aac8]/40"
+                                           placeholder="<?php echo translate('placeholder_from_name', 'e.g., Sahtout Account'); ?>" 
+                                           value="<?php echo htmlspecialchars($_POST['smtp_name'] ?? $current_smtp_name); ?>">
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label for="smtp_port" class="form-label"><?php echo translate('label_port', 'Port'); ?></label>
-                                        <input type="number" id="smtp_port" name="smtp_port" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_port_tls_ssl', '587 for TLS'); ?>" value="<?php echo htmlspecialchars($_POST['smtp_port'] ?? $current_smtp_port); ?>">
+                                        <label for="smtp_port" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                         tracking-wider block mb-2 
+                                                                         drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                            <?php echo translate('label_port', 'Port'); ?>
+                                        </label>
+                                        <input type="number" id="smtp_port" name="smtp_port" 
+                                               class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                                      bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                                      focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                                      focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                                      placeholder:text-[#96aac8]/40"
+                                               placeholder="<?php echo translate('placeholder_port_tls_ssl', '587 for TLS'); ?>" 
+                                               value="<?php echo htmlspecialchars($_POST['smtp_port'] ?? $current_smtp_port); ?>">
                                     </div>
                                     <div>
-                                        <label for="smtp_secure" class="form-label"><?php echo translate('label_encryption', 'Encryption'); ?></label>
-                                        <select id="smtp_secure" name="smtp_secure" class="input-dark rounded-sm">
+                                        <label for="smtp_secure" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                         tracking-wider block mb-2 
+                                                                         drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                            <?php echo translate('label_encryption', 'Encryption'); ?>
+                                        </label>
+                                        <select id="smtp_secure" name="smtp_secure" 
+                                                class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                                       bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                                       focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                                       focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                                       placeholder:text-[#96aac8]/40">
                                             <option value="tls" <?php echo ($_POST['smtp_secure'] ?? $current_smtp_secure) === 'tls' ? 'selected' : ''; ?>>TLS (Recommended)</option>
                                             <option value="ssl" <?php echo ($_POST['smtp_secure'] ?? $current_smtp_secure) === 'ssl' ? 'selected' : ''; ?>>SSL</option>
                                             <option value="" <?php echo ($_POST['smtp_secure'] ?? $current_smtp_secure) === '' ? 'selected' : ''; ?>>None</option>
                                         </select>
-                                        <div class="form-text"><?php echo translate('help_smtp_secure', 'Most providers use TLS on port 587.'); ?></div>
+                                        <div class="text-[#6a7a8a] text-xs mt-1"><?php echo translate('help_smtp_secure', 'Most providers use TLS on port 587.'); ?></div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Save Button -->
                             <div class="pt-4 border-t border-[rgba(201,162,39,.1)] flex justify-end">
-                                <button type="submit" class="btn-gold">
+                                <button type="submit" class="btn-clip inline-flex items-center gap-2 px-6 py-3 
+                                                             font-extrabold text-xs uppercase tracking-wider
+                                                             bg-gradient-to-b from-[#f6d478] via-[#c9a227] to-[#8a6a14] 
+                                                             text-[#1a1200] shadow-[inset_0_0_0_1px_rgba(255,255,255,.28),inset_0_-8px_14px_rgba(0,0,0,.25)]
+                                                             hover:scale-105 transition-transform duration-200">
                                     <i class="fas fa-save"></i>
                                     <?php echo translate('btn_save_test_smtp', 'Save & Test SMTP'); ?>
                                 </button>

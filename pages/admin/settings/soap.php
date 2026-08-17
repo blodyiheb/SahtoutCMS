@@ -119,35 +119,19 @@ if (!defined('ALLOWED_ACCESS')) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
     
     <style>
+        /* Only keep what Tailwind CANNOT do */
+        
+        /* Font families */
         * { font-family: 'Inter', sans-serif; }
-
-        body {
-            min-height: 100vh;
-            color: #d8d8d8;
-            background: #05070b;
-            background-image:
-                radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.14), transparent 65%),
-                radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.10), transparent 70%),
-                linear-gradient(180deg, #0a0e16 0%, #060810 45%, #03040a 100%);
-            background-attachment: fixed;
-        }
-
-        .panel {
+        .wow-title, .section-title, .form-label { font-family: 'Cinzel', serif; }
+        
+        /* Panel with gold corners AND inner border */
+        .panel-gold-corners {
             position: relative;
-            background: linear-gradient(180deg, rgba(22,25,32,.92), rgba(8,10,14,.9));
-            border: 1px solid rgba(201,162,39,.22);
-            box-shadow: 0 12px 32px rgba(0,0,0,.55), inset 0 0 60px rgba(0,0,0,.45);
         }
-
-        .panel::before {
-            content: '';
-            position: absolute;
-            inset: 5px;
-            border: 1px solid rgba(201,162,39,.14);
-            pointer-events: none;
-        }
-
-        .panel::after {
+        
+        /* Outer gold corner decorations */
+        .panel-gold-corners::after {
             content: '';
             position: absolute;
             inset: 0;
@@ -163,89 +147,22 @@ if (!defined('ALLOWED_ACCESS')) {
                 linear-gradient(#e8c552,#e8c552) right bottom / 2px 18px;
             background-repeat: no-repeat;
         }
-
-        .wow-title {
-            font-family: 'Cinzel', serif;
-            font-weight: 900;
-            background: linear-gradient(180deg, #fff7d6 0%, #f2cf5b 35%, #c9a227 62%, #8a6a14 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 3px 6px rgba(0,0,0,.85));
+        
+        /* Inner border inset */
+        .panel-gold-corners::before {
+            content: '';
+            position: absolute;
+            inset: 5px;
+            border: 1px solid rgba(201,162,39,.14);
+            pointer-events: none;
         }
-
-        .section-title {
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            color: #f2cf5b;
-            text-shadow: 0 0 12px rgba(201,162,39,.35), 0 2px 4px rgba(0,0,0,.8);
-        }
-
-        .btn-gold {
-            display: inline-flex;
-            align-items: center;
-            gap: .55rem;
-            padding: .75rem 1.5rem;
-            font-weight: 800;
-            font-size: .85rem;
-            letter-spacing: .04em;
-            text-transform: uppercase;
+        
+        /* Custom clip-path for buttons */
+        .btn-clip {
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            transition: transform .2s ease;
-            background: linear-gradient(180deg, #f6d478 0%, #c9a227 48%, #8a6a14 100%);
-            color: #1a1200;
-            text-shadow: 0 1px 0 rgba(255,255,255,.35);
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), inset 0 -8px 14px rgba(0,0,0,.25);
-            border: none;
-            cursor: pointer;
         }
-        .btn-gold:hover { transform: translateY(-2px) scale(1.02); }
-
-        .btn-iron {
-            display: inline-flex;
-            align-items: center;
-            gap: .55rem;
-            padding: .75rem 1.5rem;
-            font-weight: 800;
-            font-size: .85rem;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            transition: transform .2s ease;
-            background: linear-gradient(180deg, #3a404d 0%, #232833 55%, #141821 100%);
-            color: #cfe1ff;
-            box-shadow: inset 0 0 0 1px rgba(120,160,255,.25), inset 0 -8px 14px rgba(0,0,0,.4);
-            border: none;
-            cursor: pointer;
-        }
-        .btn-iron:hover { transform: translateY(-2px) scale(1.02); }
-
-        .input-dark {
-            background: rgba(10, 14, 22, 0.8);
-            border: 1px solid rgba(201,162,39,.3);
-            color: #e5e7eb;
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-            outline: none;
-            width: 100%;
-        }
-        .input-dark:focus {
-            border-color: #f2cf5b;
-            box-shadow: 0 0 10px rgba(242,207,82,.2);
-            background: rgba(15, 20, 30, 0.9);
-        }
-        .input-dark::placeholder { color: rgba(150, 170, 200, 0.4); }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.4rem 1rem;
-            font-weight: 700;
-            font-size: 0.85rem;
-            border-radius: 3px;
-            border: 1px solid transparent;
-        }
+        
+        /* Status badge */
         .status-badge.configured {
             background: rgba(46, 204, 113, 0.15);
             border-color: rgba(46, 204, 113, 0.4);
@@ -256,161 +173,31 @@ if (!defined('ALLOWED_ACCESS')) {
             border-color: rgba(231, 76, 60, 0.4);
             color: #e74c3c;
         }
-
-        .alert-success-wow {
-            background: rgba(46, 204, 113, 0.15);
-            border: 1px solid rgba(46, 204, 113, 0.4);
-            color: #2ecc71;
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        .alert-success-wow i {
-            font-size: 1.2rem;
-        }
-
-        .alert-danger-wow {
-            background: rgba(231, 76, 60, 0.15);
-            border: 1px solid rgba(231, 76, 60, 0.4);
-            color: #e74c3c;
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        .alert-danger-wow i {
-            font-size: 1.2rem;
-        }
-
-        .info-box {
-            background: rgba(201,162,39,0.05);
-            border: 1px solid rgba(201,162,39,0.15);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .info-box .info-title {
-            padding: 0.75rem 1.25rem;
-            color: #f2cf5b;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-family: 'Cinzel', serif;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-        .info-box .info-title:hover {
-            background: rgba(201,162,39,0.05);
-        }
-        .info-box .info-title i {
-            transition: transform 0.3s ease;
-        }
-        .info-box .info-title.open i {
-            transform: rotate(180deg);
-        }
-        .info-box .info-content {
-            padding: 0 1.25rem;
+        
+        /* Info box toggle - Tailwind can't handle max-height transitions easily */
+        .info-content {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease, padding 0.3s ease;
         }
-        .info-box .info-content.open {
+        .info-content.open {
             max-height: 300px;
             padding: 0 1.25rem 1.25rem;
         }
-        .info-box .info-content ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .info-title .fa-chevron-down {
+            transition: transform 0.3s ease;
         }
-        .info-box .info-content ul li {
-            padding: 0.4rem 0;
-            color: #b8c8ff;
-            font-size: 0.9rem;
-            border-bottom: 1px solid rgba(201,162,39,0.05);
-        }
-        .info-box .info-content ul li:last-child {
-            border-bottom: none;
-        }
-        .info-box .info-content ul li code {
-            color: #f2cf5b;
-            background: rgba(10, 14, 22, 0.5);
-            padding: 0.1rem 0.4rem;
-            border-radius: 2px;
-            font-size: 0.85rem;
-        }
-
-        .form-label {
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            color: #f2cf5b;
-            text-shadow: 0 0 12px rgba(201,162,39,.15), 0 2px 4px rgba(0,0,0,.8);
-            font-size: 0.9rem;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .form-text {
-            color: #6a7a8a;
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
-        }
-
-        /* Main content area - works with sidebar */
-        .main-content-area {
-            transition: margin-left 0.3s ease;
-            min-height: calc(100vh - 72px);
-            width: 100%;
-        }
-
-        .content-wrapper {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        @media (min-width: 640px) {
-            .content-wrapper {
-                padding: 0 1.5rem;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .content-wrapper {
-                padding: 0 2rem;
-            }
-        }
-
-        @media (min-width: 1280px) {
-            .content-wrapper {
-                padding: 0 2.5rem;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .main-content-area.lg\:ml-0 {
-                margin-left: 0;
-            }
-            .main-content-area.lg\:ml-\[280px\] {
-                margin-left: 280px;
-            }
-        }
-
-        @media (max-width: 1023px) {
-            .main-content-area {
-                margin-left: 0 !important;
-                padding: 1rem;
-            }
-            .content-wrapper {
-                padding: 0 0.5rem;
-            }
+        .info-title.open .fa-chevron-down {
+            transform: rotate(180deg);
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen text-[#d8d8d8] bg-[#05070b] bg-fixed"
+      style="background-image: 
+        radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.14), transparent 65%),
+        radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.10), transparent 70%),
+        linear-gradient(180deg, #0a0e16 0%, #060810 45%, #03040a 100%);">
+    
     <?php include $project_root . 'includes/header.php'; ?>
 
     <div class="flex relative min-h-screen">
@@ -420,10 +207,14 @@ if (!defined('ALLOWED_ACCESS')) {
         
         <!-- Main Content -->
         <main class="main-content-area flex-1 p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 lg:ml-[280px]">
-            <div class="content-wrapper">
+            <div class="max-w-[1400px] mx-auto px-1 sm:px-4 md:px-6 lg:px-8 xl:px-10">
                 <div class="space-y-4 md:space-y-6 lg:space-y-8">
                     
-                    <h1 class="wow-title text-2xl md:text-3xl lg:text-4xl"><?php echo translate('title_soap_settings', 'SOAP Settings'); ?></h1>
+                    <h1 class="wow-title text-2xl md:text-3xl lg:text-4xl font-black 
+                               bg-gradient-to-b from-[#fff7d6] via-[#f2cf5b] via-[#c9a227] to-[#8a6a14] 
+                               bg-clip-text text-transparent drop-shadow-[0_3px_6px_rgba(0,0,0,.85)]">
+                        <?php echo translate('title_soap_settings', 'SOAP Settings'); ?>
+                    </h1>
 
                     <!-- Settings Navbar -->
                     <?php include $project_root . 'pages/admin/settings/settings_navbar.php'; ?>
@@ -431,7 +222,8 @@ if (!defined('ALLOWED_ACCESS')) {
                     <!-- Status Badge -->
                     <div class="flex items-center gap-3">
                         <span class="text-gray-400 text-sm font-semibold"><?php echo translate('status', 'Status:'); ?></span>
-                        <span class="status-badge <?php echo $soap_status === 'configured' ? 'configured' : 'not-configured'; ?>">
+                        <span class="status-badge <?php echo $soap_status === 'configured' ? 'configured' : 'not-configured'; ?> 
+                                     inline-flex items-center gap-2 px-4 py-1.5 font-bold text-sm border rounded-sm">
                             <i class="fas <?php echo $soap_status === 'configured' ? 'fa-check-circle' : 'fa-times-circle'; ?>"></i>
                             <?php echo $soap_status === 'configured' 
                                 ? translate('status_soap_configured', 'SOAP Configured') 
@@ -441,8 +233,9 @@ if (!defined('ALLOWED_ACCESS')) {
 
                     <!-- Success / Error Messages -->
                     <?php if (!empty($errors)): ?>
-                        <div class="alert-danger-wow rounded-sm">
-                            <i class="fas fa-exclamation-circle"></i>
+                        <div class="bg-[#e74c3c]/15 border border-[#e74c3c]/40 text-[#e74c3c] 
+                                    p-4 rounded-sm flex items-start gap-3">
+                            <i class="fas fa-exclamation-circle text-xl mt-0.5"></i>
                             <div>
                                 <strong><?php echo translate('error_box_title', 'Please fix the following errors:'); ?></strong>
                                 <?php foreach ($errors as $err): ?>
@@ -453,41 +246,87 @@ if (!defined('ALLOWED_ACCESS')) {
                     <?php endif; ?>
 
                     <?php if ($success): ?>
-                        <div class="alert-success-wow rounded-sm">
-                            <i class="fas fa-check-circle"></i>
+                        <div class="bg-[#2ecc71]/15 border border-[#2ecc71]/40 text-[#2ecc71] 
+                                    p-4 rounded-sm flex items-center gap-3">
+                            <i class="fas fa-check-circle text-xl"></i>
                             <span><?php echo translate('success_soap_settings_saved', 'SOAP settings saved successfully!'); ?></span>
                         </div>
                     <?php endif; ?>
 
                     <!-- SOAP Settings Form -->
-                    <div class="panel p-4 md:p-6 lg:p-8">
-                        <h2 class="section-title text-lg md:text-xl mb-4 md:mb-6 flex items-center gap-3">
+                    <div class="relative bg-gradient-to-b from-[#161920]/92 to-[#080a0e]/90 
+                                border border-[#c9a227]/[0.22] 
+                                shadow-[0_12px_32px_rgba(0,0,0,.55),inset_0_0_60px_rgba(0,0,0,.45)]
+                                p-4 md:p-6 lg:p-8 panel-gold-corners">
+                        
+                        <h2 class="section-title text-lg md:text-xl mb-4 md:mb-6 flex items-center gap-3 
+                                   text-[#f2cf5b] font-bold drop-shadow-[0_0_12px_rgba(201,162,39,.35),0_2px_4px_rgba(0,0,0,.8)]">
                             <i class="fas fa-code text-[#f2cf5b]"></i>
                             <?php echo translate('header_soap_settings', 'SOAP Settings'); ?>
                         </h2>
 
                         <form method="POST" class="space-y-4 md:space-y-6 max-w-3xl mx-auto">
                             <div>
-                                <label for="soap_url" class="form-label"><?php echo translate('label_soap_url', 'SOAP URL'); ?></label>
-                                <input type="text" id="soap_url" name="soap_url" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_soap_url', 'e.g., http://127.0.0.1:7878'); ?>" value="<?php echo htmlspecialchars($soapUrl); ?>" required>
-                                <div class="form-text"><?php echo translate('help_soap_url', 'The URL where your WoW server\'s SOAP service is running.'); ?></div>
+                                <label for="soap_url" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                             tracking-wider block mb-2 
+                                                             drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_soap_url', 'SOAP URL'); ?>
+                                </label>
+                                <input type="text" id="soap_url" name="soap_url" 
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
+                                       placeholder="<?php echo translate('placeholder_soap_url', 'e.g., http://127.0.0.1:7878'); ?>" 
+                                       value="<?php echo htmlspecialchars($soapUrl); ?>" 
+                                       required>
+                                <div class="text-[#6a7a8a] text-xs mt-1"><?php echo translate('help_soap_url', 'The URL where your WoW server\'s SOAP service is running.'); ?></div>
                             </div>
 
                             <div>
-                                <label for="soap_user" class="form-label"><?php echo translate('label_soap_user', 'GM Account Username'); ?></label>
-                                <input type="text" id="soap_user" name="soap_user" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_soap_user', 'Must be GM level 3'); ?>" value="<?php echo htmlspecialchars($soapUser); ?>" required>
-                                <div class="form-text"><?php echo translate('help_soap_user', 'The account must have GM level 3 in the database.'); ?></div>
+                                <label for="soap_user" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                             tracking-wider block mb-2 
+                                                             drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_soap_user', 'GM Account Username'); ?>
+                                </label>
+                                <input type="text" id="soap_user" name="soap_user" 
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
+                                       placeholder="<?php echo translate('placeholder_soap_user', 'Must be GM level 3'); ?>" 
+                                       value="<?php echo htmlspecialchars($soapUser); ?>" 
+                                       required>
+                                <div class="text-[#6a7a8a] text-xs mt-1"><?php echo translate('help_soap_user', 'The account must have GM level 3 in the database.'); ?></div>
                             </div>
 
                             <div>
-                                <label for="soap_pass" class="form-label"><?php echo translate('label_soap_pass', 'SOAP Password'); ?></label>
-                                <input type="password" id="soap_pass" name="soap_pass" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_soap_pass', 'SOAP password = Account password'); ?>" value="<?php echo htmlspecialchars($soapPass); ?>" required>
-                                <div class="form-text"><?php echo translate('help_soap_pass', 'This is the password for the GM account above.'); ?></div>
+                                <label for="soap_pass" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                             tracking-wider block mb-2 
+                                                             drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_soap_pass', 'SOAP Password'); ?>
+                                </label>
+                                <input type="password" id="soap_pass" name="soap_pass" 
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
+                                       placeholder="<?php echo translate('placeholder_soap_pass', 'SOAP password = Account password'); ?>" 
+                                       value="<?php echo htmlspecialchars($soapPass); ?>" 
+                                       required>
+                                <div class="text-[#6a7a8a] text-xs mt-1"><?php echo translate('help_soap_pass', 'This is the password for the GM account above.'); ?></div>
                             </div>
 
                             <!-- Save Button -->
                             <div class="pt-4 border-t border-[rgba(201,162,39,.1)] flex justify-end">
-                                <button type="submit" class="btn-gold">
+                                <button type="submit" class="btn-clip inline-flex items-center gap-2 px-6 py-3 
+                                                             font-extrabold text-xs uppercase tracking-wider
+                                                             bg-gradient-to-b from-[#f6d478] via-[#c9a227] to-[#8a6a14] 
+                                                             text-[#1a1200] shadow-[inset_0_0_0_1px_rgba(255,255,255,.28),inset_0_-8px_14px_rgba(0,0,0,.25)]
+                                                             hover:scale-105 transition-transform duration-200">
                                     <i class="fas fa-save"></i>
                                     <?php echo translate('button_save_verify_soap', 'Save & Verify SOAP'); ?>
                                 </button>
@@ -496,16 +335,25 @@ if (!defined('ALLOWED_ACCESS')) {
                     </div>
 
                     <!-- Information Box -->
-                    <div class="info-box">
-                        <div class="info-title" onclick="toggleInfo(this)">
+                    <div class="bg-[rgba(201,162,39,0.05)] border border-[rgba(201,162,39,0.15)] rounded-sm overflow-hidden">
+                        <div class="info-title px-5 py-3 text-[#f2cf5b] font-bold cursor-pointer 
+                                    flex items-center justify-between font-['Cinzel'] text-sm 
+                                    hover:bg-[rgba(201,162,39,0.05)] transition-all duration-300"
+                             onclick="toggleInfo(this)">
                             <span><i class="fas fa-info-circle text-[#f2cf5b] mr-2"></i><?php echo translate('info_box_title', 'Important Steps'); ?></span>
                             <i class="fas fa-chevron-down text-[#f2cf5b]"></i>
                         </div>
-                        <div class="info-content">
-                            <ul>
-                                <li><?php echo translate('info_step_1', 'Make sure the GM account exists in your Auth DB and has GM level 3 in <code>account_access</code> with <code>RealmID = -1</code>.'); ?></li>
-                                <li><?php echo translate('info_step_2', 'Open your <code>worldserver.conf</code> file and set: <strong>SOAP.Enabled = 1</strong>'); ?></li>
-                                <li><?php echo translate('info_step_3', 'Ensure the SOAP port in <code>soap_url</code> is correct and accessible.'); ?></li>
+                        <div class="info-content px-5">
+                            <ul class="list-none p-0 m-0">
+                                <li class="py-1.5 text-[#b8c8ff] text-sm border-b border-[rgba(201,162,39,0.05)] last:border-b-0">
+                                    <?php echo translate('info_step_1', 'Make sure the GM account exists in your Auth DB and has GM level 3 in <code>account_access</code> with <code>RealmID = -1</code>.'); ?>
+                                </li>
+                                <li class="py-1.5 text-[#b8c8ff] text-sm border-b border-[rgba(201,162,39,0.05)] last:border-b-0">
+                                    <?php echo translate('info_step_2', 'Open your <code>worldserver.conf</code> file and set: <strong>SOAP.Enabled = 1</strong>'); ?>
+                                </li>
+                                <li class="py-1.5 text-[#b8c8ff] text-sm border-b border-[rgba(201,162,39,0.05)] last:border-b-0">
+                                    <?php echo translate('info_step_3', 'Ensure the SOAP port in <code>soap_url</code> is correct and accessible.'); ?>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -517,14 +365,11 @@ if (!defined('ALLOWED_ACCESS')) {
     <script>
         function toggleInfo(element) {
             const content = element.parentElement.querySelector('.info-content');
-            const icon = element.querySelector('i.fa-chevron-down');
+            const icon = element.querySelector('.fa-chevron-down');
             
             if (content) {
                 content.classList.toggle('open');
                 element.classList.toggle('open');
-                if (icon) {
-                    icon.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
-                }
             }
         }
 

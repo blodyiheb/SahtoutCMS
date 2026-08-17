@@ -380,31 +380,19 @@ $page_class = 'vote-sites';
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* Only custom CSS for things Tailwind can't do */
-        body {
-            min-height: 100vh;
-            color: #d8d8d8;
-            background: #05070b;
-            background-image: radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.14), transparent 65%), radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.10), transparent 70%), linear-gradient(180deg, #0a0e16 0%, #060810 45%, #03040a 100%);
-            background-attachment: fixed;
-        }
-
-        .panel {
+        /* Only keep what Tailwind CANNOT do */
+        
+        /* Font families */
+        * { font-family: 'Inter', sans-serif; }
+        .wow-title, .section-title, .form-label, .table-wow th { font-family: 'Cinzel', serif; }
+        
+        /* Panel with gold corners AND inner border */
+        .panel-gold-corners {
             position: relative;
-            background: linear-gradient(180deg, rgba(22,25,32,.92), rgba(8,10,14,.9));
-            border: 1px solid rgba(201,162,39,.22);
-            box-shadow: 0 12px 32px rgba(0,0,0,.55), inset 0 0 60px rgba(0,0,0,.45);
         }
-
-        .panel::before {
-            content: '';
-            position: absolute;
-            inset: 5px;
-            border: 1px solid rgba(201,162,39,.14);
-            pointer-events: none;
-        }
-
-        .panel::after {
+        
+        /* Outer gold corner decorations */
+        .panel-gold-corners::after {
             content: '';
             position: absolute;
             inset: 0;
@@ -420,219 +408,47 @@ $page_class = 'vote-sites';
                 linear-gradient(#e8c552,#e8c552) right bottom / 2px 18px;
             background-repeat: no-repeat;
         }
-
-        .wow-title {
-            font-family: 'Cinzel', serif;
-            font-weight: 900;
-            background: linear-gradient(180deg, #fff7d6 0%, #f2cf5b 35%, #c9a227 62%, #8a6a14 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 3px 6px rgba(0,0,0,.85));
+        
+        /* Inner border inset */
+        .panel-gold-corners::before {
+            content: '';
+            position: absolute;
+            inset: 5px;
+            border: 1px solid rgba(201,162,39,.14);
+            pointer-events: none;
         }
-
-        .section-title {
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            color: #f2cf5b;
-            text-shadow: 0 0 12px rgba(201,162,39,.35), 0 2px 4px rgba(0,0,0,.8);
-        }
-
-        .btn-gold {
-            display: inline-flex;
-            align-items: center;
-            gap: .55rem;
-            padding: .75rem 1.5rem;
-            font-weight: 800;
-            font-size: .85rem;
-            letter-spacing: .04em;
-            text-transform: uppercase;
+        
+        /* Custom clip-path for buttons */
+        .btn-clip {
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            transition: transform .2s ease;
-            background: linear-gradient(180deg, #f6d478 0%, #c9a227 48%, #8a6a14 100%);
-            color: #1a1200;
-            text-shadow: 0 1px 0 rgba(255,255,255,.35);
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), inset 0 -8px 14px rgba(0,0,0,.25);
-            border: none;
-            cursor: pointer;
         }
-        .btn-gold:hover { transform: translateY(-2px) scale(1.02); }
-
-        .btn-iron {
-            display: inline-flex;
+        
+        /* Modal backdrop */
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
             align-items: center;
-            gap: .55rem;
-            padding: .75rem 1.5rem;
-            font-weight: 800;
-            font-size: .85rem;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            transition: transform .2s ease;
-            background: linear-gradient(180deg, #3a404d 0%, #232833 55%, #141821 100%);
-            color: #cfe1ff;
-            box-shadow: inset 0 0 0 1px rgba(120,160,255,.25), inset 0 -8px 14px rgba(0,0,0,.4);
-            border: none;
-            cursor: pointer;
+            justify-content: center;
+            padding: 1rem;
         }
-        .btn-iron:hover { transform: translateY(-2px) scale(1.02); }
-
-        .btn-danger {
-            display: inline-flex;
-            align-items: center;
-            gap: .55rem;
-            padding: .75rem 1.5rem;
-            font-weight: 800;
-            font-size: .85rem;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            transition: transform .2s ease;
-            background: linear-gradient(180deg, #ff4d4d 0%, #cc0000 48%, #8a0000 100%);
-            color: #fff;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,.2), inset 0 -8px 14px rgba(0,0,0,.3);
-            border: none;
-            cursor: pointer;
+        .modal-backdrop.show {
+            display: flex;
         }
-        .btn-danger:hover { transform: translateY(-2px) scale(1.02); }
-        .btn-danger.btn-sm {
-            padding: .4rem 1rem;
-            font-size: .75rem;
-        }
-
-        .btn-edit {
-            display: inline-flex;
-            align-items: center;
-            gap: .55rem;
-            padding: .75rem 1.5rem;
-            font-weight: 800;
-            font-size: .85rem;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            transition: transform .2s ease;
-            background: linear-gradient(180deg, #4a90d9 0%, #2a5f8a 48%, #1a3f5a 100%);
-            color: #fff;
-            box-shadow: inset 0 0 0 1px rgba(100,180,255,.25), inset 0 -8px 14px rgba(0,0,0,.3);
-            border: none;
-            cursor: pointer;
-        }
-        .btn-edit:hover { transform: translateY(-2px) scale(1.02); }
-        .btn-edit.btn-sm {
-            padding: .4rem 1rem;
-            font-size: .75rem;
-        }
-
-        .upload-area {
-            border: 2px dashed rgba(201,162,39,.2);
-            background: rgba(10, 14, 22, 0.5);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            padding: 2rem 1.5rem;
-            text-align: center;
-        }
-        .upload-area:hover {
-            border-color: rgba(201,162,39,.4);
-            background: rgba(15, 20, 30, 0.7);
-        }
-        .upload-area.dragover {
-            border-color: #f2cf5b;
-            background: rgba(201,162,39,.08);
-        }
-
-        .main-content-area {
-            transition: margin-left 0.3s ease;
-            min-height: calc(100vh - 72px);
+        .modal-backdrop .panel-gold-corners {
+            max-width: 28rem;
             width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-
-        .content-wrapper {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        @media (min-width: 640px) {
-            .content-wrapper {
-                padding: 0 1.5rem;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .content-wrapper {
-                padding: 0 2rem;
-            }
-        }
-
-        @media (min-width: 1280px) {
-            .content-wrapper {
-                padding: 0 2.5rem;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .main-content-area.lg\:ml-0 {
-                margin-left: 0;
-            }
-            .main-content-area.lg\:ml-\[280px\] {
-                margin-left: 280px;
-            }
-        }
-
-        @media (max-width: 1023px) {
-            .main-content-area {
-                margin-left: 0 !important;
-                padding: 1rem;
-            }
-            .content-wrapper {
-                padding: 0 0.5rem;
-            }
-        }
-
-        .form-label {
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            color: #f2cf5b;
-            text-shadow: 0 0 12px rgba(201,162,39,.15), 0 2px 4px rgba(0,0,0,.8);
-            font-size: 0.9rem;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .form-text {
-            color: #6a7a8a;
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
-        }
-
-        .input-dark {
-            background: rgba(10, 14, 22, 0.8);
-            border: 1px solid rgba(201,162,39,.3);
-            color: #e5e7eb;
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-            outline: none;
-            width: 100%;
-        }
-        .input-dark:focus {
-            border-color: #f2cf5b;
-            box-shadow: 0 0 10px rgba(242,207,82,.2);
-            background: rgba(15, 20, 30, 0.9);
-        }
-        .input-dark::placeholder { color: rgba(150, 170, 200, 0.4); }
-        .input-dark option { background: #0a0e16; }
-
-        .vote-image {
-            max-height: 50px;
-            max-width: 100px;
-            object-fit: contain;
-        }
-
+        
+        /* Table styles */
         .table-wow th {
             background: rgba(10, 14, 22, 0.9);
             color: #f2cf5b;
-            font-family: 'Cinzel', serif;
             font-weight: 700;
             text-transform: uppercase;
             font-size: 0.75rem;
@@ -653,32 +469,33 @@ $page_class = 'vote-sites';
         .table-wow tr:hover td {
             background: rgba(30, 35, 45, 0.8);
         }
-
-        /* Delete Modal */
-        .modal-backdrop {
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            position: fixed;
-            inset: 0;
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
+        
+        /* Vote image */
+        .vote-image {
+            max-height: 50px;
+            max-width: 100px;
+            object-fit: contain;
         }
-        .modal-backdrop.show {
-            display: flex;
+        
+        /* File input hidden */
+        .hidden-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
         }
-        .modal-backdrop .panel {
-            max-width: 28rem;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
     </style>
 </head>
-<body>
+<body class="min-h-screen text-[#d8d8d8] bg-[#05070b] bg-fixed"
+      style="background-image: 
+        radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.14), transparent 65%),
+        radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.10), transparent 70%),
+        linear-gradient(180deg, #0a0e16 0%, #060810 45%, #03040a 100%);">
+    
     <?php include $project_root . 'includes/header.php'; ?>
 
     <div class="flex relative min-h-screen">
@@ -688,23 +505,29 @@ $page_class = 'vote-sites';
         
         <!-- Main Content -->
         <main class="main-content-area flex-1 p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 lg:ml-[280px]">
-            <div class="content-wrapper">
+            <div class="max-w-[1400px] mx-auto px-1 sm:px-4 md:px-6 lg:px-8 xl:px-10">
                 <div class="space-y-4 md:space-y-6 lg:space-y-8">
                     
-                    <h1 class="wow-title text-2xl md:text-3xl lg:text-4xl"><?php echo translate('page_title_manage_vote_sites', 'Manage Vote Sites'); ?></h1>
+                    <h1 class="wow-title text-2xl md:text-3xl lg:text-4xl font-black 
+                               bg-gradient-to-b from-[#fff7d6] via-[#f2cf5b] via-[#c9a227] to-[#8a6a14] 
+                               bg-clip-text text-transparent drop-shadow-[0_3px_6px_rgba(0,0,0,.85)]">
+                        <?php echo translate('page_title_manage_vote_sites', 'Manage Vote Sites'); ?>
+                    </h1>
 
                     <!-- Settings Navbar -->
                     <?php include $project_root . 'pages/admin/settings/settings_navbar.php'; ?>
 
                     <!-- Success / Error Messages -->
                     <?php if ($status === 'success' || (isset($_GET['status']) && $_GET['status'] === 'success')): ?>
-                        <div class="bg-green-900/20 border border-green-500/40 text-green-400 px-4 py-3 rounded-sm flex items-center gap-3">
-                            <i class="fas fa-check-circle text-lg"></i>
+                        <div class="bg-[#2ecc71]/15 border border-[#2ecc71]/40 text-[#2ecc71] 
+                                    p-4 rounded-sm flex items-center gap-3">
+                            <i class="fas fa-check-circle text-xl"></i>
                             <span><?php echo htmlspecialchars($message ?: urldecode($_GET['message'])); ?></span>
                         </div>
                     <?php elseif (!empty($errors) || (isset($_GET['status']) && $_GET['status'] === 'error')): ?>
-                        <div class="bg-red-900/20 border border-red-500/40 text-red-400 px-4 py-3 rounded-sm flex items-center gap-3">
-                            <i class="fas fa-exclamation-circle text-lg"></i>
+                        <div class="bg-[#e74c3c]/15 border border-[#e74c3c]/40 text-[#e74c3c] 
+                                    p-4 rounded-sm flex items-start gap-3">
+                            <i class="fas fa-exclamation-circle text-xl mt-0.5"></i>
                             <div>
                                 <strong><?php echo translate('err_fix_errors', 'Please fix the following errors:'); ?></strong>
                                 <?php if (isset($_GET['status']) && $_GET['status'] === 'error'): ?>
@@ -719,8 +542,13 @@ $page_class = 'vote-sites';
                     <?php endif; ?>
 
                     <!-- Vote Site Form -->
-                    <div class="panel p-4 md:p-6 lg:p-8">
-                        <h2 class="section-title text-lg md:text-xl mb-4 md:mb-6 flex items-center gap-3">
+                    <div class="relative bg-gradient-to-b from-[#161920]/92 to-[#080a0e]/90 
+                                border border-[#c9a227]/[0.22] 
+                                shadow-[0_12px_32px_rgba(0,0,0,.55),inset_0_0_60px_rgba(0,0,0,.45)]
+                                p-4 md:p-6 lg:p-8 panel-gold-corners">
+                        
+                        <h2 class="section-title text-lg md:text-xl mb-4 md:mb-6 flex items-center gap-3 
+                                   text-[#f2cf5b] font-bold drop-shadow-[0_0_12px_rgba(201,162,39,.35),0_2px_4px_rgba(0,0,0,.8)]">
                             <i class="fas fa-vote-yea text-[#f2cf5b]"></i>
                             <?php echo $site_id > 0 ? translate('title_edit_vote_site', 'Edit Vote Site') : translate('title_add_vote_site', 'Add Vote Site'); ?>
                         </h2>
@@ -732,46 +560,112 @@ $page_class = 'vote-sites';
 
                             <!-- Callback File Name -->
                             <div>
-                                <label for="callback_file_name" class="form-label"><?php echo translate('label_callback_file_name', 'Callback File Name'); ?></label>
-                                <input type="text" name="callback_file_name" id="callback_file_name" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_callback_file_name', 'Enter callback file name (e.g., arenaTop100)'); ?>" value="<?php echo htmlspecialchars($site_data['callback_file_name']); ?>" required maxlength="50">
-                                <p class="form-text"><?php echo translate('label_callback_file_name_info', 'Name for identifying the voting site in callbacks (gtop100, top100arena, etc)'); ?></p>
+                                <label for="callback_file_name" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                         tracking-wider block mb-2 
+                                                                         drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_callback_file_name', 'Callback File Name'); ?>
+                                </label>
+                                <input type="text" name="callback_file_name" id="callback_file_name" 
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
+                                       placeholder="<?php echo translate('placeholder_callback_file_name', 'Enter callback file name (e.g., arenaTop100)'); ?>" 
+                                       value="<?php echo htmlspecialchars($site_data['callback_file_name']); ?>" 
+                                       required maxlength="50">
+                                <p class="text-[#6a7a8a] text-xs mt-1"><?php echo translate('label_callback_file_name_info', 'Name for identifying the voting site in callbacks (gtop100, top100arena, etc)'); ?></p>
                             </div>
 
                             <!-- Site Name -->
                             <div>
-                                <label for="site_name" class="form-label"><?php echo translate('label_site_name', 'Site Name'); ?></label>
-                                <input type="text" name="site_name" id="site_name" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_site_name', 'Enter site name'); ?>" value="<?php echo htmlspecialchars($site_data['site_name']); ?>" required maxlength="50">
+                                <label for="site_name" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                             tracking-wider block mb-2 
+                                                             drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_site_name', 'Site Name'); ?>
+                                </label>
+                                <input type="text" name="site_name" id="site_name" 
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
+                                       placeholder="<?php echo translate('placeholder_site_name', 'Enter site name'); ?>" 
+                                       value="<?php echo htmlspecialchars($site_data['site_name']); ?>" 
+                                       required maxlength="50">
                             </div>
 
                             <!-- Site ID -->
                             <div>
-                                <label for="siteid" class="form-label"><?php echo translate('label_siteid', 'Site ID'); ?></label>
-                                <input type="text" name="siteid" id="siteid" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_siteid', 'Enter server ID on the voting site'); ?>" value="<?php echo htmlspecialchars($site_data['siteid']); ?>" required maxlength="255">
-                                <p class="form-text"><?php echo translate('label_siteid_info', 'Your server\'s unique ID on the voting site (e.g., SahtoutServer, 12345).'); ?></p>
+                                <label for="siteid" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                           tracking-wider block mb-2 
+                                                           drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_siteid', 'Site ID'); ?>
+                                </label>
+                                <input type="text" name="siteid" id="siteid" 
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
+                                       placeholder="<?php echo translate('placeholder_siteid', 'Enter server ID on the voting site'); ?>" 
+                                       value="<?php echo htmlspecialchars($site_data['siteid']); ?>" 
+                                       required maxlength="255">
+                                <p class="text-[#6a7a8a] text-xs mt-1"><?php echo translate('label_siteid_info', 'Your server\'s unique ID on the voting site (e.g., SahtoutServer, 12345).'); ?></p>
                             </div>
 
                             <!-- URL Format -->
                             <div>
-                                <label for="url_format" class="form-label"><?php echo translate('label_url_format', 'Vote URL Format'); ?></label>
-                                <input type="text" name="url_format" id="url_format" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_url_format', 'e.g., https://site.com/vote/{siteid}/{userid}'); ?>" value="<?php echo htmlspecialchars($site_data['url_format']); ?>" required maxlength="255">
-                                <p class="form-text"><?php echo translate('label_url_format_info', 'Use {siteid}, {userid}, or {username} as placeholders.'); ?></p>
+                                <label for="url_format" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                               tracking-wider block mb-2 
+                                                               drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_url_format', 'Vote URL Format'); ?>
+                                </label>
+                                <input type="text" name="url_format" id="url_format" 
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
+                                       placeholder="<?php echo translate('placeholder_url_format', 'e.g., https://site.com/vote/{siteid}/{userid}'); ?>" 
+                                       value="<?php echo htmlspecialchars($site_data['url_format']); ?>" 
+                                       required maxlength="255">
+                                <p class="text-[#6a7a8a] text-xs mt-1"><?php echo translate('label_url_format_info', 'Use {siteid}, {userid}, or {username} as placeholders.'); ?></p>
                             </div>
 
                             <!-- Button Image Upload -->
                             <div>
-                                <label for="button_image" class="form-label"><?php echo translate('label_button_image', 'Upload Button Image'); ?></label>
+                                <label for="button_image" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                 tracking-wider block mb-2 
+                                                                 drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_button_image', 'Upload Button Image'); ?>
+                                </label>
                                 <?php if ($site_data['button_image_url']): ?>
-                                    <div class="mb-3 flex items-center gap-4">
-                                        <img src="<?php echo htmlspecialchars($site_data['button_image_url']); ?>" alt="<?php echo translate('label_button_image', 'Button Image'); ?>" class="vote-image border border-[rgba(201,162,39,.2)] p-1 bg-[rgba(10,14,22,0.5)] rounded-sm">
-                                        <a href="<?php echo $base_path; ?>admin/settings/vote_sites?delete_image=<?php echo $site_id; ?>&csrf_token=<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>" class="btn-danger btn-sm" onclick="return confirm('<?php echo translate('confirm_delete_image', 'Are you sure you want to delete this image?'); ?>');">
+                                    <div class="mb-3 flex items-center gap-4 flex-wrap">
+                                        <img src="<?php echo htmlspecialchars($site_data['button_image_url']); ?>" 
+                                             alt="<?php echo translate('label_button_image', 'Button Image'); ?>" 
+                                             class="vote-image border border-[rgba(201,162,39,.2)] p-1 bg-[#0a0e16]/50 rounded-sm">
+                                        <a href="<?php echo $base_path; ?>admin/settings/vote_sites?delete_image=<?php echo $site_id; ?>&csrf_token=<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>" 
+                                           class="btn-clip inline-flex items-center gap-1.5 px-3 py-1.5 
+                                                  font-extrabold text-xs uppercase tracking-wider
+                                                  bg-gradient-to-b from-[#ff4d4d] via-[#cc0000] to-[#8a0000] 
+                                                  text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.2),inset_0_-8px_14px_rgba(0,0,0,.3)]
+                                                  hover:scale-105 transition-transform duration-200"
+                                           onclick="return confirm('<?php echo translate('confirm_delete_image', 'Are you sure you want to delete this image?'); ?>');">
                                             <i class="fas fa-trash"></i> <?php echo translate('btn_delete_image', 'Delete Image'); ?>
                                         </a>
                                     </div>
                                 <?php endif; ?>
-                                <div class="upload-area rounded-sm" id="uploadArea">
-                                    <input type="file" id="button_image" name="button_image" class="absolute w-px h-px p-0 -m-px overflow-hidden clip-rect-0 border-0" accept="image/jpeg,image/png,image/gif">
+                                <div class="border-2 border-dashed border-[#c9a227]/20 
+                                            bg-[#0a0e16]/50 hover:border-[#c9a227]/40 
+                                            hover:bg-[#0f141e]/70 cursor-pointer transition-all duration-300 
+                                            p-8 text-center rounded-sm" 
+                                     id="uploadArea">
+                                    <input type="file" id="button_image" name="button_image" 
+                                           class="absolute w-px h-px p-0 -m-px overflow-hidden clip-[rect(0,0,0,0)] border-0" 
+                                           accept="image/jpeg,image/png,image/gif">
                                     <div id="uploadPlaceholder">
-                                        <i class="fas fa-cloud-upload-alt text-3xl text-[#c9a227]/40 mb-2"></i>
+                                        <i class="fas fa-cloud-upload-alt text-3xl text-[#c9a227]/40 block mb-2"></i>
                                         <p class="text-sm text-gray-400"><?php echo translate('placeholder_button_image', 'Click or drag to upload a button image'); ?></p>
                                         <p class="text-xs text-gray-500 mt-1">JPEG, PNG, GIF (max 1MB)</p>
                                     </div>
@@ -781,27 +675,72 @@ $page_class = 'vote-sites';
 
                             <!-- Button Image URL (Optional) -->
                             <div>
-                                <label for="button_image_url" class="form-label"><?php echo translate('label_button_image_url', 'Button Image URL (Optional)'); ?></label>
-                                <input type="text" name="button_image_url" id="button_image_url" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_button_image_url', 'Enter button image URL (optional)'); ?>" value="<?php echo htmlspecialchars($site_data['button_image_url']); ?>" maxlength="255">
-                                <p class="form-text"><?php echo translate('label_image_url_info', 'Enter an image URL if you prefer not to upload an image. Leave empty to clear the image.'); ?></p>
+                                <label for="button_image_url" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                      tracking-wider block mb-2 
+                                                                      drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_button_image_url', 'Button Image URL (Optional)'); ?>
+                                </label>
+                                <input type="text" name="button_image_url" id="button_image_url" 
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
+                                       placeholder="<?php echo translate('placeholder_button_image_url', 'Enter button image URL (optional)'); ?>" 
+                                       value="<?php echo htmlspecialchars($site_data['button_image_url']); ?>" 
+                                       maxlength="255">
+                                <p class="text-[#6a7a8a] text-xs mt-1"><?php echo translate('label_image_url_info', 'Enter an image URL if you prefer not to upload an image. Leave empty to clear the image.'); ?></p>
                             </div>
 
                             <!-- Cooldown Hours -->
                             <div>
-                                <label for="cooldown_hours" class="form-label"><?php echo translate('label_cooldown_hours', 'Cooldown Hours'); ?></label>
-                                <input type="number" name="cooldown_hours" id="cooldown_hours" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_cooldown_hours', 'Enter cooldown hours'); ?>" value="<?php echo htmlspecialchars($site_data['cooldown_hours']); ?>" required min="1" max="999">
+                                <label for="cooldown_hours" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                    tracking-wider block mb-2 
+                                                                    drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_cooldown_hours', 'Cooldown Hours'); ?>
+                                </label>
+                                <input type="number" name="cooldown_hours" id="cooldown_hours" 
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
+                                       placeholder="<?php echo translate('placeholder_cooldown_hours', 'Enter cooldown hours'); ?>" 
+                                       value="<?php echo htmlspecialchars($site_data['cooldown_hours']); ?>" 
+                                       required min="1" max="999">
                             </div>
 
                             <!-- Reward Points -->
                             <div>
-                                <label for="reward_points" class="form-label"><?php echo translate('label_reward_points', 'Reward Points'); ?></label>
-                                <input type="number" name="reward_points" id="reward_points" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_reward_points', 'Enter reward points'); ?>" value="<?php echo htmlspecialchars($site_data['reward_points']); ?>" required min="1" max="255">
+                                <label for="reward_points" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                   tracking-wider block mb-2 
+                                                                   drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_reward_points', 'Reward Points'); ?>
+                                </label>
+                                <input type="number" name="reward_points" id="reward_points" 
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
+                                       placeholder="<?php echo translate('placeholder_reward_points', 'Enter reward points'); ?>" 
+                                       value="<?php echo htmlspecialchars($site_data['reward_points']); ?>" 
+                                       required min="1" max="255">
                             </div>
 
                             <!-- Uses Callback -->
                             <div>
-                                <label for="uses_callback" class="form-label"><?php echo translate('label_uses_callback', 'Uses Callback'); ?></label>
-                                <select name="uses_callback" id="uses_callback" class="input-dark rounded-sm">
+                                <label for="uses_callback" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                   tracking-wider block mb-2 
+                                                                   drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_uses_callback', 'Uses Callback'); ?>
+                                </label>
+                                <select name="uses_callback" id="uses_callback" 
+                                        class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                               bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                               focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                               focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                               placeholder:text-[#96aac8]/40">
                                     <option value="0" <?php echo $site_data['uses_callback'] == 0 ? 'selected' : ''; ?>><?php echo translate('option_no', 'No'); ?></option>
                                     <option value="1" <?php echo $site_data['uses_callback'] == 1 ? 'selected' : ''; ?>><?php echo translate('option_yes', 'Yes'); ?></option>
                                 </select>
@@ -809,18 +748,39 @@ $page_class = 'vote-sites';
 
                             <!-- Callback Secret -->
                             <div>
-                                <label for="callback_secret" class="form-label"><?php echo translate('label_callback_secret', 'Callback Secret'); ?></label>
-                                <input type="text" name="callback_secret" id="callback_secret" class="input-dark rounded-sm" placeholder="<?php echo translate('placeholder_callback_secret', 'Enter callback secret (optional)'); ?>" value="<?php echo htmlspecialchars($site_data['callback_secret'] ?? ''); ?>" maxlength="64">
+                                <label for="callback_secret" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                     tracking-wider block mb-2 
+                                                                     drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_callback_secret', 'Callback Secret'); ?>
+                                </label>
+                                <input type="text" name="callback_secret" id="callback_secret" 
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
+                                       placeholder="<?php echo translate('placeholder_callback_secret', 'Enter callback secret (optional)'); ?>" 
+                                       value="<?php echo htmlspecialchars($site_data['callback_secret'] ?? ''); ?>" 
+                                       maxlength="64">
                             </div>
 
                             <!-- Buttons -->
                             <div class="pt-4 border-t border-[rgba(201,162,39,.1)] flex flex-wrap gap-3">
-                                <button type="submit" class="btn-gold">
+                                <button type="submit" class="btn-clip inline-flex items-center gap-2 px-6 py-3 
+                                                             font-extrabold text-xs uppercase tracking-wider
+                                                             bg-gradient-to-b from-[#f6d478] via-[#c9a227] to-[#8a6a14] 
+                                                             text-[#1a1200] shadow-[inset_0_0_0_1px_rgba(255,255,255,.28),inset_0_-8px_14px_rgba(0,0,0,.25)]
+                                                             hover:scale-105 transition-transform duration-200">
                                     <i class="fas fa-save"></i>
                                     <?php echo translate('btn_save_vote_site', 'Save Vote Site'); ?>
                                 </button>
                                 <?php if ($site_id > 0): ?>
-                                    <a href="<?php echo $base_path; ?>admin/settings/vote_sites" class="btn-iron">
+                                    <a href="<?php echo $base_path; ?>admin/settings/vote_sites" 
+                                       class="btn-clip inline-flex items-center gap-2 px-6 py-3 
+                                              font-extrabold text-xs uppercase tracking-wider
+                                              bg-gradient-to-b from-[#3a404d] via-[#232833] to-[#141821] 
+                                              text-[#cfe1ff] shadow-[inset_0_0_0_1px_rgba(120,160,255,.25),inset_0_-8px_14px_rgba(0,0,0,.4)]
+                                              hover:scale-105 transition-transform duration-200">
                                         <i class="fas fa-times"></i>
                                         <?php echo translate('btn_reset', 'Reset Form'); ?>
                                     </a>
@@ -830,8 +790,13 @@ $page_class = 'vote-sites';
                     </div>
 
                     <!-- Vote Sites Table -->
-                    <div class="panel p-4 md:p-6 lg:p-8">
-                        <h2 class="section-title text-lg md:text-xl mb-4 md:mb-6 flex items-center gap-3">
+                    <div class="relative bg-gradient-to-b from-[#161920]/92 to-[#080a0e]/90 
+                                border border-[#c9a227]/[0.22] 
+                                shadow-[0_12px_32px_rgba(0,0,0,.55),inset_0_0_60px_rgba(0,0,0,.45)]
+                                p-4 md:p-6 lg:p-8 panel-gold-corners">
+                        
+                        <h2 class="section-title text-lg md:text-xl mb-4 md:mb-6 flex items-center gap-3 
+                                   text-[#f2cf5b] font-bold drop-shadow-[0_0_12px_rgba(201,162,39,.35),0_2px_4px_rgba(0,0,0,.8)]">
                             <i class="fas fa-list text-[#f2cf5b]"></i>
                             <?php echo translate('title_vote_sites_list', 'Vote Sites List'); ?>
                         </h2>
@@ -876,17 +841,27 @@ $page_class = 'vote-sites';
                                                 <td><?php echo htmlspecialchars($site['cooldown_hours']); ?></td>
                                                 <td class="hidden xs:table-cell"><?php echo htmlspecialchars($site['reward_points']); ?></td>
                                                 <td class="hidden xl:table-cell">
-                                                    <span class="text-xs px-2 py-1 rounded-sm <?php echo $site['uses_callback'] ? 'bg-green-900/20 text-green-400 border border-green-500/30' : 'bg-gray-900/20 text-gray-400 border border-gray-500/30'; ?>">
+                                                    <span class="text-xs px-2 py-1 rounded-sm <?php echo $site['uses_callback'] ? 'bg-[#2ecc71]/20 text-[#2ecc71] border border-[#2ecc71]/30' : 'bg-gray-900/20 text-gray-400 border border-gray-500/30'; ?>">
                                                         <?php echo $site['uses_callback'] ? translate('option_yes', 'Yes') : translate('option_no', 'No'); ?>
                                                     </span>
                                                 </td>
                                                 <td>
                                                     <div class="flex flex-wrap gap-1.5">
-                                                        <a href="<?php echo $base_path; ?>admin/settings/vote_sites?id=<?php echo $site['id']; ?>" class="btn-edit btn-sm">
+                                                        <a href="<?php echo $base_path; ?>admin/settings/vote_sites?id=<?php echo $site['id']; ?>" 
+                                                           class="btn-clip inline-flex items-center gap-1.5 px-3 py-1.5 
+                                                                  font-extrabold text-xs uppercase tracking-wider
+                                                                  bg-gradient-to-b from-[#4a90d9] via-[#2a5f8a] to-[#1a3f5a] 
+                                                                  text-white shadow-[inset_0_0_0_1px_rgba(100,180,255,.25),inset_0_-8px_14px_rgba(0,0,0,.3)]
+                                                                  hover:scale-105 transition-transform duration-200">
                                                             <i class="fas fa-edit"></i>
                                                             <span class="hidden sm:inline"><?php echo translate('btn_edit', 'Edit'); ?></span>
                                                         </a>
-                                                        <button onclick="openDeleteModal(<?php echo $site['id']; ?>, '<?php echo htmlspecialchars($site['site_name']); ?>')" class="btn-danger btn-sm">
+                                                        <button onclick="openDeleteModal(<?php echo $site['id']; ?>, '<?php echo htmlspecialchars($site['site_name']); ?>')" 
+                                                                class="btn-clip inline-flex items-center gap-1.5 px-3 py-1.5 
+                                                                       font-extrabold text-xs uppercase tracking-wider
+                                                                       bg-gradient-to-b from-[#ff4d4d] via-[#cc0000] to-[#8a0000] 
+                                                                       text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.2),inset_0_-8px_14px_rgba(0,0,0,.3)]
+                                                                       hover:scale-105 transition-transform duration-200">
                                                             <i class="fas fa-trash"></i>
                                                             <span class="hidden sm:inline"><?php echo translate('btn_delete', 'Delete'); ?></span>
                                                         </button>
@@ -906,23 +881,40 @@ $page_class = 'vote-sites';
 
     <!-- Delete Modal -->
     <div class="modal-backdrop" id="deleteModal">
-        <div class="panel p-6 md:p-8 relative">
-            <button class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl" onclick="closeDeleteModal()">&times;</button>
+        <div class="relative bg-gradient-to-b from-[#161920]/92 to-[#080a0e]/90 
+                    border border-[#c9a227]/[0.22] 
+                    shadow-[0_12px_32px_rgba(0,0,0,.55),inset_0_0_60px_rgba(0,0,0,.45)]
+                    p-6 md:p-8 panel-gold-corners">
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl transition-colors" 
+                    onclick="closeDeleteModal()">&times;</button>
             <div class="text-center">
                 <div class="text-5xl text-red-500 mb-4">
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
-                <h3 class="wow-title text-2xl mb-4"><?php echo translate('confirm_delete_title', 'Confirm Delete'); ?></h3>
+                <h3 class="wow-title text-2xl mb-4 font-black 
+                           bg-gradient-to-b from-[#fff7d6] via-[#f2cf5b] via-[#c9a227] to-[#8a6a14] 
+                           bg-clip-text text-transparent drop-shadow-[0_3px_6px_rgba(0,0,0,.85)]">
+                    <?php echo translate('confirm_delete_title', 'Confirm Delete'); ?>
+                </h3>
                 <p class="text-gray-300 mb-2"><?php echo translate('confirm_delete_vote_site', 'Are you sure you want to delete this vote site?'); ?></p>
                 <p class="text-red-400 text-sm font-semibold" id="deleteSiteName"></p>
                 <p class="text-gray-500 text-xs mt-2"><?php echo translate('confirm_delete_irreversible', 'This action cannot be undone.'); ?></p>
                 <form method="GET" action="<?php echo $base_path; ?>admin/settings/vote_sites" class="flex justify-center gap-4 mt-6">
                     <input type="hidden" name="delete" id="deleteSiteId" value="">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                    <button type="button" class="btn-iron" onclick="closeDeleteModal()">
+                    <button type="button" class="btn-clip inline-flex items-center gap-2 px-6 py-3 
+                                                 font-extrabold text-xs uppercase tracking-wider
+                                                 bg-gradient-to-b from-[#3a404d] via-[#232833] to-[#141821] 
+                                                 text-[#cfe1ff] shadow-[inset_0_0_0_1px_rgba(120,160,255,.25),inset_0_-8px_14px_rgba(0,0,0,.4)]
+                                                 hover:scale-105 transition-transform duration-200" 
+                            onclick="closeDeleteModal()">
                         <?php echo translate('btn_cancel', 'Cancel'); ?>
                     </button>
-                    <button type="submit" class="btn-danger">
+                    <button type="submit" class="btn-clip inline-flex items-center gap-2 px-6 py-3 
+                                                 font-extrabold text-xs uppercase tracking-wider
+                                                 bg-gradient-to-b from-[#ff4d4d] via-[#cc0000] to-[#8a0000] 
+                                                 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.2),inset_0_-8px_14px_rgba(0,0,0,.3)]
+                                                 hover:scale-105 transition-transform duration-200">
                         <i class="fas fa-trash"></i>
                         <?php echo translate('btn_confirm_delete', 'Confirm Delete'); ?>
                     </button>
@@ -969,16 +961,16 @@ $page_class = 'vote-sites';
 
                 uploadArea.addEventListener('dragover', (e) => {
                     e.preventDefault();
-                    uploadArea.classList.add('dragover');
+                    uploadArea.classList.add('border-[#f2cf5b]', 'bg-[#c9a227]/10');
                 });
 
                 uploadArea.addEventListener('dragleave', () => {
-                    uploadArea.classList.remove('dragover');
+                    uploadArea.classList.remove('border-[#f2cf5b]', 'bg-[#c9a227]/10');
                 });
 
                 uploadArea.addEventListener('drop', (e) => {
                     e.preventDefault();
-                    uploadArea.classList.remove('dragover');
+                    uploadArea.classList.remove('border-[#f2cf5b]', 'bg-[#c9a227]/10');
                     if (e.dataTransfer.files.length) {
                         fileInput.files = e.dataTransfer.files;
                         fileInput.dispatchEvent(new Event('change'));

@@ -26,35 +26,19 @@ $page_class = 'general';
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
     
     <style>
+        /* Only keep what Tailwind CANNOT do */
+        
+        /* Font families - Tailwind can't handle font-family well inline */
         * { font-family: 'Inter', sans-serif; }
-
-        body {
-            min-height: 100vh;
-            color: #d8d8d8;
-            background: #05070b;
-            background-image:
-                radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.14), transparent 65%),
-                radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.10), transparent 70%),
-                linear-gradient(180deg, #0a0e16 0%, #060810 45%, #03040a 100%);
-            background-attachment: fixed;
-        }
-
-        .panel {
+        .wow-title, .section-title, .form-label { font-family: 'Cinzel', serif; }
+        
+        /* Panel with gold corners AND inner border */
+        .panel-gold-corners {
             position: relative;
-            background: linear-gradient(180deg, rgba(22,25,32,.92), rgba(8,10,14,.9));
-            border: 1px solid rgba(201,162,39,.22);
-            box-shadow: 0 12px 32px rgba(0,0,0,.55), inset 0 0 60px rgba(0,0,0,.45);
         }
-
-        .panel::before {
-            content: '';
-            position: absolute;
-            inset: 5px;
-            border: 1px solid rgba(201,162,39,.14);
-            pointer-events: none;
-        }
-
-        .panel::after {
+        
+        /* Outer gold corner decorations */
+        .panel-gold-corners::after {
             content: '';
             position: absolute;
             inset: 0;
@@ -70,269 +54,28 @@ $page_class = 'general';
                 linear-gradient(#e8c552,#e8c552) right bottom / 2px 18px;
             background-repeat: no-repeat;
         }
-
-        .wow-title {
-            font-family: 'Cinzel', serif;
-            font-weight: 900;
-            background: linear-gradient(180deg, #fff7d6 0%, #f2cf5b 35%, #c9a227 62%, #8a6a14 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 3px 6px rgba(0,0,0,.85));
-        }
-
-        .section-title {
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            color: #f2cf5b;
-            text-shadow: 0 0 12px rgba(201,162,39,.35), 0 2px 4px rgba(0,0,0,.8);
-        }
-
-        .btn-gold {
-            display: inline-flex;
-            align-items: center;
-            gap: .55rem;
-            padding: .75rem 1.5rem;
-            font-weight: 800;
-            font-size: .85rem;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            transition: transform .2s ease;
-            background: linear-gradient(180deg, #f6d478 0%, #c9a227 48%, #8a6a14 100%);
-            color: #1a1200;
-            text-shadow: 0 1px 0 rgba(255,255,255,.35);
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), inset 0 -8px 14px rgba(0,0,0,.25);
-            border: none;
-            cursor: pointer;
-        }
-        .btn-gold:hover { transform: translateY(-2px) scale(1.02); }
-
-        .btn-iron {
-            display: inline-flex;
-            align-items: center;
-            gap: .55rem;
-            padding: .75rem 1.5rem;
-            font-weight: 800;
-            font-size: .85rem;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            transition: transform .2s ease;
-            background: linear-gradient(180deg, #3a404d 0%, #232833 55%, #141821 100%);
-            color: #cfe1ff;
-            box-shadow: inset 0 0 0 1px rgba(120,160,255,.25), inset 0 -8px 14px rgba(0,0,0,.4);
-            border: none;
-            cursor: pointer;
-        }
-        .btn-iron:hover { transform: translateY(-2px) scale(1.02); }
-
-        .input-dark {
-            background: rgba(10, 14, 22, 0.8);
-            border: 1px solid rgba(201,162,39,.3);
-            color: #e5e7eb;
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-            outline: none;
-            width: 100%;
-        }
-        .input-dark:focus {
-            border-color: #f2cf5b;
-            box-shadow: 0 0 10px rgba(242,207,82,.2);
-            background: rgba(15, 20, 30, 0.9);
-        }
-        .input-dark::placeholder { color: rgba(150, 170, 200, 0.4); }
-        .input-dark option { background: #0a0e16; }
-
-        .input-dark-textarea {
-            background: rgba(10, 14, 22, 0.8);
-            border: 1px solid rgba(201,162,39,.3);
-            color: #e5e7eb;
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-            outline: none;
-            width: 100%;
-            resize: vertical;
-            min-height: 80px;
-        }
-        .input-dark-textarea:focus {
-            border-color: #f2cf5b;
-            box-shadow: 0 0 10px rgba(242,207,82,.2);
-            background: rgba(15, 20, 30, 0.9);
-        }
-
-        .upload-area {
-            border: 2px dashed rgba(201,162,39,.2);
-            background: rgba(10, 14, 22, 0.5);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            padding: 2rem 1.5rem;
-            text-align: center;
-        }
-        .upload-area:hover {
-            border-color: rgba(201,162,39,.4);
-            background: rgba(15, 20, 30, 0.7);
-        }
-        .upload-area.dragover {
-            border-color: #f2cf5b;
-            background: rgba(201,162,39,.08);
-        }
-
-        .social-input-group {
-            display: flex;
-            align-items: stretch;
-            margin-bottom: 0.5rem;
-        }
-        .social-input-group .social-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.75rem 1rem;
-            background: rgba(10, 14, 22, 0.9);
-            border: 1px solid rgba(201,162,39,.3);
-            border-right: none;
-            color: #f2cf5b;
-            font-size: 1.1rem;
-            min-width: 48px;
-            flex-shrink: 0;
-        }
-        .social-input-group .social-icon img {
-            width: 18px;
-            height: 18px;
-            filter: brightness(0) invert(78%) sepia(58%) saturate(452%) hue-rotate(10deg) brightness(95%) contrast(88%);
-        }
-        .social-input-group .input-dark {
-            border-left: none;
-        }
-        .social-input-group .input-dark:focus {
-            border-color: #f2cf5b;
-            box-shadow: 0 0 10px rgba(242,207,82,.2);
-        }
-
-        .alert-success-wow {
-            background: rgba(46, 204, 113, 0.15);
-            border: 1px solid rgba(46, 204, 113, 0.4);
-            color: #2ecc71;
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        .alert-success-wow i {
-            font-size: 1.2rem;
-        }
-
-        .alert-danger-wow {
-            background: rgba(231, 76, 60, 0.15);
-            border: 1px solid rgba(231, 76, 60, 0.4);
-            color: #e74c3c;
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        .alert-danger-wow i {
-            font-size: 1.2rem;
-        }
-
-        /* Main content area - works with sidebar */
-        .main-content-area {
-            transition: margin-left 0.3s ease;
-            min-height: calc(100vh - 72px);
-            width: 100%;
-        }
-
-        /* Content wrapper with proper spacing */
-        .content-wrapper {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        @media (min-width: 640px) {
-            .content-wrapper {
-                padding: 0 1.5rem;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .content-wrapper {
-                padding: 0 2rem;
-            }
-        }
-
-        @media (min-width: 1280px) {
-            .content-wrapper {
-                padding: 0 2.5rem;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .main-content-area.lg\:ml-0 {
-                margin-left: 0;
-            }
-            .main-content-area.lg\:ml-\[280px\] {
-                margin-left: 280px;
-            }
-        }
-
-        @media (max-width: 1023px) {
-            .main-content-area {
-                margin-left: 0 !important;
-                padding: 1rem;
-            }
-            .content-wrapper {
-                padding: 0 0.5rem;
-            }
-        }
-
-        /* Logo preview centered */
-        .logo-preview-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0.5rem;
-            background: rgba(10, 14, 22, 0.5);
-            border: 1px solid rgba(201,162,39,.2);
-            min-height: 140px;
-        }
-        .logo-preview {
-            max-height: 120px;
-            max-width: 100%;
-            object-fit: contain;
-        }
-
-        .form-label {
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            color: #f2cf5b;
-            text-shadow: 0 0 12px rgba(201,162,39,.15), 0 2px 4px rgba(0,0,0,.8);
-            font-size: 0.9rem;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .form-text {
-            color: #6a7a8a;
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
-        }
-
-        .hidden-input {
+        
+        /* Inner border inset */
+        .panel-gold-corners::before {
+            content: '';
             position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            border: 0;
+            inset: 5px;
+            border: 1px solid rgba(201,162,39,.14);
+            pointer-events: none;
+        }
+        
+        /* Custom clip-path for buttons - Tailwind doesn't support this */
+        .btn-clip {
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen text-[#d8d8d8] bg-[#05070b] bg-fixed"
+      style="background-image: 
+        radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.14), transparent 65%),
+        radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.10), transparent 70%),
+        linear-gradient(180deg, #0a0e16 0%, #060810 45%, #03040a 100%);">
+    
     <?php include $project_root . 'includes/header.php'; ?>
 
     <!-- Main Content Area with Sidebar -->
@@ -343,23 +86,29 @@ $page_class = 'general';
         
         <!-- Main Content -->
         <main class="main-content-area flex-1 p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 lg:ml-[280px]">
-            <div class="content-wrapper">
+            <div class="max-w-[1400px] mx-auto px-1 sm:px-4 md:px-6 lg:px-8 xl:px-10">
                 <div class="space-y-4 md:space-y-6 lg:space-y-8">
                     
-                    <h1 class="wow-title text-2xl md:text-3xl lg:text-4xl"><?php echo translate('page_title_general', 'General Settings'); ?></h1>
+                    <h1 class="wow-title text-2xl md:text-3xl lg:text-4xl font-black 
+                               bg-gradient-to-b from-[#fff7d6] via-[#f2cf5b] via-[#c9a227] to-[#8a6a14] 
+                               bg-clip-text text-transparent drop-shadow-[0_3px_6px_rgba(0,0,0,.85)]">
+                        <?php echo translate('page_title_general', 'General Settings'); ?>
+                    </h1>
 
                     <!-- Settings Navbar -->
                     <?php include $project_root . 'pages/admin/settings/settings_navbar.php'; ?>
 
                     <!-- Success / Error Messages -->
                     <?php if (isset($_GET['status']) && $_GET['status'] === 'success'): ?>
-                        <div class="alert-success-wow rounded-sm">
-                            <i class="fas fa-check-circle"></i>
+                        <div class="bg-[#2ecc71]/15 border border-[#2ecc71]/40 text-[#2ecc71] 
+                                    p-4 rounded-sm flex items-center gap-3">
+                            <i class="fas fa-check-circle text-xl"></i>
                             <span><?php echo translate('msg_settings_saved', 'Settings updated successfully!'); ?></span>
                         </div>
                     <?php elseif (isset($_GET['status']) && $_GET['status'] === 'error'): ?>
-                        <div class="alert-danger-wow rounded-sm">
-                            <i class="fas fa-exclamation-circle"></i>
+                        <div class="bg-[#e74c3c]/15 border border-[#e74c3c]/40 text-[#e74c3c] 
+                                    p-4 rounded-sm flex items-center gap-3">
+                            <i class="fas fa-exclamation-circle text-xl"></i>
                             <div>
                                 <strong><?php echo translate('err_fix_errors', 'Error:'); ?></strong>
                                 <span><?php echo htmlspecialchars(urldecode($_GET['message'])); ?></span>
@@ -368,101 +117,153 @@ $page_class = 'general';
                     <?php endif; ?>
 
                     <!-- General Settings Form -->
-                    <div class="panel p-4 md:p-6 lg:p-8">
-                        <h2 class="section-title text-lg md:text-xl mb-4 md:mb-6 flex items-center gap-3">
+                    <div class="relative bg-gradient-to-b from-[#161920]/92 to-[#080a0e]/90 
+                                border border-[#c9a227]/[0.22] 
+                                shadow-[0_12px_32px_rgba(0,0,0,.55),inset_0_0_60px_rgba(0,0,0,.45)]
+                                p-4 md:p-6 lg:p-8 panel-gold-corners">
+                        
+                        <h2 class="section-title text-lg md:text-xl mb-4 md:mb-6 flex items-center gap-3 
+                                   text-[#f2cf5b] font-bold drop-shadow-[0_0_12px_rgba(201,162,39,.35),0_2px_4px_rgba(0,0,0,.8)]">
                             <i class="fas fa-cogs text-[#f2cf5b]"></i>
                             <?php echo translate('settings_general', 'General Settings'); ?>
                         </h2>
 
-                        <form action="<?php echo $base_path; ?>pages/admin/settings/save_general.php" method="POST" enctype="multipart/form-data" class="space-y-4 md:space-y-6 max-w-3xl mx-auto">
+                        <form action="<?php echo $base_path; ?>pages/admin/settings/save_general.php" 
+                              method="POST" 
+                              enctype="multipart/form-data" 
+                              class="space-y-4 md:space-y-6 max-w-3xl mx-auto">
+                            
                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                             <input type="hidden" name="MAX_FILE_SIZE" value="3145728">
 
                             <!-- Website Title -->
                             <div>
-                                <label for="site_title_name" class="form-label">
+                                <label for="site_title_name" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                     tracking-wider block mb-2 
+                                                                     drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
                                     <?php echo translate('label_website_title', 'Website Title'); ?>
                                 </label>
                                 <input type="text"
                                        id="site_title_name"
                                        name="site_title_name"
-                                       class="input-dark rounded-sm"
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
                                        value="<?php echo htmlspecialchars($site_title_name); ?>"
                                        placeholder="<?php echo translate('placeholder_site_title', 'e.g. My Awesome Site'); ?>"
                                        required>
-                                <div class="form-text">
+                                <div class="text-[#6a7a8a] text-xs mt-1">
                                     <?php echo translate('help_site_title', 'This title appears in the browser tab, site header, and SEO.'); ?>
                                 </div>
                             </div>
 
                             <!-- Featured YouTube Video -->
                             <div>
-                                <label for="youtube_embed_url" class="form-label"><?php echo translate('label_youtube_embed', 'Featured YouTube Embed Link'); ?></label>
+                                <label for="youtube_embed_url" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                        tracking-wider block mb-2 
+                                                                        drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_youtube_embed', 'Featured YouTube Embed Link'); ?>
+                                </label>
                                 <input type="url"
                                        id="youtube_embed_url"
                                        name="youtube_embed_url"
-                                       class="input-dark rounded-sm"
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
                                        value="<?php echo htmlspecialchars($youtube_embed_url ?? ''); ?>"
                                        placeholder="https://www.youtube.com/embed/VIDEO_ID"
                                        required>
-                                <div class="form-text">
+                                <div class="text-[#6a7a8a] text-xs mt-1">
                                     <?php echo translate('help_youtube_embed', 'Paste a YouTube watch, short, or embed link. The system will normalize it to an embed URL.'); ?>
                                 </div>
                             </div>
 
                             <div>
-                                <label for="youtube_title" class="form-label"><?php echo translate('label_youtube_title', 'Video Title'); ?></label>
+                                <label for="youtube_title" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                     tracking-wider block mb-2 
+                                                                     drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_youtube_title', 'Video Title'); ?>
+                                </label>
                                 <input type="text"
                                        id="youtube_title"
                                        name="youtube_title"
-                                       class="input-dark rounded-sm"
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
                                        value="<?php echo htmlspecialchars($youtube_title ?? 'Featured Video'); ?>"
                                        placeholder="<?php echo translate('placeholder_youtube_title', 'Featured Video'); ?>"
                                        required>
-                                <div class="form-text">
+                                <div class="text-[#6a7a8a] text-xs mt-1">
                                     <?php echo translate('help_youtube_title', 'This title appears centered above the video.'); ?>
                                 </div>
                             </div>
 
                             <div>
-                                <label for="youtube_description" class="form-label"><?php echo translate('label_youtube_description', 'Video Description'); ?></label>
+                                <label for="youtube_description" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                                          tracking-wider block mb-2 
+                                                                          drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_youtube_description', 'Video Description'); ?>
+                                </label>
                                 <textarea id="youtube_description"
                                           name="youtube_description"
-                                          class="input-dark-textarea rounded-sm"
+                                          class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                                 bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                                 focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                                 focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                                 placeholder:text-[#96aac8]/40 resize-y min-h-[80px]"
                                           rows="3"
                                           placeholder="<?php echo translate('placeholder_youtube_description', 'Watch a featured video here...'); ?>"><?php echo htmlspecialchars($youtube_description ?? 'Watch a featured video here. Replace it with your own channel or highlight later.'); ?></textarea>
-                                <div class="form-text">
+                                <div class="text-[#6a7a8a] text-xs mt-1">
                                     <?php echo translate('help_youtube_description', 'This text appears under the title in the video panel.'); ?>
                                 </div>
                             </div>
 
                             <!-- Logo Upload - Centered -->
                             <div>
-                                <label class="form-label text-center block"><?php echo translate('label_website_logo', 'Website Logo'); ?></label>
+                                <label class="form-label text-[#f2cf5b] font-bold text-sm tracking-wider 
+                                               block mb-2 text-center drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_website_logo', 'Website Logo'); ?>
+                                </label>
                                 
                                 <!-- Current Logo Preview - Centered -->
-                                <div class="logo-preview-container rounded-sm mb-3">
-                                    <img src="<?php echo $base_path . htmlspecialchars($site_logo); ?>" alt="Current Logo" class="logo-preview">
+                                <div class="flex justify-center items-center p-2 min-h-[140px] 
+                                            bg-[#0a0e16]/50 border border-[#c9a227]/20 rounded-sm mb-3">
+                                    <img src="<?php echo $base_path . htmlspecialchars($site_logo); ?>" 
+                                         alt="Current Logo" 
+                                         class="max-h-[120px] max-w-full object-contain">
                                 </div>
                                 
                                 <!-- Upload Area - Centered -->
-                                <div class="upload-area rounded-sm max-w-md mx-auto" id="uploadArea">
-                                    <input type="file" id="logo" name="logo" class="hidden-input" accept=".png,.jpg,.jpeg,.svg">
+                                <div class="border-2 border-dashed border-[#c9a227]/20 
+                                            bg-[#0a0e16]/50 hover:border-[#c9a227]/40 
+                                            hover:bg-[#0f141e]/70 cursor-pointer transition-all duration-300 
+                                            p-8 text-center rounded-sm max-w-md mx-auto" 
+                                     id="uploadArea">
+                                    <input type="file" id="logo" name="logo" class="absolute w-px h-px p-0 -m-px overflow-hidden clip-[rect(0,0,0,0)] border-0" accept=".png,.jpg,.jpeg,.svg">
                                     <div id="uploadPlaceholder">
-                                        <i class="fas fa-cloud-upload-alt text-4xl text-[#c9a227]/40 mb-3 block"></i>
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-[#c9a227]/40 block mb-3"></i>
                                         <p class="text-sm text-gray-400"><?php echo translate('label_website_logo', 'Upload Logo'); ?></p>
                                         <p class="text-xs text-gray-500 mt-1">PNG, JPG or SVG (max 3MB)</p>
                                     </div>
                                     <div id="file-name" class="text-sm text-[#f2cf5b] hidden mt-2 font-semibold"></div>
                                 </div>
-                                <div class="form-text text-center">
+                                <div class="text-[#6a7a8a] text-xs mt-1 text-center">
                                     <?php echo translate('help_logo', 'Upload a new logo image. PNG, JPG or SVG formats supported (max 3MB).'); ?>
                                 </div>
                             </div>
 
                             <!-- Social Links -->
                             <div>
-                                <label class="form-label"><?php echo translate('label_social_media', 'Social Media Links'); ?></label>
+                                <label class="form-label text-[#f2cf5b] font-bold text-sm tracking-wider 
+                                               block mb-2 drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_social_media', 'Social Media Links'); ?>
+                                </label>
                                 
                                 <?php
                                 $icons = [
@@ -479,29 +280,41 @@ $page_class = 'general';
                                 ];
 
                                 foreach ($icons as $platform => $icon): ?>
-                                    <div class="social-input-group">
-                                        <span class="social-icon rounded-l-sm">
+                                    <div class="flex items-stretch mb-2">
+                                        <span class="flex items-center justify-center px-4 py-3 min-w-[48px] 
+                                                     bg-[#0a0e16]/90 border border-[#c9a227]/30 border-r-0 
+                                                     text-[#f2cf5b] rounded-l-sm text-base">
                                             <?php if ($platform === 'kick'): ?>
-                                                <img src="<?php echo $base_path; ?>img/icons/kick-logo.png" alt="Kick">
+                                                <img src="<?php echo $base_path; ?>img/icons/kick-logo.png" 
+                                                     alt="Kick" 
+                                                     class="w-[18px] h-[18px] brightness-0 invert-[78%] sepia-[58%] saturate-[452%] hue-rotate-[10deg] brightness-[95%] contrast-[88%]">
                                             <?php else: ?>
                                                 <i class="<?php echo $icon; ?>"></i>
                                             <?php endif; ?>
                                         </span>
                                         <input type="url"
                                                name="<?php echo $platform; ?>"
-                                               class="input-dark rounded-r-sm"
+                                               class="flex-1 px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                                      bg-[#0a0e16]/80 border border-[#c9a227]/30 border-l-0 rounded-r-sm 
+                                                      focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                                      focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                                      placeholder:text-[#96aac8]/40"
                                                placeholder="<?php echo translate("placeholder_{$platform}", ucfirst($platform) . ' URL'); ?>"
                                                value="<?php echo htmlspecialchars($social_links[$platform] ?? ''); ?>">
                                     </div>
                                 <?php endforeach; ?>
-                                <div class="form-text">
+                                <div class="text-[#6a7a8a] text-xs mt-1">
                                     <?php echo translate('help_social_links', 'Enter the full URLs for your social media profiles. Leave blank to hide.'); ?>
                                 </div>
                             </div>
 
                             <!-- Save Button -->
                             <div class="pt-4 border-t border-[rgba(201,162,39,.1)] flex justify-end">
-                                <button type="submit" class="btn-gold">
+                                <button type="submit" class="btn-clip inline-flex items-center gap-2 px-6 py-3 
+                                                             font-extrabold text-xs uppercase tracking-wider
+                                                             bg-gradient-to-b from-[#f6d478] via-[#c9a227] to-[#8a6a14] 
+                                                             text-[#1a1200] shadow-[inset_0_0_0_1px_rgba(255,255,255,.28),inset_0_-8px_14px_rgba(0,0,0,.25)]
+                                                             hover:scale-105 transition-transform duration-200">
                                     <i class="fas fa-save"></i>
                                     <?php echo translate('btn_save_settings', 'Save All Settings'); ?>
                                 </button>
@@ -526,16 +339,16 @@ $page_class = 'general';
 
                 uploadArea.addEventListener('dragover', (e) => {
                     e.preventDefault();
-                    uploadArea.classList.add('dragover');
+                    uploadArea.classList.add('border-[#f2cf5b]', 'bg-[#c9a227]/10');
                 });
 
                 uploadArea.addEventListener('dragleave', () => {
-                    uploadArea.classList.remove('dragover');
+                    uploadArea.classList.remove('border-[#f2cf5b]', 'bg-[#c9a227]/10');
                 });
 
                 uploadArea.addEventListener('drop', (e) => {
                     e.preventDefault();
-                    uploadArea.classList.remove('dragover');
+                    uploadArea.classList.remove('border-[#f2cf5b]', 'bg-[#c9a227]/10');
                     if (e.dataTransfer.files.length) {
                         logoInput.files = e.dataTransfer.files;
                         logoInput.dispatchEvent(new Event('change'));
@@ -545,7 +358,7 @@ $page_class = 'general';
                 logoInput.addEventListener('change', function() {
                     if (this.files && this.files[0]) {
                         const file = this.files[0];
-                        const maxSize = 3 * 1024 * 1024; // 3MB
+                        const maxSize = 3 * 1024 * 1024;
                         const allowedTypes = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/svg'];
 
                         if (!allowedTypes.includes(file.type) && !file.name.match(/\.(png|jpg|jpeg|svg)$/i)) {
