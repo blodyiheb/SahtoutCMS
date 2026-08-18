@@ -6,10 +6,16 @@
 
 ### A modern World of Warcraft website CMS for AzerothCore WotLK 3.3.5
 
-<p>
-  <a href="https://github.com/blodyiheb/SahtoutCMS">Repository</a> •
-  <a href="https://github.com/blodyiheb/SahtoutCMS/archive/refs/heads/main.zip">Download</a> •
-  <a href="https://www.youtube.com/watch?v=wHZypMui6aQ">Demo Video</a>
+<p align="center">
+  <a href="https://github.com/blodyiheb/SahtoutCMS">
+    <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Repository" />
+  </a>
+  <a href="https://discord.com/invite/chxXTXXQ6M">
+    <img src="https://img.shields.io/badge/Discord-Join%20Server-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord" />
+  </a>
+  <a href="https://www.youtube.com/watch?v=wHZypMui6aQ">
+    <img src="https://img.shields.io/badge/YouTube-Watch%20Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube Demo" />
+  </a>
 </p>
 
 </div>
