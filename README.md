@@ -33,8 +33,26 @@
 > This V1 branch is kept available for historical purposes, existing installations, and users who specifically need the original version.
 
 ---
+<div align="center">
 
-## 📖 About
+### ❤️ Support SahtoutCMS
+
+<img src="https://github.com/user-attachments/assets/ac78a3b7-e399-4f46-90c5-7b40d31e7811" width="650">
+
+If SahtoutCMS has been useful to you, consider supporting its development.
+<br>
+<a href="https://github.com/blodyiheb/SahtoutCMS/tree/main#-support-sahtoutcms">
+  <img src="https://img.shields.io/badge/❤️%20Support%20SahtoutCMS-Donate-red?style=for-the-badge" alt="Support SahtoutCMS">
+</a>
+<br>
+<sub>
+Donations are optional and help support continued development, hosting, testing and new features.
+</sub>
+
+</div>
+---
+
+### 📖 About
 
 **SahtoutCMS V1** is the original PHP-based website CMS designed for **AzerothCore WotLK 3.3.5 private servers**.
 
@@ -505,28 +523,41 @@ Your support helps the project grow!
 
 # 📸 Screenshots
 ## Screenshots
-<img width="1879" height="906" alt="image" src="https://github.com/user-attachments/assets/f3eee597-2c1d-4738-a3f1-67068d67f581" />
-<img width="517" height="828" alt="image" src="https://github.com/user-attachments/assets/65bbf24d-8102-4c54-b113-2b8790694979" />
-<img width="1885" height="891" alt="image" src="https://github.com/user-attachments/assets/324a0759-6b26-41d9-87b4-19dac3947006" />
-<img width="1892" height="897" alt="image" src="https://github.com/user-attachments/assets/2b850e74-0d8c-4567-b553-680528c26936" />
-<img width="1889" height="890" alt="image" src="https://github.com/user-attachments/assets/e61280fb-2f2e-43f4-961d-8aa17a932980" />
-<img width="1882" height="869" alt="image" src="https://github.com/user-attachments/assets/c5aaae3c-3958-435d-b892-0912b0a7c389" />
-<img width="1903" height="910" alt="image" src="https://github.com/user-attachments/assets/c9d85573-a84f-401f-a040-b9637897b126" />
-<img width="1917" height="946" alt="image" src="https://github.com/user-attachments/assets/1d5e5a02-0d0d-4042-8a10-ee3d31ef82d8" />
-<img width="740" height="911" alt="image" src="https://github.com/user-attachments/assets/a179dfe2-d75c-4c82-a019-8308fdf975c8" />
-<img width="1429" height="937" alt="image" src="https://github.com/user-attachments/assets/3bbbeb19-b268-4aee-9d62-b3071f47ca44" />
-<img width="1364" height="910" alt="image" src="https://github.com/user-attachments/assets/40cd9d91-273a-4d41-bea0-b62832ce9451" />
-<img width="860" height="935" alt="image" src="https://github.com/user-attachments/assets/ca790fc8-a2fa-4ce1-bd19-188e6d22938e" />
-<img width="1072" height="941" alt="image" src="https://github.com/user-attachments/assets/774e27ac-0d41-4637-8736-144766812e8b" />
-<img width="1326" height="923" alt="image" src="https://github.com/user-attachments/assets/7df1669f-94bb-4383-86f4-d9fa3617860b" />
-<img width="1063" height="939" alt="image" src="https://github.com/user-attachments/assets/b6d0525d-c160-405e-a24d-7889bad6ee30" />
-<img width="1893" height="938" alt="image" src="https://github.com/user-attachments/assets/f65b5f66-ef71-4a47-957c-b3cdb1e9e830" />
-<img width="1895" height="906" alt="image" src="https://github.com/user-attachments/assets/268b2e99-1c15-40e9-9d67-16d93755576a" />
-<img width="1394" height="626" alt="image" src="https://github.com/user-attachments/assets/89761c3b-b5b5-46df-a3b8-613b81e80684" />
-<img width="1411" height="736" alt="image" src="https://github.com/user-attachments/assets/ca899b32-4203-4c90-9270-ac5a6a0d6039" />
-<img width="1331" height="812" alt="image" src="https://github.com/user-attachments/assets/424404f5-49eb-46ab-a662-11214bd5dc9b" />
+<img width="1879" height="906" alt="1" src="https://github.com/user-attachments/assets/a777aa8c-e952-4722-960a-92107af85410" />
 
-<img width="1093" height="682" alt="image" src="https://github.com/user-attachments/assets/d92c1d16-4f5b-49b6-a8a2-a51eacc52ed4" />
+<img width="517" height="828" alt="2" src="https://github.com/user-attachments/assets/de7c48d8-d3bd-4a6d-8439-b528ebcdf6bb" />
+
+<img width="1319" height="623" alt="3" src="https://github.com/user-attachments/assets/13fbc3a9-b800-460d-808b-9fcf57dcfd45" />
+
+<img width="1324" height="627" alt="4" src="https://github.com/user-attachments/assets/25a3f246-19e8-4f54-9817-591f273f8b63" />
+
+<img width="1889" height="890" alt="5" src="https://github.com/user-attachments/assets/34ed6dbf-7773-4672-ad70-bef66b55d5e6" />
+
+<img width="1341" height="662" alt="8" src="https://github.com/user-attachments/assets/841684ed-20c6-4612-88dd-f5a59c327116" />
+
+<img width="740" height="911" alt="9" src="https://github.com/user-attachments/assets/6b27dfac-42ab-4fba-8557-d8d0048dacbd" />
+
+<img width="1000" height="655" alt="10" src="https://github.com/user-attachments/assets/f4c184d2-822c-430a-9624-6f8ec41892b2" />
+
+<img width="954" height="637" alt="11" src="https://github.com/user-attachments/assets/85866380-4267-43c3-baed-c4c286020097" />
+
+<img width="602" height="654" alt="12" src="https://github.com/user-attachments/assets/77345f3b-f62d-41d5-9099-e54bcdda2890" />
+
+<img width="750" height="658" alt="13" src="https://github.com/user-attachments/assets/2f62ecb9-22b1-4331-904b-f5feb8d42446" />
+
+<img width="928" height="646" alt="14" src="https://github.com/user-attachments/assets/afcfdb35-f1b6-45e2-a36d-9aae83aed5db" />
+
+<img width="744" height="657" alt="15" src="https://github.com/user-attachments/assets/9f35a07f-25f4-45c1-a6e7-380c46111390" />
+
+<img width="1893" height="938" alt="16" src="https://github.com/user-attachments/assets/621341d3-c587-400b-8367-d464931f3fbd" />
+
+<img width="1895" height="906" alt="17" src="https://github.com/user-attachments/assets/5cfbd072-b6cb-4dbd-8f08-d10430eeaa34" />
+
+<img width="1411" height="736" alt="19" src="https://github.com/user-attachments/assets/71030bcf-1e98-4a43-ae2c-de967c8daf3f" />
+
+<img width="1331" height="812" alt="20" src="https://github.com/user-attachments/assets/f1043a11-89ec-472b-bdf7-6e52a8b736e2" />
+
+<img width="765" height="477" alt="21" src="https://github.com/user-attachments/assets/25625e4e-f700-4b84-a9c3-c2770b96c1d7" />
 
 <div align="center">
 
