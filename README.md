@@ -1,136 +1,664 @@
 <div align="center">
-  <img width="612" height="408" alt="logo" src="https://github.com/user-attachments/assets/54293d96-03eb-4dda-9f22-e1c013d6053b" />
+
+<img width="612" height="408" alt="SahtoutCMS Logo" src="https://github.com/user-attachments/assets/54293d96-03eb-4dda-9f22-e1c013d6053b" />
+
+# SahtoutCMS V2
+
+### A modern World of Warcraft website CMS for AzerothCore WotLK 3.3.5
+
+<p align="center">
+  <a href="https://github.com/blodyiheb/SahtoutCMS">
+    <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Repository" />
+  </a>
+  <a href="https://discord.com/invite/chxXTXXQ6M">
+    <img src="https://img.shields.io/badge/Discord-Join%20Server-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord" />
+  </a>
+  <a href="https://www.youtube.com/watch?v=wHZypMui6aQ">
+    <img src="https://img.shields.io/badge/YouTube-Watch%20Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube Demo" />
+  </a>
+</p>
+
+<p align="center">
+
+![Version](https://img.shields.io/badge/version-2.x-2ea44f?style=flat-square)
+![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=flat-square\&logo=php\&logoColor=white)
+![AzerothCore](https://img.shields.io/badge/AzerothCore-WotLK%203.3.5-orange?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+
+</p>
+
 </div>
-#SahtoutCMS
-
-**Name:** SahtoutCMS
-
-**Author:** blodyiheb                                                                                                                                                                             
-**Repository:** [GitHub Link](https://github.com/blodyiheb/SahtoutCMS)  
-**Download:** [Download .zip](https://github.com/blodyiheb/SahtoutCMS/archive/refs/heads/main.zip)  
-SahtoutCMS is a World of Warcraft website for AzerothCore WOLTK 3.3.5 (with SRP6 authentication), featuring an installer, dynamic shop & news, account management, admin panel, and armory pages.
-
-⚡ This project was created for fun and learning, but it’s fully usable if you want to run it on your own server.
----
-> ⚠️ **WARNING**  
-> Always **backup your databases (auth, characters, world)** before installing **SahtoutCMS**.
-## 🎥 Demo Video  
-Watch on YouTube: [SahtoutCMS Demo](https://www.youtube.com/watch?v=wHZypMui6aQ )  
-
-🖌️ Frontend & Code Cleanup: Most inline CSS and JS have been moved into separate CSS, JS, and PHP include files for better structure and maintainability.
-⚠️ Notes: Most inline styles are refactored; some files may still need cleanup. Minor issues may appear during testing.
- 
-## 🔄 Latest Updates
-- 🛡️ Added **failed_logins** and **reset_attempts** tables for security tracking
-- ⚙️ New **Admin Settings** panel for site management (logo,social media links,SMTP,RECAPTCHA,Voting..)
-- ✨ Installer & Admin now support **reCAPTCHA** and **SMTP options** (enable/disable)
-- 🔒 Implemented **brute-force protection** for login, forgot password, and reset password
-- 🌍 Multilingual support for all static pages (including the installer)  
-- ✨ Updated styles for Realm Status, How to Play, Login, Register, and other UI elements  
-- 🖌️ Improved overall design consistency and responsiveness
-- 🚀 Voting System : Add/manage vote sites, claim points with cooldowns, and track vote history
-- ℹ️ Note: dynamic database content (shop items, news) is still single-language for now
-  
-
- 
-## Features
-
-- **Account Management**
-  - Registration with SRP6 authentication
-  - Email activation & re-send activation
-  - Forgot password system
-  - Secure login with reCAPTCHA
-  - USER ACCOUNT Dashboard (Account Information,Quick Stats ingame characters,security change password,email)
- 
-- **Admin Panel**  [Filter for Better Visual]
-  - News management (add,update,delete)
-  - User management Website(Modify email,admin roles,tokens,points)----[can see more information about user]----
-  - User management Ingame(ban/unban, modify GM roles)----[can see more information about user]----
-  - Character management (added gold,change level,teleport)----[can see more information about character]----
-  - Shop management (add/remove/update items/services)----[can see more information about Shop Products]----
-  - In-game commands via SOAP (teleport, rename, kick, etc.)----[You have Full SOAP Command Executor to controle server from the website]----
-
-- **Admin Settings**
-  - General: logo upload, social media links
-  - SMTP: email settings, enable/disable
-  - reCAPTCHA: keys, enable/disable
-  - Realm: name, IP, port, logo
-  - SOAP: GM command connection
-  - Voting: add/manage vote sites, set rewards and cooldowns
-    
-- **Shop System**
-  - Purchase in-game services: Character Rename, Faction Change, Level Boost,Gold
-  - Item shop for gear, mounts, pets + a tooltip hover
-  - Token or point (manually added by admin)
-
-- **Additional**
-  - Realm status display + online players + uptime
-  - WoW-style item tooltips (it fetchs from your server database directly)
-  - Dark fantasy theme
-  - Discord Widget
-  - Installer for easy setup
-  - Character inspector items and stats (item tooltip and 3d model for test)
-  - Multilingual support for static pages + installer
-  - Brute-force protection
-  - reCAPTCHA support (can enable/disable via installer or admin settings)
-  - SMTP email configuration for account activation and password recovery (enable/disable)
-    
-- **Armory Pages**
-  - **Top 50 Players:** Sorted by level and PvP kills, complete with race, class, and faction icons and GUILD NAME.
-  - **Arena Teams:** Separate leaderboards for 2v2, 3v3, and 5v5 teams, showing rankings, team info, wins, losses, win rate, and rating.
----
-  
-## Installation
-
-1. Download SahtoutCMS
-2. Copy or extract the files to your web server root:
-Windows/XAMPP: Extract the contents of the sahtout folder directly into htdocs/, not as htdocs/sahtout/sahtout.
-Linux/Apache: Extract into /var/www/html/ or /var/www/sahtout/ depending on your setup. Ensure that $project_root points to the root of the extracted files.
-3. Run the Sahtoutsite Sql First then the other sqls
-4. Run the installer to set up database,recaptcha,realmstatus,mail,soap(create account from your database gm level 3 -1). configuration.(http(s)://ursite/install/)
-5. Remove the installer Folder if you completed everything
-6. Log in as admin and start managing your server.
 
 ---
 
-## Requirements
-- PHP 8.3.17+ with extensions: mysqli, curl, openssl, mbstring, xml, soap, gd, gmp/bcmath
-- MySQL 8.4.5+ (or MariaDB 11.8+)
-- Apache web server
-- AzerothCore with SOAP enabled
-- SMTP server for email activation & password recovery
-- (Optional) intl, zip, composer
+> 🚀 **SahtoutCMS V2 is the current and actively developed version of SahtoutCMS.**
+>
+> This is the **`main` branch** and is the recommended version for new installations.
+>
+> The original SahtoutCMS V1 is preserved in the [`v1-legacy`](https://github.com/blodyiheb/SahtoutCMS/tree/v1-legacy) branch for users who still need the old version.
 
 ---
 
-## License
-MIT License — see [LICENSE](LICENSE) for details.
+# 📖 About
+
+**SahtoutCMS V2** is a PHP-based website CMS designed for **AzerothCore WotLK 3.3.5 private servers**.
+
+It provides a complete website and administration interface for managing your World of Warcraft server while providing players with a modern, responsive website.
+
+SahtoutCMS V2 is the successor to the original SahtoutCMS V1 and introduces a redesigned interface, improved structure, improved usability, and continued development.
+
+> ⚡ SahtoutCMS is an open-source project created for learning, experimentation, and the AzerothCore community. You are free to use it for your own World of Warcraft server.
 
 ---
 
-## Screenshots
-<img width="1879" height="906" alt="image" src="https://github.com/user-attachments/assets/f3eee597-2c1d-4738-a3f1-67068d67f581" />
-<img width="517" height="828" alt="image" src="https://github.com/user-attachments/assets/65bbf24d-8102-4c54-b113-2b8790694979" />
-<img width="1885" height="891" alt="image" src="https://github.com/user-attachments/assets/324a0759-6b26-41d9-87b4-19dac3947006" />
-<img width="1892" height="897" alt="image" src="https://github.com/user-attachments/assets/2b850e74-0d8c-4567-b553-680528c26936" />
-<img width="1889" height="890" alt="image" src="https://github.com/user-attachments/assets/e61280fb-2f2e-43f4-961d-8aa17a932980" />
-<img width="1882" height="869" alt="image" src="https://github.com/user-attachments/assets/c5aaae3c-3958-435d-b892-0912b0a7c389" />
-<img width="1903" height="910" alt="image" src="https://github.com/user-attachments/assets/c9d85573-a84f-401f-a040-b9637897b126" />
-<img width="1917" height="946" alt="image" src="https://github.com/user-attachments/assets/1d5e5a02-0d0d-4042-8a10-ee3d31ef82d8" />
-<img width="740" height="911" alt="image" src="https://github.com/user-attachments/assets/a179dfe2-d75c-4c82-a019-8308fdf975c8" />
-<img width="1429" height="937" alt="image" src="https://github.com/user-attachments/assets/3bbbeb19-b268-4aee-9d62-b3071f47ca44" />
-<img width="1364" height="910" alt="image" src="https://github.com/user-attachments/assets/40cd9d91-273a-4d41-bea0-b62832ce9451" />
-<img width="860" height="935" alt="image" src="https://github.com/user-attachments/assets/ca790fc8-a2fa-4ce1-bd19-188e6d22938e" />
-<img width="1072" height="941" alt="image" src="https://github.com/user-attachments/assets/774e27ac-0d41-4637-8736-144766812e8b" />
-<img width="1326" height="923" alt="image" src="https://github.com/user-attachments/assets/7df1669f-94bb-4383-86f4-d9fa3617860b" />
-<img width="1063" height="939" alt="image" src="https://github.com/user-attachments/assets/b6d0525d-c160-405e-a24d-7889bad6ee30" />
-<img width="1893" height="938" alt="image" src="https://github.com/user-attachments/assets/f65b5f66-ef71-4a47-957c-b3cdb1e9e830" />
-<img width="1895" height="906" alt="image" src="https://github.com/user-attachments/assets/268b2e99-1c15-40e9-9d67-16d93755576a" />
-<img width="1394" height="626" alt="image" src="https://github.com/user-attachments/assets/89761c3b-b5b5-46df-a3b8-613b81e80684" />
-<img width="1411" height="736" alt="image" src="https://github.com/user-attachments/assets/ca899b32-4203-4c90-9270-ac5a6a0d6039" />
-<img width="1331" height="812" alt="image" src="https://github.com/user-attachments/assets/424404f5-49eb-46ab-a662-11214bd5dc9b" />
+# ✨ Features
 
-<img width="1093" height="682" alt="image" src="https://github.com/user-attachments/assets/d92c1d16-4f5b-49b6-a8a2-a51eacc52ed4" />
+## 👤 Account Management
 
-and more 
-                                         Goodluck, I hope you like it 
+* SRP6 registration and authentication
+* Email activation
+* Resend activation email
+* Secure login
+* reCAPTCHA support
+* Forgot password
+* Password reset
+* Account dashboard
+* Password management
+* Email management
+* Character information
+* Character statistics
+
+---
+
+# 🛡️ Administration Panel
+
+SahtoutCMS provides a centralized administration panel for managing your website and server-related content.
+
+## 👥 Users
+
+* Website account management
+* User roles
+* Email management
+* User information
+* Tokens and points
+
+## 🎮 In-Game Accounts
+
+* View game accounts
+* Ban / unban accounts
+* Manage GM levels
+* Account information
+
+## 🧙 Characters
+
+* Character information
+* Character statistics
+* Level
+* Gold
+* Teleportation
+* Character management
+
+## 📰 Content Management
+
+* Create news
+* Edit news
+* Delete news
+* Manage shop products
+* Manage shop services
+
+## ⚔️ SOAP Command Executor
+
+Execute AzerothCore GM commands directly from the administration panel through SOAP.
+
+---
+
+# ⚙️ Administration Settings
+
+SahtoutCMS V2 provides configurable settings for the main components of the website.
+
+### General
+
+* Website logo
+* Social media links
+* General website configuration
+
+### SMTP
+
+* SMTP server configuration
+* Email activation
+* Password recovery emails
+
+### reCAPTCHA
+
+* Site key
+* Secret key
+* Enable / disable reCAPTCHA
+
+### Realm
+
+* Realm name
+* Realm IP
+* Realm port
+* Realm logo
+
+### SOAP
+
+* SOAP connection
+* SOAP credentials
+* GM command configuration
+
+### Voting
+
+* Voting websites
+* Vote rewards
+* Vote cooldowns
+* Point rewards
+
+---
+
+# 🛒 Shop System
+
+SahtoutCMS includes a dynamic shop system managed directly from the administration panel.
+
+## 🧰 Item Shop
+
+* Equipment
+* Mounts
+* Pets
+* WoW item information
+* WoW-style item tooltips
+
+## 🛠️ Character Services
+
+* Character rename
+* Faction change
+* Level boost
+* Gold
+
+## 💰 Currency
+
+* Tokens / points
+* Currency management
+* Shop pricing
+* Player balances
+
+---
+
+# 🗳️ Voting System
+
+Reward your players for supporting your server through external voting websites.
+
+Features include:
+
+* Multiple voting websites
+* Vote rewards
+* Voting cooldowns
+* Vote history
+* Point rewards
+* Configurable voting settings
+
+---
+
+# ⚔️ Armory
+
+SahtoutCMS includes an Armory system for displaying player and character information.
+
+## 🏆 Top Players
+
+Display top players based on:
+
+* Level
+* PvP kills
+* Race
+* Class
+* Faction
+* Guild
+
+## 🏟️ Arena Rankings
+
+Arena rankings for:
+
+* 2v2
+* 3v3
+* 5v5
+
+Including:
+
+* Wins
+* Losses
+* Win rate
+* Rating
+
+## 🧙 Character Armory
+
+* Equipment inspection
+* Character statistics
+* Items
+* 3D model support
+
+---
+
+# 🎮 World of Warcraft Features
+
+## 🌍 Realm
+
+* Online / offline status
+* Online players
+* Server uptime
+* Realm information
+
+## 🧰 Items
+
+* WoW-style item tooltips
+* Item information
+* Item data retrieved from the game database
+
+## 🧙 Characters
+
+* Character information
+* Equipment inspection
+* Character statistics
+* 3D models
+
+## 🎨 Interface
+
+* Modern WoW-inspired design
+* Responsive interface
+* Dark fantasy aesthetic
+* Discord widget
+* Mobile-friendly layout
+
+---
+
+# 🔐 Security
+
+SahtoutCMS V2 includes several security-focused features, including:
+
+* SRP6 authentication
+* Password reset protection
+* Email activation
+* reCAPTCHA
+* Role-based administration
+* Protected administration routes
+* Secure database interactions
+* Configurable authentication settings
+
+> ⚠️ Always keep your PHP installation, web server, AzerothCore server, and dependencies updated and properly configured.
+
+---
+
+# 💻 Requirements
+
+## Tested Environment
+
+| Component | Version     |
+| --------- | ----------- |
+| OS        | Windows x64 |
+| XAMPP     | 8.2.12      |
+| PHP       | 8.2.12      |
+| Apache    | 2.4.58      |
+| MariaDB   | 10.4.32     |
+
+### Other Platforms
+
+SahtoutCMS V2 should also work on Linux-based Apache environments.
+
+XAMPP is **not required** and is mainly recommended for easy local development and testing.
+
+---
+
+# 🧩 Required PHP Extensions
+
+The following PHP extensions are required:
+
+```text
+bcmath
+curl
+gd
+gmp
+mbstring
+mysqli
+openssl
+soap
+xml
+```
+
+You can check your installed PHP extensions with:
+
+```bash
+php -m
+```
+
+---
+
+# 🎮 Game Server Requirements
+
+SahtoutCMS V2 is designed for:
+
+* **AzerothCore**
+* **World of Warcraft WotLK 3.3.5**
+* **SOAP enabled**
+
+Your AzerothCore server and databases should already be installed and working before configuring SahtoutCMS.
+
+---
+
+# 🚀 Installation
+
+## 1. Download SahtoutCMS V2
+
+Clone the repository:
+
+```bash
+git clone https://github.com/blodyiheb/SahtoutCMS.git
+```
+
+Or download the repository as a ZIP from GitHub.
+
+> **Important:** The `main` branch contains the current SahtoutCMS V2 release.
+
+---
+
+# 🪟 2. Windows / XAMPP Installation
+
+Extract SahtoutCMS into:
+
+```text
+C:\xampp\htdocs\
+```
+
+The project root should look similar to:
+
+### ✅ Correct
+
+```text
+C:\xampp\htdocs\
+├── admin/
+├── assets/
+├── includes/
+├── install/
+├── index.php
+└── ...
+```
+
+### ❌ Incorrect
+
+```text
+C:\xampp\htdocs\sahtout\sahtout\
+```
+
+Make sure the project is not unnecessarily nested inside another directory.
+
+Start:
+
+* Apache
+* MySQL / MariaDB
+
+from the XAMPP Control Panel.
+
+> XAMPP is optional and is mainly recommended for local Windows development.
+
+---
+
+# 🐧 3. Linux / Apache Installation
+
+Extract SahtoutCMS into your Apache document root.
+
+A common location is:
+
+```text
+/var/www/html/
+```
+
+For example:
+
+```text
+/var/www/html/
+├── admin/
+├── assets/
+├── includes/
+├── install/
+├── index.php
+└── ...
+```
+
+If your Apache configuration uses another document root, place SahtoutCMS inside that directory.
+
+Make sure Apache has permission to read and execute the required project files.
+
+---
+
+# 🗄️ Database Setup
+
+Before running the installer, make sure your **AzerothCore databases are already installed and working**.
+
+SahtoutCMS uses its own website database and connects to the AzerothCore databases.
+
+## Website Database
+
+Import sahtout_site SQL file.
+
+## AzerothCore Databases
+
+Import the required additional SQL files into their corresponding AzerothCore databases.
+
+For example:
+
+```text
+acore_auth_sahtout_site.sql
+→ acore_auth
+
+acore_world_armory_spell.sql
+→ acore_world
+```
+
+> ⚠️ SQL filenames and database requirements may change between releases. Always check the SQL files included with the version you are installing.
+
+Make sure the required databases exist before continuing with the installer.
+
+---
+
+# 🔧 Web Installer
+
+After preparing the project files and databases, open the installer in your browser.
+
+## XAMPP / Local Development
+
+```text
+http://localhost/install/
+```
+
+## Production Server
+
+```text
+http(s)://your-domain.com/install/
+```
+
+Replace `your-domain.com` with your actual domain.
+
+The installer will guide you through the required configuration.
+
+---
+
+# ⚙️ Installer Configuration
+
+Depending on the version, the installer may configure:
+
+* Website database
+* AzerothCore database connections
+* Realm information
+* SMTP / email
+* reCAPTCHA
+* SOAP
+* Website settings
+
+Make sure all database credentials and AzerothCore connection information are correct.
+
+---
+
+# 🔐 Post-Installation
+
+## 1. Remove the Installer
+
+After successfully completing the installation, **remove the `install/` directory** from your server.
+
+```text
+install/
+```
+
+This helps prevent unauthorized access to the installation system.
+
+---
+
+## 2. Configure Your Administrator Account
+
+After installation,Change the Account's Role to admin in sahtout_site ,user_currencies table
+log into the **SahtoutCMS Admin Panel** and complete the remaining configuration.
+
+---
+
+# 🛠️ Development
+
+SahtoutCMS V2 is the **current and actively developed version** of the project.
+
+Development is focused on:
+
+* 🎨 UI and UX improvements
+* 🔐 Security improvements
+* ⚙️ Installer improvements
+* 🛡️ Administration improvements
+* 🌐 Multilingual support
+* 🚀 Performance optimization
+* 🧹 Code cleanup
+* 📱 Responsive design
+* 🐛 Bug fixes
+* ✨ New features
+
+The project will continue to evolve based on community feedback and development priorities.
+
+---
+
+# 📌 Project Status
+
+**SahtoutCMS V2 is the current version.**
+
+The `main` branch is the primary development branch and is recommended for **new installations**.
+
+The original V1 has been preserved separately:
+
+```text
+main
+└── SahtoutCMS V2
+    Current / actively developed
+
+v1-legacy
+└── SahtoutCMS V1
+    Original / legacy version
+```
+---
+# 🐛 Bug Reports
+
+If you find a bug, please open a **GitHub Issue**.
+
+When reporting an issue, provide as much information as possible:
+
+* What happened
+* What you expected to happen
+* Steps to reproduce the issue
+* SahtoutCMS version
+* PHP version
+* Apache version
+* Database version
+* AzerothCore version
+* Relevant error messages
+* Screenshots or logs when applicable
+
+This makes it much easier to investigate and fix the problem.
+
+---
+
+# 🤝 Contributing
+
+Contributions, suggestions, bug reports, and improvements are welcome!
+
+### Contribution Workflow
+
+1. Fork the repository
+2. Create a new branch from `main`
+3. Make your changes
+4. Test your changes
+5. Push your branch
+6. Open a Pull Request
+
+Please keep changes focused and provide a clear description of what your Pull Request changes.
+
+---
+
+# 🌟 Support SahtoutCMS
+
+If SahtoutCMS is useful to you or your World of Warcraft server, there are several ways you can support the project.
+
+### ⭐ Star the Repository
+
+Give the project a ⭐ **Star** on GitHub.
+
+Stars help other AzerothCore developers and server owners discover SahtoutCMS.
+
+### 💬 Join the Community
+
+Join the SahtoutCMS Discord community to:
+
+* Ask questions
+* Report problems
+* Share feedback
+* Discuss features
+* Connect with other users
+
+### ❤️ Support Development
+
+If you want to financially support the continued development of SahtoutCMS, consider using the available donation or sponsorship options.
+
+Your support can help with:
+
+* Development time
+* Infrastructure
+* Testing
+* New features
+* Long-term maintenance
+
+> 💙 SahtoutCMS will remain open source. Donations are optional and help support continued development.
+---
+
+# 📜 License
+
+SahtoutCMS is released under the **MIT License**.
+
+See the [LICENSE](LICENSE) file for more information.
+
+---
+
+# 📸 Screenshots
+---
+
+# 🔗 Links
+
+| Resource        | Link                                                   |
+| --------------- | ------------------------------------------------------ |
+| Current Version | https://github.com/blodyiheb/SahtoutCMS/tree/main      |
+| Legacy V1       | https://github.com/blodyiheb/SahtoutCMS/tree/v1-legacy |
+| Discord         | https://discord.com/invite/chxXTXXQ6M                  |
+| YouTube Demo    | https://www.youtube.com/watch?v=wHZypMui6aQ            |
+
+---
+
+<div align="center">
+
+Made with ❤️ by **Blodyiheb**
+
+### 🚀 SahtoutCMS V2
+
+**The current and actively developed version of SahtoutCMS.**
+
+⭐ If you find it useful, consider giving the repository a star!
+
+</div>
