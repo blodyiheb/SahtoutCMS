@@ -341,7 +341,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label><?= translate('label_db_name', 'Database Name') ?></label>
                             <span class="icon"><i class="ri-database-2-line"></i></span>
                             <input type="text" name="db_<?= $type ?>_name"
-                                   value="<?= htmlspecialchars($_POST["db_{$type}_name"] ?? ($type==='site'?'sahtout_site':'')) ?>" required>
+                                   value="<?= htmlspecialchars($_POST["db_{$type}_name"] ?? match($type) {
+                                       'auth' => 'acore_auth',
+                                       'world' => 'acore_world',
+                                       'char' => 'acore_characters',
+                                       'site' => 'sahtout_site'
+                                   }) ?>" required>
                         </div>
                     </div>
                 <?php endforeach; ?>

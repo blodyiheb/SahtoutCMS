@@ -79,7 +79,7 @@ if (file_exists($realmsFile)) {
                     <p><?php echo translate('step_4_desc_1', 'Open <code>Wow.exe</code> (not Launcher.exe) and log in using your account credentials.'); ?></p>
                     <p><?php echo translate('step_4_desc_2', 'Enjoy your adventure on our server!'); ?></p>
                 </div>
-                <img src="<?php echo $base_path; ?>img/howtoplay/down_wow.png" alt="<?php echo translate('launch_wow_alt', 'Launch WoW'); ?>">
+                <img src="<?php echo $base_path; ?>img/howtoplay/down_wow.jpg" alt="<?php echo translate('launch_wow_alt', 'Launch WoW'); ?>">
             </div>
         </div>
     </div>

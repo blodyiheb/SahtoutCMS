@@ -57,13 +57,6 @@ $page_class = $page_class ?? '';
                    <?php echo translate('settings_nav_vote_sites', 'Vote Sites'); ?>
                 </a>
             </li>
-            <li>
-                <a class="nav-link <?php echo $page_class === 'page_manager' ? 'active' : ''; ?>" 
-                   href="<?php echo $base_path; ?>admin/settings/page_manager">
-                   <i class="fas fa-file-alt me-1"></i> 
-                   <?php echo translate('settings_nav_page_manager', 'Page Manager'); ?>
-                </a>
-            </li>
         </ul>
     </div>
 </nav>
