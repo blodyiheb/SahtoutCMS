@@ -1,6 +1,5 @@
 <div align="center">
-
-<img width="500" height="500" alt="sahtoutcmsv2_logo" src="https://github.com/user-attachments/assets/741feb48-c429-489f-93d0-0be0c5239961" />
+<img alt="sahtoutcms_logo" src="https://github.com/user-attachments/assets/2e48672b-3763-4229-bce2-cc0a0f9da15a" />
 <br>
 # SahtoutCMS V2
 
@@ -356,7 +355,13 @@ git clone https://github.com/blodyiheb/SahtoutCMS.git
 Or download the repository as a ZIP from GitHub.
 
 > **Important:** The `main` branch contains the current SahtoutCMS V2 release.
+# 📦 Dependencies
 
+```bash
+composer install
+npm install
+npm run build
+```
 ---
 
 # 🪟 2. Windows / XAMPP Installation
@@ -638,6 +643,34 @@ See the [LICENSE](LICENSE) file for more information.
 ---
 
 # 📸 Screenshots
+<img width="1886" height="900" alt="1" src="https://github.com/user-attachments/assets/f914ed6e-d48c-463a-b528-7bd5e2622357" />
+<div align="center">
+<img width="789" height="906" alt="2" src="https://github.com/user-attachments/assets/f3f11526-a620-4527-9809-4fdb3d307da4" />
+</div>
+<img width="1875" height="871" alt="3" src="https://github.com/user-attachments/assets/bd9670a7-b8da-4a18-b4a0-a37a2f0cbae5" />
+<div align="center">
+<img width="671" height="876" alt="4" src="https://github.com/user-attachments/assets/a09a8e37-46a6-43f8-b33f-e1d43263e3ac" />
+</div>
+<img width="1295" height="909" alt="5" src="https://github.com/user-attachments/assets/5d551112-2c1a-47eb-acd6-45a9a88d2216" />
+<img width="883" height="633" alt="6" src="https://github.com/user-attachments/assets/f091c984-378b-4287-8e86-8d05fe8df1bc" />
+<img width="910" height="601" alt="7" src="https://github.com/user-attachments/assets/b2e78a6e-998a-41bd-bfc1-515f71d06c9b" />
+<img width="1294" height="770" alt="8" src="https://github.com/user-attachments/assets/87488f52-a7f3-41d8-87e5-bc7c17583e61" />
+<img width="1299" height="909" alt="9" src="https://github.com/user-attachments/assets/39f84e8e-c759-4a88-a083-f9fb5d3b62e4" />
+<div align="center">
+<img width="826" height="635" alt="10" src="https://github.com/user-attachments/assets/e64b5e45-7214-405b-a196-741586a8c790" />
+</div>
+<img width="1047" height="615" alt="11" src="https://github.com/user-attachments/assets/3b8cb94c-e7e3-4377-b1f9-ce08a107857f" />
+<img width="1078" height="898" alt="12" src="https://github.com/user-attachments/assets/15fb5e45-a0dd-47bb-b6c4-d190a9ec98a4" />
+<img width="1661" height="867" alt="13" src="https://github.com/user-attachments/assets/265a59bd-dcfe-4e2b-a7f6-dd4eea2a9daf" />
+<img width="1343" height="796" alt="14" src="https://github.com/user-attachments/assets/dd1c12ad-684f-49ab-bc06-6ee4b948865a" />
+<img width="1145" height="902" alt="15" src="https://github.com/user-attachments/assets/d4b328d2-e3aa-40e5-aa57-64466ff03464" />
+<img width="1429" height="733" alt="16" src="https://github.com/user-attachments/assets/286ea831-0f6e-4c1f-8951-de0410141461" />
+<img width="1171" height="907" alt="17" src="https://github.com/user-attachments/assets/548e7ded-7ca3-43f6-9172-7ddd469056d5" />
+<img width="1136" height="379" alt="18" src="https://github.com/user-attachments/assets/3e504ac4-9cdc-4ac9-b344-ae20750004cb" />
+<div align="center">
+<img width="721" height="832" alt="19" src="https://github.com/user-attachments/assets/a85d3940-e6b2-498d-b154-31287ced6cc0" />
+</div>
+
 ---
 
 # 🔗 Links
