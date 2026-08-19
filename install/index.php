@@ -75,12 +75,16 @@ $current_step = 1;
             <div class="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-gold-500/30 rounded-tl-2xl pointer-events-none"></div>
             <div class="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-gold-500/30 rounded-br-2xl pointer-events-none"></div>
 
-            <!-- Icon -->
-            <div class="text-center mb-4">
-                <div class="w-20 h-20 mx-auto bg-gold-500/10 border border-gold-500/30 flex items-center justify-center rounded-full">
-                    <i class="fas fa-crown text-4xl text-gold-400"></i>
-                </div>
-            </div>
+          <!-- Logo -->
+<div class="text-center mb-4">
+    <div class="w-20 h-20 mx-auto bg-gold-500/10 border border-gold-500/30 flex items-center justify-center rounded-full">
+        <img 
+            src="logo.png" 
+            alt="Logo"
+            class="w-16 h-16 object-contain"
+        >
+    </div>
+</div>
             
             <!-- Title -->
             <h1 class="font-cinzel text-3xl md:text-5xl font-bold text-center bg-gradient-to-b from-amber-100 to-gold-500 bg-clip-text text-transparent mb-2">

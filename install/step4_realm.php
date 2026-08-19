@@ -195,15 +195,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-gold-500/30 rounded-br-2xl pointer-events-none"></div>
 
             <!-- Header -->
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gold-500/10 border border-gold-500/30 rounded-full mb-4">
-                    <i class="fas fa-server text-3xl text-gold-400"></i>
-                </div>
-                <h1 class="font-cinzel text-3xl md:text-4xl font-bold bg-gradient-to-b from-amber-100 to-gold-500 bg-clip-text text-transparent">
-                    <?php echo translate('step4_title', 'Phase 4: Realm Setup'); ?>
-                </h1>
-                <p class="text-slate-400 mt-2 text-sm"><?php echo translate('step4_description', 'Configure your server realm settings.'); ?></p>
-            </div>
+          <div class="text-center mb-8">
+    <div class="inline-flex items-center justify-center w-16 h-16 bg-gold-500/10 border border-gold-500/30 rounded-full mb-4">
+        <img 
+            src="logo.png" 
+            alt="Logo"
+            class="w-12 h-12 object-contain"
+        >
+    </div>
+
+    <h1 class="font-cinzel text-3xl md:text-4xl font-bold bg-gradient-to-b from-amber-100 to-gold-500 bg-clip-text text-transparent">
+        <?php echo translate('step4_title', 'Phase 4: Realm Setup'); ?>
+    </h1>
+
+    <p class="text-slate-400 mt-2 text-sm">
+        <?php echo translate('step4_description', 'Configure your server realm settings.'); ?>
+    </p>
+</div>
 
             <!-- Errors -->
             <?php if (!empty($errors)): ?>

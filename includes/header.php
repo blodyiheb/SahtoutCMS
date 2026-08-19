@@ -574,7 +574,7 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
 
             <!-- Logo -->
             <a href="<?php echo $base_path; ?>" class="flex-shrink-0 transition-transform duration-300 hover:scale-105 hover:drop-shadow-[0_0_12px_rgba(242,207,82,0.5)]" style="position: relative; z-index: 1;">
-                <img src="<?php echo $base_path . $site_logo; ?>" alt="Server Logo" class="h-12 md:h-16 align-middle">
+                <img src="<?php echo $base_path . $site_logo; ?>" alt="Server Logo" class="h-16 md:h-20 align-middle">
             </a>
 
             <!-- Nav Toggle Button (Mobile) -->

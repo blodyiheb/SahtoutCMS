@@ -112,7 +112,7 @@ $currentFlagEsc = htmlspecialchars($currentFlag);
         
         <!-- Logo and Title -->
         <div class="flex items-center">
-            <img src="<?php echo $base_path; ?>install/logo.png" alt="<?= translate('logo_alt', 'Sahtout Logo') ?>" class="h-10 md:h-12 mr-3 md:mr-4 rounded transition-transform duration-300 hover:scale-105">
+            <img src="<?php echo $base_path; ?>install/logo.png" alt="<?= translate('logo_alt', 'Sahtout Logo') ?>" class="h-16 md:h-20 mr-3 md:mr-4 rounded transition-transform duration-300 hover:scale-105">
             <span class="font-['Cinzel'] text-xl md:text-2xl font-bold text-[#f2cf5b] tracking-wide drop-shadow-[0_0_20px_rgba(242,207,82,0.2)]">
                 <?= translate('installer_title', 'Sahtout CMS Installer') ?>
             </span>

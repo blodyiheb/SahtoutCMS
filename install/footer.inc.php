@@ -9,6 +9,20 @@ if (!defined('ALLOWED_ACCESS')) {
 <!-- Installer Footer -->
 <footer class="glass-footer w-full border-t border-[rgba(160,130,60,0.3)] py-4 px-4 text-center shadow-[0_-2px_20px_rgba(139,115,60,0.3)] font-['Cinzel'] mt-auto">
     
+    <!-- Support Button -->
+    <div class="mb-3">
+        <a href="https://github.com/blodyiheb/SahtoutCMS#-support-sahtoutcms" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="inline-block hover:opacity-80 transition-opacity duration-300">
+            <img 
+                src="support-button.png"
+                alt="<?= translate('support_alt', 'Support SahtoutCMS') ?>"
+                class="h-16 md:h-18 w-auto object-contain"
+            >
+        </a>
+    </div>
+    
     <!-- Social Links -->
     <p class="text-[#e8dcc8] text-sm md:text-base m-0">
         <span class="text-[#d4af37]">🌟 <?= translate('footer_connect', 'Connect with Me:') ?></span>
@@ -56,6 +70,10 @@ if (!defined('ALLOWED_ACCESS')) {
         .glass-footer a {
             margin: 0 6px;
         }
+        
+        .glass-footer img {
+            height: 2.25rem; /* 36px */
+        }
     }
     
     @media (max-width: 480px) {
@@ -66,6 +84,10 @@ if (!defined('ALLOWED_ACCESS')) {
         .glass-footer a {
             margin: 0 4px;
             font-size: 0.7rem;
+        }
+        
+        .glass-footer img {
+            height: 2rem; /* 32px */
         }
     }
 </style>

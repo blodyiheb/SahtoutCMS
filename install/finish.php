@@ -100,10 +100,14 @@ foreach ($configFiles as $name => $path) {
             <div class="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-gold-500/30 rounded-tl-2xl pointer-events-none"></div>
             <div class="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-gold-500/30 rounded-br-2xl pointer-events-none"></div>
 
-            <!-- Header -->
+            <!-- Header with Logo -->
             <div class="text-center mb-8">
-                <div class="celebration-icon inline-flex items-center justify-center w-20 h-20 bg-gold-500/10 border border-gold-500/30 rounded-full mb-4">
-                    <i class="fas fa-flag-checkered text-4xl text-gold-400"></i>
+                <div class="mb-4">
+                    <img
+                        src="logo.png"
+                        alt="SahtoutCMS"
+                        class="w-22 h-22 md:w-36 md:h-36 object-contain mx-auto drop-shadow-2xl celebration-icon"
+                    >
                 </div>
                 <h1 class="font-cinzel text-3xl md:text-5xl font-bold bg-gradient-to-b from-amber-100 to-gold-500 bg-clip-text text-transparent">
                     <?= translate('finish_title', 'Installer Complete') ?> ⚔️
@@ -136,6 +140,47 @@ foreach ($configFiles as $name => $path) {
                     <p class="text-slate-300 text-base leading-relaxed">
                         <?= translate('finish_congrats', 'Congratulations, SahtoutCMS is fully installed and ready to use.') ?>
                     </p>
+                </div>
+
+                <!-- Support SahtoutCMS -->
+                <div class="relative overflow-hidden bg-gradient-to-br from-amber-950/40 via-slate-900/70 to-red-950/30 border border-amber-500/30 rounded-xl p-6 mb-6 text-center shadow-lg">
+                    
+                    <!-- Decorative glow -->
+                    <div class="absolute -top-20 -right-20 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="relative z-10">
+                        
+                        <div class="flex justify-center mb-3">
+                            <i class="fas fa-heart text-red-400 text-3xl"></i>
+                        </div>
+                        
+                        <h2 class="font-cinzel text-xl md:text-2xl font-bold text-amber-300 mb-2">
+                            Support SahtoutCMS
+                        </h2>
+                        
+                        <p class="text-slate-300 text-sm leading-relaxed max-w-xl mx-auto mb-5">
+                            Enjoying SahtoutCMS? ❤️
+                            If this project has helped you or your WoW server,
+                            consider supporting its continued development.
+                        </p>
+                        
+                        <a 
+                            href="https://github.com/blodyiheb/SahtoutCMS#-support-sahtoutcms"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center justify-center gap-2 px-7 py-3 bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bold rounded-lg shadow-lg shadow-red-900/30 transition-all duration-300 transform hover:scale-105"
+                        >
+                            <i class="fas fa-heart"></i>
+                            Support the Project
+                            <i class="fas fa-external-link-alt text-xs"></i>
+                        </a>
+                        
+                        <p class="text-xs text-slate-500 mt-3">
+                            Donations are completely optional and help keep SahtoutCMS alive and growing.
+                        </p>
+                        
+                    </div>
                 </div>
 
                 <!-- Security Note -->

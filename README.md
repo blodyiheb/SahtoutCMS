@@ -1,6 +1,7 @@
 <div align="center">
 
 <img width="500" height="500" alt="sahtoutcmsv2_logo" src="https://github.com/user-attachments/assets/741feb48-c429-489f-93d0-0be0c5239961" />
+<br>
 # SahtoutCMS V2
 
 ### A modern World of Warcraft website CMS for AzerothCore WotLK 3.3.5
