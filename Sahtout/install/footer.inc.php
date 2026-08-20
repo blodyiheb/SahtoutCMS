@@ -16,6 +16,32 @@ if (!defined('ALLOWED_ACCESS')) {
     z-index: 10;
     font-family: 'Cinzel', serif;
 ">
+    <!-- Support Button -->
+    <div style="margin-bottom: 12px;">
+        <a href="https://github.com/blodyiheb/SahtoutCMS#-support-sahtoutcms" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           style="display: inline-block; transition: opacity 0.3s ease;">
+            <img 
+                src="support-button.png"
+                alt="<?= translate('support_alt', 'Support SahtoutCMS') ?>"
+                style="
+                    height: 60px;
+                    width: auto;
+                    object-fit: contain;
+                    display: block;
+                "
+            >
+        </a>
+        <style>
+            /* Hover effect for support button */
+            .support-link:hover {
+                opacity: 0.8;
+            }
+        </style>
+    </div>
+    
+    <!-- Social Links -->
     <p style="
         margin: 0;
         color: #f0e6d2;
@@ -43,6 +69,8 @@ if (!defined('ALLOWED_ACCESS')) {
             transition: color 0.3s;
         "><?= translate('footer_discord', 'Discord') ?></a>
     </p>
+    
+    <!-- Copyright -->
     <p style="
         margin: 5px 0 0 0;
         font-size: 0.9em;
