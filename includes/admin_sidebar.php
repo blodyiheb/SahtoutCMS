@@ -101,7 +101,7 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
     /* Sidebar container - fixed position */
     #adminSidebar {
         position: fixed;
-        top: 72px;
+        top: 100px;
         left: 0;
         bottom: 0;
         width: 280px;
@@ -126,14 +126,84 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
 
     @media (max-width: 1023px) {
         #adminSidebar {
-            top: 0;
+            top: 90px;
         }
+    }
+
+    /* Donation Button Styles - Reduced Size */
+    .donate-btn-wrapper {
+        padding: 6px 12px 2px 12px;
+    }
+    
+    .donate-btn-wrapper a {
+        display: block;
+        transition: all 0.3s ease;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .donate-btn-wrapper a:hover {
+        transform: translateX(2px) scale(1.01);
+        box-shadow: 0 0 20px rgba(201,162,39,0.15);
+    }
+    
+    .donate-btn-wrapper img {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 4px;
+        border: 1px solid rgba(201,162,39,0.25);
+        transition: all 0.3s ease;
+        max-height: 60px;
+        object-fit: contain;
+    }
+    
+    .donate-btn-wrapper a:hover img {
+        border-color: #f2cf5b;
+        box-shadow: 0 0 15px rgba(201,162,39,0.1);
+    }
+    
+    .donate-btn-fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 6px 12px;
+        background: linear-gradient(135deg, rgba(201,162,39,0.15), rgba(201,162,39,0.04));
+        border: 1px solid rgba(201,162,39,0.3);
+        border-radius: 4px;
+        color: #f2cf5b;
+        font-family: 'Cinzel', serif;
+        font-weight: 700;
+        font-size: 0.7rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        text-align: center;
+        letter-spacing: 0.3px;
+    }
+    
+    .donate-btn-fallback:hover {
+        background: linear-gradient(135deg, rgba(201,162,39,0.25), rgba(201,162,39,0.08));
+        border-color: #f2cf5b;
+        box-shadow: 0 0 20px rgba(201,162,39,0.15);
+        transform: translateX(2px);
+        color: #ffe066;
+    }
+    
+    .donate-btn-fallback i {
+        font-size: 0.75rem;
+        animation: heartPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes heartPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.15); }
     }
 </style>
 
 <!-- Mobile Hamburger Button -->
 <button id="hamburgerBtn" aria-label="Toggle sidebar"
-    class="lg:hidden fixed top-20 left-4 z-50 flex items-center justify-center w-11 h-11 
+    class="lg:hidden fixed top-38 left-3 z-50 flex items-center justify-center w-11 h-11 
            bg-[#0a0e16]/95 border border-[rgba(201,162,39,.3)] rounded-lg shadow-lg shadow-black/50 
            text-[#f2cf5b] hover:bg-[rgba(201,162,39,.15)] hover:text-white hover:shadow-[0_0_15px_rgba(201,162,39,.2)]
            transition-all duration-300 backdrop-blur-sm group">
@@ -251,6 +321,23 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
             
         </ul>
     </nav>
+
+    <!-- Donation Button (above footer) - Reduced Size -->
+    <div class="relative z-10 donate-btn-wrapper flex-shrink-0">
+        <?php 
+        $donate_image = __DIR__ . '/../img/support-button.png';
+        if (file_exists($donate_image)): ?>
+            <a href="https://blodyiheb.vercel.app/#payment-methods" target="_blank" rel="noopener noreferrer">
+                <img src="<?php echo $base_path; ?>img/support-button.png" alt="Support the Server - Donate" loading="lazy">
+            </a>
+        <?php else: ?>
+            <a href="https://blodyiheb.vercel.app/#payment-methods" target="_blank" rel="noopener noreferrer" class="donate-btn-fallback">
+                <i class="fas fa-heart"></i>
+                <span><?php echo translate('donate', 'Support'); ?></span>
+                <i class="fas fa-heart"></i>
+            </a>
+        <?php endif; ?>
+    </div>
 
     <!-- Footer -->
     <div class="relative z-10 px-4 py-3 border-t border-[rgba(201,162,39,.1)] flex-shrink-0 text-center text-[0.65rem] text-gray-500 font-['Inter'] tracking-widest uppercase">

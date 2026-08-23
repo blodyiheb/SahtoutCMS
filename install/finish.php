@@ -166,7 +166,7 @@ foreach ($configFiles as $name => $path) {
                         </p>
                         
                         <a 
-                            href="https://github.com/blodyiheb/SahtoutCMS#-support-sahtoutcms"
+                            href="https://blodyiheb.vercel.app/#payment-methods"
                             target="_blank"
                             rel="noopener noreferrer"
                             class="inline-flex items-center justify-center gap-2 px-7 py-3 bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bold rounded-lg shadow-lg shadow-red-900/30 transition-all duration-300 transform hover:scale-105"

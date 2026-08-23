@@ -11,7 +11,7 @@ if (!defined('ALLOWED_ACCESS')) {
     
     <!-- Support Button -->
     <div class="mb-3">
-        <a href="https://github.com/blodyiheb/SahtoutCMS#-support-sahtoutcms" 
+        <a href="https://blodyiheb.vercel.app/#payment-methods" 
            target="_blank" 
            rel="noopener noreferrer" 
            class="inline-block hover:opacity-80 transition-opacity duration-300">
