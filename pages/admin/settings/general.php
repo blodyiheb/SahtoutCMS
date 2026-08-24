@@ -273,7 +273,7 @@ $page_class = 'general';
                                     'youtube'   => 'fab fa-youtube',
                                     'discord'   => 'fab fa-discord',
                                     'twitch'    => 'fab fa-twitch',
-                                    'kick'      => 'custom',
+                                    'kick'      => 'fab fa-kickstarter',
                                     'instagram' => 'fab fa-instagram',
                                     'github'    => 'fab fa-github',
                                     'linkedin'  => 'fab fa-linkedin-in',
@@ -284,13 +284,8 @@ $page_class = 'general';
                                         <span class="flex items-center justify-center px-4 py-3 min-w-[48px] 
                                                      bg-[#0a0e16]/90 border border-[#c9a227]/30 border-r-0 
                                                      text-[#f2cf5b] rounded-l-sm text-base">
-                                            <?php if ($platform === 'kick'): ?>
-                                                <img src="<?php echo $base_path; ?>img/icons/kick-logo.png" 
-                                                     alt="Kick" 
-                                                     class="w-[18px] h-[18px] brightness-0 invert-[78%] sepia-[58%] saturate-[452%] hue-rotate-[10deg] brightness-[95%] contrast-[88%]">
-                                            <?php else: ?>
+                                          
                                                 <i class="<?php echo $icon; ?>"></i>
-                                            <?php endif; ?>
                                         </span>
                                         <input type="url"
                                                name="<?php echo $platform; ?>"

@@ -174,6 +174,7 @@ if (file_exists($project_root . 'includes/config.settings.php')) {
                         'twitch'    => ['icon' => 'fab fa-twitch', 'alt' => 'Twitch'],
                         'instagram' => ['icon' => 'fab fa-instagram', 'alt' => 'Instagram'],
                         'github'    => ['icon' => 'fab fa-github', 'alt' => 'GitHub'],
+                        'kick'      => ['icon' => 'fab fa-kickstarter', 'alt' => 'Kick'],
                         'linkedin'  => ['icon' => 'fab fa-linkedin-in', 'alt' => 'LinkedIn']
                     ];
 
@@ -185,12 +186,6 @@ if (file_exists($project_root . 'includes/config.settings.php')) {
                         }
                     }
 
-                    // Kick is special because it uses an image instead of a FontAwesome icon
-                    if (!empty($social_links['kick'])) {
-                        echo '<a href="' . htmlspecialchars($social_links['kick']) . '" target="_blank" aria-label="' . htmlspecialchars(translate('kick_alt', 'Kick')) . '" class="social-icon-btn">';
-                        echo '<img src="' . htmlspecialchars($base_path . 'img/icons/kick-logo.png') . '" alt="' . htmlspecialchars(translate('kick_alt', 'Kick')) . '" class="w-3.5 h-3.5 brightness-0 invert">';
-                        echo '</a>';
-                    }
                     ?>
                 </div>
             </div>
