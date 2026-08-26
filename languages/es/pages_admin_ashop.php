@@ -10,7 +10,7 @@ return [
     'admin_shop_invalid_category' => 'Categoría inválida',
     'admin_shop_invalid_entry_id' => 'ID de entrada inválido',
     'admin_shop_invalid_level_boost' => 'El aumento de nivel debe estar entre 2 y 255',
-    'admin_shop_upload_dir_not_writable' => 'El directorio de carga no tiene permisos de escritura',
+    'admin_shop_upload_dir_not_writable' => 'Error al subir: la carpeta de imágenes "%1$s" no tiene permiso de escritura para el servidor web (www-data). Añade primero el permiso de escritura, por ejemplo: sudo chown -R www-data:www-data "%1$s"',
     'admin_shop_upload_err_ini_size' => 'El tamaño del archivo excede el límite del servidor (upload_max_filesize)',
     'admin_shop_upload_err_form_size' => 'El tamaño del archivo excede el límite del formulario',
     'admin_shop_upload_err_partial' => 'El archivo se subió parcialmente',

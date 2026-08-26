@@ -10,7 +10,7 @@ return [
     'admin_shop_invalid_category' => 'Invalid category',
     'admin_shop_invalid_entry_id' => 'Invalid entry ID',
     'admin_shop_invalid_level_boost' => 'Level boost must be between 2 and 255',
-    'admin_shop_upload_dir_not_writable' => 'Upload directory is not writable',
+    'admin_shop_upload_dir_not_writable' => 'Upload failed: the image folder "%1$s" is not writable by the web server (www-data). Please add write permission first, e.g.: sudo chown -R www-data:www-data "%1$s"',
     'admin_shop_upload_err_ini_size' => 'File size exceeds server limit (upload_max_filesize)',
     'admin_shop_upload_err_form_size' => 'File size exceeds form limit',
     'admin_shop_upload_err_partial' => 'File was only partially uploaded',

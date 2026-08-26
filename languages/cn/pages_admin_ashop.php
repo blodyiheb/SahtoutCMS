@@ -10,7 +10,7 @@ return [
     'admin_shop_invalid_category' => '无效分类',
     'admin_shop_invalid_entry_id' => '无效条目ID',
     'admin_shop_invalid_level_boost' => '等级提升必须在2到255之间',
-    'admin_shop_upload_dir_not_writable' => '上传目录不可写',
+    'admin_shop_upload_dir_not_writable' => '上传失败：图片文件夹"%1$s"对Web服务器（www-data）不可写。请先添加写权限，例如：sudo chown -R www-data:www-data "%1$s"',
     'admin_shop_upload_err_ini_size' => '文件大小超出服务器限制（upload_max_filesize）',
     'admin_shop_upload_err_form_size' => '文件大小超出表单限制',
     'admin_shop_upload_err_partial' => '文件仅部分上传',

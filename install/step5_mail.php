@@ -12,6 +12,10 @@ $success = false;
 $test_result = null;
 $configMailFile = __DIR__ . '/../includes/config.mail.php';
 
+// Check if vendor/autoload.php exists (PHPMailer)
+$composer_installed = file_exists(__DIR__ . '/../vendor/autoload.php');
+$composer_warning = !$composer_installed;
+
 // SMTP Configuration handling
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $smtp_enabled = isset($_POST['smtp_enabled']) ? 1 : 0;
@@ -46,11 +50,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!in_array($smtp_secure, ['tls', 'ssl', ''])) {
             $errors[] = translate('err_smtp_secure_invalid', 'Encryption must be tls, ssl, or empty.');
         }
+        
+        // Check composer installation before attempting test
+        if (!$composer_installed) {
+            $errors[] = '⚠️ ' . translate('err_composer_missing', 'PHPMailer is not installed. Please run "composer install" in the root directory to enable SMTP functionality. You can disable SMTP and continue if you don\'t need email features.');
+        }
     }
 
     if (empty($errors)) {
         // Test SMTP connection if enabled
-        if ($smtp_enabled) {
+        if ($smtp_enabled && $composer_installed) {
             try {
                 // Load PHPMailer
                 require_once __DIR__ . '/../vendor/autoload.php';
@@ -98,6 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errors[] = sprintf(translate('err_smtp_test_failed', 'SMTP test failed: %s'), $e->getMessage());
                 $success = false;
             }
+        } elseif ($smtp_enabled && !$composer_installed) {
+            // Composer not installed - save config but don't test
+            $success = true;
         } else {
             // SMTP disabled - just save without testing
             $success = true;
@@ -239,6 +251,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        
+        /* Composer warning alert styles */
+        .composer-alert {
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-left: 4px solid #fbbf24;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .composer-alert .alert-title {
+            color: #fbbf24;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .composer-alert .alert-text {
+            color: #d4d4d8;
+            font-size: 0.8125rem;
+            margin-top: 0.25rem;
+        }
+        .composer-alert .alert-code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            color: #fcd34d;
+            font-size: 0.75rem;
+        }
     </style>
     
     <script>
@@ -306,6 +346,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?= translate('step5_description', 'Configure SMTP for sending emails from your site.') ?>
     </p>
 </div>
+
+            <!-- Composer Warning - Non-blocking alert -->
+            <?php if ($composer_warning): ?>
+            <div class="composer-alert mb-4">
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 mt-0.5">
+                        <i class="fas fa-exclamation-triangle text-amber-400 text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="alert-title">
+                            <i class="fas fa-terminal mr-1.5"></i>
+                            <?= translate('composer_alert_title', 'Composer Dependencies Missing') ?>
+                        </div>
+                        <div class="alert-text">
+                            <?= translate('composer_alert_text', 'PHPMailer is required for SMTP functionality. To enable email features, run:') ?>
+                            <br>
+                            <span class="alert-code">composer install</span>
+                            <span class="text-slate-500 text-xs ml-1"><?= translate('composer_alert_hint', '(run in the root directory of your project)') ?></span>
+                        </div>
+                        <div class="alert-text mt-1 text-amber-300/70 text-xs">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            <?= translate('composer_alert_skip', 'You can leave SMTP disabled and continue the installation without email features.') ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- Errors -->
             <?php if (!empty($errors)): ?>
@@ -381,6 +448,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="fas fa-cogs"></i>
                             <?= translate('section_smtp_config', 'SMTP Configuration') ?>
                         </h2>
+
+                        <!-- Composer Warning inside SMTP fields (when enabled) -->
+                        <?php if ($composer_warning): ?>
+                        <div class="composer-alert bg-amber-900/20 border-amber-700/30 border-l-amber-500">
+                            <div class="flex items-start gap-2">
+                                <i class="fas fa-triangle-exclamation text-amber-400 mt-0.5"></i>
+                                <div>
+                                    <span class="text-amber-300 font-semibold text-xs uppercase tracking-wider">
+                                        ⚠️ <?= translate('composer_required', 'Composer Required') ?>
+                                    </span>
+                                    <p class="text-slate-300 text-xs mt-1">
+                                        <?= translate('composer_smtp_warning', 'SMTP will not work until you install PHPMailer. Run') ?>
+                                        <code class="bg-slate-800 px-1.5 py-0.5 rounded text-amber-300 text-xs font-mono">composer install</code>
+                                        <?= translate('composer_smtp_warning2', 'in your project root.') ?>
+                                        <span class="text-slate-500 block mt-0.5 text-[11px]">
+                                            <i class="fas fa-arrow-right mr-1"></i>
+                                            <?= translate('composer_smtp_skip', 'You can still disable SMTP and proceed without email features.') ?>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endif; ?>
 
                         <div>
                             <label for="smtp_host" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">

@@ -15,7 +15,7 @@ return [
     'admin_news_upload_err_unknown' => '未知上传错误。',
     'admin_news_invalid_file_type' => '无效的文件类型。仅允许 JPG、PNG、GIF。',
     'admin_news_file_size_exceeded' => '文件大小超过 2MB 限制。',
-    'admin_news_upload_dir_not_writable' => '上传目录不可写。',
+    'admin_news_upload_dir_not_writable' => '上传失败：上传文件夹"%1$s"对Web服务器（www-data）不可写。请先添加写权限，例如：sudo chown -R www-data:www-data "%1$s"',
     'admin_news_upload_failed' => '移动上传文件失败。',
     'admin_news_add_success' => '新闻添加成功。',
     'admin_news_add_failed' => '添加新闻失败：%s',

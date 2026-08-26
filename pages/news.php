@@ -61,25 +61,34 @@ if ($is_single) {
     $total_stmt->execute();
     $total_result = $total_stmt->get_result();
     $total_rows = $total_result->fetch_assoc()['total'];
-    $total_pages = ceil($total_rows / $items_per_page);
+    $total_stmt->close();
+    
+    // Fix: Handle case when there are no news items
+    $total_pages = max(1, ceil($total_rows / $items_per_page));
     $current_page = min($current_page, $total_pages);
     $offset = ($current_page - 1) * $items_per_page;
 
-    $query = "SELECT id, title, slug, LEFT(content, 200) as excerpt, posted_by, 
-              post_date, image_url, is_important, category 
-              FROM server_news 
-              " . $where_clause . "
-              ORDER BY is_important DESC, post_date DESC
-              LIMIT ?, ?";
-    $stmt = $site_db->prepare($query);
-    
-    $params[] = $offset;
-    $params[] = $items_per_page;
-    $types .= 'ii';
-    
-    $stmt->bind_param($types, ...$params);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // Only execute the main query if there are news items
+    if ($total_rows > 0) {
+        $query = "SELECT id, title, slug, LEFT(content, 200) as excerpt, posted_by, 
+                  post_date, image_url, is_important, category 
+                  FROM server_news 
+                  " . $where_clause . "
+                  ORDER BY is_important DESC, post_date DESC
+                  LIMIT ?, ?";
+        $stmt = $site_db->prepare($query);
+        
+        $params[] = $offset;
+        $params[] = $items_per_page;
+        $types .= 'ii';
+        
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+    } else {
+        // Create an empty result set
+        $result = $site_db->query("SELECT id, title, slug, '' as excerpt, posted_by, post_date, image_url, is_important, category FROM server_news WHERE 1=0");
+    }
 }
 
 // Get all categories for the filter tabs
@@ -200,11 +209,19 @@ while ($row = $category_result->fetch_assoc()) {
             -webkit-backdrop-filter: blur(4px);
         }
         .news-card:hover { transform: translateY(-6px); }
-        .news-card-image { height: 180px; object-fit: cover; }
-        .news-single-image { max-height: 400px; object-fit: cover; }
+        .news-single-image { max-height: 400px; object-fit: contain; width: 100%; }
         .text-shadow-lg { text-shadow: 0 0 30px rgba(0,0,0,0.8); }
         .text-shadow-md { text-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .text-shadow-sm { text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        
+        /* News card image - full width, show complete image */
+        .news-card-img {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            object-fit: contain;
+            background: rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -222,12 +239,12 @@ while ($row = $category_result->fetch_assoc()) {
                     <?php if (!empty($news['image_url'])): ?>
                         <img src="<?php echo $base_path . htmlspecialchars($news['image_url']); ?>" 
                              alt="<?php echo htmlspecialchars($news['title']); ?>" 
-                             class="news-single-image w-full rounded-none mb-6 border border-[rgba(201,162,39,0.2)]"
+                             class="news-single-image rounded-none mb-6 border border-[rgba(201,162,39,0.2)]"
                              onerror="this.src='<?php echo $base_path . htmlspecialchars($default_image_url); ?>'">
                     <?php else: ?>
                         <img src="<?php echo $base_path . htmlspecialchars($default_image_url); ?>" 
                              alt="<?php echo htmlspecialchars($news['title']); ?>" 
-                             class="news-single-image w-full rounded-none mb-6 border border-[rgba(201,162,39,0.2)]">
+                             class="news-single-image rounded-none mb-6 border border-[rgba(201,162,39,0.2)]">
                     <?php endif; ?>
                     
                     <h1 class="text-white text-3xl md:text-4xl font-extrabold leading-tight mb-4 font-['Cinzel'] text-shadow-lg">
@@ -310,12 +327,12 @@ while ($row = $category_result->fetch_assoc()) {
                                 <?php if (!empty($news['image_url'])): ?>
                                     <img src="<?php echo $base_path . htmlspecialchars($news['image_url']); ?>" 
                                          alt="<?php echo htmlspecialchars($news['title']); ?>" 
-                                         class="news-card-image w-full border-b border-[rgba(201,162,39,0.1)]"
+                                         class="news-card-img border-b border-[rgba(201,162,39,0.1)]"
                                          onerror="this.src='<?php echo $base_path . htmlspecialchars($default_image_url); ?>'">
                                 <?php else: ?>
                                     <img src="<?php echo $base_path . htmlspecialchars($default_image_url); ?>" 
                                          alt="<?php echo htmlspecialchars($news['title']); ?>" 
-                                         class="news-card-image w-full border-b border-[rgba(201,162,39,0.1)]">
+                                         class="news-card-img border-b border-[rgba(201,162,39,0.1)]">
                                 <?php endif; ?>
                                 
                                 <div class="p-5 flex-1 flex flex-col">
@@ -374,7 +391,7 @@ while ($row = $category_result->fetch_assoc()) {
 </div>
 
 <?php 
-if (!$is_single) {
+if (!$is_single && isset($stmt)) {
     $stmt->close();
 }
 if (isset($site_db)) {

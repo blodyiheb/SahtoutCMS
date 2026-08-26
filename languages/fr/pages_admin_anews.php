@@ -15,7 +15,7 @@ return [
     'admin_news_upload_err_unknown' => 'Erreur de téléchargement inconnue.',
     'admin_news_invalid_file_type' => 'Type de fichier invalide. Seuls JPG, PNG, GIF sont autorisés.',
     'admin_news_file_size_exceeded' => 'La taille du fichier dépasse la limite de 2 Mo.',
-    'admin_news_upload_dir_not_writable' => 'Le dossier de téléchargement n\'est pas accessible en écriture.',
+    'admin_news_upload_dir_not_writable' => 'Échec de l\'upload : le dossier d\'upload "%1$s" n\'est pas accessible en écriture pour le serveur web (www-data). Veuillez d\'abord ajouter la permission d\'écriture, ex. : sudo chown -R www-data:www-data "%1$s"',
     'admin_news_upload_failed' => 'Échec du déplacement du fichier téléchargé.',
     'admin_news_add_success' => 'Actualité ajoutée avec succès.',
     'admin_news_add_failed' => 'Échec de l\'ajout de l\'actualité : %s',

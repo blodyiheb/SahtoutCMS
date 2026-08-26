@@ -10,7 +10,7 @@ return [
     'admin_shop_invalid_category' => 'Неверная категория',
     'admin_shop_invalid_entry_id' => 'Неверный ID записи',
     'admin_shop_invalid_level_boost' => 'Повышение уровня должно быть от 2 до 255',
-    'admin_shop_upload_dir_not_writable' => 'Каталог загрузки недоступен для записи',
+    'admin_shop_upload_dir_not_writable' => 'Ошибка загрузки: папка изображений "%1$s" недоступна для записи веб-сервером (www-data). Сначала добавьте право на запись, например: sudo chown -R www-data:www-data "%1$s"',
     'admin_shop_upload_err_ini_size' => 'Размер файла превышает лимит сервера (upload_max_filesize)',
     'admin_shop_upload_err_form_size' => 'Размер файла превышает лимит формы',
     'admin_shop_upload_err_partial' => 'Файл был загружен частично',

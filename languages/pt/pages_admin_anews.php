@@ -15,7 +15,7 @@ return [
     'admin_news_upload_err_unknown' => 'Erro de carregamento desconhecido.',
     'admin_news_invalid_file_type' => 'Tipo de ficheiro inválido. Apenas JPG, PNG, GIF são permitidos.',
     'admin_news_file_size_exceeded' => 'O tamanho do ficheiro excede o limite de 2 MB.',
-    'admin_news_upload_dir_not_writable' => 'O diretório de carregamento não tem permissão de escrita.',
+    'admin_news_upload_dir_not_writable' => 'Falha no upload: a pasta de upload "%1$s" não tem permissão de escrita para o servidor web (www-data). Adicione primeiro a permissão de escrita, ex.: sudo chown -R www-data:www-data "%1$s"',
     'admin_news_upload_failed' => 'Falha ao mover o ficheiro carregado.',
     'admin_news_add_success' => 'Notícia adicionada com sucesso.',
     'admin_news_add_failed' => 'Falha ao adicionar notícia: %s',

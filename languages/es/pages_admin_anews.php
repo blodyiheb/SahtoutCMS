@@ -15,7 +15,7 @@ return [
     'admin_news_upload_err_unknown' => 'Error de subida desconocido.',
     'admin_news_invalid_file_type' => 'Tipo de archivo no válido. Solo se permiten JPG, PNG, GIF.',
     'admin_news_file_size_exceeded' => 'El tamaño del archivo excede el límite de 2 MB.',
-    'admin_news_upload_dir_not_writable' => 'El directorio de subida no tiene permisos de escritura.',
+    'admin_news_upload_dir_not_writable' => 'Error al subir: la carpeta de subida "%1$s" no tiene permiso de escritura para el servidor web (www-data). Añade primero el permiso de escritura, por ejemplo: sudo chown -R www-data:www-data "%1$s"',
     'admin_news_upload_failed' => 'Error al mover el archivo subido.',
     'admin_news_add_success' => 'Noticia añadida con éxito.',
     'admin_news_add_failed' => 'Error al añadir la noticia: %s',

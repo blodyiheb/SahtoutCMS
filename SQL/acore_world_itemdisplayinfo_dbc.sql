@@ -4,6 +4,7 @@
 -- Server OS:                    Win64
 -- HeidiSQL Version:             12.10.0.7000
 -- --------------------------------------------------------
+USE `acore_world`;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET NAMES utf8 */;
@@ -13,7 +14,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-USE `acore_world`;
 
 -- Dumping structure for table acore_world.itemdisplayinfo_dbc
 CREATE TABLE IF NOT EXISTS `itemdisplayinfo_dbc` (

@@ -25,7 +25,7 @@ if (isset($_GET['file'])) {
         exit;
     } else {
         $_SESSION['download_error'] = translate('download_error_file_not_found', 'File not found');
-        header("Location: {$base_path}download/woltk.php");
+        header("Location: {$base_path}download");
         exit;
     }
 }
@@ -38,7 +38,7 @@ include_once $project_root . 'includes/header.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo translate('download_meta_description', 'Download Wrath of the Lich King client for Sahtout WoW Server'); ?>">
+    <meta name="description" content="<?php echo translate('download_meta_description', 'Download files for Sahtout WoW Server'); ?>">
     <title><?php echo $site_title_name . " " . translate('download_title', 'Download'); ?></title>
     <link rel="icon" href="<?php echo $base_path . $site_logo; ?>" type="image/x-icon">
     <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
@@ -155,6 +155,23 @@ include_once $project_root . 'includes/header.php';
         .main-content-area {
             padding-top: 2rem;
         }
+        
+        .no-files {
+            background: rgba(201,162,39,0.05);
+            border: 1px dashed rgba(201,162,39,0.2);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-radius: 8px;
+        }
+        .no-files i {
+            font-size: 3rem;
+            color: #f2cf5b;
+            opacity: 0.4;
+            margin-bottom: 1rem;
+        }
+        .no-files p {
+            color: #6b7280;
+        }
     </style>
 </head>
 <body>
@@ -163,7 +180,7 @@ include_once $project_root . 'includes/header.php';
     <main class="main-content-area max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         <div class="max-w-2xl mx-auto">
             
-            <h1 class="wow-title text-3xl md:text-4xl text-center mb-8"><?php echo translate('download_title_h1', 'Choose a file to download'); ?></h1>
+            <h1 class="wow-title text-3xl md:text-4xl text-center mb-8"><?php echo translate('download_title_h1', 'Downloads'); ?></h1>
             
             <?php if (isset($_SESSION['download_error'])): ?>
                 <div class="error-box rounded-sm mb-6">
@@ -173,81 +190,73 @@ include_once $project_root . 'includes/header.php';
                 <?php unset($_SESSION['download_error']); ?>
             <?php endif; ?>
             
-            <!-- Download Card -->
-            <div class="panel p-6 md:p-8">
-                <div class="flex flex-col items-center text-center">
-                    
-                    <!-- File Icon -->
-                    <div class="text-6xl text-[#f2cf5b] mb-4">
-                        <i class="fas fa-dragon"></i>
-                    </div>
-                    
-                    <h2 class="text-xl md:text-2xl font-bold text-white mb-4 font-['Cinzel']">
-                        <?php echo translate('download_file_name', 'Wrath of the Lich King Client'); ?>
-                    </h2>
-                    
-                    <!-- File Info -->
-                    <div class="w-full max-w-sm space-y-1 mb-6">
-                        <div class="file-info-item">
-                            <i class="fas fa-file-archive"></i>
-                            <span><?php echo translate('download_file_name', 'Wrath of the Lich King Client'); ?></span>
-                        </div>
-                        <div class="file-info-item">
-                            <i class="fas fa-download"></i>
-                            <span><?php echo translate('download_file_size', 'Size'); ?>: <?php 
-                                echo file_exists($project_root . 'download/files/wow_woltk.zip') ? 
-                                round(filesize($project_root . 'download/files/wow_woltk.zip') / (1024 * 1024), 2) . ' MB' : 
-                                translate('download_size_unknown', 'Unknown'); 
-                            ?></span>
-                        </div>
-                        <div class="file-info-item">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <span><?php echo translate('download_space_required', 'Requires 35GB free space'); ?></span>
-                        </div>
-                    </div>
-                    
-                    <!-- Download Button -->
-                    <form method="get" action="<?php echo $base_path; ?>download">
-                        <input type="hidden" name="file" value="wow_woltk.zip">
-                        <button type="submit" class="download-btn">
-                            <i class="fas fa-download"></i> 
-                            <?php echo translate('download_button', 'DOWNLOAD NOW'); ?>
-                        </button>
-                    </form>
-                    
-                    <!-- Note -->
-                    <p class="text-gray-500 text-xs mt-4">
-                        <i class="fas fa-shield-alt text-[#f2cf5b] mr-1"></i>
-                        <?php echo translate('download_note', 'This download is secured and verified.'); ?>
-                    </p>
-                </div>
-            </div>
+            <!-- Check if there are files to download -->
+            <?php 
+            $files_dir = $project_root . 'download/files/';
+            $files = [];
+            if (is_dir($files_dir)) {
+                $files = array_diff(scandir($files_dir), array('.', '..'));
+            }
+            ?>
             
-            <!-- System Requirements -->
-            <div class="panel p-4 md:p-6 mt-6">
-                <h3 class="text-sm font-bold text-[#f2cf5b] mb-3 font-['Cinzel'] tracking-wide">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    <?php echo translate('system_requirements', 'System Requirements'); ?>
-                </h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-400">
-                    <div>
-                        <span class="text-[#f2cf5b] font-semibold"><?php echo translate('os', 'OS'); ?>:</span>
-                        Windows 7 / 8 / 10 / 11
-                    </div>
-                    <div>
-                        <span class="text-[#f2cf5b] font-semibold"><?php echo translate('cpu', 'CPU'); ?>:</span>
-                        Intel Core 2 Duo or better
-                    </div>
-                    <div>
-                        <span class="text-[#f2cf5b] font-semibold"><?php echo translate('ram', 'RAM'); ?>:</span>
-                        4GB RAM (8GB recommended)
-                    </div>
-                    <div>
-                        <span class="text-[#f2cf5b] font-semibold"><?php echo translate('gpu', 'GPU'); ?>:</span>
-                        DirectX 11 compatible
+            <?php if (!empty($files)): ?>
+                <?php foreach ($files as $file): ?>
+                <!-- Download Card -->
+                <div class="panel p-6 md:p-8 mb-6">
+                    <div class="flex flex-col items-center text-center">
+                        
+                        <!-- File Icon -->
+                        <div class="text-6xl text-[#f2cf5b] mb-4">
+                            <i class="fas fa-file-archive"></i>
+                        </div>
+                        
+                        <h2 class="text-xl md:text-2xl font-bold text-white mb-4 font-['Cinzel']">
+                            <?php echo htmlspecialchars($file); ?>
+                        </h2>
+                        
+                        <!-- File Info -->
+                        <div class="w-full max-w-sm space-y-1 mb-6">
+                            <div class="file-info-item">
+                                <i class="fas fa-file"></i>
+                                <span><?php echo htmlspecialchars($file); ?></span>
+                            </div>
+                            <div class="file-info-item">
+                                <i class="fas fa-download"></i>
+                                <span><?php echo translate('download_file_size', 'Size'); ?>: <?php 
+                                    echo file_exists($project_root . 'download/files/' . $file) ? 
+                                    round(filesize($project_root . 'download/files/' . $file) / (1024 * 1024), 2) . ' MB' : 
+                                    translate('download_size_unknown', 'Unknown'); 
+                                ?></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Download Button -->
+                        <form method="get" action="<?php echo $base_path; ?>download">
+                            <input type="hidden" name="file" value="<?php echo htmlspecialchars($file); ?>">
+                            <button type="submit" class="download-btn">
+                                <i class="fas fa-download"></i> 
+                                <?php echo translate('download_button', 'DOWNLOAD NOW'); ?>
+                            </button>
+                        </form>
+                        
+                        <!-- Note -->
+                        <p class="text-gray-500 text-xs mt-4">
+                            <i class="fas fa-shield-alt text-[#f2cf5b] mr-1"></i>
+                            <?php echo translate('download_note', 'This download is secured and verified.'); ?>
+                        </p>
                     </div>
                 </div>
-            </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <!-- No files available -->
+                <div class="panel p-6 md:p-8">
+                    <div class="no-files">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p class="text-slate-400"><?php echo translate('no_files_available', 'No files are currently available for download.'); ?></p>
+                        <p class="text-slate-500 text-sm mt-2"><?php echo translate('check_back_later', 'Please check back later.'); ?></p>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </main>
 

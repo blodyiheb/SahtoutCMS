@@ -10,7 +10,7 @@ return [
     'admin_shop_invalid_category' => 'Ungültige Kategorie',
     'admin_shop_invalid_entry_id' => 'Ungültige Eintrags-ID',
     'admin_shop_invalid_level_boost' => 'Level-Boost muss zwischen 2 und 255 liegen',
-    'admin_shop_upload_dir_not_writable' => 'Upload-Verzeichnis ist nicht beschreibbar',
+    'admin_shop_upload_dir_not_writable' => 'Upload fehlgeschlagen: Der Bildordner "%1$s" ist für den Webserver (www-data) nicht beschreibbar. Bitte zuerst Schreibrechte hinzufügen, z. B.: sudo chown -R www-data:www-data "%1$s"',
     'admin_shop_upload_err_ini_size' => 'Dateigröße überschreitet das Serverlimit (upload_max_filesize)',
     'admin_shop_upload_err_form_size' => 'Dateigröße überschreitet das Formularlimit',
     'admin_shop_upload_err_partial' => 'Die Datei wurde nur teilweise hochgeladen',

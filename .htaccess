@@ -1,8 +1,34 @@
 RewriteEngine On
 
-# Ignore existing files and directories (important for CSS/JS/images)
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# Serve existing files and directories directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
-# Rewrite everything to pages/ (supports nested folders)
-RewriteRule ^(.+)$ pages/$1.php [L]
+# Specific routes
+RewriteRule ^login/?$ pages/login.php [L]
+RewriteRule ^register/?$ pages/register.php [L]
+RewriteRule ^account/?$ pages/account.php [L]
+RewriteRule ^forgot_password/?$ pages/forgot_password.php [L]
+RewriteRule ^resend_activation/?$ pages/resend_activation.php [L]
+
+# Dynamic nested pages
+# Only rewrite if the corresponding PHP file actually exists
+
+RewriteCond %{DOCUMENT_ROOT}/pages/$1/$2/$3/$4/$5.php -f
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/?$ pages/$1/$2/$3/$4/$5.php [L]
+
+RewriteCond %{DOCUMENT_ROOT}/pages/$1/$2/$3/$4.php -f
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/?$ pages/$1/$2/$3/$4.php [L]
+
+RewriteCond %{DOCUMENT_ROOT}/pages/$1/$2/$3.php -f
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/?$ pages/$1/$2/$3.php [L]
+
+RewriteCond %{DOCUMENT_ROOT}/pages/$1/$2.php -f
+RewriteRule ^([^/]+)/([^/]+)/?$ pages/$1/$2.php [L]
+
+RewriteCond %{DOCUMENT_ROOT}/pages/$1.php -f
+RewriteRule ^([^/]+)/?$ pages/$1.php [L]
+
+# Final fallback
+RewriteRule ^(.*)$ index.php?page=$1 [QSA,L]

@@ -189,6 +189,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $upload_url = $base_upload_url . $upload_subdir . '/';
 
             if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                // Verify the web server user (e.g. www-data) may write to the destination folder before uploading
+                if (!is_dir($upload_dir) && !@mkdir($upload_dir, 0755, true) || !is_writable($upload_dir)) {
+                    $permission_message = sprintf(
+                        translate('admin_shop_upload_dir_not_writable', 'Upload failed: the image folder "%1$s" is not writable by the web server (www-data). Please add write permission first, e.g.: sudo chown -R www-data:www-data "%1$s"'),
+                        $upload_dir
+                    );
+                    header("Location: {$base_path}admin/ashop?status=error&message=" . urlencode($permission_message) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+                    exit;
+                }
+
                 $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
                 $max_size = 2 * 1024 * 1024;
                 $file = $_FILES['image'];
@@ -221,18 +231,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $filename = uniqid('shop_item_') . '.' . $ext;
                 $destination = $upload_dir . $filename;
 
-                if (move_uploaded_file($file['tmp_name'], $destination)) {
-                    $image = $upload_url . $filename;
-                    if ($action === 'edit' && isset($_POST['existing_image']) && $_POST['existing_image']) {
-                        $old_image_path = str_replace($base_upload_url, $base_upload_dir, $_POST['existing_image']);
-                        if (file_exists($old_image_path)) {
-                            unlink($old_image_path);
-                        }
-                    }
-                } else {
-                    header("Location: {$base_path}admin/ashop?status=error&message=" . urlencode(translate('admin_shop_upload_failed', 'Failed to upload file')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
-                    exit;
-                }
+               if (move_uploaded_file($file['tmp_name'], $destination)) {
+    // Set file permissions so PHP can read/delete it later
+    chmod($destination, 0644);
+    
+    $image = $upload_url . $filename;
+    if ($action === 'edit' && isset($_POST['existing_image']) && $_POST['existing_image']) {
+        $old_image_path = str_replace($base_upload_url, $base_upload_dir, $_POST['existing_image']);
+        if (file_exists($old_image_path)) {
+            unlink($old_image_path);
+        }
+    }
+} else {
+    header("Location: {$base_path}admin/ashop?status=error&message=" . urlencode(translate('admin_shop_upload_failed', 'Failed to upload file')) . "&page=$page" . ($category_filter ? "&category=$category_filter" : "") . ($search_query ? "&search=" . urlencode($search_query) : ""));
+    exit;
+}
             } elseif ($action === 'edit' && isset($_POST['existing_image'])) {
                 $image = $_POST['existing_image'];
             }
@@ -1131,20 +1144,20 @@ try {
                 itemsetPreviewList.innerHTML = '';
 
                 if (!isSet) {
-                    itemsetPreviewEmpty.textContent = '<?php echo translate('admin_shop_itemset_preview_hidden', 'Choose the "Set" category to preview the set contents.'); ?>';
+                    itemsetPreviewEmpty.textContent = <?php echo json_encode(translate('admin_shop_itemset_preview_hidden', 'Choose the "Set" category to preview the set contents.')); ?>;
                     itemsetPreviewEmpty.classList.remove('hidden');
                     return;
                 }
 
                 if (!rawSetId) {
-                    itemsetPreviewEmpty.textContent = '<?php echo translate('admin_shop_itemset_preview_hint', 'Enter an item set ID to preview its items.'); ?>';
+                    itemsetPreviewEmpty.textContent = <?php echo json_encode(translate('admin_shop_itemset_preview_hint', 'Enter an item set ID to preview its items.')); ?>;
                     itemsetPreviewEmpty.classList.remove('hidden');
                     return;
                 }
 
                 const setItems = itemsetPreviewData[rawSetId] || [];
                 if (setItems.length === 0) {
-                    itemsetPreviewEmpty.textContent = '<?php echo translate('admin_shop_itemset_preview_empty', 'No items were found for this item set ID.'); ?>';
+                    itemsetPreviewEmpty.textContent = <?php echo json_encode(translate('admin_shop_itemset_preview_empty', 'No items were found for this item set ID.')); ?>;
                     itemsetPreviewEmpty.classList.remove('hidden');
                     return;
                 }
@@ -1253,14 +1266,14 @@ try {
                         const maxSize = 2 * 1024 * 1024;
 
                         if (!allowedTypes.includes(file.type)) {
-                            alert('<?php echo translate('admin_shop_js_invalid_file_type', 'Invalid file type. Only JPG, PNG, or GIF allowed.'); ?>');
+                            alert(<?php echo json_encode(translate('admin_shop_js_invalid_file_type', 'Invalid file type. Only JPG, PNG, or GIF allowed.')); ?>);
                             this.value = '';
                             imagePreview.classList.remove('active');
                             imagePreview.src = '';
                             return;
                         }
                         if (file.size > maxSize) {
-                            alert('<?php echo translate('admin_shop_js_file_size_exceeded', 'File size exceeds 2MB limit.'); ?>');
+                            alert(<?php echo json_encode(translate('admin_shop_js_file_size_exceeded', 'File size exceeds 2MB limit.')); ?>);
                             this.value = '';
                             imagePreview.classList.remove('active');
                             imagePreview.src = '';
@@ -1315,7 +1328,7 @@ try {
                     
                     imageInput.value = '';
 
-                    submitBtn.innerHTML = '<i class="fas fa-save"></i> <?php echo translate('admin_shop_update_button', 'Update Item'); ?>';
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> ' + <?php echo json_encode(translate('admin_shop_update_button', 'Update Item')); ?>;
                     cancelBtn.style.display = 'inline-flex';
 
                     updateFormFields();
@@ -1332,7 +1345,7 @@ try {
                 imagePreview.classList.remove('active');
                 imagePreview.src = '';
                 uploadPlaceholder.style.display = 'block';
-                submitBtn.innerHTML = '<i class="fas fa-plus"></i> <?php echo translate('admin_shop_add_button', 'Add Item'); ?>';
+                submitBtn.innerHTML = '<i class="fas fa-plus"></i> ' + <?php echo json_encode(translate('admin_shop_add_button', 'Add Item')); ?>;
                 this.style.display = 'none';
                 updateFormFields();
             });
@@ -1349,20 +1362,20 @@ try {
 
                 if (!name || pointCost === '' || tokenCost === '') {
                     e.preventDefault();
-                    alert('<?php echo translate('admin_shop_js_required_fields', 'Please fill in all required fields.'); ?>');
+                    alert(<?php echo json_encode(translate('admin_shop_js_required_fields', 'Please fill in all required fields.')); ?>);
                     return;
                 }
 
                 if (['Mount', 'Pet', 'Stuff', 'Set'].includes(category)) {
                     if (isSet && (!itemsetValue || parseInt(itemsetValue, 10) <= 0)) {
                         e.preventDefault();
-                        alert('<?php echo translate('admin_shop_js_invalid_itemset_id', 'Please provide a valid item set ID.'); ?>');
+                        alert(<?php echo json_encode(translate('admin_shop_js_invalid_itemset_id', 'Please provide a valid item set ID.')); ?>);
                         return;
                     }
 
                     if (category !== 'Set' && !entryValue) {
                         e.preventDefault();
-                        alert('<?php echo translate('admin_shop_js_select_entry', 'Please select an item entry.'); ?>');
+                        alert(<?php echo json_encode(translate('admin_shop_js_select_entry', 'Please select an item entry.')); ?>);
                         return;
                     }
                 }
@@ -1371,7 +1384,7 @@ try {
                     const levelBoost = document.getElementById('level_boost').value;
                     if (levelBoost && (levelBoost < 2 || levelBoost > 255)) {
                         e.preventDefault();
-                        alert('<?php echo translate('admin_shop_js_invalid_level_boost', 'Level boost must be between 2 and 255.'); ?>');
+                        alert(<?php echo json_encode(translate('admin_shop_js_invalid_level_boost', 'Level boost must be between 2 and 255.')); ?>);
                         return;
                     }
                 }

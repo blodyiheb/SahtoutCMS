@@ -144,7 +144,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cfg = "<?php\nif (!defined('ALLOWED_ACCESS')) exit('Direct access not allowed.');\n\n";
         foreach ($dbGroups as $key => $g) {
             $p = "db_{$key}_";
-            // Using var_export is much safer than addslashes for generating PHP code
             $cfg .= "\${$p}host = " . var_export($g['host'], true) . ";\n";
             $cfg .= "\${$p}port = " . var_export($g['port'], true) . ";\n";
             $cfg .= "\${$p}user = " . var_export($g['user'], true) . ";\n";
@@ -173,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cap .= "?>\n";
 
         if (!is_writable($cfgDir)) {
-            $errors[] = translate('err_config_dir_not_writable', 'Config directory not writable: %s', $cfgDir);
+            $errors[] = translate('err_config_dir_not_writable', 'Configuration directory is not writable: %s', $cfgDir);
         } else {
             if (file_put_contents($configFile, $cfg) === false) {
                 $errors[] = translate('err_failed_write_config', 'Failed to write config.php');
@@ -226,13 +225,11 @@ $db_icons = [
         }
         .font-cinzel { font-family: 'Cinzel', serif; }
         
-        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #b45309; }
 
-        /* Main content wrapper */
         .main-wrapper {
             flex: 1;
             display: flex;
@@ -285,23 +282,56 @@ $db_icons = [
             <div class="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-gold-500/30 rounded-br-2xl pointer-events-none"></div>
 
             <!-- Header -->
-           <div class="text-center mb-8">
-    <div class="inline-flex items-center justify-center w-16 h-16 bg-gold-500/10 border border-gold-500/30 rounded-full mb-4">
-        <img 
-            src="logo.png" 
-            alt="Logo"
-            class="w-12 h-12 object-contain"
-        >
-    </div>
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gold-500/10 border border-gold-500/30 rounded-full mb-4">
+                    <img 
+                        src="logo.png" 
+                        alt="Logo"
+                        class="w-12 h-12 object-contain"
+                    >
+                </div>
 
-    <h1 class="font-cinzel text-3xl md:text-4xl font-bold bg-gradient-to-b from-amber-100 to-gold-500 bg-clip-text text-transparent">
-        <?= translate('step3_title', 'Step 3: Database & reCAPTCHA Setup') ?>
-    </h1>
+                <h1 class="font-cinzel text-3xl md:text-4xl font-bold bg-gradient-to-b from-amber-100 to-gold-500 bg-clip-text text-transparent">
+                    <?= translate('step3_title', 'Step 3: Database & reCAPTCHA Setup') ?>
+                </h1>
 
-    <p class="text-slate-400 mt-2 text-sm">
-        <?= translate('step3_description', 'Configure your database connections and security settings.') ?>
-    </p>
-</div>
+                <p class="text-slate-400 mt-2 text-sm">
+                    <?= translate('step3_description', 'Configure your database connections and security settings.') ?>
+                </p>
+            </div>
+
+            <!-- Permission Check - Simple Message -->
+            <?php if (!is_writable($cfgDir) && !$success): ?>
+            <div class="bg-amber-900/30 border border-amber-500/40 rounded-xl p-6 mb-8">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-folder-open text-amber-400 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-amber-300 font-bold text-lg mb-2">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <?= translate('perm_required_title', 'Write Permission Required') ?>
+                        </h3>
+                        <p class="text-amber-200/80 text-sm">
+                            <?= translate('perm_required_message', 'The installer needs write access to the configuration directory to create the config files.') ?>
+                        </p>
+                        <p class="text-slate-400 text-xs mt-3 bg-slate-900/50 border border-slate-700/30 rounded-lg p-3 font-mono">
+                            <span class="text-amber-400">📁</span> <?= htmlspecialchars($cfgDir) ?>
+                            <span class="ml-3 text-red-400">❌ <?= translate('not_writable', 'Not Writable') ?></span>
+                        </p>
+                        <p class="text-slate-400 text-sm mt-3">
+                            <?= translate('perm_fix_hint', 'Please grant write permissions to the includes directory, then reload this page.') ?>
+                        </p>
+                        <div class="mt-3 flex flex-wrap gap-3">
+                            <button onclick="window.location.reload()" class="inline-flex items-center px-4 py-2 bg-amber-600/80 hover:bg-amber-500 text-white font-semibold rounded-lg transition-all text-sm">
+                                <i class="fas fa-sync mr-2"></i>
+                                <?= translate('btn_reload', 'Reload Page') ?>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- Status Messages -->
             <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($dbStatus)): ?>
@@ -347,9 +377,23 @@ $db_icons = [
 
             <!-- Success State -->
             <?php if ($success): ?>
-                <div class="bg-emerald-900/30 border border-emerald-500/40 text-emerald-200 p-5 mb-8 rounded-lg flex items-center gap-3">
-                    <i class="fas fa-check-circle text-emerald-400 text-2xl"></i>
-                    <span class="font-medium"><?= translate('msg_config_saved', 'All databases connected successfully! Config and reCAPTCHA files created.') ?></span>
+                <div class="bg-emerald-900/30 border border-emerald-500/40 text-emerald-200 p-5 mb-8 rounded-lg">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-check-circle text-emerald-400 text-2xl mt-1"></i>
+                        <div>
+                            <span class="font-medium block"><?= translate('msg_config_saved', 'All databases connected successfully! Config and reCAPTCHA files created.') ?></span>
+                            <!-- Security Reminder -->
+                            <div class="bg-amber-900/30 border border-amber-500/30 rounded-lg p-3 mt-3">
+                                <p class="text-amber-200 text-sm flex items-start gap-2">
+                                    <i class="fas fa-shield-alt text-amber-400 mt-0.5"></i>
+                                    <span>
+                                        <strong><?= translate('sec_reminder_title', 'Security Reminder:') ?></strong>
+                                        <?= translate('sec_reminder_text', 'For better security, remove write permissions from the config directory after installation.') ?>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
                     <a href="<?= htmlspecialchars($base_path ?? '') ?>install/step4_realm" class="inline-flex items-center px-8 py-3 bg-gold-500 hover:bg-gold-400 text-slate-900 font-bold rounded-lg shadow-lg shadow-gold-600/20 transition-all duration-300 transform hover:scale-105">
@@ -364,7 +408,7 @@ $db_icons = [
             <?php endif; ?>
 
             <!-- Form -->
-            <?php if (!$success): ?>
+            <?php if (!$success && is_writable($cfgDir)): ?>
                 <form method="post" class="space-y-8">
                     
                     <!-- DB Grid -->
@@ -373,7 +417,6 @@ $db_icons = [
                             $icon = $db_icons[$type] ?? 'fa-database';
                             $label = $dbGroups[$type]['label'] ?? translate("db_{$type}", ucfirst($type) . ' DB');
                             
-                            // Set default database names
                             $default_db_name = match($type) {
                                 'auth' => 'acore_auth',
                                 'world' => 'acore_world',

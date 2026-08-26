@@ -10,7 +10,7 @@ return [
     'admin_shop_invalid_category' => 'Catégorie invalide',
     'admin_shop_invalid_entry_id' => 'ID d\'entrée invalide',
     'admin_shop_invalid_level_boost' => 'L\'augmentation de niveau doit être comprise entre 2 et 255',
-    'admin_shop_upload_dir_not_writable' => 'Le répertoire d\'upload n\'est pas accessible en écriture',
+    'admin_shop_upload_dir_not_writable' => 'Échec de l\'upload : le dossier d\'images "%1$s" n\'est pas accessible en écriture pour le serveur web (www-data). Veuillez d\'abord ajouter la permission d\'écriture, ex. : sudo chown -R www-data:www-data "%1$s"',
     'admin_shop_upload_err_ini_size' => 'La taille du fichier dépasse la limite du serveur (upload_max_filesize)',
     'admin_shop_upload_err_form_size' => 'La taille du fichier dépasse la limite du formulaire',
     'admin_shop_upload_err_partial' => 'Le fichier n\'a été que partiellement téléchargé',

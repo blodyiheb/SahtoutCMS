@@ -15,7 +15,7 @@ return [
     'admin_news_upload_err_unknown' => 'Неизвестная ошибка загрузки.',
     'admin_news_invalid_file_type' => 'Неверный тип файла. Разрешены только JPG, PNG, GIF.',
     'admin_news_file_size_exceeded' => 'Размер файла превышает лимит 2 МБ.',
-    'admin_news_upload_dir_not_writable' => 'Директория загрузки недоступна для записи.',
+    'admin_news_upload_dir_not_writable' => 'Ошибка загрузки: папка загрузки "%1$s" недоступна для записи веб-сервером (www-data). Сначала добавьте право на запись, например: sudo chown -R www-data:www-data "%1$s"',
     'admin_news_upload_failed' => 'Не удалось переместить загруженный файл.',
     'admin_news_add_success' => 'Новость успешно добавлена.',
     'admin_news_add_failed' => 'Не удалось добавить новость: %s',

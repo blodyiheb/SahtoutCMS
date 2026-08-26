@@ -15,7 +15,7 @@ return [
     'admin_news_upload_err_unknown' => 'Unbekannter Upload-Fehler.',
     'admin_news_invalid_file_type' => 'Ungültiger Dateityp. Nur JPG, PNG, GIF sind erlaubt.',
     'admin_news_file_size_exceeded' => 'Die Dateigröße überschreitet das Limit von 2 MB.',
-    'admin_news_upload_dir_not_writable' => 'Das Upload-Verzeichnis ist nicht beschreibbar.',
+    'admin_news_upload_dir_not_writable' => 'Upload fehlgeschlagen: Der Upload-Ordner "%1$s" ist für den Webserver (www-data) nicht beschreibbar. Bitte zuerst Schreibrechte hinzufügen, z. B.: sudo chown -R www-data:www-data "%1$s"',
     'admin_news_upload_failed' => 'Fehler beim Verschieben der hochgeladenen Datei.',
     'admin_news_add_success' => 'Nachricht erfolgreich hinzugefügt.',
     'admin_news_add_failed' => 'Fehler beim Hinzufügen der Nachricht: %s',

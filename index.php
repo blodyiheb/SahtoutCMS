@@ -264,6 +264,39 @@ $result = $site_db->query($query);
             transform: translate(-50%,-50%);
             color: #f2cf5b; font-size: 8px; text-shadow: 0 0 8px rgba(242,207,82,.8);
         }
+
+        /* ============ RESPONSIVE SIDEBAR FIX ============ */
+        @media (max-width: 1024px) {
+            .sidebar-sticky {
+                position: relative;
+                top: 0;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .sidebar-sticky .wow-panel {
+                padding: 1rem;
+            }
+            .sidebar-sticky .wow-title {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Discord widget responsive */
+        .discord-widget-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+        .discord-widget-container iframe {
+            max-width: 100%;
+            height: 340px;
+        }
+        @media (max-width: 480px) {
+            .discord-widget-container iframe {
+                height: 280px;
+            }
+        }
     </style>
     <script>
         window.homeYoutubeSettings = <?php echo json_encode([
@@ -277,60 +310,60 @@ $result = $site_db->query($query);
 
     <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
 
-        <!-- Responsive grid: 1 column below xl, content + 380px rail above -->
-        <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_380px] gap-6 md:gap-8">
+        <!-- Responsive grid: stacks on mobile, side-by-side on large screens -->
+        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-6 md:gap-8">
 
             <!-- ============ LEFT CONTENT ============ -->
             <div class="min-w-0 space-y-8 md:space-y-12">
 
                 <!-- HERO -->
-                <div class="wow-panel p-8 md:p-12 text-center relative overflow-hidden">
+                <div class="wow-panel p-6 sm:p-8 md:p-12 text-center relative overflow-hidden">
                     <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full blur-3xl opacity-20" style="background:#1e5aa8;"></div>
                     <div class="absolute -bottom-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-20" style="background:#a32626;"></div>
 
                     <div class="relative z-10">
                         <p class="text-xs md:text-sm font-semibold tracking-[.35em] uppercase text-gray-400 mb-4"><?php echo translate('home_intro_tagline', 'Join our epic World of Warcraft server adventure today!'); ?></p>
 
-                        <h1 class="text-4xl md:text-6xl lg:text-7xl leading-tight">
+                        <h1 class="text-3xl sm:text-4xl md:text-6xl lg:text-7xl leading-tight">
                             <span class="text-white font-extrabold" style="font-family:'Cinzel',serif; text-shadow:0 0 20px rgba(59,130,246,.35), 0 4px 8px rgba(0,0,0,.9);"><?php echo translate('home_intro_title', 'Welcome to '); ?></span><br class="hidden md:block">
                             <span class="wow-title"><?php echo $site_title_name; ?></span>
                         </h1>
 
                         <div class="flex items-center justify-center gap-3 mt-6">
-                            <span class="h-px w-16 md:w-28" style="background:linear-gradient(90deg,transparent,#c9a227);"></span>
+                            <span class="h-px w-12 md:w-28" style="background:linear-gradient(90deg,transparent,#c9a227);"></span>
                             <span class="text-[#f2cf5b] text-xs" style="text-shadow:0 0 10px rgba(242,207,82,.8);">◆</span>
-                            <span class="h-px w-16 md:w-28" style="background:linear-gradient(90deg,#c9a227,transparent);"></span>
+                            <span class="h-px w-12 md:w-28" style="background:linear-gradient(90deg,#c9a227,transparent);"></span>
                         </div>
 
-                        <div class="flex flex-wrap justify-center gap-4 mt-8">
+                        <div class="flex flex-wrap justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
                             <?php if (!isset($_SESSION['user_id'])): ?>
-                                <a href="<?php echo $base_path; ?>register" class="btn-game btn-gold">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                                <a href="<?php echo $base_path; ?>register" class="btn-game btn-gold text-sm sm:text-base px-4 sm:px-6">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                                     <?php echo translate('home_create_account', 'Create Account'); ?>
                                 </a>
                             <?php else: ?>
-                                <a href="<?php echo $base_path; ?>account" class="btn-game btn-gold">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                <a href="<?php echo $base_path; ?>account" class="btn-game btn-gold text-sm sm:text-base px-4 sm:px-6">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                                     <?php echo translate('home_my_account', 'My Account'); ?>
                                 </a>
                             <?php endif; ?>
-                            <a href="<?php echo $base_path; ?>download" class="btn-game btn-iron">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            <a href="<?php echo $base_path; ?>download" class="btn-game btn-iron text-sm sm:text-base px-4 sm:px-6">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                 <?php echo translate('home_download', 'Download'); ?>
                             </a>
                         </div>
 
-                        <div class="flex flex-wrap items-center justify-center gap-3 mt-8">
-                            <a href="<?php echo $social_links['youtube']; ?>" class="social-btn youtube" target="_blank" aria-label="<?php echo translate('youtube_alt', 'YouTube'); ?>">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.97 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mt-6 sm:mt-8">
+                            <a href="<?php echo $social_links['youtube']; ?>" class="social-btn youtube text-xs sm:text-sm px-3 sm:px-4" target="_blank" aria-label="<?php echo translate('youtube_alt', 'YouTube'); ?>">
+                                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.97 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                                 YouTube
                             </a>
-                            <a href="<?php echo $social_links['discord']; ?>" class="social-btn discord" target="_blank" aria-label="<?php echo translate('discord_alt', 'Discord'); ?>">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.08.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/></svg>
+                            <a href="<?php echo $social_links['discord']; ?>" class="social-btn discord text-xs sm:text-sm px-3 sm:px-4" target="_blank" aria-label="<?php echo translate('discord_alt', 'Discord'); ?>">
+                                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.08.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/></svg>
                                 Discord
                             </a>
-                            <a href="<?php echo $social_links['instagram']; ?>" class="social-btn instagram" target="_blank" aria-label="<?php echo translate('instagram_alt', 'Instagram'); ?>">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                            <a href="<?php echo $social_links['instagram']; ?>" class="social-btn instagram text-xs sm:text-sm px-3 sm:px-4" target="_blank" aria-label="<?php echo translate('instagram_alt', 'Instagram'); ?>">
+                                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
                                 Instagram
                             </a>
                         </div>
@@ -338,8 +371,8 @@ $result = $site_db->query($query);
                 </div>
 
                 <!-- GALLERY -->
-                <section class="wow-panel p-4 md:p-6">
-                    <h2 class="section-title text-xl md:text-2xl mb-5">
+                <section class="wow-panel p-3 sm:p-4 md:p-6">
+                    <h2 class="section-title text-lg sm:text-xl md:text-2xl mb-4 sm:mb-5">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         <?php echo translate('home_gallery_title', 'Gallery'); ?>
                     </h2>
@@ -358,16 +391,16 @@ $result = $site_db->query($query);
                                     <div class="slide">
                                         <img src="<?php echo $base_path; ?>img/homeimg/<?php echo $slide['img']; ?>"
                                              alt="<?php echo $slide['alt']; ?>"
-                                             class="w-full h-64 md:h-96 object-cover">
+                                             class="w-full h-48 sm:h-56 md:h-96 object-cover">
                                     </div>
                                 <?php endforeach; ?>
                             </div>
 
-                            <button class="slider-nav prev" id="prevSlide" aria-label="<?php echo translate('slider_prev', 'Previous Slide'); ?>">❮</button>
-                            <button class="slider-nav next" id="nextSlide" aria-label="<?php echo translate('slider_next', 'Next Slide'); ?>">❯</button>
+                            <button class="slider-nav prev text-xs sm:text-base w-8 h-8 sm:w-11 sm:h-11" id="prevSlide" aria-label="<?php echo translate('slider_prev', 'Previous Slide'); ?>">❮</button>
+                            <button class="slider-nav next text-xs sm:text-base w-8 h-8 sm:w-11 sm:h-11" id="nextSlide" aria-label="<?php echo translate('slider_next', 'Next Slide'); ?>">❯</button>
                         </div>
                     </div>
-                    <div class="flex justify-center gap-3 mt-4" id="dotsContainer">
+                    <div class="flex justify-center gap-2 sm:gap-3 mt-3 sm:mt-4" id="dotsContainer">
                         <span class="dot active" data-slide="0"></span>
                         <span class="dot" data-slide="1"></span>
                         <span class="dot" data-slide="2"></span>
@@ -376,19 +409,19 @@ $result = $site_db->query($query);
                 </section>
 
                 <!-- NEWS -->
-                <section class="wow-panel p-4 md:p-6">
-                    <div class="flex items-center justify-between mb-6 gap-4">
-                        <h2 class="section-title text-xl md:text-2xl">
+                <section class="wow-panel p-3 sm:p-4 md:p-6">
+                    <div class="flex items-center justify-between mb-4 sm:mb-6 gap-4">
+                        <h2 class="section-title text-lg sm:text-xl md:text-2xl">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
                             <?php echo translate('home_news_title', 'Latest News'); ?>
                         </h2>
-                        <a href="<?php echo $base_path; ?>news" class="text-sm font-semibold text-[#f2cf5b] hover:text-white transition-colors flex items-center gap-1 whitespace-nowrap">
+                        <a href="<?php echo $base_path; ?>news" class="text-xs sm:text-sm font-semibold text-[#f2cf5b] hover:text-white transition-colors flex items-center gap-1 whitespace-nowrap">
                             <?php echo translate('home_view_all', 'View All'); ?>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         </a>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <?php if ($result->num_rows === 0): ?>
                             <p class="col-span-full text-gray-400 text-center py-8">
                                 <?php echo translate('home_no_news', 'No news available at the time.'); ?>
@@ -396,17 +429,17 @@ $result = $site_db->query($query);
                         <?php else: ?>
                             <?php while ($news = $result->fetch_assoc()): ?>
                                 <a href="<?php echo $base_path; ?>news?slug=<?php echo htmlspecialchars($news['slug']); ?>" class="news-card group">
-                                    <div class="relative h-44 overflow-hidden">
+                                    <div class="relative h-36 sm:h-44 overflow-hidden">
                                         <img src="<?php echo $base_path . htmlspecialchars($news['image_url']); ?>"
                                              alt="<?php echo htmlspecialchars($news['title']); ?>"
                                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                         <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(0,0,0,.9), transparent 60%);"></div>
-                                        <div class="absolute bottom-0 left-0 right-0 p-3">
-                                            <h3 class="text-sm font-bold text-white line-clamp-2"><?php echo htmlspecialchars($news['title']); ?></h3>
+                                        <div class="absolute bottom-0 left-0 right-0 p-2 sm:p-3">
+                                            <h3 class="text-xs sm:text-sm font-bold text-white line-clamp-2"><?php echo htmlspecialchars($news['title']); ?></h3>
                                         </div>
                                     </div>
-                                    <div class="p-3">
-                                        <p class="news-date"><?php echo date('M j, Y', strtotime($news['post_date'])); ?></p>
+                                    <div class="p-2 sm:p-3">
+                                        <p class="news-date text-[10px] sm:text-xs"><?php echo date('M j, Y', strtotime($news['post_date'])); ?></p>
                                     </div>
                                 </a>
                             <?php endwhile; ?>
@@ -415,19 +448,19 @@ $result = $site_db->query($query);
                 </section>
 
                 <!-- TABS: YOUTUBE + BUGTRACKER -->
-                <section class="wow-panel p-4 md:p-6">
-                    <div class="flex flex-wrap gap-2 mb-6">
-                        <button class="tab-btn active" data-tab="youtube"><?php echo translate('home_tab_youtube', 'YouTube'); ?></button>
-                        <button class="tab-btn" data-tab="bugtracker"><?php echo translate('home_tab_bugtracker', 'Bugtracker'); ?></button>
+                <section class="wow-panel p-3 sm:p-4 md:p-6">
+                    <div class="flex flex-wrap gap-1 sm:gap-2 mb-4 sm:mb-6">
+                        <button class="tab-btn text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2" data-tab="youtube"><?php echo translate('home_tab_youtube', 'YouTube'); ?></button>
+                        <button class="tab-btn text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2" data-tab="bugtracker"><?php echo translate('home_tab_bugtracker', 'Bugtracker'); ?></button>
                     </div>
 
                     <div class="tab-content">
                         <div class="tab-panel active" id="panel-youtube">
-                            <div class="text-center mb-5">
-                                <h2 class="section-title text-xl md:text-2xl" style="justify-content:center;">
+                            <div class="text-center mb-4 sm:mb-5">
+                                <h2 class="section-title text-lg sm:text-xl md:text-2xl" style="justify-content:center;">
                                     <?php echo htmlspecialchars($youtube_title ?? 'Sahtout Server Trailer', ENT_QUOTES, 'UTF-8'); ?>
                                 </h2>
-                                <p class="text-gray-400 mt-2 max-w-xl mx-auto text-sm md:text-base">
+                                <p class="text-gray-400 mt-2 max-w-xl mx-auto text-xs sm:text-sm md:text-base">
                                     <?php echo htmlspecialchars($youtube_description ?? 'Lichking Trailer, Replace it with your own ....', ENT_QUOTES, 'UTF-8'); ?>
                                 </p>
                             </div>
@@ -442,24 +475,24 @@ $result = $site_db->query($query);
                         </div>
 
                         <div class="tab-panel" id="panel-bugtracker">
-                            <div class="text-center py-12">
-                                <svg class="w-16 h-16 mx-auto text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                                <h3 class="text-xl font-bold text-white mb-2" style="font-family:'Cinzel',serif;"><?php echo translate('home_bugtracker_title', 'Bugtracker Coming Soon'); ?></h3>
-                                <p class="text-gray-400"><?php echo translate('home_bugtracker_desc', 'Report bugs and track issues here.'); ?></p>
+                            <div class="text-center py-8 sm:py-12">
+                                <svg class="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                <h3 class="text-lg sm:text-xl font-bold text-white mb-2" style="font-family:'Cinzel',serif;"><?php echo translate('home_bugtracker_title', 'Bugtracker Coming Soon'); ?></h3>
+                                <p class="text-gray-400 text-sm sm:text-base"><?php echo translate('home_bugtracker_desc', 'Report bugs and track issues here.'); ?></p>
                             </div>
                         </div>
                     </div>
                 </section>
             </div>
 
-            <!-- ============ RIGHT SIDE PANEL ============ -->
-            <div class="hidden xl:block min-w-0">
-                <div class="sticky top-24">
-                    <div class="wow-panel p-6 space-y-6">
+            <!-- ============ RIGHT SIDE PANEL - Now visible on all screen sizes ============ -->
+            <div class="sidebar-sticky">
+                <div class="lg:sticky lg:top-24">
+                    <div class="wow-panel p-4 sm:p-5 md:p-6 space-y-4 sm:space-y-6">
                         
                         <!-- Server Status -->
                         <div>
-                            <h3 class="wow-title text-lg mb-4 flex items-center justify-center gap-2">
+                            <h3 class="wow-title text-base sm:text-lg mb-3 sm:mb-4 flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
                                 <?php echo translate('home_server_status', 'Server Status'); ?>
                             </h3>
@@ -469,11 +502,11 @@ $result = $site_db->query($query);
                                 ob_start();
                                 include $realm_status_file;
                                 $status_content = ob_get_clean();
-                                echo '<div class="space-y-2 text-xs bg-black/30 p-3 border border-[#c9a227]/20 rounded-sm">';
+                                echo '<div class="space-y-2 text-xs bg-black/30 p-2 sm:p-3 border border-[#c9a227]/20 rounded-sm">';
                                 echo $status_content;
                                 echo '</div>';
                             } else {
-                                echo '<p class="status-offline text-xs bg-black/30 p-3 border border-red-500/20 rounded-sm">' . translate('home_realm_status_error', 'Error: Realm status unavailable.') . '</p>';
+                                echo '<p class="status-offline text-xs bg-black/30 p-2 sm:p-3 border border-red-500/20 rounded-sm">' . translate('home_realm_status_error', 'Error: Realm status unavailable.') . '</p>';
                             }
                             ?>
                         </div>
@@ -482,11 +515,11 @@ $result = $site_db->query($query);
 
                         <!-- Discord -->
                         <div>
-                            <h3 class="wow-title text-lg mb-4 flex items-center justify-center gap-2">
+                            <h3 class="wow-title text-base sm:text-lg mb-3 sm:mb-4 flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.08.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/></svg>
                                 <?php echo translate('home_discord_title', 'Join Our Discord'); ?>
                             </h3>
-                            <div class="bg-black/30 p-2 border border-[#c9a227]/20 rounded-sm">
+                            <div class="discord-widget-container bg-black/30 p-1 sm:p-2 border border-[#c9a227]/20 rounded-sm">
                                 <iframe src="https://discord.com/widget?id=1405755152085815337&theme=dark"
                                         width="100%"
                                         height="340"

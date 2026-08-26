@@ -23,7 +23,9 @@ $base_upload_dir = $project_root . 'img/newsimg/';
 $base_upload_url = 'img/newsimg/';
 $default_image_url = 'img/newsimg/news.png';
 
-if (!file_exists($base_upload_dir)) mkdir($base_upload_dir, 0755, true);
+if (!file_exists($base_upload_dir)) {
+    mkdir($base_upload_dir, 0755, true);
+}
 
 function adminNewsImageSrc($image_url) {
     global $base_path, $default_image_url;
@@ -83,7 +85,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $max_size = 2 * 1024 * 1024;
                 $file = $_FILES['image'];
 
-                if ($file['error'] !== UPLOAD_ERR_OK) {
+                if (!is_dir($base_upload_dir) && !@mkdir($base_upload_dir, 0755, true) || !is_writable($base_upload_dir)) {
+                    $update_message = $alert_danger(sprintf(
+                        translate('admin_news_upload_dir_not_writable', 'Upload failed: the upload folder "%1$s" is not writable by the web server (www-data). Please add write permission first, e.g.: sudo chown -R www-data:www-data "%1$s"'),
+                        htmlspecialchars($base_upload_dir)
+                    ));
+                } elseif ($file['error'] !== UPLOAD_ERR_OK) {
                     $update_message = $alert_danger(translate('admin_news_upload_err_unknown', 'Upload error occurred.'));
                 } elseif (!in_array($file['type'], $allowed_types)) {
                     $update_message = $alert_danger(translate('admin_news_invalid_file_type', 'Invalid file type. Only JPG, PNG, GIF allowed.'));
@@ -93,11 +100,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
                     $filename = uniqid('news_') . '.' . $ext;
                     $destination = $base_upload_dir . $filename;
-                    if (move_uploaded_file($file['tmp_name'], $destination)) {
-                        $image_url = $base_upload_url . $filename;
-                    } else {
-                        $update_message = $alert_danger(translate('admin_news_upload_failed', 'Failed to upload file.'));
-                    }
+                   if (move_uploaded_file($file['tmp_name'], $destination)) {
+    chmod($destination, 0644);
+    $image_url = $base_upload_url . $filename;
+} else {
+    $update_message = $alert_danger(translate('admin_news_upload_failed', 'Failed to upload file.'));
+}
                 }
             }
 
@@ -129,7 +137,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $max_size = 2 * 1024 * 1024;
                 $file = $_FILES['image'];
 
-                if ($file['error'] !== UPLOAD_ERR_OK) {
+                if (!is_dir($base_upload_dir) && !@mkdir($base_upload_dir, 0755, true) || !is_writable($base_upload_dir)) {
+                    $update_message = $alert_danger(sprintf(
+                        translate('admin_news_upload_dir_not_writable', 'Upload failed: the upload folder "%1$s" is not writable by the web server (www-data). Please add write permission first, e.g.: sudo chown -R www-data:www-data "%1$s"'),
+                        htmlspecialchars($base_upload_dir)
+                    ));
+                } elseif ($file['error'] !== UPLOAD_ERR_OK) {
                     $update_message = $alert_danger(translate('admin_news_upload_err_unknown', 'Upload error occurred.'));
                 } elseif (!in_array($file['type'], $allowed_types)) {
                     $update_message = $alert_danger(translate('admin_news_invalid_file_type', 'Invalid file type. Only JPG, PNG, GIF allowed.'));
@@ -140,14 +153,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     $filename = uniqid('news_') . '.' . $ext;
                     $destination = $base_upload_dir . $filename;
                     if (move_uploaded_file($file['tmp_name'], $destination)) {
-                        $image_url = $base_upload_url . $filename;
-                        if (!empty($_POST['existing_image']) && $_POST['existing_image'] !== $default_image_url) {
-                            $old_image_path = str_replace($base_upload_url, $base_upload_dir, $_POST['existing_image']);
-                            if (file_exists($old_image_path)) unlink($old_image_path);
-                        }
-                    } else {
-                        $update_message = $alert_danger(translate('admin_news_upload_failed', 'Failed to upload file.'));
-                    }
+    chmod($destination, 0644);
+    $image_url = $base_upload_url . $filename;
+    if (!empty($_POST['existing_image']) && $_POST['existing_image'] !== $default_image_url) {
+        $old_image_path = str_replace($base_upload_url, $base_upload_dir, $_POST['existing_image']);
+        if (file_exists($old_image_path)) unlink($old_image_path);
+    }
+} else {
+    $update_message = $alert_danger(translate('admin_news_upload_failed', 'Failed to upload file.'));
+}
                 }
             }
 

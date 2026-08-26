@@ -10,7 +10,7 @@ return [
     'admin_shop_invalid_category' => 'Categoria inválida',
     'admin_shop_invalid_entry_id' => 'ID de entrada inválido',
     'admin_shop_invalid_level_boost' => 'O aumento de nível deve estar entre 2 e 255',
-    'admin_shop_upload_dir_not_writable' => 'O diretório de upload não tem permissão de escrita',
+    'admin_shop_upload_dir_not_writable' => 'Falha no upload: a pasta de imagens "%1$s" não tem permissão de escrita para o servidor web (www-data). Adicione primeiro a permissão de escrita, ex.: sudo chown -R www-data:www-data "%1$s"',
     'admin_shop_upload_err_ini_size' => 'O tamanho do arquivo excede o limite do servidor (upload_max_filesize)',
     'admin_shop_upload_err_form_size' => 'O tamanho do arquivo excede o limite do formulário',
     'admin_shop_upload_err_partial' => 'O arquivo foi enviado parcialmente',

@@ -15,7 +15,7 @@ return [
     'admin_news_upload_err_unknown' => 'Unknown upload error.',
     'admin_news_invalid_file_type' => 'Invalid file type. Only JPG, PNG, GIF allowed.',
     'admin_news_file_size_exceeded' => 'File size exceeds 2MB limit.',
-    'admin_news_upload_dir_not_writable' => 'Upload directory is not writable.',
+    'admin_news_upload_dir_not_writable' => 'Upload failed: the upload folder "%1$s" is not writable by the web server (www-data). Please add write permission first, e.g.: sudo chown -R www-data:www-data "%1$s"',
     'admin_news_upload_failed' => 'Failed to move uploaded file.',
     'admin_news_add_success' => 'News added successfully.',
     'admin_news_add_failed' => 'Failed to add news: %s',
