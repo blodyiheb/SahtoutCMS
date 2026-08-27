@@ -285,6 +285,8 @@ return [
     'info_soap_li3'               => '确保 <code>soap_url</code> 中的 SOAP 端口正确且可访问。',
     'step6_description' => '配置 SOAP 用于服务器通信和管理员命令。',
 'err_check_permissions' => '请检查文件夹权限。',
+'btn_go_back' => '返回',
+
     // ========================================
     // === FOOTER ===
     // ========================================

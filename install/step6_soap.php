@@ -167,8 +167,8 @@ if (!defined('ALLOWED_ACCESS')) { exit('Forbidden'); }
                 </div>
             <?php endif; ?>
 
-            <!-- Form -->
-            <?php if (!$success && !$error): ?>
+            <!-- Form - Always show except when success -->
+            <?php if (!$success): ?>
                 <form method="post" class="space-y-5">
                     <h2 class="font-cinzel text-gold-400 font-bold text-lg flex items-center gap-2 border-b border-slate-700/50 pb-3">
                         <i class="fas fa-cogs"></i>

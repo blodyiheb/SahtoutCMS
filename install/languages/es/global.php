@@ -288,6 +288,8 @@ return [
     'info_soap_li3'               => 'Asegúrese de que el puerto SOAP en <code>soap_url</code> sea correcto y accesible.',
 'step6_description' => 'Configure SOAP para la comunicación del servidor y comandos de administración.',
 'err_check_permissions' => 'Verifique los permisos de la carpeta.',
+'btn_go_back' => 'Volver',
+
     // ========================================
     // === FOOTER ===
     // ========================================

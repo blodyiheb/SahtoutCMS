@@ -289,6 +289,8 @@ return [
     'info_soap_li3'               => 'Certifique-se de que a porta SOAP em <code>soap_url</code> está correta e acessível.',
 'step6_description' => 'Configure SOAP para comunicação do servidor e comandos de administração.',
 'err_check_permissions' => 'Verifique as permissões da pasta.',
+'btn_go_back' => 'Voltar',
+
     // ========================================
     // === FOOTER ===
     // ========================================

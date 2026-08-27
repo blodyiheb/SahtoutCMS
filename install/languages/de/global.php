@@ -290,6 +290,8 @@ return [
     'info_soap_li3'               => 'Stellen Sie sicher, dass der SOAP-Port in <code>soap_url</code> korrekt und erreichbar ist.',
 'step6_description' => 'Konfigurieren Sie SOAP für die Server-Kommunikation und Admin-Befehle.',
 'err_check_permissions' => 'Überprüfen Sie die Ordnerberechtigungen.',
+'btn_go_back' => 'Zurück',
+
     // ========================================
     // === FOOTER ===
     // ========================================
