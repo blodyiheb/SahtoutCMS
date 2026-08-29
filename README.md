@@ -654,11 +654,6 @@ SahtoutCMS is released under the **MIT License**.
 See the [LICENSE](LICENSE) file for more information.
 
 ---
-<p align="center">
-    <a href="https://your-support-website.com" target="_blank">
-        <img src="https://your-image-url.com/support-button.png" alt="Get Support" width="200" />
-    </a>
-</p>
 # 📸 Screenshots
 <img width="1886" height="900" alt="1" src="https://github.com/user-attachments/assets/f914ed6e-d48c-463a-b528-7bd5e2622357" />
 <div align="center">
@@ -669,7 +664,6 @@ See the [LICENSE](LICENSE) file for more information.
 <img width="671" height="876" alt="4" src="https://github.com/user-attachments/assets/a09a8e37-46a6-43f8-b33f-e1d43263e3ac" />
 </div>
 <img width="1295" height="909" alt="5" src="https://github.com/user-attachments/assets/5d551112-2c1a-47eb-acd6-45a9a88d2216" /><img width="833" height="299" alt="support-button_original" src="https://github.com/user-attachments/assets/9dd2f7de-cc6f-41e3-9b6e-0f2723413e1b" />
-
 <img width="1075" height="660" alt="6" src="https://github.com/user-attachments/assets/36f854bb-75f6-4d71-bbda-e00cbcd368ea" />
 <img width="910" height="601" alt="7" src="https://github.com/user-attachments/assets/b2e78a6e-998a-41bd-bfc1-515f71d06c9b" />
 <img width="1294" height="770" alt="8" src="https://github.com/user-attachments/assets/87488f52-a7f3-41d8-87e5-bc7c17583e61" />
