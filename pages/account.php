@@ -709,6 +709,13 @@ function getAvatarDisplayName($filename) {
             display: inline-block;
         }
         
+        /* Force text wrapping to prevent overflow */
+        .force-wrap {
+            min-width: 0;            /* Prevents flex/grid items from expanding */
+            overflow-wrap: anywhere; /* Forces breaks anywhere if needed */
+            word-break: break-word;  /* Breaks words to prevent overflow */
+        }
+
         /* Responsive */
         @media (max-width: 767px) {
             body {
@@ -768,20 +775,20 @@ function getAvatarDisplayName($filename) {
             <?php endif; ?>
 
             <!-- Navigation Tabs -->
-            <div class="flex flex-wrap gap-2 pb-4 mb-6 border-b border-[rgba(201,162,39,0.15)]">
-                <button class="nav-tab-gaming active px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center gap-2" data-tab="overview">
+            <div class="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2 pb-4 mb-6 border-b border-[rgba(201,162,39,0.15)]">
+                <button class="nav-tab-gaming active px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center justify-center gap-2 min-w-0 force-wrap" data-tab="overview">
                     <i class="fas fa-chart-pie"></i> <?php echo translate('tab_overview', 'Overview'); ?>
                 </button>
-                <button class="nav-tab-gaming px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center gap-2" data-tab="characters">
+                <button class="nav-tab-gaming px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center justify-center gap-2 min-w-0 force-wrap" data-tab="characters">
                     <i class="fas fa-users"></i> <?php echo translate('tab_characters', 'Characters'); ?>
                 </button>
-                <button class="nav-tab-gaming px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center gap-2" data-tab="activity">
+                <button class="nav-tab-gaming px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center justify-center gap-2 min-w-0 force-wrap" data-tab="activity">
                     <i class="fas fa-history"></i> <?php echo translate('tab_activity', 'Activity'); ?>
                 </button>
-                <button class="nav-tab-gaming px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center gap-2" data-tab="security">
+                <button class="nav-tab-gaming px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center justify-center gap-2 min-w-0 force-wrap" data-tab="security">
                     <i class="fas fa-shield-alt"></i> <?php echo translate('tab_security', 'Security'); ?>
                 </button>
-                <a href="<?php echo $base_path; ?>vote" class="ml-auto px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center gap-2">
+                <a href="<?php echo $base_path; ?>vote" class="ml-auto col-span-2 px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center justify-center gap-2 min-w-0 force-wrap">
                     <i class="fas fa-vote-yea"></i> <?php echo translate('tab_vote', 'Vote'); ?>
                 </a>
             </div>
@@ -863,41 +870,41 @@ function getAvatarDisplayName($filename) {
                             <?php echo translate('section_quick_stats', 'Quick Stats'); ?>
                         </h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="glass-card p-6 flex items-center justify-between">
-                                <div><i class="fas fa-user-friends text-3xl text-[#f2cf5b]"></i></div>
-                                <div class="text-center">
-                                    <p class="text-2xl font-bold text-white"><?php echo count($characters); ?></p>
+                            <div class="glass-card p-6 grid grid-cols-2 md:flex md:items-center md:justify-between gap-4 md:gap-0">
+                                <div class="col-span-2 md:col-span-1 flex items-center justify-center md:justify-start"><i class="fas fa-user-friends text-3xl text-[#f2cf5b]"></i></div>
+                                <div class="text-center min-w-0">
+                                    <p class="text-2xl font-bold text-white force-wrap"><?php echo count($characters); ?></p>
                                     <p class="text-gray-400 text-sm"><?php echo translate('label_total_characters', 'Total Characters'); ?></p>
                                 </div>
-                                <div class="text-center">
+                                <div class="text-center min-w-0">
                                     <?php 
                                         $maxLevel = 0;
                                         foreach ($characters as $char) {
                                             if ($char['level'] > $maxLevel) $maxLevel = $char['level'];
                                         }
                                     ?>
-                                    <p class="text-2xl font-bold text-white"><?php echo $maxLevel; ?></p>
+                                    <p class="text-2xl font-bold text-white force-wrap"><?php echo $maxLevel; ?></p>
                                     <p class="text-gray-400 text-sm"><?php echo translate('label_highest_level', 'Highest Level'); ?></p>
                                 </div>
                             </div>
-                            <div class="glass-card p-6 flex items-center justify-between">
-                                <div><i class="fas fa-coins text-3xl text-[#f2cf5b]"></i></div>
-                                <div class="text-center">
+                            <div class="glass-card p-6 grid grid-cols-2 md:flex md:items-center md:justify-between gap-4 md:gap-0">
+                                <div class="flex items-center justify-center md:justify-start"><i class="fas fa-coins text-3xl text-[#f2cf5b]"></i></div>
+                                <div class="text-center min-w-0">
                                     <?php 
                                         $totalGold = 0;
                                         foreach ($characters as $char) {
                                             $totalGold += $char['money'];
                                         }
                                     ?>
-                                    <p class="text-2xl font-bold text-white"><?php echo number_format($totalGold / 10000, 2); ?><span class="text-sm text-gray-400 ml-1">g</span></p>
+                                    <p class="text-2xl font-bold text-white force-wrap"><?php echo number_format($totalGold / 10000, 2); ?><span class="text-sm text-gray-400 ml-1">g</span></p>
                                     <p class="text-gray-400 text-sm"><?php echo translate('label_total_gold', 'Total Gold'); ?></p>
                                 </div>
-                                <div class="text-center">
-                                    <p class="text-2xl font-bold text-white"><?php echo $currencies['points']; ?> <span class="text-sm text-gray-400">P</span></p>
+                                <div class="text-center min-w-0">
+                                    <p class="text-2xl font-bold text-white force-wrap"><?php echo $currencies['points']; ?> <span class="text-sm text-gray-400">P</span></p>
                                     <p class="text-gray-400 text-sm"><?php echo translate('label_points', 'Points'); ?></p>
                                 </div>
-                                <div class="text-center">
-                                    <p class="text-2xl font-bold text-white"><?php echo $currencies['tokens']; ?> <span class="text-sm text-gray-400">T</span></p>
+                                <div class="text-center min-w-0">
+                                    <p class="text-2xl font-bold text-white force-wrap"><?php echo $currencies['tokens']; ?> <span class="text-sm text-gray-400">T</span></p>
                                     <p class="text-gray-400 text-sm"><?php echo translate('label_tokens', 'Tokens'); ?></p>
                                 </div>
                             </div>

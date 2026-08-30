@@ -250,6 +250,13 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
             }
         }
 
+        /* ============ FORCE TEXT WRAPPING ============ */
+        .force-wrap {
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
         /* ============ HEADER CONTAINER ============ */
         header.main-header {
             background: linear-gradient(180deg, rgba(10,14,22,.96), rgba(5,7,11,.96));
@@ -548,6 +555,7 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
                 text-align: center;
                 font-size: 1.05rem;
                 padding: 1rem;
+                white-space: normal;
             }
 
             .nav-close {
@@ -625,11 +633,11 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
             </nav>
 
             <!-- Right Side Controls -->
-            <div class="flex items-center gap-3 md:gap-4" style="position: relative; z-index: 1;">
+            <div class="flex items-center gap-3 md:gap-4" style="position: relative; z-index: 1; min-width: 0;">
 
                 <!-- User Profile (Logged In) -->
                 <?php if (!empty($_SESSION['user_id'])): ?>
-                    <div class="hidden md:flex items-center gap-2">
+                    <div class="hidden md:flex items-center gap-2 force-wrap">
                         <span class="badge-gold"><i class="fas fa-coins"></i> <?php echo $points; ?></span>
                         <span class="badge-iron"><i class="fas fa-gem"></i> <?php echo $tokens; ?></span>
                     </div>
@@ -642,14 +650,14 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
                                 <div class="flex items-center gap-3">
                                     <img src="<?php echo $avatar; ?>" alt="User" class="w-12 h-12 object-cover border border-[#c9a227]" style="clip-path: polygon(15% 0, 85% 0, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0 85%, 0 15%);">
 
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-[#f2cf5b] font-bold text-sm truncate" style="font-family:'Cinzel',serif;">
+                                    <div class="flex-1 min-w-0 force-wrap">
+                                        <p class="text-[#f2cf5b] font-bold text-sm truncate force-wrap" style="font-family:'Cinzel',serif;">
                                             <?php echo htmlspecialchars($_SESSION['username'] ?? 'User', ENT_QUOTES, 'UTF-8'); ?>
                                         </p>
 
-                                        <p class="text-gray-400 text-xs truncate"><?php echo $email; ?></p>
+                                        <p class="text-gray-400 text-xs truncate force-wrap"><?php echo $email; ?></p>
 
-                                        <div class="flex gap-2 mt-2">
+                                        <div class="flex gap-2 mt-2 flex-wrap">
                                             <span class="badge-gold text-[10px] !py-1 !px-1.5"><i class="fas fa-coins"></i> <?php echo $points; ?></span>
                                             <span class="badge-iron text-[10px] !py-1 !px-1.5"><i class="fas fa-gem"></i> <?php echo $tokens; ?></span>
                                         </div>
@@ -658,13 +666,13 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
                             </div>
 
                             <div class="py-2 relative z-10">
-                                <a href="<?php echo $base_path; ?>account" class="dropdown-item">
+                                <a href="<?php echo $base_path; ?>account" class="dropdown-item force-wrap">
                                     <i class="fas fa-user-circle w-5 text-center text-[#f2cf5b]"></i>
                                     <?php echo translate('account_settings', 'Account Settings'); ?>
                                 </a>
 
                                 <?php if ($gmlevel > 0 || $role === 'admin' || $role === 'moderator'): ?>
-                                    <a href="<?php echo $base_path; ?>admin/dashboard" class="dropdown-item">
+                                    <a href="<?php echo $base_path; ?>admin/dashboard" class="dropdown-item force-wrap">
                                         <i class="fas fa-cogs w-5 text-center text-[#f2cf5b]"></i>
                                         <?php echo translate('admin_panel', 'Admin Panel'); ?>
                                     </a>
@@ -672,14 +680,14 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
 
                                 <div class="dropdown-divider"></div>
 
-                                <a href="<?php echo $base_path; ?>vote" class="dropdown-item">
+                                <a href="<?php echo $base_path; ?>vote" class="dropdown-item force-wrap">
                                     <i class="fas fa-vote-yea w-5 text-center text-[#4ade80]"></i>
                                     <?php echo translate('vote', 'Vote'); ?>
                                 </a>
 
                                 <div class="dropdown-divider"></div>
 
-                                <a href="<?php echo $base_path; ?>logout" class="dropdown-item danger">
+                                <a href="<?php echo $base_path; ?>logout" class="dropdown-item danger force-wrap">
                                     <i class="fas fa-sign-out-alt w-5 text-center"></i>
                                     <?php echo translate('logout', 'Logout'); ?>
                                 </a>
@@ -701,7 +709,7 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
                             <li data-value="<?php echo htmlspecialchars($code, ENT_QUOTES, 'UTF-8'); ?>"
                                 data-flag="<?php echo htmlspecialchars($lang_data['flag_url'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-name="<?php echo htmlspecialchars($lang_data['name'], ENT_QUOTES, 'UTF-8'); ?>"
-                                class="dropdown-item !py-2 !px-3 text-sm">
+                                class="dropdown-item !py-2 !px-3 text-sm force-wrap">
                                 <img src="<?php echo htmlspecialchars($lang_data['flag_url'], ENT_QUOTES, 'UTF-8'); ?>"
                                      alt="<?php echo htmlspecialchars($lang_data['name'], ENT_QUOTES, 'UTF-8'); ?>"
                                      class="w-5 h-3.5 rounded-sm object-cover">

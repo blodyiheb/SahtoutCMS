@@ -84,29 +84,29 @@ $status_message = '';
 if (isset($_GET['status'])) {
     switch ($_GET['status']) {
         case 'success':
-            $status_message = '<div class="bg-green-900/40 border border-green-600/40 text-green-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-check-circle text-green-400 text-lg"></i><span>' . translate('shop_status_success', 'Purchase successful!') . '</span></div>';
+            $status_message = '<div class="bg-green-900/40 border border-green-600/40 text-green-200 px-5 py-3 flex items-center gap-3 mb-4 force-wrap"><i class="fas fa-check-circle text-green-400 text-lg"></i><span>' . translate('shop_status_success', 'Purchase successful!') . '</span></div>';
             break;
         case 'insufficient_funds':
-            $status_message = '<div class="bg-red-900/40 border border-red-600/40 text-red-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-circle text-red-400 text-lg"></i><span>' . translate('shop_status_insufficient_funds', 'Insufficient points or tokens.') . '</span></div>';
+            $status_message = '<div class="bg-red-900/40 border border-red-600/40 text-red-200 px-5 py-3 flex items-center gap-3 mb-4 force-wrap"><i class="fas fa-exclamation-circle text-red-400 text-lg"></i><span>' . translate('shop_status_insufficient_funds', 'Insufficient points or tokens.') . '</span></div>';
             break;
         case 'out_of_stock':
-            $status_message = '<div class="bg-red-900/40 border border-red-600/40 text-red-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-circle text-red-400 text-lg"></i><span>' . translate('shop_status_out_of_stock', 'Item is out of stock.') . '</span></div>';
+            $status_message = '<div class="bg-red-900/40 border border-red-600/40 text-red-200 px-5 py-3 flex items-center gap-3 mb-4 force-wrap"><i class="fas fa-exclamation-circle text-red-400 text-lg"></i><span>' . translate('shop_status_out_of_stock', 'Item is out of stock.') . '</span></div>';
             break;
         case 'error':
         case 'Database query error':
-            $status_message = '<div class="bg-red-900/40 border border-red-600/40 text-red-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-circle text-red-400 text-lg"></i><span>' . translate('shop_status_error', 'An error occurred during purchase. Check server logs for details.') . '</span></div>';
+            $status_message = '<div class="bg-red-900/40 border border-red-600/40 text-red-200 px-5 py-3 flex items-center gap-3 mb-4 force-wrap"><i class="fas fa-exclamation-circle text-red-400 text-lg"></i><span>' . translate('shop_status_error', 'An error occurred during purchase. Check server logs for details.') . '</span></div>';
             break;
         case 'character_online':
-            $status_message = '<div class="bg-yellow-900/40 border border-yellow-600/40 text-yellow-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i><span>' . translate('shop_status_character_online', 'Selected character must be logged out to complete the purchase.') . '</span></div>';
+            $status_message = '<div class="bg-yellow-900/40 border border-yellow-600/40 text-yellow-200 px-5 py-3 flex items-center gap-3 mb-4 force-wrap"><i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i><span>' . translate('shop_status_character_online', 'Selected character must be logged out to complete the purchase.') . '</span></div>';
             break;
         case 'level_too_high':
-            $status_message = '<div class="bg-yellow-900/40 border border-yellow-600/40 text-yellow-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i><span>' . translate('shop_status_level_too_high', 'Your character\'s level is too high for this level boost.') . '</span></div>';
+            $status_message = '<div class="bg-yellow-900/40 border border-yellow-600/40 text-yellow-200 px-5 py-3 flex items-center gap-3 mb-4 force-wrap"><i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i><span>' . translate('shop_status_level_too_high', 'Your character\'s level is too high for this level boost.') . '</span></div>';
             break;
         case 'character_not_found':
-            $status_message = '<div class="bg-red-900/40 border border-red-600/40 text-red-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-circle text-red-400 text-lg"></i><span>' . translate('shop_status_character_not_found', 'Selected character not found or not owned.') . '</span></div>';
+            $status_message = '<div class="bg-red-900/40 border border-red-600/40 text-red-200 px-5 py-3 flex items-center gap-3 mb-4 force-wrap"><i class="fas fa-exclamation-circle text-red-400 text-lg"></i><span>' . translate('shop_status_character_not_found', 'Selected character not found or not owned.') . '</span></div>';
             break;
         case 'cooldown_active':
-            $status_message = '<div class="bg-yellow-900/40 border border-yellow-600/40 text-yellow-200 px-5 py-3 flex items-center gap-3 mb-4"><i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i><span>' . translate('shop_status_cooldown_active', 'Please wait 5 seconds before making another purchase.') . '</span></div>';
+            $status_message = '<div class="bg-yellow-900/40 border border-yellow-600/40 text-yellow-200 px-5 py-3 flex items-center gap-3 mb-4 force-wrap"><i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i><span>' . translate('shop_status_cooldown_active', 'Please wait 5 seconds before making another purchase.') . '</span></div>';
             break;
     }
 }
@@ -287,7 +287,14 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Responsive */
+        /* ============ FORCE TEXT WRAPPING ============ */
+        .force-wrap {
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        
+        /* ============ RESPONSIVE ============ */
         @media (max-width: 1200px) {
             .item-card .item-tooltip {
                 left: 50%;
@@ -346,7 +353,7 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
         <div class="glass-container">
             
             <!-- Header -->
-            <h1 class="wow-title text-3xl md:text-5xl font-bold text-center mb-6">
+            <h1 class="wow-title text-3xl md:text-5xl font-bold text-center mb-6 force-wrap">
                 <i class="fas fa-store text-[#f2cf5b] mr-2"></i>
                 <?php echo $site_title_name ." ". translate('shop_title', 'Server Shop'); ?>
             </h1>
@@ -354,15 +361,15 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
             <!-- User Balance -->
             <?php if (!empty($_SESSION['user_id'])): ?>
                 <div class="flex flex-wrap justify-center gap-4 mb-6 p-4 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.1)]">
-                    <span class="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] font-semibold text-base">
+                    <span class="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] font-semibold text-base force-wrap">
                         <i class="fas fa-coins"></i> <?php echo translate('shop_points', 'Points'); ?>: <?php echo $points; ?>
                     </span>
-                    <span class="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(139,92,246,0.15)] border border-[rgba(139,92,246,0.3)] text-[#8b5cf6] font-semibold text-base">
+                    <span class="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(139,92,246,0.15)] border border-[rgba(139,92,246,0.3)] text-[#8b5cf6] font-semibold text-base force-wrap">
                         <i class="fas fa-gem"></i> <?php echo translate('shop_tokens', 'Tokens'); ?>: <?php echo $tokens; ?>
                     </span>
                 </div>
             <?php else: ?>
-                <div class="text-center text-gray-300 text-sm md:text-base p-4 bg-[rgba(242,207,82,0.08)] border border-[rgba(201,162,39,0.2)] mb-6">
+                <div class="text-center text-gray-300 text-sm md:text-base p-4 bg-[rgba(242,207,82,0.08)] border border-[rgba(201,162,39,0.2)] mb-6 force-wrap">
                     <i class="fas fa-info-circle text-[#f2cf5b] mr-2"></i>
                     <?php echo str_replace('{base_path}', $base_path, translate('shop_login_prompt', 'Please <a href="{base_path}login" class="text-[#f2cf5b] hover:text-yellow-300 underline">log in</a> to purchase items.')); ?>
                 </div>
@@ -380,21 +387,21 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                         <?php if (isset($category_images[$category])): ?>
                             <img src="<?php echo $base_path . $category_images[$category]; ?>" alt="<?php echo translate('shop_category_' . strtolower($category) . '_icon', htmlspecialchars($category) . ' Icon'); ?>" class="w-8 h-8 rounded-full object-cover border border-[rgba(201,162,39,0.1)]">
                         <?php endif; ?>
-                        <?php echo translate('shop_category_' . strtolower($category), htmlspecialchars($category)); ?>
+                        <span class="force-wrap"><?php echo translate('shop_category_' . strtolower($category), htmlspecialchars($category)); ?></span>
                     </a>
                 <?php endforeach; ?>
             </nav>
 
             <!-- Items -->
             <?php if (empty($items)): ?>
-                <div class="text-center py-12 text-gray-400">
+                <div class="text-center py-12 text-gray-400 force-wrap">
                     <i class="fas fa-box-open text-4xl block mb-3 text-[rgba(201,162,39,0.3)]"></i>
                     <?php echo translate('shop_no_items', 'No items available.'); ?>
                 </div>
             <?php else: ?>
                 <?php foreach ($items as $category => $category_items): ?>
                     <section class="tab-content <?php echo ($selected_category === 'All' || $selected_category === $category) ? 'active' : ''; ?>" data-category="<?php echo htmlspecialchars($category); ?>">
-                        <h2 class="text-2xl font-bold text-[#f2cf5b] mb-4 pb-2 border-b border-[rgba(201,162,39,0.15)]">
+                        <h2 class="text-2xl font-bold text-[#f2cf5b] mb-4 pb-2 border-b border-[rgba(201,162,39,0.15)] force-wrap">
                             <i class="fas fa-tag mr-2"></i>
                             <?php echo translate('shop_category_' . strtolower($category), htmlspecialchars($category)); ?>
                         </h2>
@@ -403,21 +410,21 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                 <?php 
                                 $has_tooltip = in_array($category, $tooltip_categories) && $item['sit_entry'] && (int)$item['is_set'] !== 1;
                                 ?>
-                                <div class="item-card relative bg-[rgba(10,14,22,0.8)] border border-[rgba(201,162,39,0.12)] p-4 flex flex-col <?php echo $has_tooltip ? 'has-tooltip' : ''; ?>" data-entry="<?php echo $item['sit_entry'] ? htmlspecialchars($item['sit_entry']) : ''; ?>">
+                                <div class="item-card relative bg-[rgba(10,14,22,0.8)] border border-[rgba(201,162,39,0.12)] p-4 flex flex-col <?php echo $has_tooltip ? 'has-tooltip' : ''; ?> min-w-0" data-entry="<?php echo $item['sit_entry'] ? htmlspecialchars($item['sit_entry']) : ''; ?>">
                                     <!-- Image -->
                                     <div class="relative w-full">
                                         <img src="<?php echo $base_path . ($item['image'] ?? 'img/shop/placeholder.png'); ?>" alt="<?php echo str_replace('{name}', htmlspecialchars($item['name']), translate('shop_item_image_alt', '{name}')); ?>" class="w-full h-48 object-cover border border-[rgba(201,162,39,0.08)]">
                                         <?php if ($item['stock'] !== null && $item['stock'] < 10 && $item['stock'] > 0): ?>
-                                            <span class="limited-stock-badge absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 border border-red-600 shadow-lg">Limited Stock</span>
+                                            <span class="limited-stock-badge absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 border border-red-600 shadow-lg force-wrap">Limited Stock</span>
                                         <?php endif; ?>
                                     </div>
                                     
                                     <!-- Details -->
-                                    <h3 class="text-white text-lg font-bold mt-3 mb-1"><?php echo htmlspecialchars($item['name']); ?></h3>
-                                    <p class="text-gray-400 text-sm flex-1"><?php echo htmlspecialchars($item['description'] ?? translate('shop_no_description', 'No description available.')); ?></p>
+                                    <h3 class="text-white text-lg font-bold mt-3 mb-1 force-wrap min-w-0 break-words [overflow-wrap:anywhere]"><?php echo htmlspecialchars($item['name']); ?></h3>
+                                    <p class="text-gray-400 text-sm flex-1 force-wrap min-w-0 break-words [overflow-wrap:anywhere]"><?php echo htmlspecialchars($item['description'] ?? translate('shop_no_description', 'No description available.')); ?></p>
                                     
                                     <?php if ((int)$item['is_set'] === 1 && !empty($item['itemset_id'])): ?>
-                                        <p class="text-[#89d2ff] text-xs font-semibold mt-1">
+                                        <p class="text-[#89d2ff] text-xs font-semibold mt-1 force-wrap">
                                             <i class="fas fa-cubes mr-1"></i>
                                             <?php echo translate('shop_set_contains', 'Set') . ' #' . (int)$item['itemset_id'] . ' - ' . (int)($item['set_item_count'] ?? 0) . ' ' . translate('shop_items', 'items'); ?>
                                         </p>
@@ -425,34 +432,34 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                     
                                     <?php if ($category === 'Service'): ?>
                                         <?php if ($item['level_boost'] !== null): ?>
-                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-arrow-up mr-1"></i><?php echo translate('shop_level_boost', 'Level Boost'); ?>: <?php echo $item['level_boost']; ?></p>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1 force-wrap"><i class="fas fa-arrow-up mr-1"></i><?php echo translate('shop_level_boost', 'Level Boost'); ?>: <?php echo $item['level_boost']; ?></p>
                                         <?php endif; ?>
                                         <?php if ($item['at_login_flags'] & 1): ?>
-                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-user-edit mr-1"></i><?php echo translate('shop_rename_character', 'Character Rename'); ?></p>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1 force-wrap"><i class="fas fa-user-edit mr-1"></i><?php echo translate('shop_rename_character', 'Character Rename'); ?></p>
                                         <?php endif; ?>
                                         <?php if ($item['at_login_flags'] & 2): ?>
-                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-magic mr-1"></i><?php echo translate('shop_reset_spells', 'Reset Spells'); ?></p>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1 force-wrap"><i class="fas fa-magic mr-1"></i><?php echo translate('shop_reset_spells', 'Reset Spells'); ?></p>
                                         <?php endif; ?>
                                         <?php if ($item['at_login_flags'] & 4): ?>
-                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-star mr-1"></i><?php echo translate('shop_reset_talents', 'Reset Talents'); ?></p>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1 force-wrap"><i class="fas fa-star mr-1"></i><?php echo translate('shop_reset_talents', 'Reset Talents'); ?></p>
                                         <?php endif; ?>
                                         <?php if ($item['at_login_flags'] & 8): ?>
-                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-user-astronaut mr-1"></i><?php echo translate('shop_customize_character', 'Character Customization'); ?></p>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1 force-wrap"><i class="fas fa-user-astronaut mr-1"></i><?php echo translate('shop_customize_character', 'Character Customization'); ?></p>
                                         <?php endif; ?>
                                         <?php if ($item['at_login_flags'] & 16): ?>
-                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-paw mr-1"></i><?php echo translate('shop_reset_pet_talents', 'Reset Pet Talents'); ?></p>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1 force-wrap"><i class="fas fa-paw mr-1"></i><?php echo translate('shop_reset_pet_talents', 'Reset Pet Talents'); ?></p>
                                         <?php endif; ?>
                                         <?php if ($item['at_login_flags'] & 64): ?>
-                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-flag mr-1"></i><?php echo translate('shop_faction_change', 'Faction Change'); ?></p>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1 force-wrap"><i class="fas fa-flag mr-1"></i><?php echo translate('shop_faction_change', 'Faction Change'); ?></p>
                                         <?php endif; ?>
                                         <?php if ($item['at_login_flags'] & 128): ?>
-                                            <p class="text-emerald-400 text-xs font-bold mt-1"><i class="fas fa-users mr-1"></i><?php echo translate('shop_race_change', 'Race Change'); ?></p>
+                                            <p class="text-emerald-400 text-xs font-bold mt-1 force-wrap"><i class="fas fa-users mr-1"></i><?php echo translate('shop_race_change', 'Race Change'); ?></p>
                                         <?php endif; ?>
                                     <?php endif; ?>
                                     
                                     <!-- Tooltip - Only for categories with tooltips -->
                                     <?php if ($has_tooltip): ?>
-                                        <div class="item-tooltip">
+                                        <div class="item-tooltip force-wrap">
                                             <?php
                                             if (in_array($category, $tooltip_categories) && $item['sit_entry'] && (int)$item['is_set'] !== 1) {
                                                 $stmt_tooltip = $site_db->prepare("SELECT * FROM site_items WHERE entry = ?");
@@ -471,15 +478,15 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                     <!-- Cost -->
                                     <div class="flex justify-center gap-4 mt-3 pt-2 border-t border-[rgba(201,162,39,0.08)]">
                                         <?php if ($item['point_cost'] > 0): ?>
-                                            <span class="text-[#f2cf5b] font-semibold text-sm"><i class="fas fa-coins mr-1"></i> <?php echo $item['point_cost']; ?></span>
+                                            <span class="text-[#f2cf5b] font-semibold text-sm force-wrap"><i class="fas fa-coins mr-1"></i> <?php echo $item['point_cost']; ?></span>
                                         <?php endif; ?>
                                         <?php if ($item['token_cost'] > 0): ?>
-                                            <span class="text-[#8b5cf6] font-semibold text-sm"><i class="fas fa-gem mr-1"></i> <?php echo $item['token_cost']; ?></span>
+                                            <span class="text-[#8b5cf6] font-semibold text-sm force-wrap"><i class="fas fa-gem mr-1"></i> <?php echo $item['token_cost']; ?></span>
                                         <?php endif; ?>
                                     </div>
                                     
                                     <!-- Stock -->
-                                    <div class="text-center text-gray-500 text-xs mt-1">
+                                    <div class="text-center text-gray-500 text-xs mt-1 force-wrap">
                                         <?php if ($item['stock'] !== null): ?>
                                             <span><?php echo translate('shop_stock', 'Stock'); ?>: <?php echo $item['stock']; ?></span>
                                         <?php else: ?>
@@ -501,7 +508,7 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                                     <?php endforeach; ?>
                                                 </select>
                                             <?php else: ?>
-                                                <p class="text-red-400 text-xs text-center mb-2"><?php echo translate('shop_no_characters', 'No characters available.'); ?></p>
+                                                <p class="text-red-400 text-xs text-center mb-2 force-wrap"><?php echo translate('shop_no_characters', 'No characters available.'); ?></p>
                                             <?php endif; ?>
                                             <button type="submit" class="buy-button w-full py-2.5 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold text-sm <?php echo ($item['stock'] === 0 && $item['stock'] !== null) || empty($characters) || $cooldown_active ? 'opacity-50 cursor-not-allowed hover:bg-[rgba(242,207,82,0.15)]' : ''; ?>" 
                                                     <?php echo ($item['stock'] === 0 && $item['stock'] !== null) || empty($characters) || $cooldown_active ? 'disabled' : ''; ?>
@@ -510,7 +517,7 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                             </button>
                                         </form>
                                     <?php else: ?>
-                                        <a href="<?php echo $base_path; ?>login" class="login-to-buy-button block w-full text-center py-2.5 bg-[rgba(52,152,219,0.2)] border border-[rgba(52,152,219,0.3)] text-[#3498db] hover:bg-[rgba(52,152,219,0.3)] transition-all duration-300 font-semibold text-sm mt-3"><?php echo translate('shop_login_to_buy', 'Log in to Buy'); ?></a>
+                                        <a href="<?php echo $base_path; ?>login" class="login-to-buy-button block w-full text-center py-2.5 bg-[rgba(52,152,219,0.2)] border border-[rgba(52,152,219,0.3)] text-[#3498db] hover:bg-[rgba(52,152,219,0.3)] transition-all duration-300 font-semibold text-sm mt-3 force-wrap"><?php echo translate('shop_login_to_buy', 'Log in to Buy'); ?></a>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
@@ -532,8 +539,8 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
         <div class="w-16 h-16 mx-auto rounded-full bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] flex items-center justify-center text-3xl mb-3" id="alertIcon">
             <i class="fas fa-info-circle"></i>
         </div>
-        <h3 class="text-[#f2cf5b] text-xl font-bold mb-2" id="alertTitle">Information</h3>
-        <p class="text-gray-300 text-sm leading-relaxed" id="alertMessage">Message</p>
+        <h3 class="text-[#f2cf5b] text-xl font-bold mb-2 force-wrap" id="alertTitle">Information</h3>
+        <p class="text-gray-300 text-sm leading-relaxed force-wrap" id="alertMessage">Message</p>
         <div class="mt-4 flex flex-col sm:flex-row gap-2 justify-center" id="alertActions"></div>
     </div>
 </div>
@@ -681,10 +688,10 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
             title.textContent = 'Login Required';
             msg.textContent = 'Please log in to purchase items from the shop.';
             actions.innerHTML = `
-                <a href="<?php echo $base_path; ?>login" class="px-6 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold text-sm">
+                <a href="<?php echo $base_path; ?>login" class="px-6 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold text-sm force-wrap">
                     <i class="fas fa-sign-in-alt mr-2"></i> Log In Now
                 </a>
-                <button class="px-6 py-2 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-gray-300 hover:bg-[rgba(255,255,255,0.1)] transition-all duration-300 font-semibold text-sm" onclick="closeAlert()">
+                <button class="px-6 py-2 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-gray-300 hover:bg-[rgba(255,255,255,0.1)] transition-all duration-300 font-semibold text-sm force-wrap" onclick="closeAlert()">
                     Continue Browsing
                 </button>
             `;

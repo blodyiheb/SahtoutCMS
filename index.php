@@ -297,6 +297,20 @@ $result = $site_db->query($query);
                 height: 280px;
             }
         }
+
+        /* ============ FORCE TEXT WRAPPING ============ */
+        .force-wrap {
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
     </style>
     <script>
         window.homeYoutubeSettings = <?php echo json_encode([
@@ -324,7 +338,7 @@ $result = $site_db->query($query);
                     <div class="relative z-10">
                         <p class="text-xs md:text-sm font-semibold tracking-[.35em] uppercase text-gray-400 mb-4"><?php echo translate('home_intro_tagline', 'Join our epic World of Warcraft server adventure today!'); ?></p>
 
-                        <h1 class="text-3xl sm:text-4xl md:text-6xl lg:text-7xl leading-tight">
+                        <h1 class="text-3xl sm:text-4xl md:text-6xl lg:text-7xl leading-tight force-wrap">
                             <span class="text-white font-extrabold" style="font-family:'Cinzel',serif; text-shadow:0 0 20px rgba(59,130,246,.35), 0 4px 8px rgba(0,0,0,.9);"><?php echo translate('home_intro_title', 'Welcome to '); ?></span><br class="hidden md:block">
                             <span class="wow-title"><?php echo $site_title_name; ?></span>
                         </h1>
@@ -428,14 +442,14 @@ $result = $site_db->query($query);
                             </p>
                         <?php else: ?>
                             <?php while ($news = $result->fetch_assoc()): ?>
-                                <a href="<?php echo $base_path; ?>news?slug=<?php echo htmlspecialchars($news['slug']); ?>" class="news-card group">
+                                <a href="<?php echo $base_path; ?>news?slug=<?php echo htmlspecialchars($news['slug']); ?>" class="news-card group min-w-0">
                                     <div class="relative h-36 sm:h-44 overflow-hidden">
                                         <img src="<?php echo $base_path . htmlspecialchars($news['image_url']); ?>"
                                              alt="<?php echo htmlspecialchars($news['title']); ?>"
                                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                         <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(0,0,0,.9), transparent 60%);"></div>
-                                        <div class="absolute bottom-0 left-0 right-0 p-2 sm:p-3">
-                                            <h3 class="text-xs sm:text-sm font-bold text-white line-clamp-2"><?php echo htmlspecialchars($news['title']); ?></h3>
+                                        <div class="absolute bottom-0 left-0 right-0 p-2 sm:p-3 min-w-0">
+                                            <h3 class="text-xs sm:text-sm font-bold text-white min-w-0 break-words [overflow-wrap:anywhere] line-clamp-2"><?php echo htmlspecialchars($news['title']); ?></h3>
                                         </div>
                                     </div>
                                     <div class="p-2 sm:p-3">
@@ -457,10 +471,10 @@ $result = $site_db->query($query);
                     <div class="tab-content">
                         <div class="tab-panel active" id="panel-youtube">
                             <div class="text-center mb-4 sm:mb-5">
-                                <h2 class="section-title text-lg sm:text-xl md:text-2xl" style="justify-content:center;">
+                                <h2 class="section-title text-lg sm:text-xl md:text-2xl force-wrap" style="justify-content:center;">
                                     <?php echo htmlspecialchars($youtube_title ?? 'Sahtout Server Trailer', ENT_QUOTES, 'UTF-8'); ?>
                                 </h2>
-                                <p class="text-gray-400 mt-2 max-w-xl mx-auto text-xs sm:text-sm md:text-base">
+                                <p class="text-gray-400 mt-2 max-w-xl mx-auto text-xs sm:text-sm md:text-base force-wrap">
                                     <?php echo htmlspecialchars($youtube_description ?? 'Lichking Trailer, Replace it with your own ....', ENT_QUOTES, 'UTF-8'); ?>
                                 </p>
                             </div>
@@ -477,8 +491,8 @@ $result = $site_db->query($query);
                         <div class="tab-panel" id="panel-bugtracker">
                             <div class="text-center py-8 sm:py-12">
                                 <svg class="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                                <h3 class="text-lg sm:text-xl font-bold text-white mb-2" style="font-family:'Cinzel',serif;"><?php echo translate('home_bugtracker_title', 'Bugtracker Coming Soon'); ?></h3>
-                                <p class="text-gray-400 text-sm sm:text-base"><?php echo translate('home_bugtracker_desc', 'Report bugs and track issues here.'); ?></p>
+                                <h3 class="text-lg sm:text-xl font-bold text-white mb-2 force-wrap" style="font-family:'Cinzel',serif;"><?php echo translate('home_bugtracker_title', 'Bugtracker Coming Soon'); ?></h3>
+                                <p class="text-gray-400 text-sm sm:text-base force-wrap"><?php echo translate('home_bugtracker_desc', 'Report bugs and track issues here.'); ?></p>
                             </div>
                         </div>
                     </div>
@@ -502,11 +516,11 @@ $result = $site_db->query($query);
                                 ob_start();
                                 include $realm_status_file;
                                 $status_content = ob_get_clean();
-                                echo '<div class="space-y-2 text-xs bg-black/30 p-2 sm:p-3 border border-[#c9a227]/20 rounded-sm">';
+                                echo '<div class="space-y-2 text-xs bg-black/30 p-2 sm:p-3 border border-[#c9a227]/20 rounded-sm force-wrap">';
                                 echo $status_content;
                                 echo '</div>';
                             } else {
-                                echo '<p class="status-offline text-xs bg-black/30 p-2 sm:p-3 border border-red-500/20 rounded-sm">' . translate('home_realm_status_error', 'Error: Realm status unavailable.') . '</p>';
+                                echo '<p class="status-offline text-xs bg-black/30 p-2 sm:p-3 border border-red-500/20 rounded-sm force-wrap">' . translate('home_realm_status_error', 'Error: Realm status unavailable.') . '</p>';
                             }
                             ?>
                         </div>

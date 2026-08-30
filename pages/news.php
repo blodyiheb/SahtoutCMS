@@ -70,7 +70,7 @@ if ($is_single) {
 
     // Only execute the main query if there are news items
     if ($total_rows > 0) {
-        $query = "SELECT id, title, slug, LEFT(content, 200) as excerpt, posted_by, 
+        $query = "SELECT id, title, slug, content as excerpt, posted_by, 
                   post_date, image_url, is_important, category 
                   FROM server_news 
                   " . $where_clause . "
@@ -222,6 +222,13 @@ while ($row = $category_result->fetch_assoc()) {
             object-fit: contain;
             background: rgba(0,0,0,0.3);
         }
+        
+        /* Force text wrapping in flex/grid containers */
+        .force-wrap {
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
     </style>
 </head>
 <body>
@@ -247,7 +254,7 @@ while ($row = $category_result->fetch_assoc()) {
                              class="news-single-image rounded-none mb-6 border border-[rgba(201,162,39,0.2)]">
                     <?php endif; ?>
                     
-                    <h1 class="text-white text-3xl md:text-4xl font-extrabold leading-tight mb-4 font-['Cinzel'] text-shadow-lg">
+                    <h1 class="text-white text-3xl md:text-4xl font-extrabold leading-tight mb-4 font-['Cinzel'] text-shadow-lg force-wrap">
                         <?php echo htmlspecialchars($news['title']); ?>
                         <?php if ($news['is_important']): ?>
                             <span class="inline-block ml-2 bg-[rgba(242,207,82,0.15)] text-[#f2cf5b] font-bold text-[0.6rem] px-2 py-[0.15rem] uppercase tracking-wider border border-[rgba(201,162,39,0.2)] clip-path-badge">
@@ -270,7 +277,7 @@ while ($row = $category_result->fetch_assoc()) {
                         <span><i class="far fa-user mr-1"></i> <?php echo sprintf(translate('posted_by', 'Posted by %s'), htmlspecialchars($news['posted_by'])); ?></span>
                     </div>
                     
-                    <div class="text-gray-300 text-base leading-relaxed text-shadow-md">
+                    <div class="text-gray-300 text-base leading-relaxed text-shadow-md force-wrap">
                         <?php echo nl2br(htmlspecialchars($news['content'])); ?>
                     </div>
                     
@@ -317,9 +324,14 @@ while ($row = $category_result->fetch_assoc()) {
                         <?php while ($news = $result->fetch_assoc()): ?>
                             <?php 
                             $card_color = $category_colors[$news['category']]['badge'] ?? '#f2cf5b';
+                            // Get full excerpt without forcing truncation
+                            $excerpt = trim($news['excerpt']);
+                            if (empty($excerpt)) {
+                                $excerpt = 'No description available.';
+                            }
                             ?>
                             <a href="<?php echo $base_path; ?>news?slug=<?php echo htmlspecialchars($news['slug']); ?>" 
-                               class="news-card bg-[rgba(10,14,22,0.75)] border border-[rgba(201,162,39,0.18)] rounded-none no-underline text-inherit overflow-hidden flex flex-col h-full border-t-4"
+                               class="news-card min-w-0 bg-[rgba(10,14,22,0.75)] border border-[rgba(201,162,39,0.18)] rounded-none no-underline text-inherit overflow-hidden flex flex-col h-full border-t-4"
                                style="border-top-color: <?php echo $card_color; ?>;"
                                onmouseover="this.style.borderColor='<?php echo $card_color; ?>'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.6)'"
                                onmouseout="this.style.borderColor=''; this.style.boxShadow=''">
@@ -335,7 +347,7 @@ while ($row = $category_result->fetch_assoc()) {
                                          class="news-card-img border-b border-[rgba(201,162,39,0.1)]">
                                 <?php endif; ?>
                                 
-                                <div class="p-5 flex-1 flex flex-col">
+                                <div class="p-5 flex-1 flex flex-col min-h-[180px] min-w-0">
                                     <div class="flex flex-wrap gap-3 text-[0.75rem] text-gray-500 mb-3">
                                         <span class="clip-path-badge inline-block px-3 py-[0.15rem] font-semibold text-[0.65rem] uppercase tracking-wider border" 
                                               style="background: <?php echo $card_color; ?>20; color: <?php echo $card_color; ?>; border-color: <?php echo $card_color; ?>30;">
@@ -344,7 +356,7 @@ while ($row = $category_result->fetch_assoc()) {
                                         <span><i class="far fa-calendar-alt mr-1"></i> <?php echo date('M j, Y', strtotime($news['post_date'])); ?></span>
                                     </div>
                                     
-                                    <h2 class="text-white text-base font-bold transition-colors duration-300 mb-2 leading-snug font-['Cinzel']">
+                                    <h2 class="text-white text-base font-bold transition-colors duration-300 mb-2 leading-snug font-['Cinzel'] min-w-0 break-words [overflow-wrap:anywhere]">
                                         <?php echo htmlspecialchars($news['title']); ?>
                                         <?php if ($news['is_important']): ?>
                                             <span class="clip-path-badge inline-block ml-1 bg-[rgba(242,207,82,0.15)] text-[#f2cf5b] font-bold text-[0.6rem] px-2 py-[0.15rem] uppercase tracking-wider border border-[rgba(201,162,39,0.2)]">
@@ -353,7 +365,9 @@ while ($row = $category_result->fetch_assoc()) {
                                         <?php endif; ?>
                                     </h2>
                                     
-                                    <p class="text-gray-300 text-sm leading-relaxed m-0 flex-1"><?php echo htmlspecialchars($news['excerpt']); ?>...</p>
+                                    <p class="text-gray-300 text-sm leading-relaxed m-0 flex-1 min-w-0 break-words [overflow-wrap:anywhere]">
+                                        <?php echo htmlspecialchars($excerpt); ?>
+                                    </p>
                                 </div>
                             </a>
                         <?php endwhile; ?>
