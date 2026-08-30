@@ -19,7 +19,7 @@ require_once $project_root . 'includes/header.php';
     <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
     
-    <style>
+  <style>
         * { font-family: 'Inter', sans-serif; }
 
         body {
@@ -103,6 +103,7 @@ require_once $project_root . 'includes/header.php';
             text-shadow: 0 0 12px rgba(201,162,39,.35), 0 2px 4px rgba(0,0,0,.8);
         }
 
+        /* Equipment Slots - Fixed */
         .slot {
             background: rgba(10, 14, 22, 0.7);
             border: 1px solid rgba(201,162,39,0.12);
@@ -112,6 +113,9 @@ require_once $project_root . 'includes/header.php';
             gap: 0.75rem;
             transition: all 0.3s ease;
             min-height: 50px;
+            max-width: 100%;
+            overflow: hidden;
+            width: 100%;
         }
 
         .slot:hover {
@@ -141,12 +145,23 @@ require_once $project_root . 'includes/header.php';
             object-fit: cover;
         }
 
+        .slot-info {
+            min-width: 0;
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
         .slot-name {
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
             color: #6b7280;
             letter-spacing: 0.5px;
             font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .slot-item {
@@ -155,8 +170,51 @@ require_once $project_root . 'includes/header.php';
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            max-width: 100%;
+            display: block;
+            width: 100%;
         }
 
+        /* Equipment Columns */
+        .equipment-column {
+            min-width: 0;
+            max-width: 320px;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* For the weapon slots row */
+        .weapon-slot {
+    background: rgba(10, 14, 22, 0.7);
+    border: 1px solid rgba(201,162,39,0.12);
+    transition: all 0.3s ease;
+    min-height: 55px;
+    border-radius: 4px;
+}
+.weapon-slot:hover {
+    border-color: rgba(201,162,39,0.3);
+    background: rgba(10, 14, 22, 0.9);
+}
+.weapon-slot.has-item {
+    border-left: 3px solid #f2cf5b;
+}
+.weapon-slot .slot-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border: 1px solid rgba(201,162,39,0.15);
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 4px;
+}
+.weapon-slot .slot-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit:cover; 
+}
         .empty-slot {
             color: #4b5563;
             font-size: 0.8rem;
@@ -454,6 +512,13 @@ require_once $project_root . 'includes/header.php';
             padding-top: 0.25rem;
         }
 
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .equipment-column {
+                max-width: 280px;
+            }
+        }
+
         @media (max-width: 768px) {
             body { padding-top: 96px; }
             .panel { padding: 1.5rem 0.75rem; }
@@ -461,14 +526,50 @@ require_once $project_root . 'includes/header.php';
             .tab-btn { flex: 1; min-width: 100px; text-align: center; padding: 0.5rem 1rem; font-size: 0.8rem; }
             .stats-container { grid-template-columns: 1fr; }
             .pvp-section { grid-template-columns: 1fr; }
+            .equipment-column {
+                max-width: 240px;
+                min-width: 160px;
+            }
+            .slot {
+                padding: 0.4rem 0.6rem;
+                min-height: 44px;
+                gap: 0.6rem;
+            }
+            .slot-icon {
+                width: 32px;
+                height: 32px;
+            }
+            .slot-item {
+                font-size: 0.8rem;
+            }
         }
 
         @media (max-width: 480px) {
-            .slot { padding: 0.35rem 0.5rem; min-height: 40px; }
-            .slot-icon { width: 28px; height: 28px; }
-            .slot-item { font-size: 0.75rem; }
-            .character-name { font-size: 1.5rem; }
-            .character-image { height: 250px; }
+            .slot {
+                padding: 0.35rem 0.5rem;
+                min-height: 40px;
+                gap: 0.5rem;
+            }
+            .slot-icon {
+                width: 28px;
+                height: 28px;
+            }
+            .slot-item {
+                font-size: 0.75rem;
+            }
+            .slot-name {
+                font-size: 0.6rem;
+            }
+            .character-name {
+                font-size: 1.5rem;
+            }
+            .character-image {
+                height: 250px;
+            }
+            .equipment-column {
+                max-width: 200px;
+                min-width: 120px;
+            }
         }
     </style>
 </head>
@@ -855,29 +956,21 @@ require_once $project_root . 'includes/header.php';
                             });
                         </script>
                     </div>
-                    <div class="flex gap-1 w-full max-w-[350px]">
-                        <?php foreach ([15, 16, 17] as $slot): ?>
-                            <div class="slot flex-1 min-h-[45px]<?= isset($items[$slot]) ? ' has-item' : '' ?>" <?= isset($items[$slot]) ? 'data-tooltip="' . htmlspecialchars(generateTooltip($items[$slot])) . '"' : '' ?>>
-                                <div class="slot-icon">
-                                    <?php
-                                    $icon = isset($items[$slot]) && !empty($items[$slot]['icon']) ? $items[$slot]['icon'] : ($defaultIcons[$slot] ?? 'inv_misc_questionmark');
-                                    $iconSrc = isset($items[$slot]) && !empty($items[$slot]['icon']) ? "https://wow.zamimg.com/images/wow/icons/large/$icon.jpg" : "{$base_path}img/characterarmor/$icon";
-                                    ?>
-                                    <img src="<?= htmlspecialchars($iconSrc) ?>" alt="<?= htmlspecialchars($slotLabels[$slot]) ?>" loading="lazy">
-                                </div>
-                                <div class="slot-info flex-1 min-w-0">
-                                    <div class="slot-name"><?= htmlspecialchars($slotLabels[$slot]) ?></div>
-                                    <?php if (isset($items[$slot])): ?>
-                                        <div class="slot-item" style="color:<?= $qualityColors[$items[$slot]['Quality']] ?? '#ffffff' ?>">
-                                            <?= htmlspecialchars($items[$slot]['name']) ?>
-                                        </div>
-                                    <?php else: ?>
-                                        <div class="empty-slot"><?php echo translate('slot_empty', 'Empty'); ?></div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+           <div class="flex gap-2 w-full max-w-[350px]">
+    <?php foreach ([15, 16, 17] as $slot): ?>
+        <div class="slot weapon-slot flex-1 min-h-[55px] flex items-center justify-center<?= isset($items[$slot]) ? ' has-item' : '' ?>" 
+             <?= isset($items[$slot]) ? 'data-tooltip="' . htmlspecialchars(generateTooltip($items[$slot])) . '"' : '' ?>
+             style="padding: 0.5rem; border-radius: 4px;">
+            <div class="slot-icon" style="width: 44px; height: 44px; border-radius: 4px;">
+                <?php
+                $icon = isset($items[$slot]) && !empty($items[$slot]['icon']) ? $items[$slot]['icon'] : ($defaultIcons[$slot] ?? 'inv_misc_questionmark');
+                $iconSrc = isset($items[$slot]) && !empty($items[$slot]['icon']) ? "https://wow.zamimg.com/images/wow/icons/large/$icon.jpg" : "{$base_path}img/characterarmor/$icon";
+                ?>
+                <img src="<?= htmlspecialchars($iconSrc) ?>" alt="<?= htmlspecialchars($slotLabels[$slot]) ?>" loading="lazy">
+            </div>
+        </div>
+    <?php endforeach; ?>
+</div>
                 </div>
 
                 <!-- Right Equipment Column -->
