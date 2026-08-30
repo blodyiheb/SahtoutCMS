@@ -20,6 +20,7 @@ return [
     'error_invalid_nonce' => 'Invalid or expired form submission. Please try again.',
     'error_password_required' => 'Password is required.',
     'error_password_short' => 'Password must be at least 8 characters long.',
+    'error_password_length' => 'Password must be between 6 and 16 characters.',
     'error_password_mismatch' => 'Passwords do not match.',
     'error_recaptcha_failed' => 'reCAPTCHA verification failed.',
     'error_password_update_failed' => 'Failed to update password.',

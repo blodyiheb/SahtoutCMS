@@ -718,6 +718,7 @@ include_once $project_root . 'includes/header.php';
                     <input
                         type="text"
                         name="username"
+                        maxlength="17"
                         placeholder="<?php echo translate('username_placeholder', 'Username'); ?>"
                         required
                         autocomplete="username"
@@ -731,6 +732,7 @@ include_once $project_root . 'includes/header.php';
                     <input
                         type="password"
                         name="password"
+                        maxlength="16"
                         placeholder="<?php echo translate('password_placeholder', 'Password'); ?>"
                         required
                         autocomplete="current-password"

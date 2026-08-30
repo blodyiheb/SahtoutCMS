@@ -20,6 +20,7 @@ return [
     'error_invalid_nonce' => 'Ungültige oder abgelaufene Formularübermittlung. Bitte versuchen Sie es erneut.',
     'error_password_required' => 'Passwort ist erforderlich.',
     'error_password_short' => 'Das Passwort muss mindestens 8 Zeichen lang sein.',
+    'error_password_length' => 'Das Passwort muss zwischen 6 und 16 Zeichen lang sein.',
     'error_password_mismatch' => 'Passwörter stimmen nicht überein.',
     'error_recaptcha_failed' => 'reCAPTCHA-Überprüfung fehlgeschlagen.',
     'error_password_update_failed' => 'Fehler beim Aktualisieren des Passworts.',

@@ -20,6 +20,7 @@ return [
     'error_invalid_nonce' => 'Soumission de formulaire invalide ou expirée. Veuillez réessayer.',
     'error_password_required' => 'Le mot de passe est requis.',
     'error_password_short' => 'Le mot de passe doit comporter au moins 8 caractères.',
+    'error_password_length' => 'Le mot de passe doit contenir entre 6 et 16 caractères.',
     'error_password_mismatch' => 'Les mots de passe ne correspondent pas.',
     'error_recaptcha_failed' => 'La vérification reCAPTCHA a échoué.',
     'error_password_update_failed' => 'Échec de la mise à jour du mot de passe.',

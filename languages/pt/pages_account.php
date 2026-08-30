@@ -117,6 +117,7 @@ return [
     'error_updating_email' => 'Erro ao atualizar o email',
     'error_passwords_dont_match' => 'As novas senhas não coincidem',
     'error_password_too_short' => 'A senha deve ter pelo menos 6 caracteres',
+    'error_password_length' => 'A senha deve ter entre 6 e 16 caracteres',
     'error_updating_password' => 'Erro ao atualizar a senha',
     'error_invalid_character_id' => 'ID de personagem inválido',
     'error_rapid_submission' => 'Aguarde alguns segundos antes de tentar novamente',

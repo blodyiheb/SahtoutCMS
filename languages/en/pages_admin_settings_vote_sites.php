@@ -22,7 +22,7 @@ return [
     'err_site_name_too_long' => 'Site name must not exceed 50 characters.',
     'err_invalid_image_url' => 'Button image URL too long.',
     'err_invalid_cooldown' => 'Cooldown hours must be between 1 and 999.',
-    'err_invalid_reward' => 'Reward points must be between 1 and 255.',
+    'err_invalid_reward' => 'Reward points must be between 1 and 999.',
     'err_callback_secret_too_long' => 'Callback secret must not exceed 64 characters.',
     'err_image_too_large' => 'Image size must not exceed 1MB.',
     'err_image_upload_failed' => 'Image upload failed: ',

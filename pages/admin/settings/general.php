@@ -151,6 +151,7 @@ $page_class = 'general';
                                               focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
                                               focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
                                               placeholder:text-[#96aac8]/40"
+                                       maxlength="40"
                                        value="<?php echo htmlspecialchars($site_title_name); ?>"
                                        placeholder="<?php echo translate('placeholder_site_title', 'e.g. My Awesome Site'); ?>"
                                        required>
@@ -196,6 +197,7 @@ $page_class = 'general';
                                               focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
                                               focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
                                               placeholder:text-[#96aac8]/40"
+                                       maxlength="64"
                                        value="<?php echo htmlspecialchars($youtube_title ?? 'Featured Video'); ?>"
                                        placeholder="<?php echo translate('placeholder_youtube_title', 'Featured Video'); ?>"
                                        required>
@@ -218,6 +220,7 @@ $page_class = 'general';
                                                  focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
                                                  placeholder:text-[#96aac8]/40 resize-y min-h-[80px]"
                                           rows="3"
+                                          maxlength="500"
                                           placeholder="<?php echo translate('placeholder_youtube_description', 'Watch a featured video here...'); ?>"><?php echo htmlspecialchars($youtube_description ?? 'Watch a featured video here. Replace it with your own channel or highlight later.'); ?></textarea>
                                 <div class="text-[#6a7a8a] text-xs mt-1">
                                     <?php echo translate('help_youtube_description', 'This text appears under the title in the video panel.'); ?>
@@ -294,6 +297,7 @@ $page_class = 'general';
                                                       focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
                                                       focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
                                                       placeholder:text-[#96aac8]/40"
+                                               maxlength="90"
                                                placeholder="<?php echo translate("placeholder_{$platform}", ucfirst($platform) . ' URL'); ?>"
                                                value="<?php echo htmlspecialchars($social_links[$platform] ?? ''); ?>">
                                     </div>

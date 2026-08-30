@@ -143,8 +143,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Validation
-    if (strlen($username) < 3 || strlen($username) > 16) {
-        $errors[] = translate('error_username_invalid_length', 'Username must be between 3 and 16 characters.');
+    if (strlen($username) < 3 || strlen($username) > 17) {
+        $errors[] = translate('error_username_invalid_length', 'Username must be between 3 and 17 characters.');
     }
     if (!preg_match('/^[a-zA-Z0-9]+$/', $username)) {
         $errors[] = translate('error_username_invalid_chars', 'Username can only contain letters and numbers.');
@@ -152,8 +152,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = translate('error_email_invalid', 'Invalid email address.');
     }
-    if (strlen($password) < 6) {
-        $errors[] = translate('error_password_short', 'Password must be at least 6 characters.');
+    if (strlen($password) < 6 || strlen($password) > 16) {
+        $errors[] = translate('error_password_length', 'Password must be between 6 and 16 characters.');
     }
     if ($password !== $confirm_password) {
         $errors[] = translate('error_password_mismatch', 'Passwords do not match.');
@@ -497,22 +497,22 @@ include_once $project_root . 'includes/header.php';
             <form method="POST" class="space-y-4">
                 <div>
                     <i class="fas fa-user text-[rgba(201,162,39,0.4)] absolute mt-3.5 ml-3"></i>
-                    <input type="text" name="username" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required value="<?php echo htmlspecialchars($username); ?>" class="input-register w-full pl-10 pr-4 py-3 text-base">
+                    <input type="text" name="username" minlength="3" maxlength="17" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required value="<?php echo htmlspecialchars($username); ?>" class="input-register w-full pl-10 pr-4 py-3 text-base">
                 </div>
                 
                 <div>
                     <i class="fas fa-envelope text-[rgba(201,162,39,0.4)] absolute mt-3.5 ml-3"></i>
-                    <input type="email" name="email" placeholder="<?php echo translate('email_placeholder', 'Email'); ?>" required minlength="3" maxlength="36" value="" class="input-register w-full pl-10 pr-4 py-3 text-base">
+                    <input type="email" name="email" placeholder="<?php echo translate('email_placeholder', 'Email'); ?>" required minlength="3" maxlength="100" value="" class="input-register w-full pl-10 pr-4 py-3 text-base">
                 </div>
                 
                 <div>
                     <i class="fas fa-lock text-[rgba(201,162,39,0.4)] absolute mt-3.5 ml-3"></i>
-                    <input type="password" name="password" placeholder="<?php echo translate('password_placeholder', 'Password'); ?>" required minlength="6" maxlength="32" class="input-register w-full pl-10 pr-4 py-3 text-base">
+                    <input type="password" name="password" placeholder="<?php echo translate('password_placeholder', 'Password'); ?>" required minlength="6" maxlength="16" class="input-register w-full pl-10 pr-4 py-3 text-base">
                 </div>
                 
                 <div>
                     <i class="fas fa-check-circle text-[rgba(201,162,39,0.4)] absolute mt-3.5 ml-3"></i>
-                    <input type="password" name="confirm_password" placeholder="<?php echo translate('password_confirm_placeholder', 'Confirm Password'); ?>" required minlength="6" maxlength="32" class="input-register w-full pl-10 pr-4 py-3 text-base">
+                    <input type="password" name="confirm_password" placeholder="<?php echo translate('password_confirm_placeholder', 'Confirm Password'); ?>" required minlength="6" maxlength="16" class="input-register w-full pl-10 pr-4 py-3 text-base">
                 </div>
 
                 <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>

@@ -22,7 +22,7 @@ return [
     'err_site_name_too_long' => '站点名称不得超过50个字符。',
     'err_invalid_image_url' => '按钮图片URL过长。',
     'err_invalid_cooldown' => '冷却时间必须在1到999小时之间。',
-    'err_invalid_reward' => '奖励积分必须在1到255之间。',
+    'err_invalid_reward' => '奖励积分必须在1到999之间。',
     'err_callback_secret_too_long' => '回调密钥不得超过64个字符。',
     'err_image_too_large' => '图片大小不得超过1MB。',
     'err_image_upload_failed' => '图片上传失败：',

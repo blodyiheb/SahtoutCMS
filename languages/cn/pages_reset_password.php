@@ -20,6 +20,7 @@ return [
     'error_invalid_nonce' => '表单提交无效或已过期。请重试。',
     'error_password_required' => '密码是必填的。',
     'error_password_short' => '密码必须至少8个字符。',
+    'error_password_length' => '密码必须介于6到16个字符之间。',
     'error_password_mismatch' => '密码不匹配。',
     'error_recaptcha_failed' => 'reCAPTCHA验证失败。',
     'error_password_update_failed' => '更新密码失败。',

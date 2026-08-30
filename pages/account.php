@@ -209,8 +209,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($new_password !== $confirm_password) {
                 throw new Exception(translate('error_passwords_dont_match', 'New passwords don\'t match'));
             }
-            if (strlen($new_password) < 6) {
-                throw new Exception(translate('error_password_too_short', 'Password must be at least 6 characters'));
+            if (strlen($new_password) < 6 || strlen($new_password) > 16) {
+                throw new Exception(translate('error_password_length', 'Password must be between 6 and 16 characters'));
             }
 
             $stmt = $auth_db->prepare("SELECT salt, verifier, email FROM account WHERE id = ?");
@@ -1013,7 +1013,7 @@ function getAvatarDisplayName($filename) {
                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                 <div>
                                     <label class="block text-sm text-gray-300 mb-1"><?php echo translate('label_current_password', 'Current Password'); ?></label>
-                                    <input type="password" class="w-full px-4 py-2 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 focus:border-[#f2cf5b] focus:outline-none transition-colors" name="current_password" required placeholder="<?php echo translate('placeholder_current_password', 'Enter current password'); ?>">
+                                    <input type="password" class="w-full px-4 py-2 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 focus:border-[#f2cf5b] focus:outline-none transition-colors" name="current_password" required maxlength="16" placeholder="<?php echo translate('placeholder_current_password', 'Enter current password'); ?>">
                                 </div>
                                 <div>
                                     <label class="block text-sm text-gray-300 mb-1"><?php echo translate('label_new_email', 'New Email'); ?></label>
@@ -1034,15 +1034,15 @@ function getAvatarDisplayName($filename) {
                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                 <div>
                                     <label class="block text-sm text-gray-300 mb-1"><?php echo translate('label_current_password', 'Current Password'); ?></label>
-                                    <input type="password" class="w-full px-4 py-2 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 focus:border-[#f2cf5b] focus:outline-none transition-colors" name="current_password" required placeholder="<?php echo translate('placeholder_current_password', 'Enter current password'); ?>">
+                                    <input type="password" class="w-full px-4 py-2 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 focus:border-[#f2cf5b] focus:outline-none transition-colors" name="current_password" required maxlength="16" placeholder="<?php echo translate('placeholder_current_password', 'Enter current password'); ?>">
                                 </div>
                                 <div>
                                     <label class="block text-sm text-gray-300 mb-1"><?php echo translate('label_new_password', 'New Password'); ?></label>
-                                    <input type="password" class="w-full px-4 py-2 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 focus:border-[#f2cf5b] focus:outline-none transition-colors" name="new_password" required minlength="6" placeholder="<?php echo translate('placeholder_new_password', 'Enter new password'); ?>">
+                                    <input type="password" class="w-full px-4 py-2 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 focus:border-[#f2cf5b] focus:outline-none transition-colors" name="new_password" required minlength="6" maxlength="16" placeholder="<?php echo translate('placeholder_new_password', 'Enter new password'); ?>">
                                 </div>
                                 <div>
                                     <label class="block text-sm text-gray-300 mb-1"><?php echo translate('label_confirm_password', 'Confirm New Password'); ?></label>
-                                    <input type="password" class="w-full px-4 py-2 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 focus:border-[#f2cf5b] focus:outline-none transition-colors" name="confirm_password" required minlength="6" placeholder="<?php echo translate('placeholder_confirm_password', 'Confirm new password'); ?>">
+                                    <input type="password" class="w-full px-4 py-2 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 focus:border-[#f2cf5b] focus:outline-none transition-colors" name="confirm_password" required minlength="6" maxlength="16" placeholder="<?php echo translate('placeholder_confirm_password', 'Confirm new password'); ?>">
                                 </div>
                                 <button class="px-6 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold" type="submit" name="change_password">
                                     <i class="fas fa-lock mr-2"></i><?php echo translate('button_change_password', 'Change Password'); ?>

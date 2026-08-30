@@ -331,12 +331,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form method="POST" class="space-y-4">
                 <div class="relative">
                     <i class="fas fa-user text-[rgba(242,207,82,0.5)] absolute top-3.5 left-3 text-sm"></i>
-                    <input type="text" name="username" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required value="<?php echo htmlspecialchars($test_username); ?>" class="input-resend w-full pl-10 pr-4 py-3 text-base">
+                    <input type="text" name="username" minlength="3" maxlength="17" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required value="<?php echo htmlspecialchars($test_username); ?>" class="input-resend w-full pl-10 pr-4 py-3 text-base">
                 </div>
                 
                 <div class="relative">
                     <i class="fas fa-envelope text-[rgba(242,207,82,0.5)] absolute top-3.5 left-3 text-sm"></i>
-                    <input type="email" name="email" placeholder="<?php echo translate('email_placeholder', 'Email'); ?>" required value="<?php echo htmlspecialchars($test_email); ?>" class="input-resend w-full pl-10 pr-4 py-3 text-base">
+                    <input type="email" name="email" maxlength="100" placeholder="<?php echo translate('email_placeholder', 'Email'); ?>" required value="<?php echo htmlspecialchars($test_email); ?>" class="input-resend w-full pl-10 pr-4 py-3 text-base">
                 </div>
 
                 <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>

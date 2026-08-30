@@ -313,6 +313,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input 
                                     type="text" 
                                     name="command" 
+                                    maxlength="100"
                                     class="input-dark flex-1" 
                                     placeholder="<?php echo translate('command_placeholder', '.character level PlayerName 80'); ?>" 
                                     required

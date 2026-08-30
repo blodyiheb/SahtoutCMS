@@ -427,7 +427,7 @@ function getMailer(): PHPMailer {
                                                                      drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
                                         <?php echo translate('label_smtp_host', 'SMTP Host'); ?>
                                     </label>
-                                    <input type="text" id="smtp_host" name="smtp_host" 
+                                    <input type="text" id="smtp_host" name="smtp_host" maxlength="60" 
                                            class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
                                                   bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
                                                   focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
@@ -443,7 +443,7 @@ function getMailer(): PHPMailer {
                                                                      drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
                                         <?php echo translate('label_email_address', 'Email Address'); ?>
                                     </label>
-                                    <input type="email" id="smtp_user" name="smtp_user" 
+                                    <input type="email" id="smtp_user" name="smtp_user" maxlength="100" 
                                            class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
                                                   bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
                                                   focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
@@ -459,7 +459,7 @@ function getMailer(): PHPMailer {
                                                                      drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
                                         <?php echo translate('label_app_password', 'App Password / SMTP Password'); ?>
                                     </label>
-                                    <input type="password" id="smtp_pass" name="smtp_pass" 
+                                    <input type="password" id="smtp_pass" name="smtp_pass" maxlength="120" 
                                            class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
                                                   bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
                                                   focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
@@ -476,7 +476,7 @@ function getMailer(): PHPMailer {
                                                                      drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
                                         <?php echo translate('label_from_email', 'From Email'); ?>
                                     </label>
-                                    <input type="email" id="smtp_from" name="smtp_from" 
+                                    <input type="email" id="smtp_from" name="smtp_from" maxlength="100" 
                                            class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
                                                   bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
                                                   focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
@@ -492,7 +492,7 @@ function getMailer(): PHPMailer {
                                                                      drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
                                         <?php echo translate('label_from_name', 'From Name'); ?>
                                     </label>
-                                    <input type="text" id="smtp_name" name="smtp_name" 
+                                    <input type="text" id="smtp_name" name="smtp_name" maxlength="60" 
                                            class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
                                                   bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
                                                   focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 

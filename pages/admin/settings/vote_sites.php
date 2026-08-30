@@ -278,8 +278,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($cooldown_hours < 1 || $cooldown_hours > 999) {
             $errors[] = translate('err_invalid_cooldown', 'Cooldown hours must be between 1 and 999.');
         }
-        if ($reward_points < 1 || $reward_points > 255) {
-            $errors[] = translate('err_invalid_reward', 'Reward points must be between 1 and 255.');
+        if ($reward_points < 1 || $reward_points > 999) {
+            $errors[] = translate('err_invalid_reward', 'Reward points must be between 1 and 999.');
         }
         if (!empty($callback_secret) && strlen($callback_secret) > 64) {
             $errors[] = translate('err_callback_secret_too_long', 'Callback secret must not exceed 64 characters.');
@@ -699,7 +699,7 @@ $page_class = 'vote-sites';
                                                                     drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
                                     <?php echo translate('label_cooldown_hours', 'Cooldown Hours'); ?>
                                 </label>
-                                <input type="number" name="cooldown_hours" id="cooldown_hours" 
+                                <input type="number" name="cooldown_hours" maxlength="2" id="cooldown_hours" 
                                        class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
                                               bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
                                               focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
@@ -707,7 +707,7 @@ $page_class = 'vote-sites';
                                               placeholder:text-[#96aac8]/40"
                                        placeholder="<?php echo translate('placeholder_cooldown_hours', 'Enter cooldown hours'); ?>" 
                                        value="<?php echo htmlspecialchars($site_data['cooldown_hours']); ?>" 
-                                       required min="1" max="999">
+                                       required min="1" max="99">
                             </div>
 
                             <!-- Reward Points -->
@@ -717,7 +717,7 @@ $page_class = 'vote-sites';
                                                                    drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
                                     <?php echo translate('label_reward_points', 'Reward Points'); ?>
                                 </label>
-                                <input type="number" name="reward_points" id="reward_points" 
+                                <input type="number" name="reward_points" maxlength="3" id="reward_points" 
                                        class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
                                               bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
                                               focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
@@ -725,7 +725,7 @@ $page_class = 'vote-sites';
                                               placeholder:text-[#96aac8]/40"
                                        placeholder="<?php echo translate('placeholder_reward_points', 'Enter reward points'); ?>" 
                                        value="<?php echo htmlspecialchars($site_data['reward_points']); ?>" 
-                                       required min="1" max="255">
+                                       required min="1" max="999">
                             </div>
 
                             <!-- Uses Callback -->
@@ -1002,6 +1002,21 @@ $page_class = 'vote-sites';
                         uploadPlaceholder.style.display = 'block';
                     }
                 });
+            }
+        });
+        // Enforce maxlength on number inputs (browsers ignore maxlength for type="number")
+        document.addEventListener('input', function(e) {
+            const el = e.target;
+            if (el.type !== 'number') return;
+
+            const maxLength = parseInt(el.getAttribute('maxlength'), 10);
+            if (maxLength && el.value.length > maxLength) {
+                el.value = el.value.slice(0, maxLength);
+            }
+
+            const max = parseFloat(el.getAttribute('max'));
+            if (!isNaN(max) && el.value !== '' && parseFloat(el.value) > max) {
+                el.value = max;
             }
         });
     </script>

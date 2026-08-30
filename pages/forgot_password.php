@@ -452,7 +452,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form method="POST" class="space-y-4">
                 <div class="relative">
                     <i class="fas fa-user text-[rgba(201,162,39,0.4)] absolute top-3.5 left-3"></i>
-                    <input type="text" name="username_or_email" placeholder="<?php echo translate('username_or_email_placeholder', 'Username or Email'); ?>" required value="<?php echo htmlspecialchars($username_or_email); ?>" class="input-forgot w-full pl-10 pr-4 py-3 text-base">
+                    <input type="text" name="username_or_email" maxlength="100" placeholder="<?php echo translate('username_or_email_placeholder', 'Username or Email'); ?>" required value="<?php echo htmlspecialchars($username_or_email); ?>" class="input-forgot w-full pl-10 pr-4 py-3 text-base">
                 </div>
 
                 <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>

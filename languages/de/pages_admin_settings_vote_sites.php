@@ -22,7 +22,7 @@ return [
     'err_site_name_too_long' => 'Seitenname darf 50 Zeichen nicht überschreiten.',
     'err_invalid_image_url' => 'Button-Bild-URL ist zu lang.',
     'err_invalid_cooldown' => 'Abklingzeit muss zwischen 1 und 999 Stunden liegen.',
-    'err_invalid_reward' => 'Belohnungspunkte müssen zwischen 1 und 255 liegen.',
+    'err_invalid_reward' => 'Belohnungspunkte müssen zwischen 1 und 999 liegen.',
     'err_callback_secret_too_long' => 'Callback-Geheimnis darf 64 Zeichen nicht überschreiten.',
     'err_image_too_large' => 'Bildgröße darf 1 MB nicht überschreiten.',
     'err_image_upload_failed' => 'Bild-Upload fehlgeschlagen: ',

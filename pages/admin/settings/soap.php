@@ -290,7 +290,7 @@ if (!defined('ALLOWED_ACCESS')) {
                                                              drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
                                     <?php echo translate('label_soap_user', 'GM Account Username'); ?>
                                 </label>
-                                <input type="text" id="soap_user" name="soap_user" 
+                                <input type="text" id="soap_user" name="soap_user" maxlength="17" 
                                        class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
                                               bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
                                               focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
@@ -308,7 +308,7 @@ if (!defined('ALLOWED_ACCESS')) {
                                                              drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
                                     <?php echo translate('label_soap_pass', 'SOAP Password'); ?>
                                 </label>
-                                <input type="password" id="soap_pass" name="soap_pass" 
+                                <input type="password" id="soap_pass" name="soap_pass" maxlength="16" 
                                        class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
                                               bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
                                               focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 

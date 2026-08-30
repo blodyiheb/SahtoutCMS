@@ -116,6 +116,7 @@ return [
     'error_updating_email' => '更新邮箱时出错',
     'error_passwords_dont_match' => '两次输入的新密码不匹配',
     'error_password_too_short' => '密码长度必须至少为 6 位',
+    'error_password_length' => '密码必须介于6到16个字符之间',
     'error_updating_password' => '更新密码时出错',
     'error_invalid_character_id' => '无效的角色 ID',
     'error_rapid_submission' => '操作频繁，请几秒后再试',

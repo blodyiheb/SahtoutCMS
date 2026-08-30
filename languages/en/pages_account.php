@@ -117,6 +117,7 @@ return [
     'error_updating_email' => 'Error updating email',
     'error_passwords_dont_match' => 'New passwords don\'t match',
     'error_password_too_short' => 'Password must be at least 6 characters',
+    'error_password_length' => 'Password must be between 6 and 16 characters',
     'error_updating_password' => 'Error updating password',
     'error_invalid_character_id' => 'Invalid character ID',
     'error_rapid_submission' => 'Please wait a few seconds before trying again',

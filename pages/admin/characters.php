@@ -692,14 +692,14 @@ if (empty($_SESSION['csrf_token'])) {
                                                         <div id="goldFields-<?php echo $char['guid']; ?>" class="action-field active">
                                                             <div class="mb-4">
                                                                 <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_chars_label_gold', 'Gold Amount'); ?></label>
-                                                                <input type="number" name="gold" class="input-dark" placeholder="<?php echo translate('admin_chars_placeholder_gold', 'Enter gold amount'); ?>" min="0">
+                                                                <input type="number" name="gold" class="input-dark" placeholder="<?php echo translate('admin_chars_placeholder_gold', 'Enter gold amount'); ?>" min="0" max="99999" maxlength="5">
                                                             </div>
                                                         </div>
                                                         
                                                         <div id="levelFields-<?php echo $char['guid']; ?>" class="action-field">
                                                             <div class="mb-4">
                                                                 <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_chars_label_level', 'Level (1-255)'); ?></label>
-                                                                <input type="number" name="level" class="input-dark" placeholder="<?php echo translate('admin_chars_placeholder_level', 'Enter level'); ?>" min="1" max="255">
+                                                                <input type="number" name="level" class="input-dark" placeholder="<?php echo translate('admin_chars_placeholder_level', 'Enter level'); ?>" min="1" max="255" maxlength="3">
                                                             </div>
                                                         </div>
                                                         
@@ -832,6 +832,22 @@ if (empty($_SESSION['csrf_token'])) {
                 const id = el.id.replace('charAction-', '');
                 toggleActionFields(id);
             });
+        });
+
+        // Enforce maxlength and max on number inputs (browsers ignore maxlength for type="number")
+        document.addEventListener('input', function(e) {
+            const el = e.target;
+            if (el.type !== 'number') return;
+
+            const maxLength = parseInt(el.getAttribute('maxlength'), 10);
+            if (maxLength && el.value.length > maxLength) {
+                el.value = el.value.slice(0, maxLength);
+            }
+
+            const max = parseFloat(el.getAttribute('max'));
+            if (!isNaN(max) && el.value !== '' && parseFloat(el.value) > max) {
+                el.value = max;
+            }
         });
     </script>
 </body>

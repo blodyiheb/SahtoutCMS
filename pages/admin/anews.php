@@ -597,17 +597,17 @@ $news_result = $stmt->get_result();
                             
                             <div>
                                 <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_news_label_title', 'Title'); ?></label>
-                                <input type="text" name="title" class="wow-input" required maxlength="100" placeholder="<?php echo translate('admin_news_placeholder_title', 'Enter news title'); ?>">
+                                <input type="text" name="title" class="wow-input" required maxlength="80" placeholder="<?php echo translate('admin_news_placeholder_title', 'Enter news title'); ?>">
                             </div>
 
                             <div>
                                 <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_news_label_slug', 'Slug'); ?></label>
-                                <input type="text" name="slug" class="wow-input" maxlength="120" placeholder="<?php echo translate('admin_news_placeholder_slug', 'Enter slug (optional)'); ?>">
+                                <input type="text" name="slug" class="wow-input" maxlength="80" placeholder="<?php echo translate('admin_news_placeholder_slug', 'Enter slug (optional)'); ?>">
                             </div>
 
                             <div>
                                 <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_news_label_content', 'Content'); ?></label>
-                                <textarea name="content" class="wow-textarea" rows="5" required placeholder="<?php echo translate('admin_news_placeholder_content', 'Enter news content'); ?>"></textarea>
+                                <textarea name="content" class="wow-textarea" rows="5" required maxlength="4000" placeholder="<?php echo translate('admin_news_placeholder_content', 'Enter news content'); ?>"></textarea>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -744,15 +744,15 @@ $news_result = $stmt->get_result();
                                                         
                                                         <div>
                                                             <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_news_label_title', 'Title'); ?></label>
-                                                            <input type="text" name="title" class="wow-input" value="<?php echo htmlspecialchars($news['title']); ?>" required>
+                                                            <input type="text" name="title" class="wow-input" value="<?php echo htmlspecialchars($news['title']); ?>" required maxlength="80">
                                                         </div>
                                                         <div>
                                                             <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_news_label_slug', 'Slug'); ?></label>
-                                                            <input type="text" name="slug" class="wow-input" value="<?php echo htmlspecialchars($news['slug'] ?? ''); ?>">
+                                                            <input type="text" name="slug" class="wow-input" value="<?php echo htmlspecialchars($news['slug'] ?? ''); ?>" maxlength="80">
                                                         </div>
                                                         <div>
                                                             <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_news_label_content', 'Content'); ?></label>
-                                                            <textarea name="content" class="wow-textarea" rows="4" required><?php echo htmlspecialchars($news['content']); ?></textarea>
+                                                            <textarea name="content" class="wow-textarea" rows="4" maxlength="4000" required><?php echo htmlspecialchars($news['content']); ?></textarea>
                                                         </div>
                                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                             <div>

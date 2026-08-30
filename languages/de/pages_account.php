@@ -115,6 +115,7 @@ return [
     'error_updating_email' => 'Fehler beim Aktualisieren der E-Mail',
     'error_passwords_dont_match' => 'Neue Passwörter stimmen nicht überein',
     'error_password_too_short' => 'Passwort muss mindestens 6 Zeichen lang sein',
+    'error_password_length' => 'Passwort muss zwischen 6 und 16 Zeichen lang sein',
     'error_updating_password' => 'Fehler beim Aktualisieren des Passworts',
     'error_invalid_character_id' => 'Ungültige Charakter-ID',
     'error_rapid_submission' => 'Bitte einige Sekunden warten, bevor du es erneut versuchst',

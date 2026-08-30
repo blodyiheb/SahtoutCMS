@@ -20,6 +20,7 @@ return [
     'error_invalid_nonce' => 'Envio de formulário inválido ou expirado. Tente novamente.',
     'error_password_required' => 'A senha é obrigatória.',
     'error_password_short' => 'A senha deve ter pelo menos 8 caracteres.',
+    'error_password_length' => 'A senha deve ter entre 6 e 16 caracteres.',
     'error_password_mismatch' => 'As senhas não coincidem.',
     'error_recaptcha_failed' => 'A verificação reCAPTCHA falhou.',
     'error_password_update_failed' => 'Falha ao atualizar a senha.',

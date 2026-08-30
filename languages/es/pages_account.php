@@ -117,6 +117,7 @@ return [
     'error_updating_email' => 'Error al actualizar el correo electrónico',
     'error_passwords_dont_match' => 'Las nuevas contraseñas no coinciden',
     'error_password_too_short' => 'La contraseña debe tener al menos 6 caracteres',
+    'error_password_length' => 'La contraseña debe tener entre 6 y 16 caracteres',
     'error_updating_password' => 'Error al actualizar la contraseña',
     'error_invalid_character_id' => 'ID de personaje inválido',
     'error_rapid_submission' => 'Por favor espera unos segundos antes de intentar de nuevo',

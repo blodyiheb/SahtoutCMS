@@ -115,6 +115,7 @@ return [
     'error_updating_email' => 'Ошибка при обновлении Email',
     'error_passwords_dont_match' => 'Новые пароли не совпадают',
     'error_password_too_short' => 'Пароль должен содержать минимум 6 символов',
+    'error_password_length' => 'Пароль должен содержать от 6 до 16 символов',
     'error_updating_password' => 'Ошибка при обновлении пароля',
     'error_invalid_character_id' => 'Неверный ID персонажа',
     'error_rapid_submission' => 'Пожалуйста, подождите несколько секунд перед повтором',

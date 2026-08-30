@@ -194,8 +194,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
         // Validate password
         if (empty($password)) {
             $errors[] = translate('error_password_required', 'Password is required.');
-        } elseif (strlen($password) < 8) {
-            $errors[] = translate('error_password_short', 'Password must be at least 8 characters long.');
+        } elseif (strlen($password) < 6 || strlen($password) > 16) {
+            $errors[] = translate('error_password_length', 'Password must be between 6 and 16 characters.');
         } elseif ($password !== $confirm_password) {
             $errors[] = translate('error_password_mismatch', 'Passwords do not match.');
         }
@@ -409,12 +409,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
                     
                     <div class="relative">
                         <i class="fas fa-lock text-[rgba(201,162,39,0.4)] absolute top-3.5 left-3"></i>
-                        <input type="password" name="password" placeholder="<?php echo translate('password_placeholder', 'New Password'); ?>" required minlength="8" class="input-reset w-full pl-10 pr-4 py-3 text-base">
+                        <input type="password" name="password" placeholder="<?php echo translate('password_placeholder', 'New Password'); ?>" required minlength="6" maxlength="16" class="input-reset w-full pl-10 pr-4 py-3 text-base">
                     </div>
                     
                     <div class="relative">
                         <i class="fas fa-check-circle text-[rgba(201,162,39,0.4)] absolute top-3.5 left-3"></i>
-                        <input type="password" name="confirm_password" placeholder="<?php echo translate('confirm_password_placeholder', 'Confirm Password'); ?>" required minlength="8" class="input-reset w-full pl-10 pr-4 py-3 text-base">
+                        <input type="password" name="confirm_password" placeholder="<?php echo translate('confirm_password_placeholder', 'Confirm Password'); ?>" required minlength="6" maxlength="16" class="input-reset w-full pl-10 pr-4 py-3 text-base">
                     </div>
 
                     <?php if (defined('RECAPTCHA_ENABLED') && RECAPTCHA_ENABLED): ?>

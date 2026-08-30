@@ -22,7 +22,7 @@ return [
     'err_site_name_too_long' => 'O nome do site não deve exceder 50 caracteres.',
     'err_invalid_image_url' => 'A URL da imagem do botão é muito longa.',
     'err_invalid_cooldown' => 'As horas de recarga devem estar entre 1 e 999.',
-    'err_invalid_reward' => 'Os pontos de recompensa devem estar entre 1 e 255.',
+    'err_invalid_reward' => 'Os pontos de recompensa devem estar entre 1 e 999.',
     'err_callback_secret_too_long' => 'O segredo de retorno não deve exceder 64 caracteres.',
     'err_image_too_large' => 'O tamanho da imagem não deve exceder 1 MB.',
     'err_image_upload_failed' => 'Falha no envio da imagem: ',

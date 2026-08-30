@@ -901,46 +901,48 @@ function getGMLevel($gmlevel) {
         $modal_users_result = $stmt->get_result();
         while ($user = $modal_users_result->fetch_assoc()): 
         ?>
-            <div id="editModal-<?php echo $user['account_id']; ?>" class="modal-backdrop">
-                <div class="panel w-full max-w-lg p-6 md:p-8 relative max-h-[90vh] overflow-y-auto">
-                    <button type="button" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl close-modal-btn" data-modal="editModal-<?php echo $user['account_id']; ?>">&times;</button>
-                    <h3 class="wow-title text-2xl mb-6"><?php echo translate('admin_users_edit_modal_title', 'Edit User: ') . htmlspecialchars($user['username']); ?></h3>
-                    <form method="POST" action="<?php echo $base_path; ?>admin/users">
-                        <input type="hidden" name="action" value="update">
-                        <input type="hidden" name="account_id" value="<?php echo $user['account_id']; ?>">
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                        
-                        <div class="mb-4">
-                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_username', 'Username'); ?></label>
-                            <input type="text" class="input-dark" value="<?php echo htmlspecialchars($user['username']); ?>" disabled>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_email', 'Email'); ?></label>
-                            <input type="email" name="email" class="input-dark" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_points', 'Points'); ?></label>
-                            <input type="number" name="points" class="input-dark" value="<?php echo htmlspecialchars($user['points']); ?>" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_tokens', 'Tokens'); ?></label>
-                            <input type="number" name="tokens" class="input-dark" value="<?php echo htmlspecialchars($user['tokens']); ?>" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_role', 'Role'); ?></label>
-                            <select name="role" class="input-dark">
-                                <option value="player" <?php echo $user['role'] === 'player' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_player', 'Player'); ?></option>
-                                <option value="moderator" <?php echo $user['role'] === 'moderator' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_moderator', 'Moderator'); ?></option>
-                                <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_admin', 'Admin'); ?></option>
-                            </select>
-                        </div>
-                        <div class="flex justify-end gap-4 pt-4">
-                            <button type="button" class="btn-iron close-modal-btn" data-modal="editModal-<?php echo $user['account_id']; ?>"><?php echo translate('admin_users_cancel_button', 'Cancel'); ?></button>
-                            <button type="submit" class="btn-gold"><?php echo translate('admin_users_save_button', 'Save'); ?></button>
-                        </div>
-                    </form>
-                </div>
+           <div id="editModal-<?php echo $user['account_id']; ?>" class="modal-backdrop">
+    <div class="panel w-full max-w-lg p-6 md:p-8 relative max-h-[90vh] overflow-y-auto">
+        <button type="button" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl close-modal-btn" data-modal="editModal-<?php echo $user['account_id']; ?>">&times;</button>
+        <h3 class="wow-title text-2xl mb-6"><?php echo translate('admin_users_edit_modal_title', 'Edit User: ') . htmlspecialchars($user['username']); ?></h3>
+        <form method="POST" action="<?php echo $base_path; ?>admin/users" onsubmit="return validatePointsAndTokens()">
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="account_id" value="<?php echo $user['account_id']; ?>">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+            
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_username', 'Username'); ?></label>
+                <input type="text" class="input-dark" value="<?php echo htmlspecialchars($user['username']); ?>" disabled>
             </div>
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_email', 'Email'); ?></label>
+                <input type="email" name="email" class="input-dark" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_points', 'Points'); ?></label>
+                <input type="number" name="points" id="points-input" class="input-dark" value="<?php echo htmlspecialchars($user['points']); ?>" required min="-9999999" max="9999999" maxlength="7">
+                <small class="text-gray-400 text-xs mt-1">Max value: 9,999,999 (7 digits)</small>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_tokens', 'Tokens'); ?></label>
+                <input type="number" name="tokens" id="tokens-input" class="input-dark" value="<?php echo htmlspecialchars($user['tokens']); ?>" required min="-9999999" max="9999999" maxlength="7">
+                <small class="text-gray-400 text-xs mt-1">Max value: 9,999,999 (7 digits)</small>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_users_label_role', 'Role'); ?></label>
+                <select name="role" class="input-dark">
+                    <option value="player" <?php echo $user['role'] === 'player' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_player', 'Player'); ?></option>
+                    <option value="moderator" <?php echo $user['role'] === 'moderator' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_moderator', 'Moderator'); ?></option>
+                    <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>><?php echo translate('admin_users_role_admin', 'Admin'); ?></option>
+                </select>
+            </div>
+            <div class="flex justify-end gap-4 pt-4">
+                <button type="button" class="btn-iron close-modal-btn" data-modal="editModal-<?php echo $user['account_id']; ?>"><?php echo translate('admin_users_cancel_button', 'Cancel'); ?></button>
+                <button type="submit" class="btn-gold"><?php echo translate('admin_users_save_button', 'Save'); ?></button>
+            </div>
+        </form>
+    </div>
+</div>
         <?php endwhile; 
         $modal_users_result->free();
         $stmt->close();
@@ -1110,6 +1112,14 @@ function getGMLevel($gmlevel) {
                     banFields.style.display = select.value === 'ban' ? 'block' : 'none';
                 }
             });
+        });
+
+        // Enforce maxlength on number inputs (browsers ignore maxlength for type="number")
+        document.addEventListener('input', function(e) {
+            const maxLength = parseInt(e.target.getAttribute('maxlength'), 10);
+            if (e.target.type === 'number' && maxLength && e.target.value.length > maxLength) {
+                e.target.value = e.target.value.slice(0, maxLength);
+            }
         });
     </script>
 </body>

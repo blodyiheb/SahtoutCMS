@@ -116,6 +116,7 @@ return [
     'error_updating_email' => 'Erreur lors de la mise à jour de l\'email',
     'error_passwords_dont_match' => 'Les nouveaux mots de passe ne correspondent pas',
     'error_password_too_short' => 'Le mot de passe doit comporter au moins 6 caractères',
+    'error_password_length' => 'Le mot de passe doit contenir entre 6 et 16 caractères',
     'error_updating_password' => 'Erreur lors de la mise à jour du mot de passe',
     'error_invalid_character_id' => 'ID de personnage invalide',
     'error_rapid_submission' => 'Veuillez attendre quelques secondes avant de réessayer',

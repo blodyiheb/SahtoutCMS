@@ -821,25 +821,25 @@ try {
                                 <!-- Name -->
                                 <div class="field-group active">
                                     <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_shop_label_name', 'Name'); ?></label>
-                                    <input type="text" name="name" id="name" class="wow-input" required maxlength="100" placeholder="<?php echo translate('admin_shop_placeholder_name', 'Enter item name'); ?>">
+                                    <input type="text" name="name" id="name" class="wow-input" required maxlength="50" placeholder="<?php echo translate('admin_shop_placeholder_name', 'Enter item name'); ?>">
                                 </div>
 
                                 <!-- Point Cost -->
                                 <div class="field-group active">
                                     <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_shop_label_point_cost', 'Point Cost'); ?></label>
-                                    <input type="number" name="point_cost" id="point_cost" class="wow-input" min="0" required placeholder="<?php echo translate('admin_shop_placeholder_point_cost', 'Enter point cost'); ?>">
+                                    <input type="number" name="point_cost" id="point_cost" class="wow-input" min="0" max="99999" maxlength="5" required placeholder="<?php echo translate('admin_shop_placeholder_point_cost', 'Enter point cost'); ?>">
                                 </div>
 
                                 <!-- Token Cost -->
                                 <div class="field-group active">
                                     <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_shop_label_token_cost', 'Token Cost'); ?></label>
-                                    <input type="number" name="token_cost" id="token_cost" class="wow-input" min="0" required placeholder="<?php echo translate('admin_shop_placeholder_token_cost', 'Enter token cost'); ?>">
+                                    <input type="number" name="token_cost" id="token_cost" class="wow-input" min="0" max="99999" maxlength="5" required placeholder="<?php echo translate('admin_shop_placeholder_token_cost', 'Enter token cost'); ?>">
                                 </div>
 
                                 <!-- Stock -->
                                 <div class="field-group active">
                                     <label class="block text-sm font-semibold text-[#f2cf5b] mb-2 font-['Cinzel'] tracking-wide"><?php echo translate('admin_shop_label_stock', 'Stock'); ?></label>
-                                    <input type="number" name="stock" id="stock" class="wow-input" min="0" placeholder="<?php echo translate('admin_shop_placeholder_stock', 'Leave empty for unlimited'); ?>">
+                                    <input type="number" name="stock" id="stock" class="wow-input" min="0" max="999" maxlength="3" placeholder="<?php echo translate('admin_shop_placeholder_stock', 'Leave empty for unlimited'); ?>">
                                 </div>
 
                                 <!-- Entry (Item) -->
@@ -1389,6 +1389,22 @@ try {
                     }
                 }
             });
+        });
+
+        // Enforce maxlength and max on number inputs (browsers ignore maxlength for type="number")
+        document.addEventListener('input', function(e) {
+            const el = e.target;
+            if (el.type !== 'number') return;
+
+            const maxLength = parseInt(el.getAttribute('maxlength'), 10);
+            if (maxLength && el.value.length > maxLength) {
+                el.value = el.value.slice(0, maxLength);
+            }
+
+            const max = parseFloat(el.getAttribute('max'));
+            if (!isNaN(max) && el.value !== '' && parseFloat(el.value) > max) {
+                el.value = max;
+            }
         });
     </script>
 </body>

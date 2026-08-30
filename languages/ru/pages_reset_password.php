@@ -20,6 +20,7 @@ return [
     'error_invalid_nonce' => 'Недействительная или истекшая отправка формы. Пожалуйста, попробуйте снова.',
     'error_password_required' => 'Требуется пароль.',
     'error_password_short' => 'Пароль должен содержать не менее 8 символов.',
+    'error_password_length' => 'Пароль должен содержать от 6 до 16 символов.',
     'error_password_mismatch' => 'Пароли не совпадают.',
     'error_recaptcha_failed' => 'Проверка reCAPTCHA не удалась.',
     'error_password_update_failed' => 'Не удалось обновить пароль.',
