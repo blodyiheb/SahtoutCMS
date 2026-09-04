@@ -49,6 +49,7 @@
     --color-blue-300: oklch(80.9% 0.105 251.813);
     --color-blue-400: oklch(70.7% 0.165 254.624);
     --color-blue-500: oklch(62.3% 0.214 259.815);
+    --color-blue-600: oklch(54.6% 0.245 262.881);
     --color-blue-700: oklch(48.8% 0.243 264.376);
     --color-blue-900: oklch(37.9% 0.146 265.522);
     --color-slate-200: oklch(92.9% 0.013 255.508);
@@ -1727,6 +1728,9 @@
       background-color: color-mix(in oklab, var(--color-black) 60%, transparent);
     }
   }
+  .bg-blue-600 {
+    background-color: var(--color-blue-600);
+  }
   .bg-blue-900\/50 {
     background-color: color-mix(in srgb, oklch(37.9% 0.146 265.522) 50%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -1805,6 +1809,9 @@
       background-color: color-mix(in oklab, var(--color-red-500) 10%, transparent);
     }
   }
+  .bg-red-600 {
+    background-color: var(--color-red-600);
+  }
   .bg-red-600\/80 {
     background-color: color-mix(in srgb, oklch(57.7% 0.245 27.325) 80%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -1845,6 +1852,12 @@
     background-color: color-mix(in srgb, oklch(25.8% 0.092 26.042) 30%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-red-950) 30%, transparent);
+    }
+  }
+  .bg-red-950\/80 {
+    background-color: color-mix(in srgb, oklch(25.8% 0.092 26.042) 80%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-red-950) 80%, transparent);
     }
   }
   .bg-sky-500\/10 {
@@ -2800,8 +2813,16 @@
     --tw-shadow: 0 0 6px var(--tw-shadow-color, rgba(248,113,113,.6));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
+  .shadow-\[0_0_8px_rgba\(37\,99\,235\,0\.6\)\] {
+    --tw-shadow: 0 0 8px var(--tw-shadow-color, rgba(37,99,235,0.6));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
   .shadow-\[0_0_8px_rgba\(74\,222\,128\,\.8\)\] {
     --tw-shadow: 0 0 8px var(--tw-shadow-color, rgba(74,222,128,.8));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .shadow-\[0_0_8px_rgba\(220\,38\,38\,0\.6\)\] {
+    --tw-shadow: 0 0 8px var(--tw-shadow-color, rgba(220,38,38,0.6));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   .shadow-\[0_0_20px_rgba\(242\,207\,82\,0\.25\)\] {
@@ -3031,6 +3052,10 @@
   .duration-300 {
     --tw-duration: 300ms;
     transition-duration: 300ms;
+  }
+  .duration-500 {
+    --tw-duration: 500ms;
+    transition-duration: 500ms;
   }
   .ease-in-out {
     --tw-ease: var(--ease-in-out);
