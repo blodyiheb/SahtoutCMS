@@ -43,6 +43,7 @@ return [
     'shop_race_change' => '种族转换',
     'shop_stock' => '库存',
     'shop_unlimited_stock' => '库存无限',
+    'shop_out_of_stock' => '已售罄',
     'shop_select_character' => '选择角色',
     'shop_no_characters' => '没有可用角色。',
     'shop_buy_now' => '立即购买',

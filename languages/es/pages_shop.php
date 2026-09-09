@@ -43,6 +43,7 @@ return [
     'shop_race_change' => 'Cambio de raza',
     'shop_stock' => 'Stock',
     'shop_unlimited_stock' => 'Stock ilimitado',
+    'shop_out_of_stock' => 'Agotado',
     'shop_select_character' => 'Seleccionar un personaje',
     'shop_no_characters' => 'No hay personajes disponibles.',
     'shop_buy_now' => 'Comprar ahora',

@@ -221,31 +221,45 @@ function formatDPS($min, $max, $delay) {
 
 // Tooltip function
 function generateTooltip($item) {
-    global $qualityColors, $bondingTypes, $inventoryTypes, $classNames, $subclassNames, $normalStats, $specialStats, $socketColors, $classRestrictions, $classColors, $triggerFlags, $world_db, $base_path;
+    global $qualityColors, $bondingTypes, $inventoryTypes, $classNames, $subclassNames, $normalStats, $specialStats, $socketColors, $classRestrictions, $classColors, $triggerFlags, $world_db, $base_path, $item_tooltip_inline_css;
+
+    // Normalize database values (works for both site_items and item_template rows).
+    // NOTE: the flags column is "Flags" (capital F) in both tables.
+    $quality = (int)($item['Quality'] ?? 0);
+    $flags = (int)($item['Flags'] ?? 0);
+    $itemClass = (int)($item['class'] ?? 0);
+    $itemSubclass = (int)($item['subclass'] ?? 0);
+    $bondingId = (int)($item['bonding'] ?? 0);
+    $inventoryTypeId = (int)($item['InventoryType'] ?? 0);
+    $allowableClass = (int)($item['AllowableClass'] ?? 0);
+    $level = (int)($item['ItemLevel'] ?? 0);
+    $reqLevel = (int)($item['RequiredLevel'] ?? 0);
+    $sell = (int)($item['SellPrice'] ?? 0);
+    $dur = (int)($item['MaxDurability'] ?? 0);
+    $delay = (int)($item['delay'] ?? 0);
+    $dmgMin = (float)($item['dmg_min1'] ?? 0);
+    $dmgMax = (float)($item['dmg_max1'] ?? 0);
+    $armor = (int)($item['armor'] ?? 0);
 
     // Set item name color based on quality
-    $itemColor = $qualityColors[$item['Quality']] ?? '#ffffff';
-    if ($item['Quality'] == 7 && ($item['flags'] & 134221824) == 134221824) {
+    $itemColor = $qualityColors[$quality] ?? '#ffffff';
+    if ($quality === 7 && ($flags & 134221824) === 134221824) {
         $itemColor = '#e6cc80';
     }
 
-    $name = htmlspecialchars($item['name']);
-    $desc = htmlspecialchars($item['description']);
-    $level = $item['ItemLevel'];
-    $reqLevel = $item['RequiredLevel'];
-    $sell = $item['SellPrice'] ?? 0;
-    $dur = $item['MaxDurability'] ?? 0;
-    $speed = ($item['class'] == 2 && $item['delay'] > 0) ? round($item['delay'] / 1000, 2) : null;
-    $bonding = $bondingTypes[$item['bonding']] ?? null;
-    $className = $classNames[$item['class']] ?? translate('unknown', 'Unknown');
-    $subclassName = $subclassNames[$item['class']][$item['subclass']] ?? null;
-    $invType = $inventoryTypes[$item['InventoryType']] ?? null;
+    $name = htmlspecialchars($item['name'] ?? '');
+    $desc = htmlspecialchars($item['description'] ?? '');
+    $speed = ($itemClass === 2 && $delay > 0) ? round($delay / 1000, 2) : null;
+    $bonding = $bondingTypes[$bondingId] ?? null;
+    $className = $classNames[$itemClass] ?? translate('unknown', 'Unknown');
+    $subclassName = $subclassNames[$itemClass][$itemSubclass] ?? null;
+    $invType = $inventoryTypes[$inventoryTypeId] ?? null;
 
     // Class restrictions with colors
     $requiredClasses = [];
-    if (isset($item['AllowableClass']) && $item['AllowableClass'] > 0) {
+    if ($allowableClass > 0) {
         foreach ($classRestrictions as $bit => $class) {
-            if ($item['AllowableClass'] & $bit) {
+            if ($allowableClass & $bit) {
                 $color = $classColors[$bit] ?? '#ffffff';
                 $requiredClasses[] = "<span style='color:$color;'>$class</span>";
             }
@@ -253,37 +267,82 @@ function generateTooltip($item) {
     }
     $requiredClassesText = !empty($requiredClasses) ? translate('classes_label', 'Classes: ') . implode(', ', $requiredClasses) : null;
 
-    // Fetch spell effects
+    // Fetch spell effects.
+    // Optimizations:
+    // - The armory_spell table existence is checked once per request, not per tooltip.
+    // - Spell lookups are cached per request and missing spells are fetched with a
+    //   single batched "WHERE id IN (...)" query per item instead of up to 5 queries.
+    static $armorySpellExists = null;
+    static $spellCache = [];
     $spellEffects = [];
-    $tableCheck = $world_db->query("SHOW TABLES LIKE 'armory_spell'");
-    if ($tableCheck && $tableCheck->num_rows > 0) {
+    if ($armorySpellExists === null) {
+        $tableCheck = $world_db->query("SHOW TABLES LIKE 'armory_spell'");
+        $armorySpellExists = ($tableCheck && $tableCheck->num_rows > 0);
+    }
+    if ($armorySpellExists) {
+        // Collect the spell slots that should be displayed (spell id + trigger)
+        $itemSpells = [];
         for ($i = 1; $i <= 5; $i++) {
-            $spellId = $item["spellid_$i"];
-            $trigger = $item["spelltrigger_$i"];
-            if ($spellId > 0) {
-                if (in_array($trigger, [0, 1, 2, 4])) {
-                    $stmt = $world_db->prepare("SELECT id, Description_en_gb, ToolTip_1 FROM armory_spell WHERE id = ?");
-                    if ($stmt === false) {
-                        error_log("Failed to prepare query for spell ID $spellId in item " . ($item['entry'] ?? 'unknown') . ": " . $world_db->error);
-                        continue;
-                    }
-                    $stmt->bind_param("i", $spellId);
-                    $stmt->execute();
+            $spellId = (int)($item["spellid_$i"] ?? 0);
+            $trigger = (int)($item["spelltrigger_$i"] ?? 0);
+            if ($spellId > 0 && in_array($trigger, [0, 1, 2, 4], true)) {
+                $itemSpells[] = ['id' => $spellId, 'trigger' => $trigger];
+            }
+        }
+
+        // Find spells that are not cached yet and fetch them in one batched query
+        $missingIds = [];
+        foreach ($itemSpells as $spell) {
+            if (!array_key_exists($spell['id'], $spellCache)) {
+                $spellCache[$spell['id']] = false; // sentinel: not found in armory_spell
+                $missingIds[] = $spell['id'];
+            }
+        }
+        if (!empty($missingIds)) {
+            $placeholders = implode(',', array_fill(0, count($missingIds), '?'));
+            $types = str_repeat('i', count($missingIds));
+            $stmt = $world_db->prepare("SELECT id, Description_en_gb, ToolTip_1 FROM armory_spell WHERE id IN ($placeholders)");
+            if ($stmt) {
+                $stmt->bind_param($types, ...$missingIds);
+                if ($stmt->execute()) {
                     $result = $stmt->get_result();
-                    if ($spell = $result->fetch_assoc()) {
-                        $triggerText = $triggerFlags[$trigger] ?? translate('trigger_unknown', 'Unknown');
-                        $description = !empty($spell['Description_en_gb']) ? htmlspecialchars($spell['Description_en_gb']) : htmlspecialchars($spell['ToolTip_1'] ?? '');
-                        if (!empty($description)) {
-                            $spellEffects[] = "$triggerText: $description";
-                        }
+                    while ($row = $result->fetch_assoc()) {
+                        $spellCache[(int)$row['id']] = $row;
                     }
-                    $stmt->close();
+                } else {
+                    error_log("armory_spell batch query failed for item " . ($item['entry'] ?? 'unknown') . ": " . $stmt->error);
+                }
+                $stmt->close();
+            } else {
+                error_log("Failed to prepare armory_spell batch query for item " . ($item['entry'] ?? 'unknown') . ": " . $world_db->error);
+            }
+        }
+
+        // Render the spell effects from the cache
+        foreach ($itemSpells as $itemSpell) {
+            $spellRow = $spellCache[$itemSpell['id']] ?? false;
+            if (is_array($spellRow)) {
+                $triggerText = $triggerFlags[$itemSpell['trigger']] ?? translate('trigger_unknown', 'Unknown');
+                $description = !empty($spellRow['Description_en_gb']) ? htmlspecialchars($spellRow['Description_en_gb']) : htmlspecialchars((string)($spellRow['ToolTip_1'] ?? ''));
+                if (!empty($description)) {
+                    $spellEffects[] = "$triggerText: $description";
                 }
             }
         }
     }
 
+    // Emit the <style> block with every tooltip by default (needed by consumers that
+    // inject tooltips from data-attributes, e.g. character.php). Pages that render
+    // tooltips inline (shop.php) set $item_tooltip_inline_css so the block is only
+    // emitted once per request - the CSS applies document-wide once present.
+    static $styleEmitted = false;
+    $emitStyle = empty($item_tooltip_inline_css) || !$styleEmitted;
+    if ($emitStyle) {
+        $styleEmitted = true;
+    }
+
     ob_start();
+    if ($emitStyle):
     ?>
     <style>
         .socket-icon {
@@ -291,9 +350,6 @@ function generateTooltip($item) {
             height: 10px;
             object-fit: contain;
             vertical-align: middle;
-        }
-        .item-name {
-            color: <?= $itemColor ?> !important;
         }
         .tooltip-container {
             background: rgba(5, 7, 11, 0.95);
@@ -343,12 +399,16 @@ function generateTooltip($item) {
             color: #ff8a8a;
         }
     </style>
+    <?php endif; ?>
 
     <div class="tooltip-container">
         <!-- Header: Name and Level -->
         <div class="flex justify-between items-start gap-2">
             <div>
-                <div class="item-name"><?= $name ?></div>
+                <!-- Item name uses the item's own quality color via inline style -->
+                <!-- ($itemColor is item-specific, so it cannot live in the shared
+                     once-per-request <style> block without leaking to every tooltip). -->
+                <div class="item-name" style="color: <?= htmlspecialchars($itemColor, ENT_QUOTES) ?>;"><?= $name ?></div>
                 <?php if ($level): ?>
                     <div class="item-level text-xs"><?= translate('item_level', 'Item Level') ?> <?= $level ?></div>
                 <?php endif; ?>
@@ -376,23 +436,23 @@ function generateTooltip($item) {
 
         <!-- Damage -->
         <?php
-        if ($item['dmg_min1'] > 0 && $item['dmg_max1'] > 0):
-            $min = $item['dmg_min1'];
-            $max = $item['dmg_max1'];
+        if ($dmgMin > 0 && $dmgMax > 0):
+            $min = $dmgMin;
+            $max = $dmgMax;
         ?>
             <div class="text-sm mt-1"><?= $min ?> - <?= $max ?> <?= translate('damage', 'Damage') ?></div>
-            <div class="item-damage text-sm">(<?= formatDPS($min, $max, $item['delay']) ?> <?= translate('dps', 'damage per second') ?>)</div>
+            <div class="item-damage text-sm">(<?= formatDPS($min, $max, $delay) ?> <?= translate('dps', 'damage per second') ?>)</div>
         <?php endif; ?>
 
         <!-- Armor -->
-        <?php if ($item['armor'] > 0): ?>
-            <div class="text-sm">+<?= $item['armor'] ?> <?= translate('armor', 'Armor') ?></div>
+        <?php if ($armor > 0): ?>
+            <div class="text-sm">+<?= $armor ?> <?= translate('armor', 'Armor') ?></div>
         <?php endif; ?>
 
         <!-- Normal Stats -->
         <?php for ($i = 1; $i <= 10; $i++):
-            $type = $item["stat_type$i"];
-            $value = $item["stat_value$i"];
+            $type = (int)($item["stat_type$i"] ?? 0);
+            $value = (int)($item["stat_value$i"] ?? 0);
             if ($type > 0 && $value != 0 && isset($normalStats[$type])): ?>
                 <div class="item-stat text-sm">+<?= $value ?> <?= $normalStats[$type] ?></div>
         <?php endif; endfor; ?>
@@ -416,7 +476,7 @@ function generateTooltip($item) {
         <div class="flex items-center gap-2 mt-1 flex-wrap">
             <?php for ($i = 1; $i <= 3; $i++): ?>
                 <?php
-                $colorCode = $item["socketColor_$i"] ?? null;
+                $colorCode = isset($item["socketColor_$i"]) ? (int)$item["socketColor_$i"] : null;
                 if (isset($socketColors[$colorCode])):
                     $colorData = $socketColors[$colorCode];
                 ?>
@@ -434,7 +494,7 @@ function generateTooltip($item) {
 
         <!-- Socket Bonus -->
         <?php if (!empty($item['socketBonus'])): ?>
-            <div class="item-socket-bonus text-xs mt-1"><?= translate('socket_bonus', 'Socket Bonus') ?>: <?= translate('spell_id', 'Spell ID') ?> <?= htmlspecialchars($item['socketBonus']) ?></div>
+            <div class="item-socket-bonus text-xs mt-1"><?= translate('socket_bonus', 'Socket Bonus') ?>: <?= translate('spell_id', 'Spell ID') ?> <?= htmlspecialchars((string)($item['socketBonus'] ?? '')) ?></div>
         <?php endif; ?>
 
         <!-- Durability -->
@@ -454,8 +514,8 @@ function generateTooltip($item) {
 
         <!-- Special Stats -->
         <?php for ($i = 1; $i <= 10; $i++):
-            $type = $item["stat_type$i"];
-            $value = $item["stat_value$i"];
+            $type = (int)($item["stat_type$i"] ?? 0);
+            $value = (int)($item["stat_value$i"] ?? 0);
             if ($type > 0 && $value != 0 && isset($specialStats[$type])): ?>
                 <div class="item-spell-effect text-sm"><?= translate('equip', 'Equip') ?>: <?= translate('increases', 'Increases') ?> +<?= $value ?> <?= $specialStats[$type] ?></div>
         <?php endif; endfor; ?>

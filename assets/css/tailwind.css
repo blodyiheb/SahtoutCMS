@@ -52,6 +52,7 @@
     --color-blue-600: oklch(54.6% 0.245 262.881);
     --color-blue-700: oklch(48.8% 0.243 264.376);
     --color-blue-900: oklch(37.9% 0.146 265.522);
+    --color-purple-400: oklch(71.4% 0.203 305.504);
     --color-slate-200: oklch(92.9% 0.013 255.508);
     --color-slate-300: oklch(86.9% 0.022 252.894);
     --color-slate-400: oklch(70.4% 0.04 256.788);
@@ -1598,6 +1599,9 @@
   }
   .bg-\[rgba\(0\,0\,0\,0\.4\)\] {
     background-color: rgba(0,0,0,0.4);
+  }
+  .bg-\[rgba\(0\,0\,0\,0\.85\)\] {
+    background-color: rgba(0,0,0,0.85);
   }
   .bg-\[rgba\(5\,7\,11\,0\.85\)\] {
     background-color: rgba(5,7,11,0.85);

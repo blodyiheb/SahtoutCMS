@@ -10,7 +10,7 @@ include_once $project_root . 'includes/header.php';
 
 $selected_category = isset($_GET['category']) ? $_GET['category'] : 'All';
 $valid_categories = ['All', 'Service', 'Mount', 'Pet', 'Gold', 'Stuff', 'Set'];
-if (!in_array($selected_category, $valid_categories)) {
+if (!in_array($selected_category, $valid_categories, true)) {
     $selected_category = 'All';
 }
 
@@ -25,6 +25,19 @@ $category_images = [
 
 // Categories that should show tooltips
 $tooltip_categories = ['Mount', 'Pet', 'Stuff', 'Set'];
+
+// Exact site_items columns needed by generateTooltip() - avoids "SELECT *"
+// (column list verified against the actual site_items schema).
+$tooltip_fields = 'entry, name, description, Quality, Flags, ItemLevel, RequiredLevel, SellPrice, MaxDurability, '
+    . 'class, subclass, InventoryType, bonding, AllowableClass, dmg_min1, dmg_max1, delay, armor, '
+    . 'holy_res, fire_res, nature_res, frost_res, shadow_res, arcane_res, '
+    . 'socketColor_1, socketColor_2, socketColor_3, socketBonus, '
+    . 'spellid_1, spelltrigger_1, spellid_2, spelltrigger_2, spellid_3, spelltrigger_3, spellid_4, spelltrigger_4, spellid_5, spelltrigger_5, '
+    . 'stat_type1, stat_value1, stat_type2, stat_value2, stat_type3, stat_value3, stat_type4, stat_value4, stat_type5, stat_value5, '
+    . 'stat_type6, stat_value6, stat_type7, stat_value7, stat_type8, stat_value8, stat_type9, stat_value9, stat_type10, stat_value10';
+
+// Render tooltips inline: tell item_tooltip.php to emit its <style> block only once per request
+$item_tooltip_inline_css = true;
 
 $query = "
     SELECT si.item_id, si.category, si.name, si.description, si.image, si.point_cost, si.token_cost, si.stock, si.level_boost, si.at_login_flags, si.is_set, si.itemset_id, sit.entry AS sit_entry, sis.set_item_count
@@ -55,13 +68,17 @@ $points = 0;
 $tokens = 0;
 if (!empty($_SESSION['user_id'])) {
     $stmt = $site_db->prepare("SELECT points, tokens FROM user_currencies WHERE account_id = ?");
-    $stmt->bind_param("i", $_SESSION['user_id']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user_currency = $result->fetch_assoc();
-    $stmt->close();
-    $points = $user_currency ? $user_currency['points'] : 0;
-    $tokens = $user_currency ? $user_currency['tokens'] : 0;
+    if ($stmt) {
+        $stmt->bind_param("i", $_SESSION['user_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user_currency = $result->fetch_assoc();
+        $stmt->close();
+        $points = $user_currency ? (int)$user_currency['points'] : 0;
+        $tokens = $user_currency ? (int)$user_currency['tokens'] : 0;
+    } else {
+        error_log("Failed to prepare currency query: " . $site_db->error);
+    }
 } else {
     error_log("No user_id in session");
 }
@@ -69,13 +86,17 @@ if (!empty($_SESSION['user_id'])) {
 $characters = [];
 if (!empty($_SESSION['user_id'])) {
     $stmt_chars = $char_db->prepare("SELECT guid, name FROM characters WHERE account = ?");
-    $stmt_chars->bind_param("i", $_SESSION['user_id']);
-    $stmt_chars->execute();
-    $result_chars = $stmt_chars->get_result();
-    while ($row = $result_chars->fetch_assoc()) {
-        $characters[] = ['id' => $row['guid'], 'name' => $row['name']];
+    if ($stmt_chars) {
+        $stmt_chars->bind_param("i", $_SESSION['user_id']);
+        $stmt_chars->execute();
+        $result_chars = $stmt_chars->get_result();
+        while ($row = $result_chars->fetch_assoc()) {
+            $characters[] = ['id' => $row['guid'], 'name' => $row['name']];
+        }
+        $stmt_chars->close();
+    } else {
+        error_log("Failed to prepare characters query: " . $char_db->error);
     }
-    $stmt_chars->close();
 } else {
     error_log("No characters fetched: user not logged in");
 }
@@ -94,7 +115,12 @@ if (isset($_GET['status'])) {
             break;
         case 'error':
         case 'Database query error':
+        case 'invalid_item_configuration':
             $status_message = '<div class="bg-red-900/40 border border-red-600/40 text-red-200 px-5 py-3 flex items-center gap-3 mb-4 force-wrap"><i class="fas fa-exclamation-circle text-red-400 text-lg"></i><span>' . translate('shop_status_error', 'An error occurred during purchase. Check server logs for details.') . '</span></div>';
+            break;
+        case 'Gold amount too large':
+        case 'Total money exceeds limit':
+            $status_message = '<div class="bg-yellow-900/40 border border-yellow-600/40 text-yellow-200 px-5 py-3 flex items-center gap-3 mb-4 force-wrap"><i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i><span>' . translate('shop_status_gold_limit', 'The gold from this item would exceed the character\'s gold limit. Please collect some gold from your mailbox first.') . '</span></div>';
             break;
         case 'character_online':
             $status_message = '<div class="bg-yellow-900/40 border border-yellow-600/40 text-yellow-200 px-5 py-3 flex items-center gap-3 mb-4 force-wrap"><i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i><span>' . translate('shop_status_character_online', 'Selected character must be logged out to complete the purchase.') . '</span></div>';
@@ -232,6 +258,19 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
             border-right-color: rgba(201,162,39,0.3);
         }
         
+        /* Tooltip flipped to the left side of the card (used when there is no room on the right) */
+        .item-card .item-tooltip.tooltip-left {
+            left: auto;
+            right: calc(100% + 10px);
+        }
+        
+        .item-card .item-tooltip.tooltip-left::before {
+            right: auto;
+            left: 100%;
+            border-right-color: transparent;
+            border-left-color: rgba(201,162,39,0.3);
+        }
+        
         /* Show tooltip only for categories that have tooltips */
         .item-card.has-tooltip:hover .item-tooltip {
             display: block;
@@ -245,6 +284,12 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
         
         .limited-stock-badge {
             animation: pulse 2s infinite;
+        }
+        
+        /* Out of stock state - dim the item image */
+        .item-card.out-of-stock .item-image {
+            filter: grayscale(100%);
+            opacity: 0.4;
         }
         
         /* Custom alert overlay */
@@ -410,12 +455,15 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                 <?php 
                                 $has_tooltip = in_array($category, $tooltip_categories) && $item['sit_entry'] && (int)$item['is_set'] !== 1;
                                 ?>
-                                <div class="item-card relative bg-[rgba(10,14,22,0.8)] border border-[rgba(201,162,39,0.12)] p-4 flex flex-col <?php echo $has_tooltip ? 'has-tooltip' : ''; ?> min-w-0" data-entry="<?php echo $item['sit_entry'] ? htmlspecialchars($item['sit_entry']) : ''; ?>">
+                                <?php $is_out_of_stock = $item['stock'] !== null && (int)$item['stock'] === 0; ?>
+                                <div class="item-card relative bg-[rgba(10,14,22,0.8)] border border-[rgba(201,162,39,0.12)] p-4 flex flex-col <?php echo $has_tooltip ? 'has-tooltip' : ''; ?> <?php echo $is_out_of_stock ? 'out-of-stock' : ''; ?> min-w-0" data-entry="<?php echo $item['sit_entry'] ? htmlspecialchars($item['sit_entry']) : ''; ?>">
                                     <!-- Image -->
                                     <div class="relative w-full">
-                                        <img src="<?php echo $base_path . ($item['image'] ?? 'img/shop/placeholder.png'); ?>" alt="<?php echo str_replace('{name}', htmlspecialchars($item['name']), translate('shop_item_image_alt', '{name}')); ?>" class="w-full h-48 object-cover border border-[rgba(201,162,39,0.08)]">
+                                        <img src="<?php echo $base_path . ($item['image'] ?? 'img/shop/placeholder.png'); ?>" alt="<?php echo str_replace('{name}', htmlspecialchars($item['name']), translate('shop_item_image_alt', '{name}')); ?>" class="item-image w-full h-48 object-cover border border-[rgba(201,162,39,0.08)]">
                                         <?php if ($item['stock'] !== null && $item['stock'] < 10 && $item['stock'] > 0): ?>
                                             <span class="limited-stock-badge absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 border border-red-600 shadow-lg force-wrap">Limited Stock</span>
+                                        <?php elseif ($is_out_of_stock): ?>
+                                            <span class="out-of-stock-badge absolute top-2 right-2 bg-[rgba(0,0,0,0.85)] text-red-400 text-xs font-bold px-2 py-1 border border-red-500 shadow-lg force-wrap"><i class="fas fa-ban mr-1"></i><?php echo translate('shop_out_of_stock', 'Out of Stock'); ?></span>
                                         <?php endif; ?>
                                     </div>
                                     
@@ -461,8 +509,8 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                     <?php if ($has_tooltip): ?>
                                         <div class="item-tooltip force-wrap">
                                             <?php
-                                            if (in_array($category, $tooltip_categories) && $item['sit_entry'] && (int)$item['is_set'] !== 1) {
-                                                $stmt_tooltip = $site_db->prepare("SELECT * FROM site_items WHERE entry = ?");
+                                            $stmt_tooltip = $site_db->prepare("SELECT {$tooltip_fields} FROM site_items WHERE entry = ?");
+                                            if ($stmt_tooltip) {
                                                 $stmt_tooltip->bind_param("i", $item['sit_entry']);
                                                 $stmt_tooltip->execute();
                                                 $result_tooltip = $stmt_tooltip->get_result();
@@ -470,6 +518,8 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                                     echo generateTooltip($tooltip_data);
                                                 }
                                                 $stmt_tooltip->close();
+                                            } else {
+                                                error_log("Failed to prepare tooltip query for entry " . (int)$item['sit_entry'] . ": " . $site_db->error);
                                             }
                                             ?>
                                         </div>
@@ -487,7 +537,9 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                     
                                     <!-- Stock -->
                                     <div class="text-center text-gray-500 text-xs mt-1 force-wrap">
-                                        <?php if ($item['stock'] !== null): ?>
+                                        <?php if ($is_out_of_stock): ?>
+                                            <span class="text-red-400 font-bold"><i class="fas fa-ban mr-1"></i><?php echo translate('shop_out_of_stock', 'Out of Stock'); ?></span>
+                                        <?php elseif ($item['stock'] !== null): ?>
                                             <span><?php echo translate('shop_stock', 'Stock'); ?>: <?php echo $item['stock']; ?></span>
                                         <?php else: ?>
                                             <span><?php echo translate('shop_unlimited_stock', 'Unlimited Stock'); ?></span>
@@ -497,9 +549,12 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                     <!-- Purchase -->
                                     <?php if (!empty($_SESSION['user_id'])): ?>
                                         <form action="<?php echo $base_path; ?>buy_item" method="POST" class="mt-3 purchase-form">
-                                            <input type="hidden" name="item_id" value="<?php echo $item['item_id']; ?>">
+                                            <input type="hidden" name="item_id" value="<?php echo (int)$item['item_id']; ?>">
+                                            <?php if (!empty($_SESSION['csrf_token'])): ?>
+                                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                            <?php endif; ?>
                                             <?php if (!empty($characters)): ?>
-                                                <select name="character_id" class="w-full mb-2 px-3 py-2 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 text-sm focus:border-[#f2cf5b] focus:outline-none transition-colors" required>
+                                                <select name="character_id" class="character-select w-full mb-2 px-3 py-2 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 text-sm focus:border-[#f2cf5b] focus:outline-none transition-colors" required>
                                                     <option value=""><?php echo translate('shop_select_character', 'Select a Character'); ?></option>
                                                     <?php foreach ($characters as $char): ?>
                                                         <option value="<?php echo htmlspecialchars($char['id']); ?>">
@@ -510,10 +565,12 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
                                             <?php else: ?>
                                                 <p class="text-red-400 text-xs text-center mb-2 force-wrap"><?php echo translate('shop_no_characters', 'No characters available.'); ?></p>
                                             <?php endif; ?>
-                                            <button type="submit" class="buy-button w-full py-2.5 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold text-sm <?php echo ($item['stock'] === 0 && $item['stock'] !== null) || empty($characters) || $cooldown_active ? 'opacity-50 cursor-not-allowed hover:bg-[rgba(242,207,82,0.15)]' : ''; ?>" 
-                                                    <?php echo ($item['stock'] === 0 && $item['stock'] !== null) || empty($characters) || $cooldown_active ? 'disabled' : ''; ?>
-                                                    data-item-id="<?php echo $item['item_id']; ?>">
-                                                <?php echo $cooldown_active ? str_replace('{seconds}', $remaining_cooldown, translate('shop_wait_cooldown', 'Wait {seconds}s')) : translate('shop_buy_now', 'Buy Now'); ?>
+                                            <button type="submit" class="buy-button w-full py-2.5 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold text-sm <?php echo $is_out_of_stock || empty($characters) || $cooldown_active ? 'opacity-50 cursor-not-allowed hover:bg-[rgba(242,207,82,0.15)]' : ''; ?>" 
+                                                    <?php echo $is_out_of_stock || empty($characters) || $cooldown_active ? 'disabled' : ''; ?>
+                                                    <?php echo $is_out_of_stock ? 'data-out-of-stock="1"' : ''; ?>
+                                                    <?php echo $cooldown_active ? 'data-cooldown="1" data-original-label="' . htmlspecialchars(translate('shop_buy_now', 'Buy Now')) . '"' : ''; ?>
+                                                    data-item-id="<?php echo (int)$item['item_id']; ?>">
+                                                <?php echo $is_out_of_stock ? translate('shop_out_of_stock', 'Out of Stock') : ($cooldown_active && !empty($characters) ? str_replace('{seconds}', $remaining_cooldown, translate('shop_wait_cooldown', 'Wait {seconds}s')) : translate('shop_buy_now', 'Buy Now')); ?>
                                             </button>
                                         </form>
                                     <?php else: ?>
@@ -580,25 +637,50 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
             });
         });
 
+        // Flip tooltips to the left side of the card when there is not enough room on
+        // the right (e.g. cards in the last grid column), avoiding viewport overflow.
+        document.querySelectorAll('.item-card.has-tooltip').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                const tooltip = this.querySelector('.item-tooltip');
+                if (!tooltip) return;
+                const rect = this.getBoundingClientRect();
+                const needed = rect.right + 10 + 320; // 10px gap + tooltip width
+                tooltip.classList.toggle('tooltip-left', needed > window.innerWidth - 8);
+            });
+        });
+
         // Cooldown timer
         let remainingCooldown = <?php echo json_encode($remaining_cooldown); ?>;
         let isPurchaseBlocked = <?php echo json_encode($cooldown_active); ?>;
+        const cooldownLabelTemplate = <?php echo json_encode(translate('shop_wait_cooldown', 'Wait {seconds}s')); ?>;
+        const buyNowLabel = <?php echo json_encode(translate('shop_buy_now', 'Buy Now')); ?>;
 
         if (isPurchaseBlocked) {
-            updateBuyButtons(true, remainingCooldown);
             startCooldownTimer(remainingCooldown);
         }
 
         function updateBuyButtons(disabled, seconds) {
-            document.querySelectorAll('.buy-button:not([href])').forEach(button => {
-                if (!button.hasAttribute('disabled') || button.getAttribute('disabled') === '') {
-                    button.disabled = disabled;
-                    button.textContent = disabled ? '<?php echo translate('shop_wait_cooldown', 'Wait {seconds}s'); ?>'.replace('{seconds}', seconds) : '<?php echo translate('shop_buy_now', 'Buy Now'); ?>';
-                    if (disabled) {
-                        button.classList.add('opacity-50', 'cursor-not-allowed');
-                    } else {
-                        button.classList.remove('opacity-50', 'cursor-not-allowed');
+            document.querySelectorAll('.buy-button:not([href]):not([data-out-of-stock])').forEach(button => {
+                if (disabled) {
+                    // The first time a button is disabled because of the cooldown, tag it
+                    // so the timer knows it may re-enable ONLY this button later.
+                    if (!button.disabled) {
+                        button.disabled = true;
+                        button.dataset.cooldown = '1';
+                        button.dataset.originalLabel = button.textContent;
                     }
+                    if (button.dataset.cooldown === '1') {
+                        button.textContent = cooldownLabelTemplate.replace('{seconds}', seconds);
+                        button.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                } else if (button.dataset.cooldown === '1') {
+                    // Re-enable ONLY buttons tagged as cooldown-disabled. Buttons disabled
+                    // for permanent reasons (out of stock, no characters) stay disabled.
+                    button.disabled = false;
+                    delete button.dataset.cooldown;
+                    button.textContent = button.dataset.originalLabel || buyNowLabel;
+                    delete button.dataset.originalLabel;
+                    button.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
             });
         }
@@ -607,6 +689,7 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
             let timeLeft = seconds;
             const interval = setInterval(() => {
                 timeLeft--;
+                remainingCooldown = Math.max(timeLeft, 0);
                 if (timeLeft <= 0) {
                     isPurchaseBlocked = false;
                     updateBuyButtons(false, 0);

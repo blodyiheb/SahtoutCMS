@@ -43,6 +43,7 @@ return [
     'shop_race_change' => 'Смена расы',
     'shop_stock' => 'Запас',
     'shop_unlimited_stock' => 'Неограниченный запас',
+    'shop_out_of_stock' => 'Нет в наличии',
     'shop_select_character' => 'Выбрать персонажа',
     'shop_no_characters' => 'Нет доступных персонажей.',
     'shop_buy_now' => 'Купить сейчас',

@@ -10,6 +10,16 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Validate CSRF token (token is generated in includes/session.php and posted
+// as a hidden field by the purchase form in pages/shop.php)
+if (empty($_POST['csrf_token']) || !is_string($_POST['csrf_token'])
+    || empty($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token'])
+    || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    error_log("CSRF token validation failed: User ID: " . ($_SESSION['user_id'] ?? 'unknown'));
+    header("Location: {$base_path}shop?category=All&status=error");
+    exit;
+}
+
 // Check cooldown first
 $cooldown_duration = 5; // 5 seconds
 if (isset($_SESSION['last_purchase_time']) && (time() - $_SESSION['last_purchase_time']) < $cooldown_duration) {

@@ -43,6 +43,7 @@ return [
     'shop_race_change' => 'Race Change',
     'shop_stock' => 'Stock',
     'shop_unlimited_stock' => 'Unlimited Stock',
+    'shop_out_of_stock' => 'Out of Stock',
     'shop_select_character' => 'Select a Character',
     'shop_no_characters' => 'No characters available.',
     'shop_buy_now' => 'Buy Now',
