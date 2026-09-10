@@ -268,5 +268,6 @@ return [
     'players' => '玩家',
     'bots' => '机器人',
     'real_players' => '玩家',
+    'playerbots_db_missing' => '未找到 Playerbot 数据库。机器人统计不可用。',
 ];
 ?>

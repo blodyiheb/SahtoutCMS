@@ -373,5 +373,6 @@ return [
     'players' => 'Jogadores',
     'bots' => 'Bots',
     'real_players' => 'Jogadores',
+    'playerbots_db_missing' => 'Banco de dados do Playerbot não encontrado. As estatísticas de bots não estão disponíveis.',
 ];
 ?>

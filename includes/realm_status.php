@@ -138,16 +138,57 @@ function checkRealmOnline($address, $port) {
 }
 
 /**
+ * Checks whether the optional Playerbots database exists on this MySQL server.
+ *
+ * Probed via information_schema.SCHEMATA, which does not require any
+ * privileges on the playerbots database itself. The result is cached
+ * per characters-DB connection for the lifetime of the request so the
+ * probe runs at most once per connection.
+ */
+function playerbotsDatabaseAvailable($char_db, $playerbotsDb) {
+    static $probeCache = [];
+
+    $cacheKey = spl_object_hash($char_db) . '|' . $playerbotsDb;
+    if (array_key_exists($cacheKey, $probeCache)) {
+        return $probeCache[$cacheKey];
+    }
+
+    $available = false;
+    try {
+        $stmt = @$char_db->prepare('SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?');
+        if ($stmt) {
+            $stmt->bind_param('s', $playerbotsDb);
+            if (@$stmt->execute()) {
+                $result = $stmt->get_result();
+                if ($result) {
+                    $available = $result->num_rows > 0;
+                    $result->free();
+                }
+            }
+            $stmt->close();
+        }
+    } catch (Throwable $e) {
+        // Probe failure = treat the optional DB as unavailable; online
+        // players are still counted (as real players) with bots = 0.
+        $available = false;
+    }
+
+    $probeCache[$cacheKey] = $available;
+    return $available;
+}
+
+/**
  * Optimized single query with COALESCE to guarantee integer returns instead of NULL.
  */
-function getOnlinePlayerStats($char_db) {
+function getOnlinePlayerStats($char_db, $playerbotsDb = 'acore_playerbots') {
     if (!$char_db) {
         return [
             'players' => 0,
             'real_players' => 0,
             'bots' => 0,
             'alliance' => 0,
-            'horde' => 0
+            'horde' => 0,
+            'playerbots_missing' => false
         ];
     }
 
@@ -158,15 +199,28 @@ function getOnlinePlayerStats($char_db) {
      * playerbots_account_type. Accounts without an entry are treated
      * as real-player accounts.
      *
-     * The playerbots database is referenced by its configured database
-     * name. Change this constant if your database uses another name.
+     * The playerbots database is OPTIONAL: on servers without Playerbots
+     * support it may not exist at all. In that case every online character
+     * is counted as a real player and the bot count is simply 0.
      */
-    $playerbotsDb = 'acore_playerbots';
+    $playerbotsMissing = !playerbotsDatabaseAvailable($char_db, $playerbotsDb);
+
+    // Query used when Playerbots support is NOT installed (no join).
+    $sqlNoBots = "
+        SELECT
+            COUNT(*) AS total,
+            COUNT(*) AS real_players,
+            0 AS bots,
+            COALESCE(SUM(c.race IN (1, 3, 4, 7, 11)), 0) AS alliance,
+            COALESCE(SUM(c.race IN (2, 5, 6, 8, 10)), 0) AS horde
+        FROM characters c
+        WHERE c.online = 1
+    ";
 
     // Keep the database identifier fixed/trusted; it is not user input.
     $playerbotsTable = '`' . str_replace('`', '``', $playerbotsDb) . '`.`playerbots_account_type`';
 
-    $sql = "
+    $sqlWithBots = "
         SELECT
             COUNT(*) AS total,
             COALESCE(SUM(pat.account_id IS NULL), 0) AS real_players,
@@ -179,25 +233,58 @@ function getOnlinePlayerStats($char_db) {
         WHERE c.online = 1
     ";
 
-    $result = @$char_db->query($sql);
-    if (!$result) {
-        return [
-            'players' => 0,
-            'real_players' => 0,
-            'bots' => 0,
-            'alliance' => 0,
-            'horde' => 0
-        ];
+    if (!$playerbotsMissing) {
+        try {
+            $result = @$char_db->query($sqlWithBots);
+            if ($result) {
+                $row = $result->fetch_assoc();
+                if ($row !== null) {
+                    return [
+                        'players'      => isset($row['total']) ? (int)$row['total'] : 0,
+                        'real_players' => isset($row['real_players']) ? (int)$row['real_players'] : 0,
+                        'bots'         => isset($row['bots']) ? (int)$row['bots'] : 0,
+                        'alliance'     => isset($row['alliance']) ? (int)$row['alliance'] : 0,
+                        'horde'        => isset($row['horde']) ? (int)$row['horde'] : 0,
+                        'playerbots_missing' => false
+                    ];
+                }
+            }
+        } catch (Throwable $e) {
+            // The playerbots DB/table became unavailable between the probe
+            // and this query (or the driver is in exception mode):
+            // fall through to the safe no-join query below.
+        }
     }
 
-    $row = $result->fetch_assoc();
+    // Optional DB missing (or the joined query failed): every online
+    // character is a real player and bots = 0. No DB error is exposed.
+    try {
+        $result = @$char_db->query($sqlNoBots);
+        if ($result) {
+            $row = $result->fetch_assoc();
+            if ($row !== null) {
+                return [
+                    'players'      => isset($row['total']) ? (int)$row['total'] : 0,
+                    'real_players' => isset($row['real_players']) ? (int)$row['real_players'] : 0,
+                    'bots'         => 0,
+                    'alliance'     => isset($row['alliance']) ? (int)$row['alliance'] : 0,
+                    'horde'        => isset($row['horde']) ? (int)$row['horde'] : 0,
+                    'playerbots_missing' => true
+                ];
+            }
+        }
+    } catch (Throwable $e) {
+        // Never expose database errors to visitors.
+    }
 
+    // Last-resort zero fallback (characters DB unreachable, etc.).
     return [
-        'players'      => isset($row['total']) ? (int)$row['total'] : 0,
-        'real_players' => isset($row['real_players']) ? (int)$row['real_players'] : 0,
-        'bots'         => isset($row['bots']) ? (int)$row['bots'] : 0,
-        'alliance'     => isset($row['alliance']) ? (int)$row['alliance'] : 0,
-        'horde'        => isset($row['horde']) ? (int)$row['horde'] : 0
+        'players' => 0,
+        'real_players' => 0,
+        'bots' => 0,
+        'alliance' => 0,
+        'horde' => 0,
+        'playerbots_missing' => $playerbotsMissing
     ];
 }
 
@@ -261,6 +348,7 @@ function getRealmStatusData($realm, $char_db, $auth_db) {
             'bots' => 0,
             'alliance' => 0,
             'horde' => 0,
+            'playerbots_missing' => false,
             'uptime_seconds' => 0,
             'checked_at' => $now
         ];
@@ -285,6 +373,7 @@ function getRealmStatusData($realm, $char_db, $auth_db) {
         $allianceCount = 0;
         $hordeCount = 0;
         $uptimeSeconds = 0;
+        $playerbotsMissing = false;
 
         if ($online) {
             $playerStats = getOnlinePlayerStats($char_db);
@@ -293,6 +382,7 @@ function getRealmStatusData($realm, $char_db, $auth_db) {
             $botCount = $playerStats['bots'];
             $allianceCount = $playerStats['alliance'];
             $hordeCount = $playerStats['horde'];
+            $playerbotsMissing = !empty($playerStats['playerbots_missing']);
             $uptimeSeconds = getServerUptimeSeconds($auth_db, $realmId);
         }
 
@@ -303,6 +393,7 @@ function getRealmStatusData($realm, $char_db, $auth_db) {
             'bots' => $botCount,
             'alliance' => $allianceCount,
             'horde' => $hordeCount,
+            'playerbots_missing' => $playerbotsMissing,
             'uptime_seconds' => $uptimeSeconds,
             'checked_at' => $now
         ];
@@ -503,6 +594,7 @@ function formatServerUptime($seconds) {
                         </div>
                     </div>
                 <?php endif; ?>
+
             </div>
 
             <!-- Alliance vs Horde Faction Ratio Bar (unchanged) -->

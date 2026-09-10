@@ -14,6 +14,7 @@ $page_class = 'realm';
 
 $errors = [];
 $success = false;
+$playerbotsMissing = false;
 $realmsFile = $project_root . 'includes/realm_config.php';
 
 $defaultLogo = 'img/logos/realm1_logo.webp';
@@ -50,6 +51,41 @@ function isValidRealmHost($value) {
         return true;
     }
     return filter_var($candidate, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false;
+}
+
+/**
+ * Checks whether the optional Playerbots database exists on this MySQL server.
+ *
+ * Probed via information_schema.SCHEMATA, which does not require any
+ * privileges on the playerbots database itself. This is a pure database
+ * existence check: it is deliberately independent of the realm TCP/online
+ * status check, so it works even when the realm is offline.
+ */
+function playerbotsDatabaseExists($mysqli, $playerbotsDb) {
+    if (!$mysqli) {
+        return false;
+    }
+
+    $available = false;
+    try {
+        $stmt = @$mysqli->prepare('SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?');
+        if ($stmt) {
+            $stmt->bind_param('s', $playerbotsDb);
+            if (@$stmt->execute()) {
+                $result = $stmt->get_result();
+                if ($result) {
+                    $available = $result->num_rows > 0;
+                    $result->free();
+                }
+            }
+            $stmt->close();
+        }
+    } catch (Throwable $e) {
+        // Probe failure = treat the optional DB as unavailable.
+        $available = false;
+    }
+
+    return $available;
 }
 
 $currentPlayerDisplay = $currentRealm['player_display'] ?? 'all';
@@ -182,6 +218,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $errors[] = sprintf(translate('err_write_realm_config', 'Cannot write realm configuration file: %s'), $realmsFile);
                     } else {
                         $success = true;
+
+                        // After a successful save, check whether the optional
+                        // Playerbots database exists on the MySQL server.
+                        // Uses the characters DB connection created in
+                        // includes/config.php (loaded via session.php), so
+                        // this works even when the realm itself is offline.
+                        $playerbotsMissing = !playerbotsDatabaseExists($char_db ?? null, 'acore_playerbots');
                     }
                 }
             }
@@ -293,6 +336,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     p-4 rounded-sm flex items-center gap-3">
                             <i class="fas fa-check-circle text-xl"></i>
                             <span><?php echo translate('msg_realm_saved', 'Realm configuration saved successfully!'); ?></span>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($success && $playerbotsMissing): ?>
+                        <!-- Admin/moderator-only: the optional Playerbots database is missing.
+                             This page already blocks guests/normal users via the role check at the top. -->
+                        <div class="bg-amber-500/15 border border-amber-500/40 text-amber-400 
+                                    p-4 rounded-sm flex items-start gap-3">
+                            <i class="fas fa-exclamation-triangle text-xl mt-0.5"></i>
+                            <div>
+                                <strong><?php echo translate('playerbots_db_missing', 'Playerbot database not found.'); ?></strong>
+                                <div class="text-sm mt-1">
+                                    <?php echo htmlspecialchars(translate('playerbots_db_missing_stats', 'Bot statistics will be unavailable until the acore_playerbots database is installed.'), ENT_QUOTES); ?>
+                                </div>
+                            </div>
                         </div>
                     <?php endif; ?>
 

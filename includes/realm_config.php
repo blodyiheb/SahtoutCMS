@@ -10,6 +10,6 @@ $realmlist = array (
     'check_address' => '127.0.0.1',
     'port' => 8085,
     'logo' => 'img/logos/realm1_logo.webp',
-    'player_display' => 'separate',
+    'player_display' => 'all',
   ),
 );

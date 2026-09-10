@@ -267,5 +267,6 @@ return [
     'players' => 'Игроки',
     'bots' => 'Боты',
     'real_players' => 'Игроки',
+    'playerbots_db_missing' => 'База данных Playerbot не найдена. Статистика ботов недоступна.',
 ];
 ?>
