@@ -67,8 +67,8 @@ return [
     'status_offline' => '🔴 离线',
     'players_online' => '👥 在线人数: %d',
     'players_online_none' => '👥 在线人数: 0',
-    'uptime' => '运行时间: %s',
-    'uptime_none' => '运行时间: 未知',
+    'uptime' => '%s',
+    'uptime_none' => '未知',
     'uptime_format' => '%d 天 %s, %d 小时 %s, %d 分钟 %s', // Adjusted for Chinese grammar
     'uptime_days' => '天',
     'uptime_hours' => '小时',
@@ -262,6 +262,11 @@ return [
     'equip' => '装备：',
     'increases' => '提高',
     'sell_price' => '售价',
-    'unknown' => '未知'
+    'unknown' => '未知',
+
+    // 领域玩家显示（来自 realm_status.php）
+    'players' => '玩家',
+    'bots' => '机器人',
+    'real_players' => '玩家',
 ];
 ?>

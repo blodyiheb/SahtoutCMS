@@ -6,8 +6,10 @@ $realmlist = array (
   array (
     'id' => 1,
     'name' => 'Sahtout Realm',
-    'address' => '127.0.0.1',
+    'address' => 'realm.for.public',
+    'check_address' => '127.0.0.1',
     'port' => 8085,
     'logo' => 'img/logos/realm1_logo.webp',
+    'player_display' => 'separate',
   ),
 );

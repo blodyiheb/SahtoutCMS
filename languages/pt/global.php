@@ -67,8 +67,8 @@ return [
     'status_offline' => '🔴 Desligado',
     'players_online' => '👥 Jogadores Online: %d',
     'players_online_none' => '👥 Jogadores Online: 0',
-    'uptime' => 'Tempo Online: %s',
-    'uptime_none' => 'Tempo Online: Desconhecido',
+    'uptime' => '%s',
+    'uptime_none' => 'Desconhecido',
     'uptime_format' => '%d %s, %d %s, %d %s',
     'uptime_days' => 'dias',
     'uptime_hours' => 'horas',
@@ -367,6 +367,11 @@ return [
     'equip' => 'Equipar',
     'increases' => 'Aumenta',
     'sell_price' => 'Preço de venda',
-    'unknown' => 'Desconhecido'
+    'unknown' => 'Desconhecido',
+
+    // Exibição de jogadores do status do reino (de realm_status.php)
+    'players' => 'Jogadores',
+    'bots' => 'Bots',
+    'real_players' => 'Jogadores',
 ];
 ?>

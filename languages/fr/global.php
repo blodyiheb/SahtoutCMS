@@ -67,8 +67,8 @@ return [
     'status_offline' => '🔴 Hors ligne',
     'players_online' => '👥 Joueurs en ligne : %d',
     'players_online_none' => '👥 Joueurs en ligne : 0',
-    'uptime' => 'Temps d’activité : %s',
-    'uptime_none' => 'Temps d’activité : Inconnu',
+    'uptime' => '%s',
+    'uptime_none' => 'Inconnu',
     'uptime_format' => '%d %s, %d %s, %d %s',
     'uptime_days' => 'jours',
     'uptime_hours' => 'heures',
@@ -261,6 +261,11 @@ return [
     'equip' => 'Équiper',
     'increases' => 'Augmente',
     'sell_price' => 'Prix de vente',
-    'unknown' => 'Inconnu'
+    'unknown' => 'Inconnu',
+
+    // Realm status player display (from realm_status.php)
+    'players' => 'Joueurs',
+    'bots' => 'Bots',
+    'real_players' => 'Joueurs',
 ];
 ?>

@@ -67,8 +67,8 @@ return [
     'status_offline' => '🔴 Не в сети',
     'players_online' => '👥 Игроки в сети: %d',
     'players_online_none' => '👥 Игроки в сети: 0',
-    'uptime' => 'Время работы: %s',
-    'uptime_none' => 'Время работы: Неизвестно',
+    'uptime' => '%s',
+    'uptime_none' => 'Неизвестно',
     'uptime_format' => '%d %s, %d %s, %d %s',
     'uptime_days' => 'дней',
     'uptime_hours' => 'часов',
@@ -261,6 +261,11 @@ return [
     'equip' => 'Экипировка',
     'increases' => 'Увеличивает',
     'sell_price' => 'Цена продажи',
-    'unknown' => 'Неизвестно'
+    'unknown' => 'Неизвестно',
+
+    // Отображение игроков статуса игрового мира (из realm_status.php)
+    'players' => 'Игроки',
+    'bots' => 'Боты',
+    'real_players' => 'Игроки',
 ];
 ?>

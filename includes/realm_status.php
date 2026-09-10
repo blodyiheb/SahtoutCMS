@@ -59,7 +59,7 @@ function readRealmCache($realmId) {
         return null; // Invalidate old structure or version mismatches
     }
 
-    if (!isset($data['online'], $data['players'], $data['alliance'], $data['horde'], $data['uptime_seconds'], $data['checked_at'])) {
+    if (!isset($data['online'], $data['players'], $data['real_players'], $data['bots'], $data['alliance'], $data['horde'], $data['uptime_seconds'], $data['checked_at'])) {
         return null;
     }
 
@@ -75,10 +75,11 @@ function writeRealmCache($realmId, array $data) {
         return false;
     }
 
-    $tmpFile = @tempnam(REALM_CACHE_DIR, 'realm_tmp_');
-    if ($tmpFile === false) {
-        return false;
-    }
+    // Use a unique manually-generated temp name in the same directory instead
+    // of tempnam(): tempnam() pre-creates the file and on Windows it can stay
+    // open/locked for the whole request, which makes the atomic rename() fail
+    // and silently prevents the cache from ever refreshing.
+    $tmpFile = REALM_CACHE_DIR . 'realm_tmp_' . bin2hex(random_bytes(8)) . '.tmp';
 
     $contents = "<?php exit; ?>\n" . $json;
     if (@file_put_contents($tmpFile, $contents, LOCK_EX) === false) {
@@ -86,12 +87,18 @@ function writeRealmCache($realmId, array $data) {
         return false;
     }
 
-    if (!@rename($tmpFile, $file)) {
-        @unlink($tmpFile);
-        return false;
+    // Retry transient rename() failures (Windows can briefly hold the
+    // destination open while another request reads the cache) before
+    // giving up; on success the replacement is still atomic.
+    for ($attempt = 0; $attempt < 3; $attempt++) {
+        if (@rename($tmpFile, $file)) {
+            return true;
+        }
+        usleep(50000); // 50ms
     }
 
-    return true;
+    @unlink($tmpFile);
+    return false;
 }
 
 function acquireRealmLock($realmId) {
@@ -135,28 +142,62 @@ function checkRealmOnline($address, $port) {
  */
 function getOnlinePlayerStats($char_db) {
     if (!$char_db) {
-        return ['players' => 0, 'alliance' => 0, 'horde' => 0];
+        return [
+            'players' => 0,
+            'real_players' => 0,
+            'bots' => 0,
+            'alliance' => 0,
+            'horde' => 0
+        ];
     }
+
+    /*
+     * playerbots_account_type contains bot accounts.
+     *
+     * A character is considered a bot when its account exists in
+     * playerbots_account_type. Accounts without an entry are treated
+     * as real-player accounts.
+     *
+     * The playerbots database is referenced by its configured database
+     * name. Change this constant if your database uses another name.
+     */
+    $playerbotsDb = 'acore_playerbots';
+
+    // Keep the database identifier fixed/trusted; it is not user input.
+    $playerbotsTable = '`' . str_replace('`', '``', $playerbotsDb) . '`.`playerbots_account_type`';
 
     $sql = "
         SELECT
             COUNT(*) AS total,
-            COALESCE(SUM(race IN (1, 3, 4, 7, 11)), 0) AS alliance,
-            COALESCE(SUM(race IN (2, 5, 6, 8, 10)), 0) AS horde
-        FROM characters
-        WHERE online = 1
+            COALESCE(SUM(pat.account_id IS NULL), 0) AS real_players,
+            COALESCE(SUM(pat.account_id IS NOT NULL), 0) AS bots,
+            COALESCE(SUM(c.race IN (1, 3, 4, 7, 11)), 0) AS alliance,
+            COALESCE(SUM(c.race IN (2, 5, 6, 8, 10)), 0) AS horde
+        FROM characters c
+        LEFT JOIN {$playerbotsTable} pat
+            ON pat.account_id = c.account
+        WHERE c.online = 1
     ";
 
     $result = @$char_db->query($sql);
     if (!$result) {
-        return ['players' => 0, 'alliance' => 0, 'horde' => 0];
+        return [
+            'players' => 0,
+            'real_players' => 0,
+            'bots' => 0,
+            'alliance' => 0,
+            'horde' => 0
+        ];
     }
 
     $row = $result->fetch_assoc();
+
     return [
-        'players'  => isset($row['total']) ? (int)$row['total'] : 0,
-        'alliance' => isset($row['alliance']) ? (int)$row['alliance'] : 0,
-        'horde'    => isset($row['horde']) ? (int)$row['horde'] : 0
+        'players'      => isset($row['total']) ? (int)$row['total'] : 0,
+        'real_players' => isset($row['real_players']) ? (int)$row['real_players'] : 0,
+        'bots'         => isset($row['bots']) ? (int)$row['bots'] : 0,
+        'alliance'     => isset($row['alliance']) ? (int)$row['alliance'] : 0,
+        'horde'        => isset($row['horde']) ? (int)$row['horde'] : 0
     ];
 }
 
@@ -190,7 +231,10 @@ function getServerUptimeSeconds($auth_db, $realmId) {
 */
 function getRealmStatusData($realm, $char_db, $auth_db) {
     $realmId = isset($realm['id']) ? (int)$realm['id'] : 1;
-    $address = $realm['address'] ?? '';
+    // Internal address used ONLY for the online status check.
+    // Falls back to the player-facing address so older realm_config.php
+    // files that only define 'address' keep working.
+    $checkAddress = $realm['check_address'] ?? $realm['address'] ?? '';
     $port = (int)($realm['port'] ?? 0);
     $now = time();
 
@@ -213,6 +257,8 @@ function getRealmStatusData($realm, $char_db, $auth_db) {
         return [
             'online' => false,
             'players' => 0,
+            'real_players' => 0,
+            'bots' => 0,
             'alliance' => 0,
             'horde' => 0,
             'uptime_seconds' => 0,
@@ -231,9 +277,11 @@ function getRealmStatusData($realm, $char_db, $auth_db) {
         }
 
         // Perform actual quick check
-        $online = ($address !== '' && $port > 0) ? checkRealmOnline($address, $port) : false;
+        $online = ($checkAddress !== '' && $port > 0) ? checkRealmOnline($checkAddress, $port) : false;
 
         $players = 0;
+        $realPlayers = 0;
+        $botCount = 0;
         $allianceCount = 0;
         $hordeCount = 0;
         $uptimeSeconds = 0;
@@ -241,6 +289,8 @@ function getRealmStatusData($realm, $char_db, $auth_db) {
         if ($online) {
             $playerStats = getOnlinePlayerStats($char_db);
             $players = $playerStats['players'];
+            $realPlayers = $playerStats['real_players'];
+            $botCount = $playerStats['bots'];
             $allianceCount = $playerStats['alliance'];
             $hordeCount = $playerStats['horde'];
             $uptimeSeconds = getServerUptimeSeconds($auth_db, $realmId);
@@ -249,6 +299,8 @@ function getRealmStatusData($realm, $char_db, $auth_db) {
         $newCache = [
             'online' => $online,
             'players' => $players,
+            'real_players' => $realPlayers,
+            'bots' => $botCount,
             'alliance' => $allianceCount,
             'horde' => $hordeCount,
             'uptime_seconds' => $uptimeSeconds,
@@ -335,6 +387,12 @@ function formatServerUptime($seconds) {
     .copy-btn.copied .icon-check     { display: block; }
     .copy-btn.copied { color: #f2cf5b; }
     .copy-btn.copied .copy-bg { background: rgba(242,207,82,.12); border-color: rgba(242,207,82,.5); }
+
+    /* New uptime divider */
+    .uptime-divider {
+        background: linear-gradient(90deg, transparent, rgba(201,162,39,.35), transparent);
+        height: 1px;
+    }
 </style>
 
 <div class="space-y-3">
@@ -344,17 +402,20 @@ function formatServerUptime($seconds) {
 
         $isOnline = (bool)$realmStatus['online'];
         $onlineCount = (int)$realmStatus['players'];
+        $realPlayerCount = (int)$realmStatus['real_players'];
+        $botCount = (int)$realmStatus['bots'];
         $allianceCount = (int)$realmStatus['alliance'];
         $hordeCount = (int)$realmStatus['horde'];
         $uptime = $isOnline ? formatServerUptime($realmStatus['uptime_seconds']) : translate('uptime_none');
-        $realmAddress = htmlspecialchars($realm['address'] . ':' . $realm['port'], ENT_QUOTES);
+        $realmAddress = htmlspecialchars($realm['address'], ENT_QUOTES);
+        $playerDisplay = $realm['player_display'] ?? 'all';
         
         $totalFaction = $allianceCount + $hordeCount;
         $alliancePct = ($totalFaction > 0) ? ($allianceCount / $totalFaction) * 100 : 50;
         $hordePct = ($totalFaction > 0) ? ($hordeCount / $totalFaction) * 100 : 50;
         ?>
 
-        <div class="realm-card relative bg-gradient-to-b from-[rgba(18,21,28,.82)] to-[rgba(6,8,12,.85)] border border-[rgba(201,162,39,.22)] p-3 pb-2.5 clip-realm-card transition-all duration-300 hover:border-[rgba(242,207,82,.55)] hover:-translate-y-[1px] shadow-[inset_0_0_30px_rgba(0,0,0,.35),0_4px_12px_rgba(0,0,0,.35)]">
+        <div class="realm-card relative bg-gradient-to-b from-[rgba(18,21,28,.82)] to-[rgba(6,8,12,.85)] border border-[rgba(201,162,39,.22)] p-3 pb-3 clip-realm-card transition-all duration-300 hover:border-[rgba(242,207,82,.55)] hover:-translate-y-[1px] shadow-[inset_0_0_30px_rgba(0,0,0,.35),0_4px_12px_rgba(0,0,0,.35)]">
 
             <!-- Header: logo + name + status badge -->
             <div class="flex items-center gap-2.5 mb-2.5">
@@ -388,42 +449,63 @@ function formatServerUptime($seconds) {
                 </span>
             </div>
 
-            <!-- Stats: Total Players + Uptime -->
+            <!-- Stats: Players (+ Bots) - display follows the player_display realm setting -->
             <div class="grid grid-cols-2 gap-2 p-2 bg-black/45 border border-[rgba(201,162,39,.16)] clip-realm-inner mb-2">
-                <div class="flex items-center gap-1.5">
-                    <div class="w-[22px] h-[22px] flex items-center justify-center bg-[rgba(242,207,82,.08)] border border-[rgba(242,207,82,.25)] clip-realm-icon shrink-0">
-                        <svg class="w-3 h-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
+                <?php if ($playerDisplay === 'separate'): ?>
+                    <!-- Real Players -->
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        <div class="w-[22px] h-[22px] flex items-center justify-center bg-[rgba(242,207,82,.08)] border border-[rgba(242,207,82,.25)] clip-realm-icon shrink-0">
+                            <svg class="w-3 h-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <div class="min-w-0">
+                            <span class="block font-['Cinzel'] text-[8px] font-bold tracking-[.12em] uppercase text-gray-400 leading-none">
+                                <?php echo translate('players', 'Players'); ?>
+                            </span>
+                            <span class="text-xs font-bold text-neutral-100 leading-tight shadow-text-dark">
+                                <?php echo $isOnline ? number_format($realPlayerCount) : '—'; ?>
+                            </span>
+                        </div>
                     </div>
-                    <div>
-                        <span class="block font-['Cinzel'] text-[8px] font-bold tracking-[.14em] uppercase text-gray-400 leading-none">
-                            <?php echo translate('players_label', 'Total Online'); ?>
-                        </span>
-                        <span class="text-xs font-bold text-neutral-100 leading-tight shadow-text-dark">
-                            <?php echo $isOnline ? number_format($onlineCount) : '—'; ?>
-                        </span>
-                    </div>
-                </div>
 
-                <div class="flex items-center gap-1.5">
-                    <div class="w-[22px] h-[22px] flex items-center justify-center bg-[rgba(242,207,82,.08)] border border-[rgba(242,207,82,.25)] clip-realm-icon shrink-0">
-                        <svg class="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+                    <!-- Bots -->
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        <div class="w-[22px] h-[22px] flex items-center justify-center bg-[rgba(242,207,82,.08)] border border-[rgba(242,207,82,.25)] clip-realm-icon shrink-0">
+                            <svg class="w-3 h-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l2.2 6.7H21l-5.5 4 2.1 6.7-5.6-4.1-5.6 4.1 2.1-6.7-5.5-4h6.8L12 2z"/>
+                            </svg>
+                        </div>
+                        <div class="min-w-0">
+                            <span class="block font-['Cinzel'] text-[8px] font-bold tracking-[.12em] uppercase text-gray-400 leading-none">
+                                <?php echo translate('bots', 'Bots'); ?>
+                            </span>
+                            <span class="text-xs font-bold text-neutral-100 leading-tight shadow-text-dark">
+                                <?php echo $isOnline ? number_format($botCount) : '—'; ?>
+                            </span>
+                        </div>
                     </div>
-                    <div>
-                        <span class="block font-['Cinzel'] text-[8px] font-bold tracking-[.14em] uppercase text-gray-400 leading-none">
-                            <?php echo translate('uptime_label', 'Uptime'); ?>
-                        </span>
-                        <span class="text-xs font-bold text-neutral-100 leading-tight shadow-text-dark">
-                            <?php echo $uptime; ?>
-                        </span>
+                <?php else: ?>
+                    <!-- All Players (humans + bots combined) -->
+                    <div class="flex items-center gap-1.5 min-w-0 col-span-2">
+                        <div class="w-[22px] h-[22px] flex items-center justify-center bg-[rgba(242,207,82,.08)] border border-[rgba(242,207,82,.25)] clip-realm-icon shrink-0">
+                            <svg class="w-3 h-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <div class="min-w-0">
+                            <span class="block font-['Cinzel'] text-[8px] font-bold tracking-[.12em] uppercase text-gray-400 leading-none">
+                                <?php echo translate('players', 'Players'); ?>
+                            </span>
+                            <span class="text-xs font-bold text-neutral-100 leading-tight shadow-text-dark">
+                                <?php echo $isOnline ? number_format($onlineCount) : '—'; ?>
+                            </span>
+                        </div>
                     </div>
-                </div>
+                <?php endif; ?>
             </div>
 
-            <!-- Alliance vs Horde Faction Ratio Bar -->
+            <!-- Alliance vs Horde Faction Ratio Bar (unchanged) -->
             <div class="px-2.5 py-2 bg-black/40 border border-[rgba(201,162,39,.12)] clip-realm-inner mb-2 space-y-1.5">
                 <div class="flex justify-between text-[10px] font-semibold tracking-wider uppercase">
                     <span class="text-blue-400">Alliance: <?php echo $isOnline ? number_format($allianceCount) : '—'; ?></span>
@@ -435,7 +517,7 @@ function formatServerUptime($seconds) {
                 </div>
             </div>
 
-            <!-- Address — IP centered, copy button pinned to the right -->
+            <!-- Address row (IP) with copy button -->
             <div class="relative mt-2 py-1.5 px-2 bg-black/35 border border-[rgba(201,162,39,.12)] clip-realm-addr">
                 <div class="flex items-center justify-center gap-1.5 font-mono text-[10px] text-gray-400 text-center">
                     <svg class="w-3 h-3 text-[#f2cf5b] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -456,6 +538,19 @@ function formatServerUptime($seconds) {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
                 </button>
+            </div>
+
+            <!-- Uptime row (below the IP address) -->
+            <div class="flex items-center justify-center gap-2 mt-1.5">
+                <div class="uptime-divider flex-1"></div>
+                <div class="flex items-center gap-1.5 whitespace-nowrap">
+                    <svg class="w-3 h-3 text-green-400/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="font-['Cinzel'] text-[8px] font-bold tracking-[.12em] uppercase text-gray-500"><?php echo translate('uptime_label', 'Uptime'); ?></span>
+                    <span class="text-[11px] font-bold text-neutral-300 shadow-text-dark"><?php echo $uptime; ?></span>
+                </div>
+                <div class="uptime-divider flex-1"></div>
             </div>
 
         </div>

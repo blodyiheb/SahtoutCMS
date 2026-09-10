@@ -23,80 +23,168 @@ require_once $project_root . 'includes/realm_config.php';
 $currentRealm = $realmlist[0] ?? [
     'name' => 'Sahtout Realm',
     'address' => '127.0.0.1',
+    'check_address' => '127.0.0.1',
     'port' => 8085,
     'logo' => $defaultLogo
 ];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $realmName = trim($_POST['realm_name'] ?? '');
-    $realmIP = trim($_POST['realm_ip'] ?? '');
-    $realmPort = (int) ($_POST['realm_port'] ?? 0);
-    $logo_path = $defaultLogo;
+// Backward compatible: when an older config only defines 'address',
+// use it as the status check address until the admin saves the new field.
+$currentCheckAddress = $currentRealm['check_address'] ?? $currentRealm['address'] ?? '127.0.0.1';
 
-    if (empty($realmName)) {
-        $errors[] = translate('err_realm_name_required', 'Realm Name is required.');
+/**
+ * Accepts IPv4 addresses, IPv6 addresses (including URL-style brackets),
+ * and hostnames/domain names (including "localhost" and internal names).
+ * Uses PHP's native filter_var() validation instead of a permissive whitelist.
+ */
+function isValidRealmHost($value) {
+    if (empty($value) || strlen($value) > 253) {
+        return false;
     }
-    if (empty($realmIP)) {
-        $errors[] = translate('err_realm_ip_required', 'Realm IP is required.');
+    $candidate = trim($value);
+    // Allow an IPv6 literal wrapped in square brackets, e.g. [::1]
+    if (strpos($candidate, '[') === 0 && substr($candidate, -1) === ']') {
+        $candidate = substr($candidate, 1, strlen($candidate) - 2);
     }
-    if ($realmPort <= 0 || $realmPort > 65535) {
-        $errors[] = translate('err_realm_port_invalid', 'Realm Port must be a valid number (1-65535).');
+    if (filter_var($candidate, FILTER_VALIDATE_IP) !== false) {
+        return true;
     }
+    return filter_var($candidate, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false;
+}
+
+$currentPlayerDisplay = $currentRealm['player_display'] ?? 'all';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $csrfToken = (string)($_POST['csrf_token'] ?? '');
+    $validCsrf = !empty($csrfToken) && hash_equals($csrfToken, (string)($_SESSION['csrf_token'] ?? ''));
+
+    if (!$validCsrf) {
+        // Reject the request entirely: do not process any POST data.
+        $errors[] = translate('err_invalid_csrf', 'Invalid CSRF token.');
+    } else {
+        $realmName = trim($_POST['realm_name'] ?? '');
+        $realmAddress = trim($_POST['realm_address'] ?? '');
+        $realmCheckAddress = trim($_POST['realm_check_address'] ?? $currentCheckAddress);
+        $realmPort = (int) ($_POST['realm_port'] ?? 0);
+        $playerDisplay = $_POST['player_display'] ?? 'all';
+        $logo_path = $currentRealm['logo'] ?? $defaultLogo;
+
+        if (!in_array($playerDisplay, ['all', 'separate'], true)) {
+            $playerDisplay = 'all';
+        }
+
+        if (empty($realmName)) {
+            $errors[] = translate('err_realm_name_required', 'Realm Name is required.');
+        }
+        if (empty($realmAddress)) {
+            $errors[] = translate('err_realm_ip_required', 'Realm Address / Host is required.');
+        } elseif (!isValidRealmHost($realmAddress)) {
+            $errors[] = translate('err_realm_ip_invalid', 'Realm Address / Host is invalid.');
+        }
+        if (empty($realmCheckAddress)) {
+            $errors[] = translate('err_realm_check_address_required', 'Status Check Address is required.');
+        } elseif (!isValidRealmHost($realmCheckAddress)) {
+            $errors[] = translate('err_realm_check_address_invalid', 'Status Check Address contains invalid characters.');
+        }
+        if ($realmPort <= 0 || $realmPort > 65535) {
+            $errors[] = translate('err_realm_port_invalid', 'Realm Port must be a valid number (1-65535).');
+        }
 
     // Handle logo upload
-    if (isset($_FILES['realm_logo']) && $_FILES['realm_logo']['error'] === UPLOAD_ERR_OK) {
-        $file_tmp = $_FILES['realm_logo']['tmp_name'];
-        $file_name = $_FILES['realm_logo']['name'];
-        $file_size = $_FILES['realm_logo']['size'];
-        $file_type = $_FILES['realm_logo']['type'];
-        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-        $allowed_exts = ['png', 'svg', 'jpg', 'jpeg', 'webp'];
-        $max_size = 2 * 1024 * 1024;
+        if (isset($_FILES['realm_logo']) && $_FILES['realm_logo']['error'] === UPLOAD_ERR_OK) {
+            $file_tmp = $_FILES['realm_logo']['tmp_name'];
+            $file_name = $_FILES['realm_logo']['name'];
+            $file_size = $_FILES['realm_logo']['size'];
+            $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+            $allowed_exts = ['png', 'jpg', 'jpeg', 'webp'];
+            $max_size = 2 * 1024 * 1024;
 
-        if ($file_size > $max_size) {
-            $errors[] = translate('error_realm_logo_too_large', 'Realm logo size exceeds 2MB.');
-        } elseif (!in_array($file_ext, $allowed_exts)) {
-            $errors[] = translate('error_invalid_realm_logo_type', 'Invalid file type. Only PNG, SVG, JPG, or WebP allowed.');
-        } else {
-            $upload_dir = $project_root . 'img/logos/';
-            if (!is_dir($upload_dir) || !is_writable($upload_dir)) {
-                $errors[] = translate('error_realm_logo_upload_failed', 'Upload directory is not accessible or writable.');
+            if ($file_size > $max_size) {
+                $errors[] = translate('error_realm_logo_too_large', 'Realm logo size exceeds 2MB.');
+            } elseif (!in_array($file_ext, $allowed_exts)) {
+                $errors[] = translate('error_invalid_realm_logo_type', 'Invalid file type. Only PNG, JPG, or WebP allowed.');
             } else {
-                $new_file_name = 'realm_logo.' . $file_ext;
-                $destination = $upload_dir . $new_file_name;
-
-                if (move_uploaded_file($file_tmp, $destination)) {
-                    $logo_path = "img/logos/$new_file_name";
+                // Verify the actual file content server-side. Never trust the
+                // filename extension or the client-provided $_FILES['type'].
+                $detectedMime = '';
+                $imageInfo = @getimagesize($file_tmp);
+                if (is_array($imageInfo) && !empty($imageInfo['mime'] ?? '')) {
+                    $detectedMime = $imageInfo['mime'];
+                }
+                if (!in_array($detectedMime, ['image/png', 'image/jpeg', 'image/webp'])) {
+                    $errors[] = translate('error_invalid_realm_logo_type', 'Invalid file type. Only PNG, JPG, or WebP allowed.');
                 } else {
-                    $errors[] = translate('error_realm_logo_upload_failed', 'Failed to upload realm logo.');
+                    $upload_dir = $project_root . 'img/logos/';
+                    if (!is_dir($upload_dir) || !is_writable($upload_dir)) {
+                        $errors[] = translate('error_realm_logo_upload_failed', 'Upload directory is not accessible or writable.');
+                    } else {
+                        $new_file_name = 'realm_logo.' . $file_ext;
+                        $destination = $upload_dir . $new_file_name;
+
+                        if (move_uploaded_file($file_tmp, $destination)) {
+                            $logo_path = "img/logos/$new_file_name";
+                        } else {
+                            $errors[] = translate('error_realm_logo_upload_failed', 'Failed to upload realm logo.');
+                        }
+                    }
                 }
             }
         }
-    }
 
     if (empty($errors)) {
-        $newRealmList = [
-            [
-                'id' => 1,
-                'name' => $realmName,
-                'address' => $realmIP,
-                'port' => $realmPort,
-                'logo' => $logo_path
-            ]
-        ];
+            $newRealmList = [
+                [
+                    'id' => 1,
+                    'name' => $realmName,
+                    'address' => $realmAddress,
+                    'check_address' => $realmCheckAddress,
+                    'port' => $realmPort,
+                    'logo' => $logo_path,
+                    'player_display' => $playerDisplay
+                ]
+            ];
 
-        $configPhp  = "<?php\n";
-        $configPhp .= "if (!defined('ALLOWED_ACCESS')) { exit('Forbidden'); }\n\n";
-        $configPhp .= '$realmlist = ' . var_export($newRealmList, true) . ";\n";
+            $configPhp  = "<?php\n";
+            $configPhp .= "if (!defined('ALLOWED_ACCESS')) { exit('Forbidden'); }\n\n";
+            $configPhp .= '$realmlist = ' . var_export($newRealmList, true) . ";\n";
 
-        $configDir = dirname($realmsFile);
+            $configDir = dirname($realmsFile);
 
-        if (!is_writable($configDir)) {
-            $errors[] = sprintf(translate('err_config_dir_not_writable', 'Config directory is not writable: %s'), $configDir);
-        } elseif (file_put_contents($realmsFile, $configPhp) === false) {
-            $errors[] = sprintf(translate('err_write_realm_config', 'Cannot write realm configuration file: %s'), $realmsFile);
-        } else {
-            $success = true;
+            if (!is_writable($configDir)) {
+                $errors[] = sprintf(translate('err_config_dir_not_writable', 'Config directory is not writable: %s'), $configDir);
+            } else {
+                // Write the configuration atomically: write to a temporary file
+                // in the same directory, then rename() over the target. This
+                // prevents a partial or empty realm_config.php if the process
+                // is interrupted mid-write. (tempnam() is avoided because its
+                // reserved file can be locked and non-renameable on Windows.)
+                $tmpConfigFile = $configDir . '/' . 'realm_config.tmp.' . bin2hex(random_bytes(8));
+                if (file_put_contents($tmpConfigFile, $configPhp, LOCK_EX) === false) {
+                    @unlink($tmpConfigFile);
+                    $errors[] = sprintf(translate('err_write_realm_config', 'Cannot write realm configuration file: %s'), $realmsFile);
+                } else {
+                    // On Windows, rename() over an existing file can fail
+                    // transiently while another request still holds the
+                    // destination open (e.g. an in-flight include of
+                    // realm_config.php). Retry a few times with a short
+                    // back-off before giving up; on success the swap is
+                    // still atomic.
+                    $renamed = false;
+                    for ($attempt = 0; $attempt < 3; $attempt++) {
+                        if (@rename($tmpConfigFile, $realmsFile)) {
+                            $renamed = true;
+                            break;
+                        }
+                        usleep(50000); // 50ms
+                    }
+                    if (!$renamed) {
+                        @unlink($tmpConfigFile);
+                        $errors[] = sprintf(translate('err_write_realm_config', 'Cannot write realm configuration file: %s'), $realmsFile);
+                    } else {
+                        $success = true;
+                    }
+                }
+            }
         }
     }
 }
@@ -221,6 +309,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </h2>
 
                         <form method="POST" enctype="multipart/form-data" class="space-y-4 md:space-y-6 max-w-3xl mx-auto">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                             <!-- Current Logo Preview -->
                             <div>
                                 <label class="form-label text-[#f2cf5b] font-bold text-sm 
@@ -253,22 +342,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                        required>
                             </div>
 
-                            <!-- Realm IP -->
+                            <!-- Realm Address / Host (player-facing) -->
                             <div>
-                                <label for="realm_ip" class="form-label text-[#f2cf5b] font-bold text-sm 
-                                                             tracking-wider block mb-2 
-                                                             drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
-                                    <?php echo translate('label_realm_ip', 'Realm IP / Host'); ?>
+                                <label for="realm_address" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                              tracking-wider block mb-2 
+                                                              drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_realm_ip', 'Realm Address / Host'); ?>
                                 </label>
-                                <input type="text" id="realm_ip" name="realm_ip" 
+                                <input type="text" id="realm_address" name="realm_address" 
                                        class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
                                               bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
                                               focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
                                               focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
                                               placeholder:text-[#96aac8]/40"
-                                       placeholder="127.0.0.1" 
-                                       value="<?php echo htmlspecialchars($_POST['realm_ip'] ?? $currentRealm['address']); ?>" 
+                                       placeholder="<?php echo translate('placeholder_realm_address', 'play.example.com'); ?>" 
+                                       value="<?php echo htmlspecialchars($_POST['realm_address'] ?? $currentRealm['address']); ?>" 
                                        required>
+                            </div>
+
+                            <!-- Status Check Address (internal only) -->
+                            <div>
+                                <label for="realm_check_address" class="form-label text-[#f2cf5b] font-bold text-sm 
+                                                              tracking-wider block mb-2 
+                                                              drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_realm_check_address', 'Status Check Address'); ?>
+                                </label>
+                                <input type="text" id="realm_check_address" name="realm_check_address" 
+                                       class="w-full px-4 py-3 text-[0.95rem] text-[#e5e7eb] 
+                                              bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
+                                              focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
+                                              focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
+                                              placeholder:text-[#96aac8]/40"
+                                       placeholder="<?php echo translate('placeholder_realm_check_address', '127.0.0.1'); ?>" 
+                                       value="<?php echo htmlspecialchars($_POST['realm_check_address'] ?? $currentCheckAddress); ?>" 
+                                       required>
+                                <p class="text-[#6a7a8a] text-xs mt-1.5">
+                                    <?php echo translate('note_realm_check_address', 'Used internally by the website to check if the server is online. Usually 127.0.0.1 when the website and game server run on the same machine.'); ?>
+                                </p>
                             </div>
 
                             <!-- Realm Port -->
@@ -285,8 +395,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                               focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
                                               placeholder:text-[#96aac8]/40"
                                        placeholder="8085" 
+                                       min="1" max="65535" step="1"
                                        value="<?php echo htmlspecialchars($_POST['realm_port'] ?? $currentRealm['port']); ?>" 
                                        required>
+                            </div>
+
+                            <!-- Player Display -->
+                            <div>
+                                <label class="form-label text-[#f2cf5b] font-bold text-sm 
+                                              tracking-wider block mb-2 
+                                              drop-shadow-[0_0_12px_rgba(201,162,39,.15),0_2px_4px_rgba(0,0,0,.8)]">
+                                    <?php echo translate('label_player_display', 'Player Display'); ?>
+                                </label>
+
+                                <div class="space-y-3">
+                                    <!-- All Players -->
+                                    <label class="flex items-start gap-3 p-4 
+                                                  bg-[#0a0e16]/50 border border-[rgba(201,162,39,.15)] 
+                                                  rounded-sm cursor-pointer hover:border-[#c9a227]/40 
+                                                  transition-all duration-200">
+                                        <input
+                                            type="radio"
+                                            name="player_display"
+                                            value="all"
+                                            class="mt-1 accent-[#c9a227]"
+                                            <?php echo (($_POST['player_display'] ?? $currentPlayerDisplay) === 'all') ? 'checked' : ''; ?>
+                                        >
+
+                                        <div>
+                                            <div class="text-[#e5e7eb] font-semibold text-sm">
+                                                <?php echo translate('player_display_all', 'All Players'); ?>
+                                            </div>
+
+                                            <div class="text-[#6a7a8a] text-xs mt-1">
+                                                <?php echo translate(
+                                                    'player_display_all_desc',
+                                                    'Show humans and bots together as one player count.'
+                                                ); ?>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <!-- Humans / Bots -->
+                                    <label class="flex items-start gap-3 p-4 
+                                                  bg-[#0a0e16]/50 border border-[rgba(201,162,39,.15)] 
+                                                  rounded-sm cursor-pointer hover:border-[#c9a227]/40 
+                                                  transition-all duration-200">
+                                        <input
+                                            type="radio"
+                                            name="player_display"
+                                            value="separate"
+                                            class="mt-1 accent-[#c9a227]"
+                                            <?php echo (($_POST['player_display'] ?? $currentPlayerDisplay) === 'separate') ? 'checked' : ''; ?>
+                                        >
+
+                                        <div>
+                                            <div class="text-[#e5e7eb] font-semibold text-sm">
+                                                <?php echo translate('player_display_separate', 'Humans / Bots'); ?>
+                                            </div>
+
+                                            <div class="text-[#6a7a8a] text-xs mt-1">
+                                                <?php echo translate(
+                                                    'player_display_separate_desc',
+                                                    'Show real players and playerbots as separate counts.'
+                                                ); ?>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
 
                             <!-- Realm Logo Upload -->
@@ -303,11 +479,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                      id="uploadArea">
                                     <input type="file" id="realm_logo" name="realm_logo" 
                                            class="absolute w-px h-px p-0 -m-px overflow-hidden clip-[rect(0,0,0,0)] border-0" 
-                                           accept="image/png,image/svg+xml,image/jpeg,image/webp">
+                                           accept="image/png,image/jpeg,image/webp">
                                     <div id="uploadPlaceholder">
                                         <i class="fas fa-cloud-upload-alt text-3xl text-[#c9a227]/40 block mb-2"></i>
                                         <p class="text-sm text-gray-400"><?php echo translate('placeholder_realm_logo', 'Click or drag to upload a new logo'); ?></p>
-                                        <p class="text-xs text-gray-500 mt-1">PNG, SVG, JPG, or WebP (max 2MB)</p>
+                                        <p class="text-xs text-gray-500 mt-1">PNG, JPG, or WebP (max 2MB)</p>
                                     </div>
                                     <div id="file-name" class="text-sm text-[#f2cf5b] hidden mt-2 font-semibold"></div>
                                 </div>
@@ -372,11 +548,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (this.files && this.files[0]) {
                         const file = this.files[0];
                         const maxSize = 2 * 1024 * 1024;
-                        const validExtensions = ['png', 'svg', 'jpg', 'jpeg', 'webp'];
+                        const validExtensions = ['png', 'jpg', 'jpeg', 'webp'];
                         const ext = file.name.split('.').pop().toLowerCase();
 
                         if (!validExtensions.includes(ext)) {
-                            alert('Invalid file type. Please upload PNG, SVG, JPG, or WebP.');
+                            alert('Invalid file type. Please upload PNG, JPG, or WebP.');
                             this.value = '';
                             return;
                         }
