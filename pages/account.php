@@ -6,6 +6,7 @@ require_once $project_root . 'includes/session.php';
 require_once $project_root . 'includes/srp6.php';
 require_once $project_root . 'includes/config.mail.php';
 require_once $project_root . 'languages/language.php'; // Include language file for translations
+require_once $project_root . 'includes/config.settings.php';
 
 // Early session validation
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['username'])) {
@@ -414,10 +415,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Now proceed with page rendering
-$page_class = 'account';
-include_once $project_root . 'includes/header.php';
-
 // Database queries for page content
 if ($auth_db->connect_error || $char_db->connect_error || $site_db->connect_error) {
     $error = translate('error_database_connection', 'Database connection failed');
@@ -576,19 +573,13 @@ function getFactionIcon($race) {
 function getAvatarDisplayName($filename) {
     return translate('avatar_' . str_replace('.', '_', $filename), $filename);
 }
+
+// Now proceed with page rendering
+$page_class = 'account';
+$page_title = $site_title_name . ' ' . sprintf(translate('page_title', 'Account - %s'), htmlspecialchars($accountInfo['username'] ?? ''));
+
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $site_title_name ." ". sprintf(translate('page_title', 'Account - %s'), htmlspecialchars($accountInfo['username'] ?? '')); ?></title>
-    
-    <!-- Tailwind CSS -->
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    
     <style>
         /* Page background - Show full background image without overlay */
         body {
@@ -727,8 +718,11 @@ function getAvatarDisplayName($filename) {
             }
         }
     </style>
-</head>
-<body>
+<?php
+$page_head = ob_get_clean();
+
+include_once $project_root . 'includes/header.php';
+?>
 
 <div class="account-content min-h-screen flex items-start justify-center px-4 md:px-8 py-8">
     <div class="container mx-auto max-w-7xl px-2 sm:px-4">
@@ -1111,8 +1105,6 @@ function getAvatarDisplayName($filename) {
     </div>
 </div>
 
-<?php include_once $project_root . 'includes/footer.php'; ?>
-
 <!-- JavaScript for Tabs and Avatar Selection -->
 <script>
     // Tab switching functionality
@@ -1196,8 +1188,8 @@ function getAvatarDisplayName($filename) {
         }
     });
 </script>
-</body>
-</html>
+
+<?php include_once $project_root . 'includes/footer.php'; ?>
 <?php
 ob_end_flush(); // Flush the output buffer
 ?>

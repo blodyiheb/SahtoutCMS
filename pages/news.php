@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/paths.php';
 require_once $project_root . 'includes/session.php';
 require_once $project_root . 'languages/language.php';
 $page_class = 'news';
-include $project_root . 'includes/header.php';
+require_once $project_root . 'includes/config.settings.php';
 
 $default_image_url = 'img/newsimg/news.png';
 $items_per_page = 6;
@@ -33,10 +33,7 @@ if ($is_single) {
 
     if (!$news) {
         header('HTTP/1.0 404 Not Found');
-        echo '<h1>' . translate('error_404_title', '404 - News Not Found') . '</h1>';
-        echo '<p>' . translate('error_404_message', 'The news article you are looking for does not exist.') . '</p>';
-        include $project_root . 'includes/footer.php';
-        exit;
+        $news_not_found = true;
     }
 } else {
     $current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
@@ -98,29 +95,26 @@ $categories = [];
 while ($row = $category_result->fetch_assoc()) {
     $categories[] = $row['category'];
 }
-?>
 
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php if ($is_single): ?>
-        <meta name="description" content="<?php echo htmlspecialchars(substr($news['content'], 0, 150)); ?>...">
+// Build page title, meta description and head content before any output
+if ($is_single && !empty($news)) {
+    $page_title = htmlspecialchars($news['title']);
+    $page_meta_description = substr($news['content'], 0, 150) . '...';
+} elseif (!empty($news_not_found)) {
+    $page_title = translate('error_404_title', '404 - News Not Found');
+} else {
+    $page_title = $site_title_name . ' ' . translate('page_title_list', 'News');
+    $page_meta_description = translate('meta_description_list', 'Latest news and updates for our World of Warcraft server.');
+}
+$page_meta_robots = 'index';
+
+ob_start();
+?>
+    <?php if ($is_single && !empty($news)): ?>
         <link rel="canonical" href="<?php echo $base_path; ?>news?slug=<?php echo htmlspecialchars($news['slug']); ?>">
-        <title><?php echo htmlspecialchars($news['title']); ?></title>
-    <?php else: ?>
-        <meta name="description" content="<?php echo translate('meta_description_list', 'Latest news and updates for our World of Warcraft server.'); ?>">
+    <?php elseif (!$is_single): ?>
         <link rel="canonical" href="<?php echo $base_path; ?>news?page=<?php echo $current_page; ?>">
-        <title><?php echo $site_title_name ." ". translate('page_title_list', 'News'); ?></title>
     <?php endif; ?>
-    <meta name="robots" content="index">
-    
-    <!-- Tailwind CSS -->
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
-    
     <style>
         /* Scrollbar styling */
         ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -230,8 +224,18 @@ while ($row = $category_result->fetch_assoc()) {
             word-break: break-word;
         }
     </style>
-</head>
-<body>
+<?php
+$page_head = ob_get_clean();
+
+include $project_root . 'includes/header.php';
+
+if (!empty($news_not_found)) {
+    echo '<h1>' . translate('error_404_title', '404 - News Not Found') . '</h1>';
+    echo '<p>' . translate('error_404_message', 'The news article you are looking for does not exist.') . '</p>';
+    include $project_root . 'includes/footer.php';
+    exit;
+}
+?>
 
 <div class="relative z-10 min-h-screen flex items-start justify-center px-4 md:px-8 py-8">
     <div class="container mx-auto max-w-7xl px-2 sm:px-4">
@@ -413,5 +417,3 @@ if (isset($site_db)) {
 }
 include $project_root . 'includes/footer.php'; 
 ?>
-</body>
-</html>

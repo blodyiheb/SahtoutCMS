@@ -7,8 +7,7 @@ require_once __DIR__ . '/../includes/paths.php';
 // Use $project_root for filesystem includes
 require_once $project_root . 'includes/config.settings.php';
 require_once $project_root . 'includes/session.php';
-$page_class = 'vote';
-require_once $project_root . 'includes/header.php';
+require_once $project_root . 'languages/language.php';
 
 // Check database connection
 if (!isset($site_db) || !$site_db instanceof mysqli) {
@@ -126,20 +125,13 @@ if (!function_exists('translate')) {
         return $default;
     }
 }
+
+$page_class = 'vote';
+$page_title = $site_title_name ." ". translate('vote_title', 'Vote for Epic Rewards');
+
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en', ENT_QUOTES, 'UTF-8'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $site_title_name ." ". translate('vote_title', 'Vote for Epic Rewards'); ?></title>
-    
-    <!-- Tailwind CSS -->
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    
-    <style>
+<style>
         /* Page background - Lighter vibrant gradient for voting page */
         body {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533483 75%, #1a1a2e 100%);
@@ -387,8 +379,10 @@ if (!function_exists('translate')) {
             }
         }
     </style>
-</head>
-<body>
+<?php
+$page_head = ob_get_clean();
+require_once $project_root . 'includes/header.php';
+?>
 
 <div class="vote-content min-h-screen flex items-start justify-center px-4 md:px-8 py-8">
     <div class="container mx-auto max-w-7xl px-2 sm:px-4">
@@ -593,8 +587,6 @@ if (!function_exists('translate')) {
     </div>
 </div>
 
-<?php include_once $project_root . 'includes/footer.php'; ?>
-
 <script>
     const basePath = '<?php echo addslashes($base_path); ?>';
 
@@ -743,5 +735,5 @@ if (!function_exists('translate')) {
         };
     });
 </script>
-</body>
-</html>
+
+<?php include_once $project_root . 'includes/footer.php'; ?>

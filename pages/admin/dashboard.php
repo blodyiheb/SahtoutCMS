@@ -140,20 +140,14 @@ $bans_query = "SELECT ab.id, ab.bandate, ab.unbandate, ab.banreason, a.username
                LIMIT 5";
 $bans_result = $auth_db->query($bans_query);
 ?>
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo translate('admin_dashboard_meta_description', 'Admin and Moderator Dashboard for Sahtout WoW Server'); ?>">
-    <meta name="robots" content="noindex">
-    <title><?php echo translate('admin_dashboard_page_title', 'Admin & Moderator Dashboard'); ?></title>
-    <link rel="icon" href="<?php echo $base_path . $site_logo; ?>" type="image/x-icon">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
-    
-    <style>
+<?php
+$page_title = translate('admin_dashboard_page_title', 'Admin & Moderator Dashboard');
+$page_meta_description = translate('admin_dashboard_meta_description', 'Admin and Moderator Dashboard for Sahtout WoW Server');
+$page_meta_robots = 'noindex';
+
+ob_start();
+?>
+<style>
         * { font-family: 'Inter', sans-serif; }
 
         body {
@@ -451,9 +445,9 @@ $bans_result = $auth_db->query($bans_query);
             }
         }
     </style>
-</head>
-<body>
-    <?php include $project_root . 'includes/header.php'; ?>
+<?php $page_head = ob_get_clean(); ?>
+
+<?php include $project_root . 'includes/header.php'; ?>
 
     <!-- Main Content Area with Sidebar -->
     <div class="flex relative min-h-screen">

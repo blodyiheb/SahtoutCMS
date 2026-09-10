@@ -6,7 +6,6 @@ require_once __DIR__ . '/../../includes/paths.php';
 
 // Use $project_root for filesystem includes
 require_once $project_root . 'includes/session.php';
-require_once $project_root . 'includes/header.php';
 
 // Faction from race
 function getFaction($race) {
@@ -99,19 +98,18 @@ if ($result) {
         $teams[] = $row;
     }
 }
-?>
 
-<!DOCTYPE html>
-<html lang="<?php echo $_SESSION['lang'] ?? 'en'; ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $site_title_name . " " . translate('arena_3v3_page_title', 'Top 50 3v3 Arena Teams'); ?></title>
-    
-    <!-- Tailwind CSS -->
-    <!-- Font Awesome for icons -->
-    
-    <style>
+// Ensure site settings and translations are loaded for page head config
+require_once $project_root . 'includes/config.settings.php';
+require_once $project_root . 'languages/language.php';
+
+// Page configuration
+$page_title = $site_title_name . " " . translate('arena_3v3_page_title', 'Top 50 3v3 Arena Teams');
+$page_class = 'armory';
+
+ob_start();
+?>
+<style>
         /* Page background - Show full background image without overlay */
         body {
             background: url('<?php echo $base_path; ?>img/backgrounds/bg-armory.jpg') no-repeat center center fixed;
@@ -398,8 +396,11 @@ if ($result) {
             }
         }
     </style>
-</head>
-<body>
+<?php
+$page_head = ob_get_clean();
+
+require_once $project_root . 'includes/header.php';
+?>
 <div class="arena-content min-h-screen flex items-start justify-center px-4 md:px-8 py-8">
     <div class="container mx-auto max-w-7xl px-2 sm:px-4">
         <!-- Main Container - Darker Glass Effect -->
@@ -526,5 +527,3 @@ if ($result) {
 </div>
 
 <?php include_once $project_root . 'includes/footer.php'; ?>
-</body>
-</html>

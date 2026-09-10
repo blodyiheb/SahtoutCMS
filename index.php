@@ -7,29 +7,13 @@ require_once $project_root . 'languages/language.php';
 require_once $project_root . 'includes/config.settings.php';
 
 $page_class = "home";
-$header_file = $project_root . 'includes/header.php';
+$page_title = $site_title_name . " " . translate('home_page_title', 'Home');
+$page_meta_description = translate('home_meta_description', 'Welcome to our World of Warcraft server. Join our Discord, YouTube, Instagram, create an account, or download the game now!');
+$page_meta_robots = 'index';
 
-if (file_exists($header_file)) {
-    include $header_file;
-} else {
-    die(translate('error_header_not_found', 'Error: Header file not found.'));
-}
-
-$query = "SELECT id, title, slug, image_url, post_date 
-          FROM server_news 
-          ORDER BY is_important DESC, post_date DESC 
-          LIMIT 4";
-$result = $site_db->query($query);
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo translate('home_meta_description', 'Welcome to our World of Warcraft server. Join our Discord, YouTube, Instagram, create an account, or download the game now!'); ?>">
-    <meta name="robots" content="index">
-    <title><?php echo $site_title_name . " " . translate('home_page_title', 'Home'); ?></title>
-    <style>
+<style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap');
 
         * { font-family: 'Inter', sans-serif; }
@@ -319,8 +303,22 @@ $result = $site_db->query($query);
             'description' => $youtube_description ?? 'Lichking Trailer, Replace it with your own ....',
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
     </script>
-</head>
-<body>
+<?php
+$page_head = ob_get_clean();
+
+$header_file = $project_root . 'includes/header.php';
+if (file_exists($header_file)) {
+    include $header_file;
+} else {
+    die(translate('error_header_not_found', 'Error: Header file not found.'));
+}
+
+$query = "SELECT id, title, slug, image_url, post_date 
+          FROM server_news 
+          ORDER BY is_important DESC, post_date DESC 
+          LIMIT 4";
+$result = $site_db->query($query);
+?>
 
     <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
 
@@ -550,15 +548,6 @@ $result = $site_db->query($query);
         </div>
     </main>
 
-    <?php
-    $footer_file = $project_root . 'includes/footer.php';
-    if (file_exists($footer_file)) {
-        include $footer_file;
-    } else {
-        die(translate('error_footer_not_found', 'Error: Footer file not found.'));
-    }
-    ?>
-
     <script>
         const track = document.getElementById('sliderTrack');
         const slides = track.querySelectorAll('.slide');
@@ -618,8 +607,15 @@ $result = $site_db->query($query);
         });
     </script>
     <script src="<?php echo $base_path; ?>assets/js/home.js"></script>
-</body>
-</html>
+
+    <?php
+    $footer_file = $project_root . 'includes/footer.php';
+    if (file_exists($footer_file)) {
+        include $footer_file;
+    } else {
+        die(translate('error_footer_not_found', 'Error: Footer file not found.'));
+    }
+    ?>
 <?php
 if (isset($site_db)) {
     $site_db->close();
