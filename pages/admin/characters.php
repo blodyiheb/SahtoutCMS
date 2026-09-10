@@ -549,7 +549,7 @@ ob_start();
         <?php include $project_root . 'includes/admin_sidebar.php'; ?>
         
         <!-- Main Content -->
-        <main class="main-content-area flex-1 p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 lg:ml-[280px]">
+        <main class="main-content-area flex-1 p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 lg:ml-70">
             <div class="content-wrapper">
                 <div class="space-y-4 md:space-y-6 lg:space-y-8">
                     

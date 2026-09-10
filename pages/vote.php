@@ -510,7 +510,7 @@ require_once $project_root . 'includes/header.php';
                                                   data-site-id="<?php echo (int)$site['id']; ?>" 
                                                   data-remaining-seconds="<?php echo (int)$site['remaining_cooldown']; ?>" 
                                                   data-cooldown-hours="<?php echo (int)$site['cooldown_hours']; ?>">
-                                                <?php echo $site['is_on_cooldown'] ? translate('vote_cooldown_timer', 'Cooldown: Calculating...') : '<span class="text-[#2ecc71] font-semibold"><i class="fas fa-circle-check mr-1"></i>' . translate('vote_cooldown_ready', 'Ready to vote!') . '</span>'; ?>
+                                                <?php echo $site['is_on_cooldown'] ? translate('vote_cooldown_timer', 'Cooldown: Calculating...') : '<span class="text-wow-success font-semibold"><i class="fas fa-circle-check mr-1"></i>' . translate('vote_cooldown_ready', 'Ready to vote!') . '</span>'; ?>
                                             </span>
                                         <?php endif; ?>
                                     </div>
@@ -658,7 +658,7 @@ require_once $project_root . 'includes/header.php';
                 const interval = setInterval(() => {
                     if (remainingSeconds <= 0) {
                         clearInterval(interval);
-                        timer.innerHTML = '<span class="text-[#2ecc71] font-semibold"><i class="fas fa-circle-check mr-1"></i><?php echo translate('vote_cooldown_ready', 'Ready to vote!'); ?></span>';
+                        timer.innerHTML = '<span class="text-wow-success font-semibold"><i class="fas fa-circle-check mr-1"></i><?php echo translate('vote_cooldown_ready', 'Ready to vote!'); ?></span>';
                         const voteCard = timer.closest('.vote-card');
                         const voteBtn = voteCard ? voteCard.querySelector('.vote-btn') : null;
                         if (voteBtn) {

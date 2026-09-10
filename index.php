@@ -292,6 +292,7 @@ ob_start();
         .line-clamp-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -320,7 +321,7 @@ $query = "SELECT id, title, slug, image_url, post_date
 $result = $site_db->query($query);
 ?>
 
-    <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+    <main class="max-w-350 mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
 
         <!-- Responsive grid: stacks on mobile, side-by-side on large screens -->
         <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-6 md:gap-8">
@@ -447,7 +448,7 @@ $result = $site_db->query($query);
                                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                         <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(0,0,0,.9), transparent 60%);"></div>
                                         <div class="absolute bottom-0 left-0 right-0 p-2 sm:p-3 min-w-0">
-                                            <h3 class="text-xs sm:text-sm font-bold text-white min-w-0 break-words [overflow-wrap:anywhere] line-clamp-2"><?php echo htmlspecialchars($news['title']); ?></h3>
+                                            <h3 class="text-xs sm:text-sm font-bold text-white min-w-0 wrap-anywhere line-clamp-2"><?php echo htmlspecialchars($news['title']); ?></h3>
                                         </div>
                                     </div>
                                     <div class="p-2 sm:p-3">

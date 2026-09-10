@@ -941,7 +941,7 @@ include_once $project_root . 'includes/header.php';
                                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                         <input type="hidden" name="guid" value="<?php echo $char['guid']; ?>">
                                         <div class="flex flex-wrap gap-2">
-                                            <select class="flex-1 min-w-[100px] px-3 py-1.5 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 text-sm focus:border-[#f2cf5b] focus:outline-none" name="destination" required>
+                                            <select class="flex-1 min-w-25 px-3 py-1.5 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 text-sm focus:border-[#f2cf5b] focus:outline-none" name="destination" required>
                                                 <option value=""><?php echo translate('select_city_placeholder', 'Select city'); ?></option>
                                                 <option value="shattrath"><?php echo translate('city_shattrath', 'Shattrath'); ?></option>
                                                 <option value="dalaran"><?php echo translate('city_dalaran', 'Dalaran'); ?></option>
