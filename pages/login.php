@@ -4,6 +4,7 @@ define('ALLOWED_ACCESS', true);
 require_once __DIR__ . '/../includes/paths.php';
 require_once $project_root . 'includes/session.php';
 require_once $project_root . 'languages/language.php';
+require_once $project_root . 'includes/config.settings.php';
 require_once $project_root . 'includes/config.cap.php';
 require_once $project_root . 'includes/srp6.php';
 

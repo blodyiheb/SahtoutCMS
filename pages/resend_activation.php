@@ -9,6 +9,7 @@ require_once $project_root . 'includes/session.php';
 require_once $project_root . 'includes/config.mail.php';
 require_once $project_root . 'includes/config.cap.php'; // reCAPTCHA keys
 require_once $project_root . 'languages/language.php'; // Add for translate()
+require_once $project_root . 'includes/config.settings.php'; // Site title used in $page_title
 $page_class = 'resend_activation'; // Underscore for URL consistency
 
 if (isset($_SESSION['user_id'])) {

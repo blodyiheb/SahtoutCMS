@@ -9,6 +9,7 @@ require_once $project_root . 'includes/session.php';
 require_once $project_root . 'includes/config.cap.php';
 require_once $project_root . 'includes/config.mail.php';
 require_once $project_root . 'languages/language.php';
+require_once $project_root . 'includes/config.settings.php';
 $page_class = 'forgot_password';
 
 // Redirect to account if already logged in

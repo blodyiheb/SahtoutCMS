@@ -7,6 +7,7 @@ require_once __DIR__ . '/../includes/paths.php';
 // Use $project_root for filesystem includes
 require_once $project_root . 'includes/session.php';
 require_once $project_root . 'languages/language.php';
+require_once $project_root . 'includes/config.settings.php';
 require_once $project_root . 'includes/config.cap.php';
 require_once $project_root . 'includes/config.mail.php';
 require_once $project_root . 'includes/srp6.php';

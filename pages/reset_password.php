@@ -10,6 +10,7 @@ require_once $project_root . 'includes/config.cap.php';
 require_once $project_root . 'includes/srp6.php';
 require_once $project_root . 'includes/config.mail.php';
 require_once $project_root . 'languages/language.php';
+require_once $project_root . 'includes/config.settings.php';
 $page_class = 'reset_password';
 
 if (isset($_SESSION['user_id'])) {

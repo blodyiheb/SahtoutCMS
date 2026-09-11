@@ -8,6 +8,7 @@ require_once __DIR__ . '/../includes/paths.php';
 require_once $project_root . 'includes/session.php'; // Includes config.php for DB
 require_once $project_root . 'includes/config.mail.php'; // Email config
 require_once $project_root . 'languages/language.php'; // Translations
+require_once $project_root . 'includes/config.settings.php'; // Site title used in $page_title
 
 $page_class = 'activate';
 

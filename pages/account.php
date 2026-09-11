@@ -494,9 +494,10 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$auth_db->close();
-$char_db->close();
-$site_db->close();
+// NOTE: Database connections are intentionally left open here.
+// includes/header.php (included below) re-queries $site_db and $auth_db when a
+// user session exists, so the connections must stay open until the end of the
+// request. They are closed after the footer include at the bottom of this file.
 
 // Helper functions
 function getAccountStatus($locked, $banInfo) {
@@ -1192,4 +1193,20 @@ include_once $project_root . 'includes/header.php';
 <?php include_once $project_root . 'includes/footer.php'; ?>
 <?php
 ob_end_flush(); // Flush the output buffer
+?>
+<?php
+// Close the database connections at the true end of the request.
+// header.php (included above) queries $site_db and $auth_db whenever a user
+// session exists, so nothing may be closed before the header and footer have
+// finished rendering. POST/redirect paths exit earlier and rely on PHP's
+// end-of-script connection teardown, exactly as before this refactor.
+if (isset($auth_db)) {
+    $auth_db->close();
+}
+if (isset($char_db)) {
+    $char_db->close();
+}
+if (isset($site_db)) {
+    $site_db->close();
+}
 ?>

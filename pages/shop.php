@@ -4,6 +4,7 @@ require_once __DIR__ . '/../includes/paths.php'; // Include paths.php
 require_once $project_root . 'includes/session.php';
 require_once $project_root . 'includes/item_tooltip.php';
 require_once $project_root . 'languages/language.php';
+require_once $project_root . 'includes/config.settings.php'; // Site title used in $page_title
 
 $page_class = 'shop';
 
