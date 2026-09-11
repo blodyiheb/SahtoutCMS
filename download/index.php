@@ -54,21 +54,12 @@ if (is_dir($download_dir)) {
 }
 
 $page_class = 'download';
-include_once $project_root . 'includes/header.php';
+$page_title = $site_title_name . " " . translate('download_title', 'Download');
+$page_meta_description = translate('download_meta_description', 'Download Wrath of the Lich King client for Sahtout WoW Server');
+
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo translate('download_meta_description', 'Download Wrath of the Lich King client for Sahtout WoW Server'); ?>">
-    <title><?php echo $site_title_name . " " . translate('download_title', 'Download'); ?></title>
-    <link rel="icon" href="<?php echo $base_path . $site_logo; ?>" type="image/x-icon">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
-    
-    <style>
+<style>
         * { font-family: 'Inter', sans-serif; }
 
         /* Fix footer to bottom */
@@ -300,8 +291,10 @@ include_once $project_root . 'includes/header.php';
             }
         }
     </style>
-</head>
-<body>
+<?php
+$page_head = ob_get_clean();
+include_once $project_root . 'includes/header.php';
+?>
     <!-- Header is included at the top via include_once -->
 
     <!-- Main content wrapper -->
@@ -509,5 +502,3 @@ include_once $project_root . 'includes/header.php';
     </script>
 
     <?php include_once $project_root . 'includes/footer.php'; ?>
-</body>
-</html>

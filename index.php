@@ -7,29 +7,13 @@ require_once $project_root . 'languages/language.php';
 require_once $project_root . 'includes/config.settings.php';
 
 $page_class = "home";
-$header_file = $project_root . 'includes/header.php';
+$page_title = $site_title_name . " " . translate('home_page_title', 'Home');
+$page_meta_description = translate('home_meta_description', 'Welcome to our World of Warcraft server. Join our Discord, YouTube, Instagram, create an account, or download the game now!');
+$page_meta_robots = 'index';
 
-if (file_exists($header_file)) {
-    include $header_file;
-} else {
-    die(translate('error_header_not_found', 'Error: Header file not found.'));
-}
-
-$query = "SELECT id, title, slug, image_url, post_date 
-          FROM server_news 
-          ORDER BY is_important DESC, post_date DESC 
-          LIMIT 4";
-$result = $site_db->query($query);
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo translate('home_meta_description', 'Welcome to our World of Warcraft server. Join our Discord, YouTube, Instagram, create an account, or download the game now!'); ?>">
-    <meta name="robots" content="index">
-    <title><?php echo $site_title_name . " " . translate('home_page_title', 'Home'); ?></title>
-    <style>
+<style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap');
 
         * { font-family: 'Inter', sans-serif; }
@@ -308,6 +292,7 @@ $result = $site_db->query($query);
         .line-clamp-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -319,10 +304,24 @@ $result = $site_db->query($query);
             'description' => $youtube_description ?? 'Lichking Trailer, Replace it with your own ....',
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
     </script>
-</head>
-<body>
+<?php
+$page_head = ob_get_clean();
 
-    <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+$header_file = $project_root . 'includes/header.php';
+if (file_exists($header_file)) {
+    include $header_file;
+} else {
+    die(translate('error_header_not_found', 'Error: Header file not found.'));
+}
+
+$query = "SELECT id, title, slug, image_url, post_date 
+          FROM server_news 
+          ORDER BY is_important DESC, post_date DESC 
+          LIMIT 4";
+$result = $site_db->query($query);
+?>
+
+    <main class="max-w-350 mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
 
         <!-- Responsive grid: stacks on mobile, side-by-side on large screens -->
         <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-6 md:gap-8">
@@ -449,7 +448,7 @@ $result = $site_db->query($query);
                                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                         <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(0,0,0,.9), transparent 60%);"></div>
                                         <div class="absolute bottom-0 left-0 right-0 p-2 sm:p-3 min-w-0">
-                                            <h3 class="text-xs sm:text-sm font-bold text-white min-w-0 break-words [overflow-wrap:anywhere] line-clamp-2"><?php echo htmlspecialchars($news['title']); ?></h3>
+                                            <h3 class="text-xs sm:text-sm font-bold text-white min-w-0 wrap-anywhere line-clamp-2"><?php echo htmlspecialchars($news['title']); ?></h3>
                                         </div>
                                     </div>
                                     <div class="p-2 sm:p-3">
@@ -550,15 +549,6 @@ $result = $site_db->query($query);
         </div>
     </main>
 
-    <?php
-    $footer_file = $project_root . 'includes/footer.php';
-    if (file_exists($footer_file)) {
-        include $footer_file;
-    } else {
-        die(translate('error_footer_not_found', 'Error: Footer file not found.'));
-    }
-    ?>
-
     <script>
         const track = document.getElementById('sliderTrack');
         const slides = track.querySelectorAll('.slide');
@@ -618,8 +608,15 @@ $result = $site_db->query($query);
         });
     </script>
     <script src="<?php echo $base_path; ?>assets/js/home.js"></script>
-</body>
-</html>
+
+    <?php
+    $footer_file = $project_root . 'includes/footer.php';
+    if (file_exists($footer_file)) {
+        include $footer_file;
+    } else {
+        die(translate('error_footer_not_found', 'Error: Footer file not found.'));
+    }
+    ?>
 <?php
 if (isset($site_db)) {
     $site_db->close();

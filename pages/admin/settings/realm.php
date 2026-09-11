@@ -11,6 +11,10 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'mode
 }
 
 $page_class = 'realm';
+$page_title = translate('page_title_realm', 'Realm Configuration');
+$page_meta_description = translate('page_description_realm', 'Realm Configuration for Sahtout WoW Server');
+$page_meta_robots = 'noindex';
+$page_body_class = 'min-h-screen text-[#d8d8d8] bg-[#05070b] bg-fixed';
 
 $errors = [];
 $success = false;
@@ -231,23 +235,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo translate('page_description_realm', 'Realm Configuration for Sahtout WoW Server'); ?>">
-    <meta name="robots" content="noindex">
-    <title><?php echo translate('page_title_realm', 'Realm Configuration'); ?></title>
-    <link rel="icon" href="<?php echo $base_path . $site_logo; ?>" type="image/x-icon">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
-    
     <style>
         /* Only keep what Tailwind CANNOT do */
-        
+
+        /* Page background (was inline on <body>) */
+        body {
+            background-image:
+                radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.14), transparent 65%),
+                radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.10), transparent 70%),
+                linear-gradient(180deg, #0a0e16 0%, #060810 45%, #03040a 100%);
+        }
+
         /* Font families */
         * { font-family: 'Inter', sans-serif; }
         .wow-title, .section-title, .form-label { font-family: 'Cinzel', serif; }
@@ -289,14 +289,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
         }
     </style>
-</head>
-<body class="min-h-screen text-[#d8d8d8] bg-[#05070b] bg-fixed"
-      style="background-image: 
-        radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.14), transparent 65%),
-        radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.10), transparent 70%),
-        linear-gradient(180deg, #0a0e16 0%, #060810 45%, #03040a 100%);">
-    
-    <?php include $project_root . 'includes/header.php'; ?>
+<?php
+$page_head = ob_get_clean();
+
+include $project_root . 'includes/header.php';
+?>
 
     <div class="flex relative min-h-screen">
         
