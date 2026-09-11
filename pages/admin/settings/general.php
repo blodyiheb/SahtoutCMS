@@ -11,23 +11,24 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'mode
 }
 
 $page_class = 'general';
+$page_title = translate('page_title_general', 'General Settings');
+$page_meta_description = translate('page_description_general', 'General Settings for Sahtout WoW Server');
+$page_meta_robots = 'noindex';
+$page_body_class = 'min-h-screen text-[#d8d8d8] bg-[#05070b] bg-fixed';
+
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo translate('page_description_general', 'General Settings for Sahtout WoW Server'); ?>">
-    <meta name="robots" content="noindex">
-    <title><?php echo translate('page_title_general', 'General Settings'); ?></title>
-    <link rel="icon" href="<?php echo $base_path . $site_logo; ?>" type="image/x-icon">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
-    
     <style>
         /* Only keep what Tailwind CANNOT do */
-        
+
+        /* Page background (was inline on <body>) */
+        body {
+            background-image:
+                radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.14), transparent 65%),
+                radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.10), transparent 70%),
+                linear-gradient(180deg, #0a0e16 0%, #060810 45%, #03040a 100%);
+        }
+
         /* Font families - Tailwind can't handle font-family well inline */
         * { font-family: 'Inter', sans-serif; }
         .wow-title, .section-title, .form-label { font-family: 'Cinzel', serif; }
@@ -69,14 +70,11 @@ $page_class = 'general';
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
         }
     </style>
-</head>
-<body class="min-h-screen text-[#d8d8d8] bg-[#05070b] bg-fixed"
-      style="background-image: 
-        radial-gradient(1000px 700px at -10% 35%, rgba(59,130,246,.14), transparent 65%),
-        radial-gradient(800px 600px at -5% 85%, rgba(124,58,237,.10), transparent 70%),
-        linear-gradient(180deg, #0a0e16 0%, #060810 45%, #03040a 100%);">
-    
-    <?php include $project_root . 'includes/header.php'; ?>
+<?php
+$page_head = ob_get_clean();
+
+include $project_root . 'includes/header.php';
+?>
 
     <!-- Main Content Area with Sidebar -->
     <div class="flex relative min-h-screen">
@@ -85,12 +83,12 @@ $page_class = 'general';
         <?php include $project_root . 'includes/admin_sidebar.php'; ?>
         
         <!-- Main Content -->
-        <main class="main-content-area flex-1 p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 lg:ml-[280px]">
-            <div class="max-w-[1400px] mx-auto px-1 sm:px-4 md:px-6 lg:px-8 xl:px-10">
+        <main class="main-content-area flex-1 p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 lg:ml-70">
+            <div class="max-w-350 mx-auto px-1 sm:px-4 md:px-6 lg:px-8 xl:px-10">
                 <div class="space-y-4 md:space-y-6 lg:space-y-8">
                     
                     <h1 class="wow-title text-2xl md:text-3xl lg:text-4xl font-black 
-                               bg-gradient-to-b from-[#fff7d6] via-[#f2cf5b] via-[#c9a227] to-[#8a6a14] 
+                               bg-[linear-gradient(180deg,#fff7d6_0%,#f2cf5b_35%,#c9a227_62%,#8a6a14_100%)]
                                bg-clip-text text-transparent drop-shadow-[0_3px_6px_rgba(0,0,0,.85)]">
                         <?php echo translate('page_title_general', 'General Settings'); ?>
                     </h1>
@@ -100,13 +98,13 @@ $page_class = 'general';
 
                     <!-- Success / Error Messages -->
                     <?php if (isset($_GET['status']) && $_GET['status'] === 'success'): ?>
-                        <div class="bg-[#2ecc71]/15 border border-[#2ecc71]/40 text-[#2ecc71] 
+                        <div class="bg-wow-success/15 border border-wow-success/40 text-wow-success 
                                     p-4 rounded-sm flex items-center gap-3">
                             <i class="fas fa-check-circle text-xl"></i>
                             <span><?php echo translate('msg_settings_saved', 'Settings updated successfully!'); ?></span>
                         </div>
                     <?php elseif (isset($_GET['status']) && $_GET['status'] === 'error'): ?>
-                        <div class="bg-[#e74c3c]/15 border border-[#e74c3c]/40 text-[#e74c3c] 
+                        <div class="bg-wow-error/15 border border-wow-error/40 text-wow-error 
                                     p-4 rounded-sm flex items-center gap-3">
                             <i class="fas fa-exclamation-circle text-xl"></i>
                             <div>
@@ -117,8 +115,8 @@ $page_class = 'general';
                     <?php endif; ?>
 
                     <!-- General Settings Form -->
-                    <div class="relative bg-gradient-to-b from-[#161920]/92 to-[#080a0e]/90 
-                                border border-[#c9a227]/[0.22] 
+                    <div class="relative bg-linear-to-b from-[#161920]/92 to-[#080a0e]/90 
+                                border border-[#c9a227]/22 
                                 shadow-[0_12px_32px_rgba(0,0,0,.55),inset_0_0_60px_rgba(0,0,0,.45)]
                                 p-4 md:p-6 lg:p-8 panel-gold-corners">
                         
@@ -218,7 +216,7 @@ $page_class = 'general';
                                                  bg-[#0a0e16]/80 border border-[#c9a227]/30 rounded-sm 
                                                  focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
                                                  focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
-                                                 placeholder:text-[#96aac8]/40 resize-y min-h-[80px]"
+                                                 placeholder:text-[#96aac8]/40 resize-y min-h-20"
                                           rows="3"
                                           maxlength="500"
                                           placeholder="<?php echo translate('placeholder_youtube_description', 'Watch a featured video here...'); ?>"><?php echo htmlspecialchars($youtube_description ?? 'Watch a featured video here. Replace it with your own channel or highlight later.'); ?></textarea>
@@ -235,11 +233,11 @@ $page_class = 'general';
                                 </label>
                                 
                                 <!-- Current Logo Preview - Centered -->
-                                <div class="flex justify-center items-center p-2 min-h-[140px] 
+                                <div class="flex justify-center items-center p-2 min-h-35 
                                             bg-[#0a0e16]/50 border border-[#c9a227]/20 rounded-sm mb-3">
                                     <img src="<?php echo $base_path . htmlspecialchars($site_logo); ?>" 
                                          alt="Current Logo" 
-                                         class="max-h-[120px] max-w-full object-contain">
+                                         class="max-h-30 max-w-full object-contain">
                                 </div>
                                 
                                 <!-- Upload Area - Centered -->
@@ -284,7 +282,7 @@ $page_class = 'general';
 
                                 foreach ($icons as $platform => $icon): ?>
                                     <div class="flex items-stretch mb-2">
-                                        <span class="flex items-center justify-center px-4 py-3 min-w-[48px] 
+                                        <span class="flex items-center justify-center px-4 py-3 min-w-12 
                                                      bg-[#0a0e16]/90 border border-[#c9a227]/30 border-r-0 
                                                      text-[#f2cf5b] rounded-l-sm text-base">
                                           
@@ -311,7 +309,7 @@ $page_class = 'general';
                             <div class="pt-4 border-t border-[rgba(201,162,39,.1)] flex justify-end">
                                 <button type="submit" class="btn-clip inline-flex items-center gap-2 px-6 py-3 
                                                              font-extrabold text-xs uppercase tracking-wider
-                                                             bg-gradient-to-b from-[#f6d478] via-[#c9a227] to-[#8a6a14] 
+                                                             bg-linear-to-b from-[#f6d478] via-[#c9a227] to-[#8a6a14] 
                                                              text-[#1a1200] shadow-[inset_0_0_0_1px_rgba(255,255,255,.28),inset_0_-8px_14px_rgba(0,0,0,.25)]
                                                              hover:scale-105 transition-transform duration-200">
                                     <i class="fas fa-save"></i>

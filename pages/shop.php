@@ -6,7 +6,6 @@ require_once $project_root . 'includes/item_tooltip.php';
 require_once $project_root . 'languages/language.php';
 
 $page_class = 'shop';
-include_once $project_root . 'includes/header.php';
 
 $selected_category = isset($_GET['category']) ? $_GET['category'] : 'All';
 $valid_categories = ['All', 'Service', 'Mount', 'Pet', 'Gold', 'Stuff', 'Set'];
@@ -148,22 +147,14 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
         $remaining_cooldown = $cooldown_duration - ($current_time - $last_purchase_time);
     }
 }
-?>
 
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo translate('shop_meta_description', 'Browse and purchase items, mounts, pets, gold, and services for '.$site_title_name . ' WoW Server'); ?>">
-    <title><?php echo $site_title_name ." ".translate('shop_page_title', '- Shop'); ?></title>
-    
-    <!-- Tailwind CSS -->
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    
-    <style>
+$page_class = 'shop';
+$page_title = $site_title_name ." ".translate('shop_page_title', '- Shop');
+$page_meta_description = translate('shop_meta_description', 'Browse and purchase items, mounts, pets, gold, and services for '.$site_title_name . ' WoW Server');
+
+ob_start();
+?>
+<style>
         /* Page background - Show full background image */
         body {
             background: url('<?php echo $base_path; ?>img/backgrounds/bg-shop.jpg') no-repeat center center fixed;
@@ -388,8 +379,10 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
             }
         }
     </style>
-</head>
-<body>
+<?php
+$page_head = ob_get_clean();
+include_once $project_root . 'includes/header.php';
+?>
 
 <div class="shop-content relative z-10 min-h-screen flex items-start justify-center px-4 md:px-8 py-8">
     <div class="container mx-auto max-w-7xl px-2 sm:px-4">
@@ -602,8 +595,6 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
     </div>
 </div>
 
-<?php include_once $project_root . 'includes/footer.php'; ?>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Category filtering
@@ -811,8 +802,7 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
     });
 </script>
 
-</body>
-</html>
+<?php include_once $project_root . 'includes/footer.php'; ?>
 <?php 
 $site_db->close();
 $char_db->close();

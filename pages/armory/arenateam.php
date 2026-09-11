@@ -133,13 +133,11 @@ if ($team) {
     }
 }
 
-// Render global website header
-require_once $project_root . 'includes/header.php';
+// Page configuration
+$page_class = 'armory';
+
+ob_start();
 ?>
-
-<!-- Tailwind CSS -->
-<!-- Font Awesome for icons -->
-
 <style>
     /* Page background - Show full background image without overlay */
     body {
@@ -282,6 +280,12 @@ require_once $project_root . 'includes/header.php';
         }
     }
 </style>
+<?php
+$page_head = ob_get_clean();
+
+// Render global website header
+require_once $project_root . 'includes/header.php';
+?>
 
 <div class="arena-content min-h-screen flex items-start justify-center px-4 md:px-8 py-8">
     <div class="container mx-auto max-w-7xl px-2 sm:px-4">
