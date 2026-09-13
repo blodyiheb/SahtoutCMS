@@ -7,6 +7,7 @@ require_once __DIR__ . '/../includes/paths.php';
 // Use $project_root for filesystem includes
 require_once $project_root . 'includes/session.php';
 require_once $project_root . 'languages/language.php';
+require_once $project_root . 'includes/config.settings.php';
 require_once $project_root . 'includes/config.cap.php';
 require_once $project_root . 'includes/config.mail.php';
 require_once $project_root . 'includes/srp6.php';
@@ -123,6 +124,11 @@ $username = '';
 $email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Verify CSRF token before processing the registration (token generated centrally in includes/session.php)
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $errors[] = translate('error_invalid_csrf', 'Invalid or expired form submission. Please refresh the page and try again.');
+    }
+
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
@@ -489,6 +495,7 @@ include_once $project_root . 'includes/header.php';
 
             <!-- Form - Same as login -->
             <form method="POST" class="space-y-4">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <div>
                     <i class="fas fa-user text-[rgba(201,162,39,0.4)] absolute mt-3.5 ml-3"></i>
                     <input type="text" name="username" minlength="3" maxlength="17" placeholder="<?php echo translate('username_placeholder', 'Username'); ?>" required value="<?php echo htmlspecialchars($username); ?>" class="input-register w-full pl-10 pr-4 py-3 text-base">

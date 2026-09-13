@@ -53,10 +53,7 @@ if ($stmt->execute()) {
 }
 $stmt->close();
 
-// CSRF Token
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+// CSRF token is generated centrally in includes/session.php
 
 // Directory for image uploads
 $base_upload_dir = $project_root . 'img/shopimg/';
@@ -106,7 +103,7 @@ if (isset($_GET['status'])) {
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         header("Location: {$base_path}admin/ashop?status=error&message=" . urlencode(translate('admin_shop_csrf_error', 'CSRF token validation failed.')));
         exit;
     }

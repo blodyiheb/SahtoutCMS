@@ -4,6 +4,7 @@ define('ALLOWED_ACCESS', true);
 require_once __DIR__ . '/../includes/paths.php';
 require_once $project_root . 'includes/session.php';
 require_once $project_root . 'languages/language.php';
+require_once $project_root . 'includes/config.settings.php';
 require_once $project_root . 'includes/config.cap.php';
 require_once $project_root . 'includes/srp6.php';
 
@@ -320,6 +321,11 @@ function clearFailedAttempts($site_db, $ip_address, $username)
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Verify CSRF token before processing the login (token generated centrally in includes/session.php)
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $errors[] = translate('error_invalid_csrf', 'Invalid or expired form submission. Please refresh the page and try again.');
+    }
+
     $ip_address = getUserIP();
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -707,6 +713,7 @@ include_once $project_root . 'includes/header.php';
             <?php endif; ?>
 
             <form method="POST" class="space-y-4">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <div class="relative">
                     <i class="fas fa-user text-[rgba(201,162,39,0.4)] absolute top-3.5 left-3"></i>
                     <input

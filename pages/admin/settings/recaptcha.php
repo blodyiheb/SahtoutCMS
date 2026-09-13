@@ -16,6 +16,7 @@ $page_meta_description = translate('page_description_recaptcha', 'reCAPTCHA Sett
 $page_meta_robots = 'noindex';
 $page_body_class = 'min-h-screen text-[#d8d8d8] bg-[#05070b] bg-fixed';
 
+// CSRF token is generated centrally in includes/session.php
 $errors = [];
 $success = false;
 $configCapFile = realpath($project_root . 'includes/config.cap.php');
@@ -37,7 +38,16 @@ if (file_exists($configCapFile)) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $captcha_type = trim($_POST['captcha_type'] ?? 'recaptcha');
+    $csrfToken = (string)($_POST['csrf_token'] ?? '');
+    $validCsrf = !empty($csrfToken) && hash_equals($csrfToken, (string)($_SESSION['csrf_token'] ?? ''));
+
+    if (!$validCsrf) {
+        // Reject the request entirely: do not process any POST data.
+        $errors[] = translate('err_invalid_csrf', 'Invalid CSRF token.');
+    }
+
+    if ($validCsrf) {
+        $captcha_type = trim($_POST['captcha_type'] ?? 'recaptcha');
     $recaptcha_enabled = isset($_POST['recaptcha_enabled']) ? 1 : 0;
     $recaptcha_site_key = $recaptcha_enabled ? trim($_POST['recaptcha_site_key'] ?? '') : '';
     $recaptcha_secret_key = $recaptcha_enabled ? trim($_POST['recaptcha_secret_key'] ?? '') : '';
@@ -81,6 +91,7 @@ define('RECAPTCHA_SECRET_KEY', \$recaptcha_secret_key);
             $success = true;
             $recaptcha_status = $recaptcha_enabled ? 'enabled' : 'disabled';
         }
+    }
     }
 }
 ob_start();
@@ -276,6 +287,7 @@ include $project_root . 'includes/header.php';
                         </h2>
 
                         <form method="POST" class="space-y-4 md:space-y-6 max-w-3xl mx-auto">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                             <!-- CAPTCHA Type -->
                             <div>
                                 <label for="captcha_type" class="form-label text-[#f2cf5b] font-bold text-sm 

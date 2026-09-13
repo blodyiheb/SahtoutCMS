@@ -10,6 +10,7 @@ require_once $project_root . 'includes/config.cap.php';
 require_once $project_root . 'includes/srp6.php';
 require_once $project_root . 'includes/config.mail.php';
 require_once $project_root . 'languages/language.php';
+require_once $project_root . 'includes/config.settings.php';
 $page_class = 'reset_password';
 
 if (isset($_SESSION['user_id'])) {
@@ -182,9 +183,9 @@ if ($token) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
-    // Validate nonce to prevent re-submission
+    // Validate nonce to prevent re-submission and CSRF
     $submitted_nonce = $_POST['nonce'] ?? '';
-    if ($submitted_nonce !== $_SESSION['reset_nonce']) {
+    if (!isset($_SESSION['reset_nonce']) || !hash_equals($_SESSION['reset_nonce'], (string)$submitted_nonce)) {
         $errors[] = translate('error_invalid_nonce', 'Invalid or expired form submission. Please try again.');
     } else {
         $password = $_POST['password'] ?? '';

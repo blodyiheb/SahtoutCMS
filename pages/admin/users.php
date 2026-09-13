@@ -59,7 +59,7 @@ $active_tab = isset($_GET['tab']) && $_GET['tab'] === 'ingame' ? 'ingame' : 'web
 $update_message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'update') {
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
             $update_message = alert_danger(translate('admin_users_csrf_error', 'CSRF token validation failed.'));
         } else {
             $account_id = (int)$_POST['account_id'];
@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
         }
     } elseif ($_POST['action'] === 'manage_account') {
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
             $update_message = alert_danger(translate('admin_users_csrf_error', 'CSRF token validation failed.'));
         } else {
             $account_id = (int)$_POST['account_id'];

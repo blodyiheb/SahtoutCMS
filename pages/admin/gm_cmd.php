@@ -12,12 +12,22 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'mode
 
 $page_class = 'gm_cmd';
 
+// CSRF token is generated centrally in includes/session.php
 $response_output = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $command = trim($_POST['command']);
+    $csrfToken = (string)($_POST['csrf_token'] ?? '');
+    $validCsrf = !empty($csrfToken) && hash_equals($csrfToken, (string)($_SESSION['csrf_token'] ?? ''));
 
-    if (!empty($command)) {
+    $command = trim((string)($_POST['command'] ?? ''));
+
+    if (!$validCsrf) {
+        // Reject the request entirely: never execute a GM command without a valid CSRF token.
+        $response_output = '<div class="bg-red-900/40 border border-red-500/50 text-red-300 px-4 py-3 rounded-sm flex items-center gap-3">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>' . translate('error_csrf_token', 'Invalid or missing security token. Please refresh the page and try again.') . '</span>
+            </div>';
+    } elseif (!empty($command)) {
         include $project_root . 'includes/soap.conf.php';
 
         $xml = '<?xml version="1.0" encoding="utf-8"?>'
@@ -303,6 +313,7 @@ ob_start();
                         </div>
 
                         <form method="post" class="space-y-3 md:space-y-4">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                             <div class="flex flex-col sm:flex-row gap-2 md:gap-3">
                                 <input 
                                     type="text" 

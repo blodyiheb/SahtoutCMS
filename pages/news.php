@@ -3,14 +3,16 @@ define('ALLOWED_ACCESS', true);
 require_once __DIR__ . '/../includes/paths.php';
 require_once $project_root . 'includes/session.php';
 require_once $project_root . 'languages/language.php';
+require_once $project_root . 'includes/config.settings.php'; // $site_title_name is used in the page metadata below
 $page_class = 'news';
-require_once $project_root . 'includes/config.settings.php';
 
 $default_image_url = 'img/newsimg/news.png';
 $items_per_page = 6;
 $slug = isset($_GET['slug']) ? trim($_GET['slug']) : '';
 $category_filter = isset($_GET['category']) ? trim($_GET['category']) : '';
 $is_single = !empty($slug);
+$is_404 = false;
+$page_head = '';
 
 // Category color mapping - Only your 4 categories
 $category_colors = [
@@ -24,19 +26,30 @@ if ($is_single) {
     $query = "SELECT id, title, slug, content, posted_by, post_date, image_url, is_important, category 
               FROM server_news 
               WHERE slug = ?";
-    $stmt = $site_db->prepare($query);
-    $stmt->bind_param('s', $slug);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $news = $result->fetch_assoc();
-    $stmt->close();
+    $article_stmt = $site_db->prepare($query);
+    $article_stmt->bind_param('s', $slug);
+    $article_stmt->execute();
+    $article_result = $article_stmt->get_result();
+    $news = $article_result->fetch_assoc();
+    // Row fully consumed; free the result set before closing its statement
+    $article_result->free();
+    $article_stmt->close();
 
     if (!$news) {
-        header('HTTP/1.0 404 Not Found');
-        $news_not_found = true;
+        // Nonexistent article: send a real 404 and keep the page out of
+        // indexes. The message itself is rendered after includes/header.php
+        // below so the document structure stays intact (existing behavior).
+        http_response_code(404);
+        $is_404 = true;
     }
 } else {
-    $current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+    // Validate the page parameter: must be a positive integer (it is bound
+    // to the LIMIT/OFFSET prepared statement below as an integer anyway)
+    $page_input = isset($_GET['page']) ? $_GET['page'] : null;
+    $current_page = 1;
+    if ($page_input !== null && $page_input !== '' && filter_var($page_input, FILTER_VALIDATE_INT) !== false) {
+        $current_page = max(1, (int)$page_input);
+    }
     $offset = ($current_page - 1) * $items_per_page;
 
     // Build query with category filter
@@ -58,6 +71,8 @@ if ($is_single) {
     $total_stmt->execute();
     $total_result = $total_stmt->get_result();
     $total_rows = $total_result->fetch_assoc()['total'];
+    // Row fully consumed; free the result set before closing its statement
+    $total_result->free();
     $total_stmt->close();
     
     // Fix: Handle case when there are no news items
@@ -73,48 +88,74 @@ if ($is_single) {
                   " . $where_clause . "
                   ORDER BY is_important DESC, post_date DESC
                   LIMIT ?, ?";
-        $stmt = $site_db->prepare($query);
+        $news_stmt = $site_db->prepare($query);
         
         $params[] = $offset;
         $params[] = $items_per_page;
         $types .= 'ii';
         
-        $stmt->bind_param($types, ...$params);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $news_stmt->bind_param($types, ...$params);
+        $news_stmt->execute();
+        $news_result = $news_stmt->get_result();
     } else {
         // Create an empty result set
-        $result = $site_db->query("SELECT id, title, slug, '' as excerpt, posted_by, post_date, image_url, is_important, category FROM server_news WHERE 1=0");
+        $news_result = $site_db->query("SELECT id, title, slug, '' as excerpt, posted_by, post_date, image_url, is_important, category FROM server_news WHERE 1=0");
     }
+
+    // Get all categories for the filter tabs (list pages only, so single
+    // article requests skip this query as well as the COUNT query above)
+    $category_query = "SELECT DISTINCT category FROM server_news ORDER BY category";
+    $category_result = $site_db->query($category_query);
+    $categories = [];
+    while ($row = $category_result->fetch_assoc()) {
+        $categories[] = $row['category'];
+    }
+    // Fully consumed; free it (no prepared statement to close here)
+    $category_result->free();
 }
 
-// Get all categories for the filter tabs
-$category_query = "SELECT DISTINCT category FROM server_news ORDER BY category";
-$category_result = $site_db->query($category_query);
-$categories = [];
-while ($row = $category_result->fetch_assoc()) {
-    $categories[] = $row['category'];
-}
+// ---------------------------------------------------------------------
+// Page metadata, prepared BEFORE including includes/header.php (which
+// owns the global document structure: DOCTYPE, <html>, <head>, <body>
+// and the shared Tailwind / FontAwesome / Google Fonts assets).
+// Values are printed raw here and escaped by header.php when output.
+// ---------------------------------------------------------------------
+if ($is_single) {
+    if ($is_404) {
+        $page_title            = translate('error_404_title', '404 - News Not Found');
+        $page_meta_description = translate('error_404_message', 'The news article you are looking for does not exist.');
+        $page_meta_robots      = 'noindex, nofollow';
+    } else {
+        // Single article: use the article title as-is (header.php escapes it)
+        $page_title = $news['title'];
 
-// Build page title, meta description and head content before any output
-if ($is_single && !empty($news)) {
-    $page_title = htmlspecialchars($news['title']);
-    $page_meta_description = substr($news['content'], 0, 150) . '...';
-} elseif (!empty($news_not_found)) {
-    $page_title = translate('error_404_title', '404 - News Not Found');
+        // Generate the description from the article content: strip HTML,
+        // truncate UTF-8-safe (header.php escapes it into the attribute)
+        $description_source = trim(strip_tags($news['content']));
+        // Collapse internal whitespace/newlines into single spaces so the
+        // description is one clean line
+        $description_source = preg_replace('/\s+/u', ' ', $description_source);
+        if (mb_strlen($description_source, 'UTF-8') > 150) {
+            $page_meta_description = mb_substr($description_source, 0, 150, 'UTF-8') . '...';
+        } else {
+            $page_meta_description = $description_source;
+        }
+
+        $page_meta_robots = 'index';
+        $page_head        = '<link rel="canonical" href="' . htmlspecialchars($base_path . 'news?slug=' . rawurlencode($news['slug']), ENT_QUOTES, 'UTF-8') . '">';
+    }
 } else {
-    $page_title = $site_title_name . ' ' . translate('page_title_list', 'News');
+    $page_title            = $site_title_name . ' ' . translate('page_title_list', 'News');
     $page_meta_description = translate('meta_description_list', 'Latest news and updates for our World of Warcraft server.');
+    $page_meta_robots      = 'index';
+    $page_head             = '<link rel="canonical" href="' . htmlspecialchars($base_path . 'news?page=' . $current_page, ENT_QUOTES, 'UTF-8') . '">';
 }
-$page_meta_robots = 'index';
 
+// Capture page-specific styles into $page_head, which header.php prints
+// at the end of the <head>.
 ob_start();
 ?>
-    <?php if ($is_single && !empty($news)): ?>
-        <link rel="canonical" href="<?php echo $base_path; ?>news?slug=<?php echo htmlspecialchars($news['slug']); ?>">
-    <?php elseif (!$is_single): ?>
-        <link rel="canonical" href="<?php echo $base_path; ?>news?page=<?php echo $current_page; ?>">
-    <?php endif; ?>
+
     <style>
         /* Scrollbar styling */
         ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -225,11 +266,15 @@ ob_start();
         }
     </style>
 <?php
-$page_head = ob_get_clean();
+$page_head .= ob_get_clean();
 
+// includes/header.php owns the document structure (DOCTYPE, <html>, <head>,
+// <body>) and already loads Tailwind, FontAwesome and Google Fonts.
 include $project_root . 'includes/header.php';
 
-if (!empty($news_not_found)) {
+// Nonexistent article: HTTP 404 was already sent; render the message inside
+// the document (existing behavior) and stop.
+if ($is_single && $is_404) {
     echo '<h1>' . translate('error_404_title', '404 - News Not Found') . '</h1>';
     echo '<p>' . translate('error_404_message', 'The news article you are looking for does not exist.') . '</p>';
     include $project_root . 'includes/footer.php';
@@ -318,20 +363,25 @@ if (!empty($news_not_found)) {
                     <?php endforeach; ?>
                 </div>
                 
-                <?php if ($result->num_rows === 0): ?>
+                <?php if ($news_result->num_rows === 0): ?>
                     <div class="text-center text-gray-400 text-xl py-12 text-shadow-lg">
                         <i class="fas fa-scroll text-5xl block mb-4 text-[rgba(201,162,39,0.3)]"></i>
                         <?php echo translate('no_news', 'No news available at this time.'); ?>
                     </div>
                 <?php else: ?>
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                        <?php while ($news = $result->fetch_assoc()): ?>
+                        <?php while ($news = $news_result->fetch_assoc()): ?>
                             <?php 
                             $card_color = $category_colors[$news['category']]['badge'] ?? '#f2cf5b';
-                            // Get full excerpt without forcing truncation
-                            $excerpt = trim($news['excerpt']);
-                            if (empty($excerpt)) {
+
+                            // Build a short, plain-text excerpt for the listing card.
+                            // Strip HTML, collapse whitespace, then truncate UTF-8-safe.
+                            $excerpt = trim(strip_tags($news['excerpt']));
+                            $excerpt = preg_replace('/\s+/u', ' ', $excerpt);
+                            if ($excerpt === '') {
                                 $excerpt = 'No description available.';
+                            } elseif (mb_strlen($excerpt, 'UTF-8') > 180) {
+                                $excerpt = mb_substr($excerpt, 0, 180, 'UTF-8') . '...';
                             }
                             ?>
                             <a href="<?php echo $base_path; ?>news?slug=<?php echo htmlspecialchars($news['slug']); ?>" 
@@ -409,11 +459,14 @@ if (!empty($news_not_found)) {
 </div>
 
 <?php 
-if (!$is_single && isset($stmt)) {
-    $stmt->close();
+
+if (!$is_single && isset($news_result)) {
+    $news_result->free();
+}
+if (!$is_single && isset($news_stmt)) {
+    $news_stmt->close();
 }
 if (isset($site_db)) {
     $site_db->close();
 }
-include $project_root . 'includes/footer.php'; 
-?>
+include $project_root . 'includes/footer.php';

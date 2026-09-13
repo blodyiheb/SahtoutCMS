@@ -34,23 +34,11 @@ $errors = [];
 $status = '';
 $message = '';
 
-// Log form submissions for debugging
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $log_dir = $project_root . 'pages/pingback';
-    $log_file = $log_dir . '/debug.log';
-    if (!is_dir($log_dir)) {
-        mkdir($log_dir, 0755, true);
-    }
-    if (is_writable($log_dir)) {
-        file_put_contents($log_file, "Vote Sites Form Submission: " . json_encode($_POST, JSON_PRETTY_PRINT) . "\n---\n", FILE_APPEND);
-    }
-}
-
 // Handle Delete Image
-if (isset($_GET['delete_image']) && is_numeric($_GET['delete_image'])) {
-    $delete_id = (int)$_GET['delete_image'];
+if (isset($_POST['delete_image']) && is_numeric($_POST['delete_image'])) {
+    $delete_id = (int)$_POST['delete_image'];
     try {
-        if (!isset($_GET['csrf_token']) || $_GET['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
             $errors[] = translate('err_invalid_csrf', 'Invalid CSRF token.');
         } else {
             if (!in_array($_SESSION['role'], ['admin', 'moderator'])) {
@@ -90,10 +78,10 @@ if (isset($_GET['delete_image']) && is_numeric($_GET['delete_image'])) {
 }
 
 // Handle Delete Site
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $delete_id = (int)$_GET['delete'];
+if (isset($_POST['delete']) && is_numeric($_POST['delete'])) {
+    $delete_id = (int)$_POST['delete'];
     try {
-        if (!isset($_GET['csrf_token']) || $_GET['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
             $errors[] = translate('err_invalid_csrf', 'Invalid CSRF token.');
         } else {
             if (!in_array($_SESSION['role'], ['admin', 'moderator'])) {
@@ -132,7 +120,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 
 // Handle Form Submission (Create/Update)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         $errors[] = translate('err_invalid_csrf', 'Invalid CSRF token.');
     } else {
         $site_id = isset($_POST['site_id']) ? (int)$_POST['site_id'] : 0;
@@ -643,15 +631,18 @@ include $project_root . 'includes/header.php';
                                         <img src="<?php echo htmlspecialchars($site_data['button_image_url']); ?>" 
                                              alt="<?php echo translate('label_button_image', 'Button Image'); ?>" 
                                              class="vote-image border border-[rgba(201,162,39,.2)] p-1 bg-[#0a0e16]/50 rounded-sm">
-                                        <a href="<?php echo $base_path; ?>admin/settings/vote_sites?delete_image=<?php echo $site_id; ?>&csrf_token=<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>" 
-                                           class="btn-clip inline-flex items-center gap-1.5 px-3 py-1.5 
-                                                  font-extrabold text-xs uppercase tracking-wider
-                                                  bg-gradient-to-b from-[#ff4d4d] via-[#cc0000] to-[#8a0000] 
-                                                  text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.2),inset_0_-8px_14px_rgba(0,0,0,.3)]
-                                                  hover:scale-105 transition-transform duration-200"
-                                           onclick="return confirm('<?php echo translate('confirm_delete_image', 'Are you sure you want to delete this image?'); ?>');">
-                                            <i class="fas fa-trash"></i> <?php echo translate('btn_delete_image', 'Delete Image'); ?>
-                                        </a>
+                                        <form method="POST" action="<?php echo $base_path; ?>admin/settings/vote_sites" class="inline">
+                                            <input type="hidden" name="delete_image" value="<?php echo $site_id; ?>">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                            <button type="submit" class="btn-clip inline-flex items-center gap-1.5 px-3 py-1.5 
+                                                   font-extrabold text-xs uppercase tracking-wider
+                                                   bg-gradient-to-b from-[#ff4d4d] via-[#cc0000] to-[#8a0000] 
+                                                   text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.2),inset_0_-8px_14px_rgba(0,0,0,.3)]
+                                                   hover:scale-105 transition-transform duration-200"
+                                                   onclick="return confirm('<?php echo translate('confirm_delete_image', 'Are you sure you want to delete this image?'); ?>');">
+                                                <i class="fas fa-trash"></i> <?php echo translate('btn_delete_image', 'Delete Image'); ?>
+                                            </button>
+                                        </form>
                                     </div>
                                 <?php endif; ?>
                                 <div class="border-2 border-dashed border-[#c9a227]/20 
@@ -897,7 +888,7 @@ include $project_root . 'includes/header.php';
                 <p class="text-gray-300 mb-2"><?php echo translate('confirm_delete_vote_site', 'Are you sure you want to delete this vote site?'); ?></p>
                 <p class="text-red-400 text-sm font-semibold" id="deleteSiteName"></p>
                 <p class="text-gray-500 text-xs mt-2"><?php echo translate('confirm_delete_irreversible', 'This action cannot be undone.'); ?></p>
-                <form method="GET" action="<?php echo $base_path; ?>admin/settings/vote_sites" class="flex justify-center gap-4 mt-6">
+                <form method="POST" action="<?php echo $base_path; ?>admin/settings/vote_sites" class="flex justify-center gap-4 mt-6">
                     <input type="hidden" name="delete" id="deleteSiteId" value="">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                     <button type="button" class="btn-clip inline-flex items-center gap-2 px-6 py-3 

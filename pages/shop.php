@@ -4,6 +4,7 @@ require_once __DIR__ . '/../includes/paths.php'; // Include paths.php
 require_once $project_root . 'includes/session.php';
 require_once $project_root . 'includes/item_tooltip.php';
 require_once $project_root . 'languages/language.php';
+require_once $project_root . 'includes/config.settings.php'; // Site title used in $page_title
 
 $page_class = 'shop';
 
@@ -148,7 +149,6 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
     }
 }
 
-$page_class = 'shop';
 $page_title = $site_title_name ." ".translate('shop_page_title', '- Shop');
 $page_meta_description = translate('shop_meta_description', 'Browse and purchase items, mounts, pets, gold, and services for '.$site_title_name . ' WoW Server');
 
