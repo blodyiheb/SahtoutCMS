@@ -11,7 +11,6 @@ require_once $project_root . 'includes/srp6.php';
 require_once $project_root . 'includes/config.mail.php';
 require_once $project_root . 'languages/language.php';
 $page_class = 'reset_password';
-require_once $project_root . 'includes/header.php';
 
 if (isset($_SESSION['user_id'])) {
     header("Location: {$base_path}account");
@@ -252,21 +251,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
         }
     }
 }
-?>
+$page_title = $site_title_name ." ". translate('page_title', 'Reset Password');
+$page_meta_description = translate('meta_description', 'Reset your password for our World of Warcraft server.');
 
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content="<?php echo translate('meta_description', 'Reset your password for our World of Warcraft server.'); ?>">
-    <title><?php echo $site_title_name ." ". translate('page_title', 'Reset Password'); ?></title>
-    
-    <!-- Tailwind CSS -->
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    
+ob_start();
+?>
     <style>
         /* Page background - Show full background image */
         body {
@@ -362,8 +351,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
             }
         }
     </style>
-</head>
-<body>
+<?php
+$page_head = ob_get_clean();
+
+require_once $project_root . 'includes/header.php';
+?>
 <div class="reset-content relative z-10 min-h-screen flex items-center justify-center px-4 py-8">
     <div class="container mx-auto max-w-7xl px-2 sm:px-4 flex items-center justify-center">
         
@@ -446,5 +438,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <?php endif; ?>
 <?php include_once $project_root . 'includes/footer.php'; ?>
-</body>
-</html>

@@ -561,19 +561,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-include_once $project_root . 'includes/header.php';
+$page_title = $site_title_name . " " . translate('page_title', 'Login');
+$page_meta_description = translate('meta_description', 'Log in to your account to join the adventure on our World of Warcraft server!');
+
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="<?php echo htmlspecialchars(translate('meta_description', 'Log in to your account to join the adventure on our World of Warcraft server!')); ?>" />
-    <title><?php echo $site_title_name . " " . translate('page_title', 'Login'); ?></title>
-
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-
     <style>
         body {
             background: url('<?php echo $base_path; ?>img/backgrounds/bg-login.jpg') no-repeat center center fixed;
@@ -663,9 +655,11 @@ include_once $project_root . 'includes/header.php';
             }
         }
     </style>
-</head>
+<?php
+$page_head = ob_get_clean();
 
-<body>
+include_once $project_root . 'includes/header.php';
+?>
 <div class="login-content relative z-10 min-h-screen flex items-center justify-center px-4 py-8">
     <div class="container mx-auto max-w-7xl px-2 sm:px-4 flex items-center justify-center">
         <div class="glass-container p-6 md:p-10">
@@ -784,5 +778,3 @@ include_once $project_root . 'includes/header.php';
 <?php endif; ?>
 
 <?php include_once $project_root . 'includes/footer.php'; ?>
-</body>
-</html>

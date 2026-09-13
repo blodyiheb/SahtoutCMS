@@ -6,8 +6,10 @@ require_once __DIR__ . '/../includes/paths.php';
 
 // Use $project_root for filesystem includes
 require_once $project_root . 'includes/session.php';
+require_once $project_root . 'languages/language.php';
+require_once $project_root . 'includes/config.settings.php';
 $page_class = "how_to_play";
-require_once $project_root . 'includes/header.php'; 
+$page_title = $site_title_name . translate('how_to_play_title', 'How to Play');
 
 $realmsFile = $project_root . 'includes/realm_config.php';
 $realmlistIP = '127.0.0.1'; // fallback if file missing
@@ -18,6 +20,8 @@ if (file_exists($realmsFile)) {
         $realmlistIP = $realmlist[0]['address'];
     }
 }
+
+ob_start();
 ?>
 
 <style>
@@ -283,6 +287,10 @@ if (file_exists($realmsFile)) {
         .step-badge { width: 32px; height: 32px; font-size: 0.95rem; top: 1rem; left: 1rem; }
     }
 </style>
+<?php
+$page_head = ob_get_clean();
+require_once $project_root . 'includes/header.php';
+?>
 
 <!-- Main Page Wrapper -->
 <div class="relative z-10 min-h-screen flex flex-col">

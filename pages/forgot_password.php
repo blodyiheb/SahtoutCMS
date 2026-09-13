@@ -10,7 +10,6 @@ require_once $project_root . 'includes/config.cap.php';
 require_once $project_root . 'includes/config.mail.php';
 require_once $project_root . 'languages/language.php';
 $page_class = 'forgot_password';
-require_once $project_root . 'includes/header.php';
 
 // Redirect to account if already logged in
 if (isset($_SESSION['user_id'])) {
@@ -308,21 +307,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-?>
+$page_title = $site_title_name ." ". translate('page_title', ' - Forgot Password');
+$page_meta_description = translate('meta_description', 'Request a password reset link for your World of Warcraft server account.');
 
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content="<?php echo translate('meta_description', 'Request a password reset link for your World of Warcraft server account.'); ?>">
-    <title><?php echo $site_title_name ." ". translate('page_title', ' - Forgot Password'); ?></title>
-    
-    <!-- Tailwind CSS -->
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    
+ob_start();
+?>
     <style>
         /* Page background - Only essential custom CSS */
         body {
@@ -412,8 +401,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     </style>
-</head>
-<body>
+<?php
+$page_head = ob_get_clean();
+
+require_once $project_root . 'includes/header.php';
+?>
 <div class="forgot-content relative z-10 min-h-screen flex items-center justify-center px-4 py-8">
     <div class="container mx-auto max-w-7xl px-2 sm:px-4 flex items-center justify-center">
         
@@ -483,5 +475,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <?php endif; ?>
 <?php include_once $project_root . 'includes/footer.php'; ?>
-</body>
-</html>

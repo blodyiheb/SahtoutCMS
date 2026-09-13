@@ -211,7 +211,7 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
 </button>
 
 <!-- Mobile Sidebar Overlay -->
-<div id="sidebarOverlay" class="fixed top-[72px] left-0 right-0 bottom-0 bg-black/60 backdrop-blur-sm z-30 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"></div>
+<div id="sidebarOverlay" class="fixed top-18 left-0 right-0 bottom-0 bg-black/60 backdrop-blur-sm z-30 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"></div>
 
 <!-- Desktop Toggle Button -->
 <button id="sidebarToggleBtn" aria-label="Toggle sidebar" 
@@ -221,20 +221,20 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
            text-[#f2cf5b] hover:bg-[rgba(201,162,39,.15)] hover:text-white hover:shadow-[0_0_20px_rgba(201,162,39,.2)]
            transition-all duration-300 ease-in-out group backdrop-blur-sm"
     style="left: 280px;">
-    <div class="absolute top-2 bottom-2 left-0 w-px bg-gradient-to-b from-transparent via-[rgba(201,162,39,.4)] to-transparent"></div>
+    <div class="absolute top-2 bottom-2 left-0 w-px bg-linear-to-b from-transparent via-[rgba(201,162,39,.4)] to-transparent"></div>
     <i class="fas fa-chevron-left text-xs transition-transform duration-300 group-hover:scale-125" id="toggleIcon"></i>
     <div class="absolute inset-0 rounded-r-lg bg-[rgba(201,162,39,.1)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 </button>
 
 <!-- Sidebar -->
 <aside id="adminSidebar" 
-       class="fixed top-[72px] left-0 bottom-0 w-[280px] z-40 bg-gradient-to-b from-[#0a0e16] via-[#060810] to-[#03040a] border-r border-[rgba(201,162,39,.22)] shadow-[4px_0_32px_rgba(0,0,0,.55)] flex flex-col custom-scroll">
+       class="fixed top-18 left-0 bottom-0 w-70 z-40 bg-linear-to-b from-[#0a0e16] via-[#060810] to-[#03040a] border-r border-[rgba(201,162,39,.22)] shadow-[4px_0_32px_rgba(0,0,0,.55)] flex flex-col custom-scroll">
     
     <!-- Ember Effect -->
     <div class="absolute inset-0 pointer-events-none z-0 ember-bg"></div>
     
     <!-- Header -->
-    <div class="relative z-10 px-5 py-4 flex items-center justify-between min-h-[56px] flex-shrink-0 bg-gradient-to-b from-[rgba(201,162,39,.12)] to-[rgba(201,162,39,.04)] border-b-2 border-[rgba(201,162,39,.3)]">
+    <div class="relative z-10 px-5 py-4 flex items-center justify-between min-h-14 shrink-0 bg-linear-to-b from-[rgba(201,162,39,.12)] to-[rgba(201,162,39,.04)] border-b-2 border-[rgba(201,162,39,.3)]">
         <div class="text-gold-gradient text-[0.95rem] flex items-center gap-2">
             <span class="text-[#f2cf5b] text-xl drop-shadow-[0_0_8px_rgba(242,207,82,.5)]">⚔</span>
             <?php echo translate('admin_menu', 'Admin Panel'); ?>
@@ -246,7 +246,7 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
         <ul class="list-none p-0 m-0 flex flex-col gap-1">
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'dashboard' || $active_page === 'dashboard') ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-3 border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'dashboard' || $active_page === 'dashboard') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/dashboard">
                     <i class="fas fa-tachometer-alt w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_dashboard', 'Dashboard'); ?>
@@ -254,7 +254,7 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
             </li>
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'users' || $active_page === 'users') ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-3 border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'users' || $active_page === 'users') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/users">
                     <i class="fas fa-users w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_users', 'User Management'); ?>
@@ -262,7 +262,7 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
             </li>
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'anews' || $active_page === 'anews') ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-3 border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'anews' || $active_page === 'anews') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/anews">
                     <i class="fas fa-newspaper w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_news', 'News Management'); ?>
@@ -270,7 +270,7 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
             </li>
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'characters' || $active_page === 'characters') ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-3 border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'characters' || $active_page === 'characters') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/characters">
                     <i class="fas fa-user-edit w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_characters', 'Character Management'); ?>
@@ -278,7 +278,7 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
             </li>
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'shop' || $active_page === 'shop') ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-3 border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'shop' || $active_page === 'shop') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/ashop">
                     <i class="fas fa-shopping-cart w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_shop', 'Shop Management'); ?>
@@ -286,7 +286,7 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
             </li>
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'gm_cmd' || $active_page === 'gm_cmd') ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-3 border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'gm_cmd' || $active_page === 'gm_cmd') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/gm_cmd">
                     <i class="fas fa-terminal w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_gm_commands', 'GM Commands'); ?>
@@ -294,7 +294,7 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
             </li>
             
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-[3px] border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'settings' || $active_page === 'settings') ? 'active-link' : ''; ?>" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-gray-400 bg-black/20 border-l-3 border-transparent hover:text-gray-200 hover:bg-[rgba(201,162,39,.08)] hover:border-[rgba(201,162,39,.4)] hover:translate-x-1 transition-all duration-200 relative clip-gaming <?php echo ($page_class === 'settings' || $active_page === 'settings') ? 'active-link' : ''; ?>" 
                    href="<?php echo $base_path; ?>admin/settings/general">
                     <i class="fas fa-cogs w-5 text-center text-[0.9rem] group-hover:scale-110 group-hover:text-[#f2cf5b] transition-all duration-300"></i> 
                     <?php echo translate('admin_settings', 'Settings'); ?>
@@ -304,15 +304,15 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
             <!-- Divider -->
             <li class="my-3 px-2">
                 <div class="relative flex items-center">
-                    <div class="flex-grow border-t border-[rgba(201,162,39,.2)]"></div>
-                    <span class="flex-shrink-0 mx-3 text-[10px] text-[rgba(201,162,39,.6)]">◆</span>
-                    <div class="flex-grow border-t border-[rgba(201,162,39,.2)]"></div>
+                    <div class="grow border-t border-[rgba(201,162,39,.2)]"></div>
+                    <span class="shrink-0 mx-3 text-[10px] text-[rgba(201,162,39,.6)]">◆</span>
+                    <div class="grow border-t border-[rgba(201,162,39,.2)]"></div>
                 </div>
             </li>
 
             <!-- Logout -->
             <li>
-                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-red-400 bg-black/20 border-l-[3px] border-red-500/30 hover:text-red-300 hover:bg-red-500/10 hover:border-red-500 hover:translate-x-1 transition-all duration-200 relative clip-gaming" 
+                <a class="group flex items-center gap-3 px-3 py-2.5 text-[0.85rem] font-semibold tracking-wide text-red-400 bg-black/20 border-l-3 border-red-500/30 hover:text-red-300 hover:bg-red-500/10 hover:border-red-500 hover:translate-x-1 transition-all duration-200 relative clip-gaming" 
                    href="<?php echo $base_path; ?>logout">
                     <i class="fas fa-sign-out-alt w-5 text-center text-[0.9rem] group-hover:scale-110 transition-all duration-300"></i> 
                     <?php echo translate('logout', 'Logout'); ?>
@@ -323,7 +323,7 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
     </nav>
 
     <!-- Donation Button (above footer) - Reduced Size -->
-    <div class="relative z-10 donate-btn-wrapper flex-shrink-0">
+    <div class="relative z-10 donate-btn-wrapper shrink-0">
         <?php 
         $donate_image = __DIR__ . '/../img/support-button.png';
         if (file_exists($donate_image)): ?>
@@ -340,7 +340,7 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
     </div>
 
     <!-- Footer -->
-    <div class="relative z-10 px-4 py-3 border-t border-[rgba(201,162,39,.1)] flex-shrink-0 text-center text-[0.65rem] text-gray-500 font-['Inter'] tracking-widest uppercase">
+    <div class="relative z-10 px-4 py-3 border-t border-[rgba(201,162,39,.1)] shrink-0 text-center text-[0.65rem] text-gray-500 font-['Inter'] tracking-widest uppercase">
         <span>© <?php echo date('Y'); ?> Sahtout WoW</span>
     </div>
 </aside>
@@ -368,14 +368,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 toggleIcon.className = 'fas fa-chevron-left text-xs transition-transform duration-300 group-hover:scale-125';
                 if (mainContent) {
                     mainContent.classList.remove('lg:ml-0');
-                    mainContent.classList.add('lg:ml-[280px]');
+                    mainContent.classList.add('lg:ml-70');
                 }
             } else {
                 sidebar.classList.add('sidebar-closed');
                 toggleBtn.style.left = '0px';
                 toggleIcon.className = 'fas fa-chevron-right text-xs transition-transform duration-300 group-hover:scale-125';
                 if (mainContent) {
-                    mainContent.classList.remove('lg:ml-[280px]');
+                    mainContent.classList.remove('lg:ml-70');
                     mainContent.classList.add('lg:ml-0');
                 }
             }
@@ -441,7 +441,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 sidebar.classList.add('sidebar-closed');
                 if (mainContent) {
-                    mainContent.classList.remove('lg:ml-[280px]');
+                    mainContent.classList.remove('lg:ml-70');
                     mainContent.classList.add('lg:ml-0');
                 }
             }

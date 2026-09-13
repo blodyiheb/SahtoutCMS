@@ -30,6 +30,14 @@ if (!isset($_SESSION['user_id'])) {
 // Ensure $page_class is defined in the including page; default to 'default'
 $page_class = isset($page_class) ? $page_class : 'default';
 
+// Optional page-specific overrides set by the including page before this include:
+// $page_title, $page_meta_description, $page_meta_robots, $page_head (raw HTML for <head>), $page_body_class
+$page_title            = isset($page_title) ? $page_title : ($site_title_name ?? '');
+$page_meta_description = isset($page_meta_description) ? $page_meta_description : '';
+$page_meta_robots      = isset($page_meta_robots) ? $page_meta_robots : 'index';
+$page_head             = isset($page_head) ? $page_head : '';
+$page_body_class       = isset($page_body_class) ? $page_body_class : '';
+
 // Get current URL without query string
 $currentUrl = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $currentUrl = rtrim($currentUrl, '/');
@@ -219,9 +227,13 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="<?php echo $base_path; ?>">
 
-    <?php if ($page_class === "how_to_play"): ?>
-        <title><?php echo $site_title_name . translate('how_to_play_title', 'How to Play'); ?></title>
+    <title><?php echo htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8'); ?></title>
+
+    <?php if ($page_meta_description !== ''): ?>
+    <meta name="description" content="<?php echo htmlspecialchars($page_meta_description, ENT_QUOTES, 'UTF-8'); ?>">
     <?php endif; ?>
+
+    <meta name="robots" content="<?php echo htmlspecialchars($page_meta_robots, ENT_QUOTES, 'UTF-8'); ?>">
 
     <link rel="icon" href="<?php echo $base_path . $site_logo; ?>" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -571,8 +583,10 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
             display: block !important;
         }
     </style>
+
+    <?php echo $page_head; ?>
 </head>
-<body class="<?php echo htmlspecialchars($page_class, ENT_QUOTES, 'UTF-8'); ?>">
+<body class="<?php echo htmlspecialchars(trim($page_class . ' ' . $page_body_class), ENT_QUOTES, 'UTF-8'); ?>">
 
     <header class="main-header fixed top-0 left-0 right-0 <?php echo $is_auth_page ? 'transparent-header' : ''; ?>">
         <div class="header-inner max-w-[1600px] mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4" style="position: relative;">
@@ -723,5 +737,3 @@ $is_auth_page = in_array($page_class, ['login', 'register']);
     </header>
 
     <script src="<?php echo $base_path; ?>assets/js/includes/header.js"></script>
-</body>
-</html>

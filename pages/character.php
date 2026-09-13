@@ -5,20 +5,13 @@ require_once $project_root . 'includes/session.php';
 require_once $project_root . 'languages/language.php';
 require_once $project_root . 'includes/item_tooltip.php';
 $page_class = 'character';
-require_once $project_root . 'includes/header.php';
+require_once $project_root . 'includes/config.settings.php';
+$page_title = $site_title_name . ' ' . translate('page_title', 'Character Equipment');
+$page_meta_description = translate('meta_description', 'View your World of Warcraft character equipment, stats, and PvP details.');
+$page_meta_robots = 'index';
+
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo translate('meta_description', 'View your World of Warcraft character equipment, stats, and PvP details.'); ?>">
-    <meta name="robots" content="index">
-    <title><?php echo $site_title_name ." ". translate('page_title', 'Character Equipment'); ?></title>
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
-    
   <style>
         * { font-family: 'Inter', sans-serif; }
 
@@ -572,8 +565,10 @@ require_once $project_root . 'includes/header.php';
             }
         }
     </style>
-</head>
-<body>
+<?php
+$page_head = ob_get_clean();
+require_once $project_root . 'includes/header.php';
+?>
 
 <div class="relative z-10 min-h-screen flex items-start justify-center px-4 md:px-8 py-8">
     <div class="container mx-auto max-w-7xl px-2 sm:px-4">
@@ -1200,5 +1195,3 @@ require_once $project_root . 'includes/header.php';
 </script>
 
 <?php include_once $project_root . 'includes/footer.php'; ?>
-</body>
-</html>

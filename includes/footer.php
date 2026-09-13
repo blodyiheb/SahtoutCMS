@@ -200,3 +200,6 @@ if (file_exists($project_root . 'includes/config.settings.php')) {
 
 <!-- Back to Top Script -->
 <script src="<?php echo $base_path; ?>assets/js/includes/footer.js"></script>
+
+</body>
+</html>

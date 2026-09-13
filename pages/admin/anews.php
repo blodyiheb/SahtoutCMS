@@ -218,20 +218,15 @@ $stmt->bind_param("ii", $items_per_page, $offset);
 $stmt->execute();
 $news_result = $stmt->get_result();
 ?>
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo translate('admin_news_meta_description', 'News Management for Sahtout WoW Server'); ?>">
-    <meta name="robots" content="noindex">
-    <title><?php echo translate('admin_news_page_title', 'News Management'); ?></title>
-    <link rel="icon" href="<?php echo $base_path . $site_logo; ?>" type="image/x-icon">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
-    
-    <style>
+<?php
+$page_title = translate('admin_news_page_title', 'News Management');
+$page_meta_description = translate('admin_news_meta_description', 'News Management for Sahtout WoW Server');
+$page_meta_robots = 'noindex';
+$page_body_class = 'news';
+
+ob_start();
+?>
+<style>
         * { font-family: 'Inter', sans-serif; }
 
         body {
@@ -569,9 +564,9 @@ $news_result = $stmt->get_result();
             }
         }
     </style>
-</head>
-<body class="news">
-    <?php include $project_root . 'includes/header.php'; ?>
+<?php $page_head = ob_get_clean(); ?>
+
+<?php include $project_root . 'includes/header.php'; ?>
 
     <!-- Main Content Area with Sidebar -->
     <div class="flex relative min-h-screen">

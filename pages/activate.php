@@ -193,24 +193,12 @@ if (!$token) {
     }
 }
 
-// Include header.php after logic to avoid headers-already-sent error
-require_once $project_root . 'includes/header.php';
-?>
+$page_title = $site_title_name ." ". translate('page_title', '- Activate Account');
+$page_meta_description = translate('meta_description', 'Activate your account to join our World of Warcraft server adventure!');
+$page_meta_robots = 'index';
 
-<!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<?php echo translate('meta_description', 'Activate your account to join our World of Warcraft server adventure!'); ?>">
-    <meta name="robots" content="index">
-    <title><?php echo $site_title_name ." ". translate('page_title', '- Activate Account'); ?></title>
-    
-    <!-- Tailwind CSS -->
-    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/tailwind.css">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="<?php echo $base_path; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    
+ob_start();
+?>
     <style>
         /* Page background */
         body {
@@ -329,8 +317,12 @@ require_once $project_root . 'includes/header.php';
             }
         }
     </style>
-</head>
-<body>
+<?php
+$page_head = ob_get_clean();
+
+// Include header.php after logic to avoid headers-already-sent error
+require_once $project_root . 'includes/header.php';
+?>
 <div class="activate-content min-h-screen flex items-center justify-center px-4 py-8">
     <div class="container mx-auto max-w-7xl px-2 sm:px-4 flex items-center justify-center">
         
@@ -388,5 +380,3 @@ require_once $project_root . 'includes/header.php';
 </div>
 
 <?php include_once $project_root . 'includes/footer.php'; ?>
-</body>
-</html>
