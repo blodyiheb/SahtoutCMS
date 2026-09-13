@@ -1,4 +1,5 @@
 node_modules/
 vendor/
-logs/*
-cache/*
+logs/
+cache/
+img/

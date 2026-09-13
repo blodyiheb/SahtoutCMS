@@ -96,7 +96,7 @@ ob_start();
             text-shadow: 0 0 12px rgba(201,162,39,.35), 0 2px 4px rgba(0,0,0,.8);
         }
 
-        /* Equipment Slots - Fixed */
+        /* Equipment Slots */
         .slot {
             background: rgba(10, 14, 22, 0.7);
             border: 1px solid rgba(201,162,39,0.12);
@@ -168,7 +168,6 @@ ob_start();
             width: 100%;
         }
 
-        /* Equipment Columns */
         .equipment-column {
             min-width: 0;
             max-width: 320px;
@@ -176,38 +175,37 @@ ob_start();
             flex: 1;
         }
 
-        /* For the weapon slots row */
         .weapon-slot {
-    background: rgba(10, 14, 22, 0.7);
-    border: 1px solid rgba(201,162,39,0.12);
-    transition: all 0.3s ease;
-    min-height: 55px;
-    border-radius: 4px;
-}
-.weapon-slot:hover {
-    border-color: rgba(201,162,39,0.3);
-    background: rgba(10, 14, 22, 0.9);
-}
-.weapon-slot.has-item {
-    border-left: 3px solid #f2cf5b;
-}
-.weapon-slot .slot-icon {
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-    border: 1px solid rgba(201,162,39,0.15);
-    background: rgba(0,0,0,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border-radius: 4px;
-}
-.weapon-slot .slot-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit:cover; 
-}
+            background: rgba(10, 14, 22, 0.7);
+            border: 1px solid rgba(201,162,39,0.12);
+            transition: all 0.3s ease;
+            min-height: 55px;
+            border-radius: 4px;
+        }
+        .weapon-slot:hover {
+            border-color: rgba(201,162,39,0.3);
+            background: rgba(10, 14, 22, 0.9);
+        }
+        .weapon-slot.has-item {
+            border-left: 3px solid #f2cf5b;
+        }
+        .weapon-slot .slot-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            border: 1px solid rgba(201,162,39,0.15);
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+        .weapon-slot .slot-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
         .empty-slot {
             color: #4b5563;
             font-size: 0.8rem;
@@ -335,7 +333,7 @@ ob_start();
             font-weight: 600;
         }
 
-        /* PVP - Redesigned */
+        /* PVP */
         .pvp-section {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -507,9 +505,7 @@ ob_start();
 
         /* Responsive */
         @media (max-width: 1024px) {
-            .equipment-column {
-                max-width: 280px;
-            }
+            .equipment-column { max-width: 280px; }
         }
 
         @media (max-width: 768px) {
@@ -517,52 +513,21 @@ ob_start();
             .panel { padding: 1.5rem 0.75rem; }
             .character-image { height: 300px; }
             .tab-btn { flex: 1; min-width: 100px; text-align: center; padding: 0.5rem 1rem; font-size: 0.8rem; }
-            .stats-container { grid-template-columns: 1fr; }
             .pvp-section { grid-template-columns: 1fr; }
-            .equipment-column {
-                max-width: 240px;
-                min-width: 160px;
-            }
-            .slot {
-                padding: 0.4rem 0.6rem;
-                min-height: 44px;
-                gap: 0.6rem;
-            }
-            .slot-icon {
-                width: 32px;
-                height: 32px;
-            }
-            .slot-item {
-                font-size: 0.8rem;
-            }
+            .equipment-column { max-width: 240px; min-width: 160px; }
+            .slot { padding: 0.4rem 0.6rem; min-height: 44px; gap: 0.6rem; }
+            .slot-icon { width: 32px; height: 32px; }
+            .slot-item { font-size: 0.8rem; }
         }
 
         @media (max-width: 480px) {
-            .slot {
-                padding: 0.35rem 0.5rem;
-                min-height: 40px;
-                gap: 0.5rem;
-            }
-            .slot-icon {
-                width: 28px;
-                height: 28px;
-            }
-            .slot-item {
-                font-size: 0.75rem;
-            }
-            .slot-name {
-                font-size: 0.6rem;
-            }
-            .character-name {
-                font-size: 1.5rem;
-            }
-            .character-image {
-                height: 250px;
-            }
-            .equipment-column {
-                max-width: 200px;
-                min-width: 120px;
-            }
+            .slot { padding: 0.35rem 0.5rem; min-height: 40px; gap: 0.5rem; }
+            .slot-icon { width: 28px; height: 28px; }
+            .slot-item { font-size: 0.75rem; }
+            .slot-name { font-size: 0.6rem; }
+            .character-name { font-size: 1.5rem; }
+            .character-image { height: 250px; }
+            .equipment-column { max-width: 200px; min-width: 120px; }
         }
     </style>
 <?php
@@ -951,21 +916,21 @@ require_once $project_root . 'includes/header.php';
                             });
                         </script>
                     </div>
-           <div class="flex gap-2 w-full max-w-[350px]">
-    <?php foreach ([15, 16, 17] as $slot): ?>
-        <div class="slot weapon-slot flex-1 min-h-[55px] flex items-center justify-center<?= isset($items[$slot]) ? ' has-item' : '' ?>" 
-             <?= isset($items[$slot]) ? 'data-tooltip="' . htmlspecialchars(generateTooltip($items[$slot])) . '"' : '' ?>
-             style="padding: 0.5rem; border-radius: 4px;">
-            <div class="slot-icon" style="width: 44px; height: 44px; border-radius: 4px;">
-                <?php
-                $icon = isset($items[$slot]) && !empty($items[$slot]['icon']) ? $items[$slot]['icon'] : ($defaultIcons[$slot] ?? 'inv_misc_questionmark');
-                $iconSrc = isset($items[$slot]) && !empty($items[$slot]['icon']) ? "https://wow.zamimg.com/images/wow/icons/large/$icon.jpg" : "{$base_path}img/characterarmor/$icon";
-                ?>
-                <img src="<?= htmlspecialchars($iconSrc) ?>" alt="<?= htmlspecialchars($slotLabels[$slot]) ?>" loading="lazy">
-            </div>
-        </div>
-    <?php endforeach; ?>
-</div>
+                    <div class="flex gap-2 w-full max-w-[350px]">
+                        <?php foreach ([15, 16, 17] as $slot): ?>
+                            <div class="slot weapon-slot flex-1 min-h-[55px] flex items-center justify-center<?= isset($items[$slot]) ? ' has-item' : '' ?>" 
+                                 <?= isset($items[$slot]) ? 'data-tooltip="' . htmlspecialchars(generateTooltip($items[$slot])) . '"' : '' ?>
+                                 style="padding: 0.5rem; border-radius: 4px;">
+                                <div class="slot-icon" style="width: 44px; height: 44px; border-radius: 4px;">
+                                    <?php
+                                    $icon = isset($items[$slot]) && !empty($items[$slot]['icon']) ? $items[$slot]['icon'] : ($defaultIcons[$slot] ?? 'inv_misc_questionmark');
+                                    $iconSrc = isset($items[$slot]) && !empty($items[$slot]['icon']) ? "https://wow.zamimg.com/images/wow/icons/large/$icon.jpg" : "{$base_path}img/characterarmor/$icon";
+                                    ?>
+                                    <img src="<?= htmlspecialchars($iconSrc) ?>" alt="<?= htmlspecialchars($slotLabels[$slot]) ?>" loading="lazy">
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
 
                 <!-- Right Equipment Column -->
@@ -1004,7 +969,79 @@ require_once $project_root . 'includes/header.php';
             <!-- Stats Tab -->
             <div id="stats-tab" class="tab-content active mt-6">
                 <?php if ($stats): ?>
+                    <?php
+                    // Determine primary power type for the character's class
+                    $classPowerMap = [
+                        1 => 1,  // Warrior → Rage
+                        2 => 0,  // Paladin → Mana
+                        3 => 2,  // Hunter → Focus
+                        4 => 3,  // Rogue → Energy
+                        5 => 0,  // Priest → Mana
+                        6 => 6,  // Death Knight → Runic Power
+                        7 => 0,  // Shaman → Mana
+                        8 => 0,  // Mage → Mana
+                        9 => 0,  // Warlock → Mana
+                        11 => 0, // Druid → Mana
+                    ];
+                    $powerIndex = $classPowerMap[$character['class']] ?? 0;
+                    $displayPowerValue = $stats["maxpower" . ($powerIndex + 1)];
+                    if ($powerIndex == 1 && $stats['maxpower2'] > 0) {
+                        // Rage is stored x10 in DB
+                        $displayPowerValue = $stats['maxpower2'] / 10;
+                    } elseif ($powerIndex == 6 && $stats['maxpower7'] > 0) {
+                        // Runic Power is stored x10 in DB
+                        $displayPowerValue = $stats['maxpower7'] / 10;
+                    }
+
+                    // ─────────────────────────────────────────────────────────────
+                    // Compute gear ratings from equipped items (stat_type1..10)
+                    // AzerothCore ITEM_MOD_* IDs:
+                    //   30 Spell Hit     31 Spell Crit    32 Spell Haste
+                    //   35 Resilience    36 Haste         37 Expertise
+                    //   38 Attack Power  41 Bonus Healing 42 Bonus Spell Damage
+                    //   43 Mana per 5    45 Spell Power   47 Spell Penetration
+                    //   49 Armor Penetration
+                    // ─────────────────────────────────────────────────────────────
+                    $gear_stats = [
+                        'spellHit'    => 0,
+                        'spellCrit'   => 0,
+                        'spellHaste'  => 0,
+                        'spellPen'    => 0,
+                        'haste'       => 0,
+                        'expertise'   => 0,
+                        'armorPen'    => 0,
+                        'mp5'         => 0,
+                        'bonusHeal'   => 0,
+                        'bonusSpell'  => 0,
+                    ];
+                    foreach ($items as $item) {
+                        for ($i = 1; $i <= 10; $i++) {
+                            $t = isset($item["stat_type$i"])  ? (int)$item["stat_type$i"]  : 0;
+                            $v = isset($item["stat_value$i"]) ? (int)$item["stat_value$i"] : 0;
+                            if ($t <= 0 || $v <= 0) continue;
+                            switch ($t) {
+                                case 30: $gear_stats['spellHit']   += $v; break;
+                                case 31: $gear_stats['spellCrit']  += $v; break;
+                                case 32: $gear_stats['spellHaste'] += $v; break;
+                                case 35: /* resilience already in $stats */ break;
+                                case 36: $gear_stats['haste']      += $v; break;
+                                case 37: $gear_stats['expertise']  += $v; break;
+                                case 43: $gear_stats['mp5']        += $v; break;
+                                case 41: $gear_stats['bonusHeal']  += $v; break;
+                                case 42: $gear_stats['bonusSpell'] += $v; break;
+                                case 45: /* spellPower already in $stats */ break;
+                                case 47: $gear_stats['spellPen']   += $v; break;
+                                case 49: $gear_stats['armorPen']   += $v; break;
+                            }
+                        }
+                    }
+                    $hasGearRatings = ($gear_stats['spellHit'] + $gear_stats['spellCrit'] + $gear_stats['spellHaste']
+                                     + $gear_stats['spellPen'] + $gear_stats['haste'] + $gear_stats['expertise']
+                                     + $gear_stats['armorPen'] + $gear_stats['mp5'] + $gear_stats['bonusHeal']
+                                     + $gear_stats['bonusSpell']) > 0;
+                    ?>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Base Stats -->
                         <div class="stats-category">
                             <h3><i class="fas fa-heart mr-2"></i><?php echo translate('stats_base', 'Base Stats'); ?></h3>
                             <div class="stats-item"><span><?php echo translate('stat_health', 'Health'); ?></span><span><?= number_format($stats['maxhealth']) ?></span></div>
@@ -1013,12 +1050,17 @@ require_once $project_root . 'includes/header.php';
                             <?php else: ?>
                                 <div class="stats-item"><span><?php echo translate('stat_mana', 'Mana'); ?></span><span><?php echo translate('stat_not_available', 'Not Available'); ?></span></div>
                             <?php endif; ?>
+                            <?php if ($powerIndex > 0 && $stats["maxpower" . ($powerIndex + 1)] > 0): ?>
+                                <div class="stats-item"><span><?= htmlspecialchars($powerTypes[$powerIndex]) ?></span><span><?= number_format($displayPowerValue) ?></span></div>
+                            <?php endif; ?>
                             <div class="stats-item"><span><?php echo translate('stat_strength', 'Strength'); ?></span><span><?= number_format($stats['strength']) ?></span></div>
                             <div class="stats-item"><span><?php echo translate('stat_agility', 'Agility'); ?></span><span><?= number_format($stats['agility']) ?></span></div>
                             <div class="stats-item"><span><?php echo translate('stat_stamina', 'Stamina'); ?></span><span><?= number_format($stats['stamina']) ?></span></div>
                             <div class="stats-item"><span><?php echo translate('stat_intellect', 'Intellect'); ?></span><span><?= number_format($stats['intellect']) ?></span></div>
                             <div class="stats-item"><span><?php echo translate('stat_spirit', 'Spirit'); ?></span><span><?= number_format($stats['spirit']) ?></span></div>
                         </div>
+
+                        <!-- Defense -->
                         <div class="stats-category">
                             <h3><i class="fas fa-shield mr-2"></i><?php echo translate('stats_defense', 'Defense'); ?></h3>
                             <div class="stats-item"><span><?php echo translate('stat_armor', 'Armor'); ?></span><span><?= number_format($stats['armor']) ?></span></div>
@@ -1027,14 +1069,72 @@ require_once $project_root . 'includes/header.php';
                             <div class="stats-item"><span><?php echo translate('stat_parry', 'Parry'); ?></span><span><?= number_format($stats['parryPct'], 2) ?>%</span></div>
                             <div class="stats-item"><span><?php echo translate('stat_resilience', 'Resilience'); ?></span><span><?= number_format($stats['resilience']) ?></span></div>
                         </div>
+
+                        <!-- Spell -->
+                        <div class="stats-category">
+                            <h3><i class="fas fa-magic mr-2"></i><?php echo translate('stats_spell', 'Spell'); ?></h3>
+                            <div class="stats-item"><span><?php echo translate('stat_spell_power', 'Spell Power'); ?></span><span><?= number_format($stats['spellPower']) ?></span></div>
+                            <div class="stats-item"><span><?php echo translate('stat_spell_crit_chance', 'Spell Crit'); ?></span><span><?= number_format($stats['spellCritPct'], 2) ?>%</span></div>
+                            <?php if ($gear_stats['spellHaste'] > 0): ?>
+                                <div class="stats-item"><span><?php echo translate('stat_spell_haste', 'Spell Haste'); ?></span><span><?= number_format($gear_stats['spellHaste']) ?></span></div>
+                            <?php endif; ?>
+                            <?php if ($gear_stats['spellHit'] > 0): ?>
+                                <div class="stats-item"><span><?php echo translate('stat_spell_hit', 'Spell Hit'); ?></span><span><?= number_format($gear_stats['spellHit']) ?></span></div>
+                            <?php endif; ?>
+                            <?php if ($gear_stats['spellPen'] > 0): ?>
+                                <div class="stats-item"><span><?php echo translate('stat_spell_pen', 'Spell Penetration'); ?></span><span><?= number_format($gear_stats['spellPen']) ?></span></div>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Melee -->
                         <div class="stats-category">
                             <h3><i class="fas fa-sword mr-2"></i><?php echo translate('stats_melee', 'Melee'); ?></h3>
                             <div class="stats-item"><span><?php echo translate('stat_attack_power', 'Attack Power'); ?></span><span><?= number_format($stats['attackPower']) ?></span></div>
                             <div class="stats-item"><span><?php echo translate('stat_crit_chance', 'Crit Chance'); ?></span><span><?= number_format($stats['critPct'], 2) ?>%</span></div>
+                            <?php if ($gear_stats['haste'] > 0): ?>
+                                <div class="stats-item"><span><?php echo translate('stat_haste', 'Haste'); ?></span><span><?= number_format($gear_stats['haste']) ?></span></div>
+                            <?php endif; ?>
+                            <?php if ($gear_stats['expertise'] > 0): ?>
+                                <div class="stats-item"><span><?php echo translate('stat_expertise', 'Expertise'); ?></span><span><?= number_format($gear_stats['expertise']) ?></span></div>
+                            <?php endif; ?>
+                            <?php if ($gear_stats['armorPen'] > 0): ?>
+                                <div class="stats-item"><span><?php echo translate('stat_armor_pen', 'Armor Penetration'); ?></span><span><?= number_format($gear_stats['armorPen']) ?></span></div>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Ranged -->
+                        <div class="stats-category">
+                            <h3><i class="fas fa-bullseye mr-2"></i><?php echo translate('stats_ranged', 'Ranged'); ?></h3>
                             <div class="stats-item"><span><?php echo translate('stat_ranged_attack_power', 'Attack Power'); ?></span><span><?= number_format($stats['rangedAttackPower']) ?></span></div>
                             <div class="stats-item"><span><?php echo translate('stat_ranged_crit_chance', 'Crit Chance'); ?></span><span><?= number_format($stats['rangedCritPct'], 2) ?>%</span></div>
-                            <div class="stats-item"><span><?php echo translate('stat_spell_crit_chance', 'Spell Crit'); ?></span><span><?= number_format($stats['spellCritPct'], 2) ?>%</span></div>
                         </div>
+
+                        <!-- Resistances -->
+                        <div class="stats-category">
+                            <h3><i class="fas fa-fire mr-2"></i><?php echo translate('stats_resistances', 'Resistances'); ?></h3>
+                            <div class="stats-item"><span><?php echo translate('stat_holy_resistance', 'Holy Resistance'); ?></span><span><?= number_format($stats['resHoly']) ?></span></div>
+                            <div class="stats-item"><span><?php echo translate('stat_fire_resistance', 'Fire Resistance'); ?></span><span><?= number_format($stats['resFire']) ?></span></div>
+                            <div class="stats-item"><span><?php echo translate('stat_nature_resistance', 'Nature Resistance'); ?></span><span><?= number_format($stats['resNature']) ?></span></div>
+                            <div class="stats-item"><span><?php echo translate('stat_frost_resistance', 'Frost Resistance'); ?></span><span><?= number_format($stats['resFrost']) ?></span></div>
+                            <div class="stats-item"><span><?php echo translate('stat_shadow_resistance', 'Shadow Resistance'); ?></span><span><?= number_format($stats['resShadow']) ?></span></div>
+                            <div class="stats-item"><span><?php echo translate('stat_arcane_resistance', 'Arcane Resistance'); ?></span><span><?= number_format($stats['resArcane']) ?></span></div>
+                        </div>
+
+                        <!-- Bonus: Gear-only extras (only if anything exists) -->
+                        <?php if ($hasGearRatings && ($gear_stats['bonusHeal'] > 0 || $gear_stats['bonusSpell'] > 0 || $gear_stats['mp5'] > 0)): ?>
+                            <div class="stats-category">
+                                <h3><i class="fas fa-gem mr-2"></i><?php echo translate('stats_gear_bonus', 'From Gear (Bonus)'); ?></h3>
+                                <?php if ($gear_stats['bonusHeal'] > 0): ?>
+                                    <div class="stats-item"><span><?php echo translate('stat_bonus_healing', 'Bonus Healing'); ?></span><span><?= number_format($gear_stats['bonusHeal']) ?></span></div>
+                                <?php endif; ?>
+                                <?php if ($gear_stats['bonusSpell'] > 0): ?>
+                                    <div class="stats-item"><span><?php echo translate('stat_bonus_spell_damage', 'Bonus Spell Damage'); ?></span><span><?= number_format($gear_stats['bonusSpell']) ?></span></div>
+                                <?php endif; ?>
+                                <?php if ($gear_stats['mp5'] > 0): ?>
+                                    <div class="stats-item"><span><?php echo translate('stat_mp5', 'Mana per 5 sec'); ?></span><span><?= number_format($gear_stats['mp5']) ?></span></div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 <?php else: ?>
                     <div class="text-center py-8 text-gray-400"><?php echo translate('stats_none', 'No Stats Available'); ?></div>

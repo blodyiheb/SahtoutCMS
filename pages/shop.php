@@ -149,7 +149,6 @@ if (!empty($_SESSION['user_id']) && isset($_SESSION['last_purchase_time'])) {
     }
 }
 
-$page_class = 'shop';
 $page_title = $site_title_name ." ".translate('shop_page_title', '- Shop');
 $page_meta_description = translate('shop_meta_description', 'Browse and purchase items, mounts, pets, gold, and services for '.$site_title_name . ' WoW Server');
 
