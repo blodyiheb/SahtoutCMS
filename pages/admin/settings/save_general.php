@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'mode
 }
 
 // Validate CSRF token
-if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
     $_SESSION['debug_errors'] = [translate('error_csrf_invalid', 'Invalid CSRF token.')];
     header("Location: {$base_path}admin/settings/general?status=error&message=" . urlencode(translate('error_csrf_invalid', 'Invalid CSRF token.')));
     exit;
@@ -193,9 +193,6 @@ if (empty($errors)) {
         }
     }
 }
-
-// Regenerate CSRF token
-$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
 // Redirect
 $redirect_url = "{$base_path}admin/settings/general";

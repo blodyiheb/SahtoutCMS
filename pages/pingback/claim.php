@@ -2,8 +2,12 @@
 // Start output buffering to catch any stray output
 ob_start();
 
-// Temporary logging for debugging
-file_put_contents('claim_log.txt', date('[Y-m-d H:i:s] ') . "Request: " . json_encode($_POST) . ", Session: " . json_encode($_SESSION) . ", IP: " . ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . PHP_EOL, FILE_APPEND);
+// Temporary logging for debugging (CSRF token is redacted from the log)
+$log_post = $_POST ?? [];
+$log_session = $_SESSION ?? [];
+if (isset($log_post['csrf_token'])) $log_post['csrf_token'] = '[REDACTED]';
+if (isset($log_session['csrf_token'])) $log_session['csrf_token'] = '[REDACTED]';
+file_put_contents('claim_log.txt', date('[Y-m-d H:i:s] ') . "Request: " . json_encode($log_post) . ", Session: " . json_encode($log_session) . ", IP: " . ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . PHP_EOL, FILE_APPEND);
 
 // Set error handling to log errors instead of displaying them
 ini_set('display_errors', 0);
@@ -65,14 +69,23 @@ $user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
 $site_id = isset($_POST['site_id']) ? $_POST['site_id'] : null;
 $csrf_token = isset($_POST['csrf_token']) ? $_POST['csrf_token'] : null;
 
-// Skip CSRF validation for testing if explicitly bypassed
-$skip_csrf = isset($_SERVER['HTTP_X_TEST_BYPASS_CSRF']) && $_SERVER['HTTP_X_TEST_BYPASS_CSRF'] === '1';
-if (!$skip_csrf && (!isset($csrf_token) || $csrf_token !== ($_SESSION['csrf_token'] ?? ''))) {
+// Validate the session CSRF token (generated centrally in includes/session.php)
+if (!is_string($_SESSION['csrf_token'] ?? null) || !hash_equals($_SESSION['csrf_token'], (string)$csrf_token)) {
     file_put_contents('claim_log.txt', date('[Y-m-d H:i:s] ') . "Invalid CSRF token." . PHP_EOL, FILE_APPEND);
     ob_end_clean();
     http_response_code(403);
     header('Content-Type: application/json');
     echo json_encode(["status" => "error", "message" => $translate('err_invalid_csrf', 'Invalid CSRF token.')]);
+    exit;
+}
+
+// Ensure the authenticated session user can only claim rewards for their own account
+if (empty($_SESSION['user_id']) || (int)$_SESSION['user_id'] !== $user_id) {
+    file_put_contents('claim_log.txt', date('[Y-m-d H:i:s] ') . "Reward claim denied for user_id=$user_id (session user_id=" . ($_SESSION['user_id'] ?? 'none') . ').' . PHP_EOL, FILE_APPEND);
+    ob_end_clean();
+    http_response_code(403);
+    header('Content-Type: application/json');
+    echo json_encode(["status" => "error", "message" => $translate('err_claim_forbidden', 'You can only claim rewards for your own account.')]);
     exit;
 }
 

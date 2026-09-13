@@ -15,9 +15,7 @@ global $site_db;
 
 $current_username = $_SESSION['username'] ?? translate('admin_news_unknown_user', 'Unknown');
 
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+// CSRF token is generated centrally in includes/session.php
 
 $base_upload_dir = $project_root . 'img/newsimg/';
 $base_upload_url = 'img/newsimg/';
@@ -70,7 +68,7 @@ $alert_success = function($msg) {
 $update_message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'add') {
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
             $update_message = $alert_danger(translate('admin_news_csrf_error', 'CSRF token validation failed.'));
         } else {
             $title = trim($_POST['title']);
@@ -121,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
         }
     } elseif ($_POST['action'] === 'update') {
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
             $update_message = $alert_danger(translate('admin_news_csrf_error', 'CSRF token validation failed.'));
         } else {
             $id = (int)$_POST['id'];
@@ -177,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
         }
     } elseif ($_POST['action'] === 'delete') {
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
             $update_message = $alert_danger(translate('admin_news_csrf_error', 'CSRF token validation failed.'));
         } else {
             $id = (int)$_POST['id'];

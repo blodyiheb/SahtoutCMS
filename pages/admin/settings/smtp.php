@@ -16,6 +16,7 @@ $page_meta_description = translate('page_description_smtp', 'SMTP Settings for S
 $page_meta_robots = 'noindex';
 $page_body_class = 'min-h-screen text-[#d8d8d8] bg-[#05070b] bg-fixed';
 
+// CSRF token is generated centrally in includes/session.php
 $errors = [];
 $success = false;
 $configMailFile = realpath($project_root . 'includes/config.mail.php');
@@ -80,7 +81,16 @@ if (file_exists($configMailFile)) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $smtp_enabled = isset($_POST['smtp_enabled']);
+    $csrfToken = (string)($_POST['csrf_token'] ?? '');
+    $validCsrf = !empty($csrfToken) && hash_equals($csrfToken, (string)($_SESSION['csrf_token'] ?? ''));
+
+    if (!$validCsrf) {
+        // Reject the request entirely: do not process any POST data.
+        $errors[] = translate('err_invalid_csrf', 'Invalid CSRF token.');
+    }
+
+    if ($validCsrf) {
+        $smtp_enabled = isset($_POST['smtp_enabled']);
     $smtpHost = trim($_POST['smtp_host'] ?? '');
     $smtpUser = trim($_POST['smtp_user'] ?? '');
     $smtpPass = trim($_POST['smtp_pass'] ?? '');
@@ -206,6 +216,7 @@ function getMailer(): PHPMailer {
             $current_smtp_port = $smtpPort;
             $current_smtp_secure = $smtpSecure;
         }
+    }
     }
 }
 ob_start();
@@ -401,6 +412,7 @@ include $project_root . 'includes/header.php';
                         </h2>
 
                         <form method="POST" class="space-y-4 md:space-y-6 max-w-3xl mx-auto">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                             <!-- Enable SMTP Toggle -->
                             <div class="flex items-center gap-4 p-4 rounded-sm bg-[rgba(201,162,39,0.05)] border border-[rgba(201,162,39,0.1)]">
                                 <label class="toggle-switch">
@@ -463,7 +475,7 @@ include $project_root . 'includes/header.php';
                                                   focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
                                                   placeholder:text-[#96aac8]/40"
                                            placeholder="<?php echo translate('placeholder_app_password', 'App password for Gmail/Outlook'); ?>" 
-                                           value="<?php echo htmlspecialchars($_POST['smtp_pass'] ?? $current_smtp_pass); ?>">
+                                           value="">
                                     <div class="text-[#6a7a8a] text-xs mt-1"><?php echo translate('help_smtp_pass', 'For Gmail, use an App Password. For other providers, use your email password.'); ?></div>
                                 </div>
 

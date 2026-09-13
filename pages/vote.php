@@ -113,10 +113,7 @@ $claim_message = isset($_SESSION['claim_message']) ? htmlspecialchars($_SESSION[
 $claim_message_type = isset($_SESSION['claim_message_type']) ? htmlspecialchars($_SESSION['claim_message_type'], ENT_QUOTES, 'UTF-8') : '';
 unset($_SESSION['claim_message'], $_SESSION['claim_message_type']);
 
-// Generate CSRF token
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+// CSRF token is generated centrally in includes/session.php
 $csrf_token = $_SESSION['csrf_token'];
 
 // Fallback for translate function

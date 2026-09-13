@@ -489,11 +489,6 @@ if ($auth_db->connect_error || $char_db->connect_error || $site_db->connect_erro
     $stmt->close();
 }
 
-// Generate CSRF token
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-
 // NOTE: Database connections are intentionally left open here.
 // includes/header.php (included below) re-queries $site_db and $auth_db when a
 // user session exists, so the connections must stay open until the end of the

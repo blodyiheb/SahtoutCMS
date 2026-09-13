@@ -64,7 +64,7 @@ $predefined_locations = [
 // Handle form submissions
 $update_message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'manage_character') {
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         $update_message = '<div class="bg-red-900/40 border border-red-500/50 text-red-300 px-4 py-3 rounded-sm mb-6 flex items-center gap-3">' . translate('admin_chars_csrf_error', 'CSRF token validation failed.') . '</div>';
     } else {
         $guid = (int)$_POST['guid'];
@@ -303,9 +303,6 @@ function getOnlineStatus($online) {
         : '<span class="text-red-400 font-semibold"><i class="fas fa-circle text-red-400 text-xs mr-1"></i> ' . translate('admin_chars_status_offline', 'Offline') . '</span>';
 }
 
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
 ?>
 <?php
 $page_title = translate('admin_chars_page_title', 'Character Management');

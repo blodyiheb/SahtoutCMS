@@ -154,6 +154,11 @@ if (!function_exists('sendResetEmail')) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Verify CSRF token before processing the reset request (token generated centrally in includes/session.php)
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $errors[] = translate('error_invalid_csrf', 'Invalid or expired form submission. Please refresh the page and try again.');
+    }
+
     $username_or_email = trim($_POST['username_or_email'] ?? '');
 
     // Basic field validation
@@ -443,6 +448,7 @@ require_once $project_root . 'includes/header.php';
 
             <!-- Form -->
             <form method="POST" class="space-y-4">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <div class="relative">
                     <i class="fas fa-user text-[rgba(201,162,39,0.4)] absolute top-3.5 left-3"></i>
                     <input type="text" name="username_or_email" maxlength="100" placeholder="<?php echo translate('username_or_email_placeholder', 'Username or Email'); ?>" required value="<?php echo htmlspecialchars($username_or_email); ?>" class="input-forgot w-full pl-10 pr-4 py-3 text-base">

@@ -16,6 +16,7 @@ $page_meta_description = translate('page_description_soap', 'SOAP Settings for S
 $page_meta_robots = 'noindex';
 $page_body_class = 'min-h-screen text-[#d8d8d8] bg-[#05070b] bg-fixed';
 
+// CSRF token is generated centrally in includes/session.php
 $errors = [];
 $success = false;
 $soapConfigFile = realpath($project_root . 'includes/soap.conf.php');
@@ -25,6 +26,7 @@ $soap_status = 'not_configured';
 $soapUrl = 'http://127.0.0.1:7878';
 $soapUser = '';
 $soapPass = '';
+$existingSoapPass = '';
 
 if (file_exists($soapConfigFile)) {
     include $soapConfigFile;
@@ -32,12 +34,23 @@ if (file_exists($soapConfigFile)) {
         $soap_status = 'configured';
         $soapUrl = $soap_url;
         $soapUser = $soap_user;
+        // Keep the stored password in memory only; it must never be echoed into HTML.
+        $existingSoapPass = $soap_pass;
         $soapPass = '';
     }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $soapUrl = trim($_POST['soap_url'] ?? 'http://127.0.0.1:7878');
+    $csrfToken = (string)($_POST['csrf_token'] ?? '');
+    $validCsrf = !empty($csrfToken) && hash_equals($csrfToken, (string)($_SESSION['csrf_token'] ?? ''));
+
+    if (!$validCsrf) {
+        // Reject the request entirely: do not process any POST data.
+        $errors[] = translate('error_invalid_csrf', 'Invalid CSRF token.');
+    }
+
+    if ($validCsrf) {
+        $soapUrl = trim($_POST['soap_url'] ?? 'http://127.0.0.1:7878');
     $soapUser = trim($_POST['soap_user'] ?? '');
     $soapPass = trim($_POST['soap_pass'] ?? '');
 
@@ -48,7 +61,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = translate('error_soap_user_required', 'GM Account Username is required.');
     }
     if (empty($soapPass)) {
-        $errors[] = translate('error_soap_pass_required', 'SOAP Password is required.');
+        // Blank password on save means "keep the previously stored password".
+        // Only require one when no password has ever been configured.
+        if ($existingSoapPass !== '') {
+            $soapPass = $existingSoapPass;
+        } else {
+            $errors[] = translate('error_soap_pass_required', 'SOAP Password is required.');
+        }
     }
 
     // Validate GM account
@@ -105,7 +124,10 @@ if (!defined('ALLOWED_ACCESS')) {
         } else {
             $success = true;
             $soap_status = 'configured';
+            // Keep the just-saved password as the current one for subsequent blank-password saves.
+            $existingSoapPass = $soapPass;
         }
+    }
     }
 }
 ob_start();
@@ -263,6 +285,7 @@ include $project_root . 'includes/header.php';
                         </h2>
 
                         <form method="POST" class="space-y-4 md:space-y-6 max-w-3xl mx-auto">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                             <div>
                                 <label for="soap_url" class="form-label text-[#f2cf5b] font-bold text-sm 
                                                              tracking-wider block mb-2 
@@ -311,9 +334,8 @@ include $project_root . 'includes/header.php';
                                               focus:border-[#f2cf5b] focus:shadow-[0_0_10px_rgba(242,207,82,.2)] 
                                               focus:bg-[#0f141e]/90 outline-none transition-all duration-200 
                                               placeholder:text-[#96aac8]/40"
-                                       placeholder="<?php echo translate('placeholder_soap_pass', 'SOAP password = Account password'); ?>" 
-                                       value="<?php echo htmlspecialchars($soapPass); ?>" 
-                                       required>
+                                       placeholder="<?php echo translate('placeholder_soap_pass', 'SOAP password = Account password'); ?>"
+                                       >
                                 <div class="text-[#6a7a8a] text-xs mt-1"><?php echo translate('help_soap_pass', 'This is the password for the GM account above.'); ?></div>
                             </div>
 
