@@ -580,6 +580,9 @@
   .mb-16 {
     margin-bottom: calc(var(--spacing) * 16);
   }
+  .ml-0\.5 {
+    margin-left: calc(var(--spacing) * 0.5);
+  }
   .ml-1 {
     margin-left: var(--spacing);
   }
@@ -811,14 +814,8 @@
   .w-40 {
     width: calc(var(--spacing) * 40);
   }
-  .w-44 {
-    width: calc(var(--spacing) * 44);
-  }
   .w-48 {
     width: calc(var(--spacing) * 48);
-  }
-  .w-64 {
-    width: calc(var(--spacing) * 64);
   }
   .w-70 {
     width: calc(var(--spacing) * 70);
@@ -2315,8 +2312,8 @@
   .px-10 {
     padding-inline: calc(var(--spacing) * 10);
   }
-  .\!py-1 {
-    padding-block: var(--spacing) !important;
+  .\!py-0\.5 {
+    padding-block: calc(var(--spacing) * 0.5) !important;
   }
   .\!py-2 {
     padding-block: calc(var(--spacing) * 2) !important;
@@ -3818,6 +3815,9 @@
     .md\:table-cell {
       display: table-cell;
     }
+    .md\:h-16 {
+      height: calc(var(--spacing) * 16);
+    }
     .md\:h-18 {
       height: calc(var(--spacing) * 18);
     }
@@ -4082,6 +4082,9 @@
     }
     .lg\:grid-cols-\[minmax\(0\,1fr\)_380px\] {
       grid-template-columns: minmax(0,1fr) 380px;
+    }
+    .lg\:flex-nowrap {
+      flex-wrap: nowrap;
     }
     .lg\:gap-10 {
       gap: calc(var(--spacing) * 10);
