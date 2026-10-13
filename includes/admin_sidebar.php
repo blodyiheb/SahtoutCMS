@@ -130,74 +130,85 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
         }
     }
 
-    /* Donation Button Styles - Reduced Size */
-    .donate-btn-wrapper {
-        padding: 6px 12px 2px 12px;
+    /* ============================================
+       Support / Donation Section
+       ============================================ */
+    .support-section {
+        padding: 10px 12px 8px 12px;
     }
-    
-    .donate-btn-wrapper a {
-        display: block;
-        transition: all 0.3s ease;
-        border-radius: 4px;
-        overflow: hidden;
-    }
-    
-    .donate-btn-wrapper a:hover {
-        transform: translateX(2px) scale(1.01);
-        box-shadow: 0 0 20px rgba(201,162,39,0.15);
-    }
-    
-    .donate-btn-wrapper img {
+
+    /* Static banner (non-clickable) */
+    .support-static-banner {
         width: 100%;
         height: auto;
         display: block;
-        border-radius: 4px;
-        border: 1px solid rgba(201,162,39,0.25);
-        transition: all 0.3s ease;
-        max-height: 60px;
+        max-height: 50px;
         object-fit: contain;
+        margin-bottom: 10px;
+        opacity: 0.9;
     }
-    
-    .donate-btn-wrapper a:hover img {
-        border-color: #f2cf5b;
-        box-shadow: 0 0 15px rgba(201,162,39,0.1);
-    }
-    
-    .donate-btn-fallback {
+
+    /* Side-by-side row */
+    .donate-row {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        padding: 6px 12px;
-        background: linear-gradient(135deg, rgba(201,162,39,0.15), rgba(201,162,39,0.04));
-        border: 1px solid rgba(201,162,39,0.3);
-        border-radius: 4px;
-        color: #f2cf5b;
-        font-family: 'Cinzel', serif;
-        font-weight: 700;
-        font-size: 0.7rem;
+        gap: 10px;
+    }
+
+    .donate-btn {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1 1 0;
+        height: 40px;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 8px;
         text-decoration: none;
-        transition: all 0.3s ease;
-        text-align: center;
-        letter-spacing: 0.3px;
     }
-    
-    .donate-btn-fallback:hover {
-        background: linear-gradient(135deg, rgba(201,162,39,0.25), rgba(201,162,39,0.08));
-        border-color: #f2cf5b;
-        box-shadow: 0 0 20px rgba(201,162,39,0.15);
-        transform: translateX(2px);
-        color: #ffe066;
+
+    /* The image inside swaps via opacity */
+    .donate-btn img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        max-height: 100%;
+        max-width: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        transition: opacity 0.25s ease, filter 0.35s ease;
+        pointer-events: none;
+        border: none;
     }
-    
-    .donate-btn-fallback i {
-        font-size: 0.75rem;
-        animation: heartPulse 2s ease-in-out infinite;
+
+    /* Default: show icon, hide full button */
+    .donate-btn .img-icon {
+        opacity: 1;
+        max-height: 36px;
     }
-    
-    @keyframes heartPulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.15); }
+
+    .donate-btn .img-full {
+        opacity: 0;
+        max-height: 40px;
+        max-width: 95%;
+    }
+
+    /* On hover: swap */
+    .donate-btn:hover .img-icon {
+        opacity: 0;
+    }
+
+    .donate-btn:hover .img-full {
+        opacity: 1;
+    }
+
+    /* Subtle hover lift + glow */
+    .donate-btn:hover {
+        transform: translateY(-2px);
+        filter: drop-shadow(0 0 10px rgba(201,162,39,0.35));
     }
 </style>
 
@@ -322,21 +333,57 @@ if (strpos($current_path, 'admin/dashboard') !== false) {
         </ul>
     </nav>
 
-    <!-- Donation Button (above footer) - Reduced Size -->
-    <div class="relative z-10 donate-btn-wrapper shrink-0">
+    <!-- Support / Donation Section -->
+    <div class="relative z-10 support-section shrink-0 border-t border-[rgba(201,162,39,.15)]">
+
+        <!-- Static banner (non-clickable) -->
         <?php 
-        $donate_image = __DIR__ . '/../img/support-button.png';
-        if (file_exists($donate_image)): ?>
-            <a href="https://blodyiheb.vercel.app/#payment-methods" target="_blank" rel="noopener noreferrer">
-                <img src="<?php echo $base_path; ?>img/support-button.png" alt="Support the Server - Donate" loading="lazy">
-            </a>
-        <?php else: ?>
-            <a href="https://blodyiheb.vercel.app/#payment-methods" target="_blank" rel="noopener noreferrer" class="donate-btn-fallback">
-                <i class="fas fa-heart"></i>
-                <span><?php echo translate('donate', 'Support'); ?></span>
-                <i class="fas fa-heart"></i>
-            </a>
+        $support_banner = __DIR__ . '/../img/support-button.png';
+        if (file_exists($support_banner)): ?>
+            <img src="<?php echo $base_path; ?>img/support-button.png"
+                 alt="Support the Server"
+                 loading="lazy"
+                 class="support-static-banner">
         <?php endif; ?>
+
+        <!-- Side-by-side icon buttons — icon → full button on hover -->
+        <div class="donate-row">
+
+            <!-- Buy Me a Coffee -->
+            <a href="https://buymeacoffee.com/sahtoutdev"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="Buy Me a Coffee"
+               class="donate-btn">
+                <img src="<?php echo $base_path; ?>img/extra/bmcicon.png"
+                     alt="Buy Me a Coffee"
+                     loading="lazy"
+                     class="img-icon">
+                <img src="<?php echo $base_path; ?>img/extra/bmc-button.svg"
+                     alt=""
+                     loading="lazy"
+                     aria-hidden="true"
+                     class="img-full">
+            </a>
+
+            <!-- Ko-fi -->
+            <a href="https://ko-fi.com/sahtoutdev"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="Support on Ko-fi"
+               class="donate-btn">
+                <img src="<?php echo $base_path; ?>img/extra/kofiicon.png"
+                     alt="Support Me on Ko-fi"
+                     loading="lazy"
+                     class="img-icon">
+                <img src="<?php echo $base_path; ?>img/extra/support_me_on_kofi_blue.png"
+                     alt=""
+                     loading="lazy"
+                     aria-hidden="true"
+                     class="img-full">
+            </a>
+
+        </div>
     </div>
 
     <!-- Footer -->

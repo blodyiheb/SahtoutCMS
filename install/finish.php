@@ -160,21 +160,38 @@ foreach ($configFiles as $name => $path) {
                         </h2>
                         
                         <p class="text-slate-300 text-sm leading-relaxed max-w-xl mx-auto mb-5">
-                            Enjoying SahtoutCMS? ❤️
-                            If this project has helped you or your WoW server,
-                            consider supporting its continued development.
+                            Enjoying SahtoutCMS? ❤️ Choose your favorite platform below
+                            to support the continued development of this project.
                         </p>
                         
-                        <a 
-                            href="https://blodyiheb.vercel.app/#payment-methods"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="inline-flex items-center justify-center gap-2 px-7 py-3 bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bold rounded-lg shadow-lg shadow-red-900/30 transition-all duration-300 transform hover:scale-105"
-                        >
-                            <i class="fas fa-heart"></i>
-                            Support the Project
-                            <i class="fas fa-external-link-alt text-xs"></i>
-                        </a>
+                        <div class="flex flex-col items-center justify-center gap-5">
+                            <a 
+                                href="https://ko-fi.com/sahtoutdev"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="transition-transform duration-300 transform hover:scale-105"
+                                aria-label="Support on Ko-fi"
+                            >
+                                <img 
+                                    src="kofi.gif" 
+                                    alt="Support on Ko-fi" 
+                                    class="h-10 md:h-12 w-auto object-contain"
+                                >
+                            </a>
+                           <a 
+    href="https://buymeacoffee.com/sahtoutdev"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="transition-transform duration-300 transform hover:scale-105"
+    aria-label="Buy Me a Coffee"
+>
+    <img 
+        src="bmc.gif" 
+        alt="Buy Me a Coffee" 
+        class="w-48 md:w-56 h-auto object-contain"
+    >
+</a>
+                        </div>
                         
                         <p class="text-xs text-slate-500 mt-3">
                             Donations are completely optional and help keep SahtoutCMS alive and growing.
