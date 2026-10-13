@@ -43,7 +43,7 @@ $currentFlagEsc = htmlspecialchars($currentFlag);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= translate('installer_title', 'Sahtout CMS Installer') ?></title>
-    
+    <link rel="icon" type="image/png" href="<?= htmlspecialchars($base_path ?? '/') ?>img/logo.png">
     <!-- Tailwind CSS -->
     <link rel="stylesheet" href="<?= htmlspecialchars($base_path ?? '/') ?>assets/css/tailwind.css">
     

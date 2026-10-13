@@ -271,6 +271,7 @@ $esc_logo = htmlspecialchars($site_logo ?? '', ENT_QUOTES, 'UTF-8');
     <link rel="icon" href="<?php echo $esc_base . $esc_logo; ?>" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?php echo $esc_base; ?>assets/css/tailwind.css">
+    <script src="<?php echo $esc_base; ?>assets/js/includes/friendly.js"></script>
     <link rel="stylesheet" href="<?php echo $esc_base; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css">
 
     <style>
