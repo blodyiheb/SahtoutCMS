@@ -48,46 +48,15 @@ if (!$stmt_cleanup->execute()) {
 }
 $stmt_cleanup->close();
 
-// Make sure getMailer function exists
-if (!function_exists('getMailer')) {
-    function getMailer() {
-        global $smtp_enabled, $smtp_host, $smtp_user, $smtp_pass, $smtp_from, $smtp_name, $smtp_port, $smtp_secure;
-        
-        require_once __DIR__ . '/../vendor/autoload.php';
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        
-        try {
-            $mail->CharSet = 'UTF-8';
-            
-            // Check if SMTP is enabled
-            if (isset($smtp_enabled) && $smtp_enabled === true) {
-                $mail->isSMTP();
-                $mail->Host = $smtp_host ?? '';
-                $mail->SMTPAuth = true;
-                $mail->Username = $smtp_user ?? '';
-                $mail->Password = $smtp_pass ?? '';
-                $mail->SMTPSecure = $smtp_secure ?? 'tls';
-                $mail->Port = isset($smtp_port) ? (int)$smtp_port : 587;
-                $mail->setFrom($smtp_from ?? 'noreply@yourdomain.com', $smtp_name ?? 'Sahtout Account');
-            } else {
-                // Fallback to PHP mail() function
-                $mail->isMail();
-                $mail->setFrom('noreply@yourdomain.com', 'Sahtout Account');
-            }
-            
-            $mail->isHTML(true);
-        } catch (Exception $e) {
-            error_log("Failed to create mailer: " . $e->getMessage());
-        }
-        
-        return $mail;
-    }
-}
-
 // Make sure sendResetEmail function exists
 if (!function_exists('sendResetEmail')) {
     function sendResetEmail($username, $email, $token) {
         global $errors, $site_url, $base_path;
+        
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = translate('error_email_failed', 'Failed to send reset email. Please contact support.');
+            return false;
+        }
         
         try {
             $mail = getMailer();
@@ -147,7 +116,7 @@ if (!function_exists('sendResetEmail')) {
             return $mail->send();
         } catch (Exception $e) {
             error_log("Email sending failed for {$email}: " . $e->getMessage());
-            $errors[] = translate('error_email_failed', 'Failed to send reset email. Please contact support.') . ' ' . $e->getMessage();
+            $errors[] = translate('error_email_failed', 'Failed to send reset email. Please contact support.');
             return false;
         }
     }
@@ -155,7 +124,9 @@ if (!function_exists('sendResetEmail')) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Verify CSRF token before processing the reset request (token generated centrally in includes/session.php)
-    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    $submitted_csrf = is_string($_POST['csrf_token'] ?? null) ? $_POST['csrf_token'] : '';
+    $session_csrf = is_string($_SESSION['csrf_token'] ?? null) ? $_SESSION['csrf_token'] : '';
+    if ($submitted_csrf === '' || !hash_equals($session_csrf, $submitted_csrf)) {
         $errors[] = translate('error_invalid_csrf', 'Invalid or expired form submission. Please refresh the page and try again.');
     }
 

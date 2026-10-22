@@ -441,7 +441,7 @@ require_once $project_root . 'includes/header.php';
                                             <?php echo htmlspecialchars($site['site_name'], ENT_QUOTES, 'UTF-8'); ?>
                                         </h3>
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-[rgba(242,207,82,0.1)] text-[#f2cf5b] border border-[rgba(201,162,39,0.2)] whitespace-nowrap">
-                                            <i class="fas fa-coins text-[#f2cf5b]"></i>
+                                            <i class="fas fa-star text-[#f2cf5b]"></i>
                                             <?php echo htmlspecialchars($site['reward_points'], ENT_QUOTES, 'UTF-8'); ?>
                                         </span>
                                     </div>
@@ -553,8 +553,8 @@ require_once $project_root . 'includes/header.php';
                     </div>
 
                     <div class="reward-card p-5 text-center space-y-3">
-                        <div class="w-12 h-12 mx-auto bg-[rgba(52,152,219,0.1)] border border-[rgba(52,152,219,0.2)] text-[#3498db] flex items-center justify-center text-xl">
-                            <i class="fas fa-gem"></i>
+                        <div class="w-12 h-12 mx-auto bg-[rgba(242,207,82,0.1)] border border-[rgba(201,162,39,0.2)] text-[#f2cf5b] flex items-center justify-center text-xl">
+                            <i class="fas fa-star"></i>
                         </div>
                         <h3 class="font-bold text-white"><?php echo translate('vote_reward_vip_points', 'VIP Points'); ?></h3>
                         <p class="text-xs text-gray-300 leading-relaxed"><?php echo translate('vote_reward_vip_points_desc', 'Earn points to redeem for special items and perks.'); ?></p>

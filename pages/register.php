@@ -11,48 +11,13 @@ require_once $project_root . 'includes/config.settings.php';
 require_once $project_root . 'includes/config.cap.php';
 require_once $project_root . 'includes/config.mail.php';
 require_once $project_root . 'includes/srp6.php';
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-// Make sure getMailer function exists (fallback)
-if (!function_exists('getMailer')) {
-    function getMailer() {
-        global $smtp_enabled, $smtp_host, $smtp_user, $smtp_pass, $smtp_from, $smtp_name, $smtp_port, $smtp_secure;
-        
-        require_once __DIR__ . '/../vendor/autoload.php';
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        
-        try {
-            $mail->CharSet = 'UTF-8';
-            
-            // Check if SMTP is enabled
-            if (isset($smtp_enabled) && $smtp_enabled === true) {
-                $mail->isSMTP();
-                $mail->Host = $smtp_host ?? '';
-                $mail->SMTPAuth = true;
-                $mail->Username = $smtp_user ?? '';
-                $mail->Password = $smtp_pass ?? '';
-                $mail->SMTPSecure = $smtp_secure ?? 'tls';
-                $mail->Port = isset($smtp_port) ? (int)$smtp_port : 587;
-                $mail->setFrom($smtp_from ?? 'noreply@yourdomain.com', $smtp_name ?? 'Sahtout Account');
-            } else {
-                // Fallback to PHP mail() function
-                $mail->isMail();
-                $mail->setFrom('noreply@yourdomain.com', 'Sahtout Account');
-            }
-            
-            $mail->isHTML(true);
-        } catch (Exception $e) {
-            error_log("Failed to create mailer: " . $e->getMessage());
-        }
-        
-        return $mail;
-    }
-}
-
 // Function to send activation email with improved template
 function sendActivationEmail($username, $email, $activation_link) {
     global $errors, $project_root, $base_path;
+    
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
     
     try {
         $mail = getMailer();
@@ -125,7 +90,9 @@ $email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Verify CSRF token before processing the registration (token generated centrally in includes/session.php)
-    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    $submitted_csrf = is_string($_POST['csrf_token'] ?? null) ? $_POST['csrf_token'] : '';
+    $session_csrf = is_string($_SESSION['csrf_token'] ?? null) ? $_SESSION['csrf_token'] : '';
+    if ($submitted_csrf === '' || !hash_equals($session_csrf, $submitted_csrf)) {
         $errors[] = translate('error_invalid_csrf', 'Invalid or expired form submission. Please refresh the page and try again.');
     }
 
@@ -271,7 +238,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $upper_username = strtoupper($account['username']);
             $stmt_insert = $auth_db->prepare("INSERT INTO account (username, salt, verifier, email, reg_mail, expansion) VALUES (?, ?, ?, ?, ?, 2)");
             if (!$stmt_insert) {
-                $errors[] = translate('error_database', 'Database query error: ') . $auth_db->error;
+                error_log("Register: Insert account prepare failed: " . $auth_db->error);
+                $errors[] = translate('error_database', 'Database error. Please try again later.');
             } else {
                 $stmt_insert->bind_param('sssss', $upper_username, $account['salt'], $account['verifier'], $account['email'], $account['email']);
                 if ($stmt_insert->execute()) {
@@ -503,7 +471,7 @@ include_once $project_root . 'includes/header.php';
                 
                 <div>
                     <i class="fas fa-envelope text-[rgba(201,162,39,0.4)] absolute mt-3.5 ml-3"></i>
-                    <input type="email" name="email" placeholder="<?php echo translate('email_placeholder', 'Email'); ?>" required minlength="3" maxlength="100" value="" class="input-register w-full pl-10 pr-4 py-3 text-base">
+                    <input type="email" name="email" placeholder="<?php echo translate('email_placeholder', 'Email'); ?>" required minlength="3" maxlength="100" value="<?php echo htmlspecialchars($email); ?>" class="input-register w-full pl-10 pr-4 py-3 text-base">
                 </div>
                 
                 <div>

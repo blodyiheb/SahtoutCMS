@@ -22,45 +22,14 @@ $success = '';
 $test_username = isset($_GET['username']) && !empty($_GET['username']) ? strtoupper(trim($_GET['username'])) : '';
 $test_email = '';
 
-// Make sure getMailer function exists (fallback)
-if (!function_exists('getMailer')) {
-    function getMailer() {
-        global $smtp_enabled, $smtp_host, $smtp_user, $smtp_pass, $smtp_from, $smtp_name, $smtp_port, $smtp_secure;
-        
-        require_once __DIR__ . '/../vendor/autoload.php';
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        
-        try {
-            $mail->CharSet = 'UTF-8';
-            
-            // Check if SMTP is enabled
-            if (isset($smtp_enabled) && $smtp_enabled === true) {
-                $mail->isSMTP();
-                $mail->Host = $smtp_host ?? '';
-                $mail->SMTPAuth = true;
-                $mail->Username = $smtp_user ?? '';
-                $mail->Password = $smtp_pass ?? '';
-                $mail->SMTPSecure = $smtp_secure ?? 'tls';
-                $mail->Port = isset($smtp_port) ? (int)$smtp_port : 587;
-                $mail->setFrom($smtp_from ?? 'noreply@yourdomain.com', $smtp_name ?? 'Sahtout Account');
-            } else {
-                // Fallback to PHP mail() function
-                $mail->isMail();
-                $mail->setFrom('noreply@yourdomain.com', 'Sahtout Account');
-            }
-            
-            $mail->isHTML(true);
-        } catch (Exception $e) {
-            error_log("Failed to create mailer: " . $e->getMessage());
-        }
-        
-        return $mail;
-    }
-}
-
 // Function to send activation email with inline styles (same as original forgot_password)
 function sendActivationEmail($username, $email, $token) {
     global $errors, $success, $site_url, $project_root, $base_path;
+    
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = translate('error_email_invalid', 'Invalid email address');
+        return false;
+    }
     
     try {
         $mail = getMailer();
@@ -121,12 +90,13 @@ function sendActivationEmail($username, $email, $token) {
             $success = sprintf(translate('success_email_sent', 'Activation email sent successfully to %s'), htmlspecialchars($email));
             return true;
         } else {
-            $errors[] = translate('error_email_failed', 'Failed to send email: ') . $mail->ErrorInfo;
+            error_log("Failed to send activation email to {$email}: " . $mail->ErrorInfo);
+            $errors[] = translate('error_email_failed', 'Failed to send activation email. Please contact support.');
             return false;
         }
     } catch (Exception $e) {
         error_log("Email sending failed for {$email}: " . $e->getMessage());
-        $errors[] = translate('error_email_failed', 'Email error: ') . $e->getMessage();
+        $errors[] = translate('error_email_failed', 'Failed to send activation email. Please contact support.');
         return false;
     }
 }
@@ -135,7 +105,8 @@ function updateToken($db, $username, $email, $new_token) {
     global $errors;
     $stmt = $db->prepare("UPDATE pending_accounts SET token = ?, created_at = NOW() WHERE username = ? AND email = ? AND activated = 0");
     if (!$stmt) {
-        $errors[] = translate('error_database', 'Database error: ') . $db->error;
+        error_log("Resend Activation: Prepare failed: " . $db->error);
+        $errors[] = translate('error_database', 'Database error. Please try again later.');
         return false;
     }
     $stmt->bind_param('sss', $new_token, $username, $email);
@@ -146,14 +117,17 @@ function updateToken($db, $username, $email, $new_token) {
         }
         return true;
     } else {
-        $errors[] = translate('error_update_failed', 'Update failed: ') . $stmt->error;
+        error_log("Resend Activation: Update failed: " . $stmt->error);
+        $errors[] = translate('error_update_failed', 'Update failed. Please try again later.');
         return false;
     }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Verify CSRF token before processing the resend request (token generated centrally in includes/session.php)
-    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    $submitted_csrf = is_string($_POST['csrf_token'] ?? null) ? $_POST['csrf_token'] : '';
+    $session_csrf = is_string($_SESSION['csrf_token'] ?? null) ? $_SESSION['csrf_token'] : '';
+    if ($submitted_csrf === '' || !hash_equals($session_csrf, $submitted_csrf)) {
         $errors[] = translate('error_invalid_csrf', 'Invalid or expired form submission. Please refresh the page and try again.');
     }
 

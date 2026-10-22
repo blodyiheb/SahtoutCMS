@@ -400,7 +400,7 @@ include_once $project_root . 'includes/header.php';
             <?php if (!empty($_SESSION['user_id'])): ?>
                 <div class="flex flex-wrap justify-center gap-4 mb-6 p-4 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.1)]">
                     <span class="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] font-semibold text-base force-wrap">
-                        <i class="fas fa-coins"></i> <?php echo translate('shop_points', 'Points'); ?>: <?php echo $points; ?>
+                        <i class="fas fa-star"></i> <?php echo translate('shop_points', 'Points'); ?>: <?php echo $points; ?>
                     </span>
                     <span class="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(139,92,246,0.15)] border border-[rgba(139,92,246,0.3)] text-[#8b5cf6] font-semibold text-base force-wrap">
                         <i class="fas fa-gem"></i> <?php echo translate('shop_tokens', 'Tokens'); ?>: <?php echo $tokens; ?>
@@ -521,7 +521,7 @@ include_once $project_root . 'includes/header.php';
                                     <!-- Cost -->
                                     <div class="flex justify-center gap-4 mt-3 pt-2 border-t border-[rgba(201,162,39,0.08)]">
                                         <?php if ($item['point_cost'] > 0): ?>
-                                            <span class="text-[#f2cf5b] font-semibold text-sm force-wrap"><i class="fas fa-coins mr-1"></i> <?php echo $item['point_cost']; ?></span>
+                                            <span class="text-[#f2cf5b] font-semibold text-sm force-wrap"><i class="fas fa-star mr-1"></i> <?php echo $item['point_cost']; ?></span>
                                         <?php endif; ?>
                                         <?php if ($item['token_cost'] > 0): ?>
                                             <span class="text-[#8b5cf6] font-semibold text-sm force-wrap"><i class="fas fa-gem mr-1"></i> <?php echo $item['token_cost']; ?></span>

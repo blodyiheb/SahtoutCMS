@@ -44,13 +44,13 @@ if (isset($_SESSION['debug_errors'])) {
 
 function isSmtpEnabled(): bool {
     global $smtp_enabled;
-    return isset($smtp_enabled) && $smtp_enabled === true;
+    return !empty($smtp_enabled);
 }
 
-function sendAccountSecurityEmail(string $username, string $email, string $eventType, ?string $newEmail = null): bool {
+function sendAccountSecurityEmail(string $username, string $email, string $eventType, ?string $targetEmail = null): bool {
     global $base_path;
 
-    if (!isSmtpEnabled()) {
+    if (!isSmtpEnabled() || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return false;
     }
 
@@ -63,17 +63,26 @@ function sendAccountSecurityEmail(string $username, string $email, string $event
             $mail->AddEmbeddedImage($logo_path, 'logo_cid');
         }
 
-        $is_email_change = $eventType === 'email_changed';
-        $subject = $is_email_change
-            ? translate('email_subject_email_changed', 'Account Email Changed')
-            : translate('email_subject_password_changed', 'Account Password Changed');
-        $success_message = $is_email_change
-            ? translate('email_account_email_changed', 'The email address on your account has been changed.')
-            : translate('email_account_password_changed', 'The password on your account has been changed.');
-        $details = $is_email_change && $newEmail
-            ? sprintf(translate('email_account_new_email', 'New email address: %s'), htmlspecialchars($newEmail))
-            : translate('email_account_password_notice', 'You can continue logging in with your new password.');
-        $warning = translate('email_contact_support', 'If you did not perform this action, please contact support immediately.');
+        $is_old_email_alert = ($eventType === 'email_changed_old');
+        $is_new_email_welcome = ($eventType === 'email_changed_new');
+        $is_password_change = ($eventType === 'password_changed');
+
+        if ($is_old_email_alert) {
+            $subject = translate('email_subject_email_changed', 'Account Email Changed');
+            $success_message = translate('email_account_email_changed', 'The email address on your account has been changed.');
+            $details = $targetEmail ? sprintf(translate('email_account_new_email', 'New email address: %s'), htmlspecialchars($targetEmail)) : '';
+            $warning = translate('email_contact_support', 'If you did not perform this action, please contact support immediately.');
+        } elseif ($is_new_email_welcome) {
+            $subject = translate('email_subject_new_email_added', 'SahtoutCMS Account Added to Your Email');
+            $success_message = translate('email_account_added_welcome', 'This email address has been successfully linked to your SahtoutCMS account.');
+            $details = sprintf(translate('email_account_username_notice', 'Account Username: %s'), htmlspecialchars($username));
+            $warning = translate('email_contact_support_new', 'If you did not request this change, please contact support immediately.');
+        } else {
+            $subject = translate('email_subject_password_changed', 'Account Password Changed');
+            $success_message = translate('email_account_password_changed', 'The password on your account has been changed.');
+            $details = translate('email_account_password_notice', 'You can continue logging in with your new password.');
+            $warning = translate('email_contact_support', 'If you did not perform this action, please contact support immediately.');
+        }
 
         $mail->Subject = $subject;
         $mail->Body = "<html><body style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0a0e16; color: #d8d8d8;'>";
@@ -87,14 +96,16 @@ function sendAccountSecurityEmail(string $username, string $email, string $event
         $mail->Body .= "<h2 style='color: #f2cf5b; font-family: Cinzel, serif; text-align: center;'>" . str_replace('{username}', htmlspecialchars($username), $greeting) . "</h2>";
         $mail->Body .= "<div style='text-align: center; background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 20px; border-radius: 8px; margin: 20px 0;'>";
         $mail->Body .= "<p style='font-size: 18px; color: #2ecc71;'>" . $success_message . "</p>";
-        $mail->Body .= "<p style='font-size: 14px; color: #d8d8d8;'>" . $details . "</p>";
+        if (!empty($details)) {
+            $mail->Body .= "<p style='font-size: 14px; color: #d8d8d8;'>" . $details . "</p>";
+        }
         $mail->Body .= "</div>";
         $mail->Body .= "<div style='background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.2); padding: 15px; border-radius: 8px; margin: 20px 0;'>";
         $mail->Body .= "<p style='font-size: 13px; color: #e74c3c; text-align: center;'>" . $warning . "</p>";
         $mail->Body .= "</div>";
         $mail->Body .= "</div></body></html>";
 
-        $mail->AltBody = $success_message . "\n\n" . html_entity_decode(strip_tags($details), ENT_QUOTES, 'UTF-8') . "\n\n" . $warning . "\n\n" . translate('login_button', 'Login Now') . ': ' . $base_path . 'login';
+        $mail->AltBody = $success_message . "\n\n" . (!empty($details) ? html_entity_decode(strip_tags($details), ENT_QUOTES, 'UTF-8') . "\n\n" : '') . $warning . "\n\n" . translate('login_button', 'Login Now') . ': ' . $base_path . 'login';
 
         if (!$mail->send()) {
             error_log("Failed to send account security email to {$email}: " . $mail->ErrorInfo);
@@ -117,7 +128,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Verify CSRF token
-    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    $submitted_csrf = is_string($_POST['csrf_token'] ?? null) ? $_POST['csrf_token'] : '';
+    $session_csrf = is_string($_SESSION['csrf_token'] ?? null) ? $_SESSION['csrf_token'] : '';
+    if ($submitted_csrf === '' || !hash_equals($session_csrf, $submitted_csrf)) {
         $_SESSION['error'] = translate('error_invalid_form_submission', 'Invalid form submission');
         header("Location: {$base_path}account");
         exit();
@@ -125,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Handle email change
     if (isset($_POST['change_email'])) {
-        $new_email = filter_var($_POST['new_email'], FILTER_SANITIZE_EMAIL);
+        $new_email = trim($_POST['new_email'] ?? '');
         $current_password = $_POST['current_password'];
         
         try {
@@ -187,8 +200,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_log->close();
 
             if ($current_email !== '') {
-                sendAccountSecurityEmail($_SESSION['username'], $current_email, 'email_changed', $new_email);
+                sendAccountSecurityEmail($_SESSION['username'], $current_email, 'email_changed_old', $new_email);
             }
+
+            // Welcome notification to the newly linked email address
+            sendAccountSecurityEmail($_SESSION['username'], $new_email, 'email_changed_new');
 
             $_SESSION['message'] = translate('message_email_updated', 'Email updated successfully!');
             header("Location: {$base_path}account");
@@ -261,9 +277,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Handle character teleport
-    if (isset($_POST['teleport_character'])) {
-        $guid = filter_var($_POST['guid'], FILTER_VALIDATE_INT);
+    // Handle character teleport - fires ONLY when the teleport trigger, a valid
+    // guid and a destination are all explicitly present in the POST payload.
+    if (isset($_POST['teleport_character'])
+        && isset($_POST['guid'], $_POST['destination'])
+        && $_POST['guid'] !== ''
+        && $_POST['destination'] !== ''
+        && filter_var($_POST['guid'], FILTER_VALIDATE_INT) !== false) {
+        $guid = (int) filter_var($_POST['guid'], FILTER_VALIDATE_INT);
         $destination = filter_var($_POST['destination']);
         
         try {
@@ -499,19 +520,19 @@ function getAccountStatus($locked, $banInfo) {
     if (!empty($banInfo)) {
         $reason = htmlspecialchars($banInfo['banreason'] ?? translate('ban_no_reason', 'No reason provided'));
         $unbanDate = $banInfo['unbandate'] ? date('Y-m-d H:i:s', $banInfo['unbandate']) : translate('ban_permanent', 'Permanent');
-        return sprintf('<span class="bg-red-900/50 text-red-300 border border-red-700/50 px-3 py-1 rounded-full text-xs font-semibold inline-block">%s (Reason: %s, Until: %s)</span>', translate('status_banned', 'Banned'), $reason, $unbanDate);
+        return sprintf('<span class="bg-red-950/70 text-red-300 border border-red-700/60 px-2.5 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 shadow-[0_0_8px_rgba(239,68,68,0.25)]"><i class="fas fa-ban text-[11px] text-red-400"></i> %s (Reason: %s, Until: %s)</span>', translate('status_banned', 'Banned'), $reason, $unbanDate);
     }
     switch ($locked) {
-        case 1: return sprintf('<span class="bg-red-900/50 text-red-300 border border-red-700/50 px-3 py-1 rounded-full text-xs font-semibold inline-block">%s</span>', translate('status_banned', 'Banned'));
-        case 2: return sprintf('<span class="bg-blue-900/50 text-blue-300 border border-blue-700/50 px-3 py-1 rounded-full text-xs font-semibold inline-block">%s</span>', translate('status_frozen', 'Frozen'));
-        default: return sprintf('<span class="bg-green-900/50 text-green-300 border border-green-700/50 px-3 py-1 rounded-full text-xs font-semibold inline-block">%s</span>', translate('status_active', 'Active'));
+        case 1: return sprintf('<span class="bg-red-950/70 text-red-300 border border-red-700/60 px-2.5 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 shadow-[0_0_8px_rgba(239,68,68,0.25)]"><i class="fas fa-ban text-[11px] text-red-400"></i> %s</span>', translate('status_banned', 'Banned'));
+        case 2: return sprintf('<span class="bg-blue-950/70 text-blue-300 border border-blue-700/60 px-2.5 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 shadow-[0_0_8px_rgba(59,130,246,0.25)]"><i class="fas fa-snowflake text-[11px] text-blue-300"></i> %s</span>', translate('status_frozen', 'Frozen'));
+        default: return sprintf('<span class="bg-emerald-950/70 text-emerald-300 border border-emerald-600/50 px-2.5 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 shadow-[0_0_8px_rgba(16,185,129,0.2)]"><i class="fas fa-shield-alt text-[11px] text-emerald-400"></i> %s</span>', translate('status_active', 'Active'));
     }
 }
 
 function getGMStatus($gmlevel, $role) {
     global $base_path;
     $icon = ($gmlevel > 0 || $role !== 'player') ? 'gm_icon.gif' : 'player_icon.jpg';
-    $color = ($gmlevel > 0 || $role !== 'player') ? '#f0a500' : '#aaa';
+    $color = ($gmlevel > 0 || $role !== 'player') ? '#f0a500' : '#d1d5db';
     
     if ($gmlevel > 0) {
         $suffix = '';
@@ -529,11 +550,23 @@ function getGMStatus($gmlevel, $role) {
         $rank = translate('gm_rank_player', 'Player');
     }
     
-    return sprintf('<img src="%simg/accountimg/%s" alt="%s" class="w-5 h-5 inline-block mr-1"> <span style="color: %s" class="font-semibold">%s</span>', $base_path, $icon, translate('status_icon', 'Status Icon'), $color, $rank);
+    return sprintf('<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[rgba(201,162,39,0.12)] border border-[rgba(201,162,39,0.3)] shadow-[0_0_8px_rgba(201,162,39,0.15)]"><img src="%simg/accountimg/%s" alt="%s" class="w-4 h-4 inline-block"> <span style="color: %s">%s</span></span>', $base_path, $icon, translate('status_icon', 'Status Icon'), $color, $rank);
 }
 
 function getOnlineStatus($online) {
-    return $online ? sprintf('<span class="text-green-400 font-semibold text-sm"><i class="fas fa-circle text-[8px] mr-1"></i>%s</span>', translate('status_online', 'Online')) : sprintf('<span class="text-red-400 font-semibold text-sm"><i class="fas fa-circle text-[8px] mr-1"></i>%s</span>', translate('status_offline', 'Offline'));
+    if ($online) {
+        // Modern glowing emerald badge with a pulsing animation ring
+        return sprintf(
+            '<span class="status-badge status-badge-online"><span class="status-dot"><span class="animate-ping"></span><span class="status-dot-core"></span></span>%s</span>',
+            translate('status_online', 'Online')
+        );
+    }
+
+    // Muted neutral badge for offline characters / accounts
+    return sprintf(
+        '<span class="status-badge status-badge-offline"><span class="status-dot"><span class="status-dot-core" style="background:#9ca3af;"></span></span>%s</span>',
+        translate('status_offline', 'Offline')
+    );
 }
 
 function getRaceIcon($race, $gender) {
@@ -641,18 +674,320 @@ ob_start();
         
         /* Glass cards */
         .glass-card {
-            background: rgba(10, 14, 22, 0.75);
+            background: linear-gradient(135deg, rgba(14, 19, 30, 0.8), rgba(8, 11, 17, 0.9));
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
             border: 1px solid rgba(201,162,39,.15);
-            border-radius: 0;
+            border-radius: 8px;
             transition: all 0.3s ease;
         }
-        
+
         .glass-card:hover {
-            border-color: rgba(201,162,39,.3);
+            border-color: rgba(251, 191, 36, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.45);
         }
         
+        /* Floating-pill navigation tabs */
+        .nav-tab-gaming {
+            border-radius: 8px;
+            background: rgba(10, 14, 22, 0.6);
+            border: 1px solid rgba(201, 162, 39, 0.2);
+            color: #9ca3af;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab-gaming:hover {
+            background: rgba(242, 207, 82, 0.08);
+            border-color: rgba(242, 207, 82, 0.3);
+            color: #f2cf5b;
+            transform: translateY(-2px);
+        }
+
+        .nav-tab-gaming.active {
+            background: rgba(242, 207, 82, 0.15);
+            border-color: #f2cf5b;
+            color: #f2cf5b;
+            box-shadow: 0 0 14px rgba(242, 207, 82, 0.12);
+        }
+
+        .nav-tab-gaming.active:hover {
+            background: rgba(242, 207, 82, 0.2);
+            border-color: #f2cf5b;
+            color: #f2cf5b;
+        }
+
+        /* Keep the static active-state utility classes in the markup from
+           "sticking" to a button after the .active class moves to another tab:
+           this page's <style> block is declared before assets/css/tailwind.css,
+           so equal-specificity utilities would otherwise win. (0,2,0) beats
+           utility classes regardless of declaration order. */
+        .nav-tab-gaming:not(.active) {
+            background: rgba(10, 14, 22, 0.6);
+            border-color: rgba(201, 162, 39, 0.2);
+            color: #d1d5db;
+        }
+
+        /* Navigation Tabs Hover & Cursor Polish */
+        .nav-tab-gaming {
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-tab-gaming:hover {
+            border-color: rgba(242, 207, 82, 0.5) !important;
+            color: #f2cf5b !important;
+            background: rgba(242, 207, 82, 0.08);
+        }
+
+        /* Force pointer cursor on all buttons and interactive triggers */
+        button,
+        input[type="submit"],
+        .avatar-selector img,
+        [data-teleport-cancel],
+        #teleport-modal-confirm {
+            cursor: pointer !important;
+        }
+
+        /* General Button Hover Glow Expansion */
+        button[type="submit"]:hover,
+        .btn-gaming:hover {
+            box-shadow: 0 0 15px rgba(242, 207, 82, 0.25);
+            border-color: #f2cf5b !important;
+        }
+
+        /* Live online / offline status badges (pulsing emerald ring) */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .status-badge-online {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.35);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+        }
+
+        .status-badge-offline {
+            background: rgba(156, 163, 175, 0.12);
+            color: #9ca3af;
+            border: 1px solid rgba(156, 163, 175, 0.3);
+        }
+
+        .status-dot {
+            position: relative;
+            display: inline-flex;
+            width: 8px;
+            height: 8px;
+        }
+
+        .status-dot .status-dot-core {
+            position: relative;
+            display: inline-flex;
+            width: 8px;
+            height: 8px;
+            border-radius: 9999px;
+            background: #34d399;
+        }
+
+        /* animate-ping is not present in the compiled assets/css/tailwind.css
+           build, so the keyframes are defined here for the online pulse ring. */
+        .animate-ping {
+            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        .status-dot .animate-ping {
+            position: absolute;
+            inset: 0;
+            border-radius: 9999px;
+            background: #34d399;
+            opacity: 0.75;
+        }
+
+        @keyframes ping {
+            75%, 100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* ============ GAMING PROFILE HUD ============ */
+        .profile-hud-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(14, 19, 30, 0.9) 0%, rgba(8, 11, 18, 0.96) 100%);
+            border: 1px solid rgba(201, 162, 39, 0.24);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(242, 207, 82, 0.18);
+            overflow: hidden;
+        }
+
+        .profile-hud-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(242, 207, 82, 0.7), transparent);
+            pointer-events: none;
+        }
+
+        .profile-avatar-frame {
+            position: relative;
+            width: 88px;
+            height: 88px;
+            flex-shrink: 0;
+            padding: 3px;
+            background: linear-gradient(135deg, #f2cf5b 0%, #c9a227 50%, #5a4010 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(201, 162, 39, 0.4), inset 0 0 10px rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            background: #0a0e16;
+            border: 2px solid rgba(10, 14, 22, 0.95);
+        }
+
+        .profile-hud-cell {
+            background: rgba(10, 14, 22, 0.6);
+            border: 1px solid rgba(201, 162, 39, 0.12);
+            border-radius: 6px;
+            padding: 0.65rem 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .profile-hud-cell:hover {
+            background: rgba(242, 207, 82, 0.05);
+            border-color: rgba(242, 207, 82, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .profile-hud-icon {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: 1px solid;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        /* ============ QUICK STATS HUD CARDS ============ */
+        .stat-hud-card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0.9rem;
+            background: linear-gradient(135deg, rgba(14, 19, 30, 0.88) 0%, rgba(8, 11, 18, 0.94) 100%);
+            border: 1px solid rgba(201, 162, 39, 0.18);
+            border-radius: 6px;
+            backdrop-filter: blur(6px);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-hud-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.6);
+        }
+
+        .stat-hud-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+            transition: transform 0.25s ease;
+        }
+
+        .stat-hud-card:hover .stat-hud-icon {
+            transform: scale(1.08);
+        }
+
+        .stat-hud-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #9ca3af;
+        }
+
+        /* Currency Icon Variants */
+        .stat-icon-cyan {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(8, 145, 178, 0.06));
+            border: 1px solid rgba(6, 182, 212, 0.35);
+            color: #38bdf8;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+
+        .stat-icon-amber {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.06));
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #fbbf24;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+
+        .stat-icon-gold {
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.22), rgba(202, 138, 4, 0.06));
+            border: 1px solid rgba(234, 179, 8, 0.4);
+            color: #fde047;
+            text-shadow: 0 0 10px rgba(253, 224, 71, 0.5);
+        }
+
+        .stat-icon-purple {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(126, 34, 206, 0.08));
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            color: #c084fc;
+            text-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
+        }
+
+        /* Centered empty states */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 0.75rem;
+            padding: 3rem 1.5rem;
+        }
+
+        .empty-state-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            border-radius: 9999px;
+            background: rgba(242, 207, 82, 0.1);
+            border: 1px solid rgba(201, 162, 39, 0.25);
+            color: #f2cf5b;
+            font-size: 1.5rem;
+        }
+
         /* Profile avatar */
         .profile-avatar {
             width: 80px;
@@ -818,21 +1153,21 @@ include_once $project_root . 'includes/header.php';
             <?php endif; ?>
 
             <!-- Navigation Tabs -->
-            <div class="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2 pb-4 mb-6 border-b border-[rgba(201,162,39,0.15)]">
-                <button class="nav-tab-gaming active px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center justify-center gap-2 min-w-0 force-wrap" data-tab="overview">
+            <div class="flex flex-wrap items-center gap-2 pb-4 mb-8 border-b border-[rgba(201,162,39,0.15)]">
+                <button type="button" class="nav-tab-gaming active px-6 py-2.5 font-semibold text-sm rounded-lg transition-all duration-300 bg-[rgba(242,207,82,0.15)] border border-[#f2cf5b] text-[#f2cf5b] shadow-sm flex items-center justify-center gap-2 cursor-pointer" data-tab="overview">
                     <i class="fas fa-chart-pie"></i> <?php echo translate('tab_overview', 'Overview'); ?>
                 </button>
-                <button class="nav-tab-gaming px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center justify-center gap-2 min-w-0 force-wrap" data-tab="characters">
+                <button type="button" class="nav-tab-gaming px-6 py-2.5 font-semibold text-sm rounded-lg transition-all duration-300 bg-[rgba(10,14,22,0.6)] border border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b]/50 hover:text-white flex items-center justify-center gap-2 cursor-pointer" data-tab="characters">
                     <i class="fas fa-users"></i> <?php echo translate('tab_characters', 'Characters'); ?>
                 </button>
-                <button class="nav-tab-gaming px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center justify-center gap-2 min-w-0 force-wrap" data-tab="activity">
+                <button type="button" class="nav-tab-gaming px-6 py-2.5 font-semibold text-sm rounded-lg transition-all duration-300 bg-[rgba(10,14,22,0.6)] border border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b]/50 hover:text-white flex items-center justify-center gap-2 cursor-pointer" data-tab="activity">
                     <i class="fas fa-history"></i> <?php echo translate('tab_activity', 'Activity'); ?>
                 </button>
-                <button class="nav-tab-gaming px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center justify-center gap-2 min-w-0 force-wrap" data-tab="security">
+                <button type="button" class="nav-tab-gaming px-6 py-2.5 font-semibold text-sm rounded-lg transition-all duration-300 bg-[rgba(10,14,22,0.6)] border border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b]/50 hover:text-white flex items-center justify-center gap-2 cursor-pointer" data-tab="security">
                     <i class="fas fa-shield-alt"></i> <?php echo translate('tab_security', 'Security'); ?>
                 </button>
-                <a href="<?php echo $base_path; ?>vote" class="ml-auto col-span-2 px-5 py-2.5 font-semibold text-sm border-2 rounded-none transition-all duration-300 bg-[rgba(10,14,22,0.6)] border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b] hover:text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.05)] flex items-center justify-center gap-2 min-w-0 force-wrap">
-                    <i class="fas fa-vote-yea"></i> <?php echo translate('tab_vote', 'Vote'); ?>
+                <a href="<?php echo $base_path; ?>vote" class="nav-tab-gaming ml-auto px-6 py-2.5 font-semibold text-sm rounded-lg transition-all duration-300 bg-[rgba(10,14,22,0.6)] border border-[rgba(201,162,39,0.2)] text-gray-300 hover:border-[#f2cf5b]/50 hover:text-white flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fas fa-vote-yea text-[#f2cf5b]"></i> <?php echo translate('tab_vote', 'Vote'); ?>
                 </a>
             </div>
 
@@ -841,117 +1176,218 @@ include_once $project_root . 'includes/header.php';
                 
                 <!-- OVERVIEW TAB -->
                 <div class="tab-pane active" id="tab-overview">
-                    <!-- Account Information -->
-                    <div class="mb-8">
-                        <h2 class="text-2xl font-bold text-white flex items-center gap-3 mb-4">
-                            <i class="fas fa-info-circle text-[#f2cf5b]"></i>
-                            <?php echo translate('section_account_info', 'Account Information'); ?>
-                        </h2>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <!-- Basic Info Card -->
-                            <div class="glass-card p-6 text-center">
+                    <!-- Unified Gamer Command Profile & Quick Stats Container -->
+                    <div class="profile-hud-card mb-8 p-5 md:p-6">
+                        <!-- Top: Profile Identity & Tactical Data Matrix -->
+                        <div class="flex flex-col lg:flex-row items-center lg:items-stretch gap-6">
+                            
+                            <!-- Left: Gamer Identity & Status -->
+                            <div class="flex flex-col sm:flex-row items-center sm:items-start lg:items-center gap-4 sm:gap-5 flex-shrink-0 text-center sm:text-left">
                                 <?php
                                 $avatar_display = !empty($currencies['avatar']) ? $currencies['avatar'] : 'user.jpg';
                                 ?>
-                                <img src="<?php echo $base_path; ?>img/accountimg/profile_pics/<?php echo htmlspecialchars($avatar_display); ?>" 
-                                     alt="<?php echo translate('avatar_alt', 'Avatar'); ?>" 
-                                     class="profile-avatar mx-auto mb-4">
-                                <h3 class="text-xl font-bold text-white"><?php echo htmlspecialchars($accountInfo['username'] ?? 'N/A'); ?></h3>
-                                <p class="text-sm text-gray-400">Account ID: #<?php echo $accountInfo['id'] ?? 'N/A'; ?></p>
-                                <div class="flex flex-wrap justify-center gap-2 mt-3">
-                                    <?php echo getAccountStatus($accountInfo['locked'] ?? 0, $banInfo); ?>
+                                <div class="profile-avatar-frame">
+                                    <img src="<?php echo $base_path; ?>img/accountimg/profile_pics/<?php echo htmlspecialchars($avatar_display); ?>" 
+                                         alt="<?php echo translate('avatar_alt', 'Avatar'); ?>" 
+                                         class="profile-avatar-img">
                                 </div>
-                                <div class="mt-2">
-                                    <?php echo getGMStatus($gmlevel, $role); ?>
-                                </div>
-                                <p class="mt-2"><?php echo getOnlineStatus($accountInfo['online'] ?? 0); ?></p>
-                            </div>
 
-                            <!-- Contact Card -->
-                            <div class="glass-card p-6 text-center">
-                                <i class="fas fa-envelope text-3xl text-[#f2cf5b] mb-2"></i>
-                                <h3 class="text-xl font-bold text-white"><?php echo translate('card_contact', 'Contact'); ?></h3>
-                                <p class="text-sm text-gray-300 mt-2">
-                                    <i class="far fa-envelope mr-1 text-gray-400"></i>
-                                    <?php echo htmlspecialchars($accountInfo['email'] ?? translate('email_not_set', 'Not set')); ?>
-                                </p>
-                                <p class="text-sm mt-1">
-                                    <span class="text-[#f2cf5b]">
-                                        <i class="fas fa-expand-alt mr-1"></i>
-                                        <?php echo translate('expansion_' . ($accountInfo['expansion'] ?? 2), ($accountInfo['expansion'] ?? 2) == 2 ? 'Wrath of the Lich King' : ($accountInfo['expansion'] == 1 ? 'The Burning Crusade' : 'Classic')); ?>
-                                    </span>
-                                </p>
-                                <?php if ($role === 'admin' || $role === 'moderator' || $gmlevel > 0): ?>
-                                    <div class="mt-4">
-                                        <a href="<?php echo $base_path; ?>admin/dashboard" class="inline-block px-6 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 text-sm font-semibold">
-                                            <i class="fas fa-crown mr-1"></i> <?php echo translate('button_admin_panel', 'Admin Panel'); ?>
-                                        </a>
+                                <div class="space-y-1.5 min-w-0">
+                                    <div class="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                                        <h3 class="text-2xl font-black text-white tracking-wide" style="font-family:'Cinzel',serif;">
+                                            <?php echo htmlspecialchars($accountInfo['username'] ?? 'N/A'); ?>
+                                        </h3>
+                                        <span class="text-xs px-2 py-0.5 rounded bg-[rgba(201,162,39,0.12)] border border-[rgba(201,162,39,0.25)] text-[#f2cf5b] font-mono font-bold">
+                                            #<?php echo $accountInfo['id'] ?? 'N/A'; ?>
+                                        </span>
                                     </div>
-                                <?php endif; ?>
+
+                                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+                                        <?php echo getOnlineStatus($accountInfo['online'] ?? 0); ?>
+                                        <?php echo getGMStatus($gmlevel, $role); ?>
+                                        <?php echo getAccountStatus($accountInfo['locked'] ?? 0, $banInfo); ?>
+                                    </div>
+
+                                    <?php if ($role === 'admin' || $role === 'moderator' || $gmlevel > 0): ?>
+                                        <div class="pt-2">
+                                            <a href="<?php echo $base_path; ?>admin/dashboard" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[rgba(242,207,82,0.15)] hover:bg-[rgba(242,207,82,0.25)] border border-[rgba(201,162,39,0.4)] text-[#f2cf5b] hover:text-white transition-all text-xs font-bold uppercase tracking-wider shadow-[0_0_12px_rgba(242,207,82,0.15)]">
+                                                <i class="fas fa-crown text-amber-400"></i> <?php echo translate('button_admin_panel', 'Admin Panel'); ?>
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
 
-                            <!-- Activity Card -->
-                            <div class="glass-card p-6 text-center">
-                                <i class="fas fa-calendar-alt text-3xl text-[#f2cf5b] mb-2"></i>
-                                <h3 class="text-xl font-bold text-white"><?php echo translate('card_activity', 'Activity'); ?></h3>
-                                <p class="text-sm text-gray-300 mt-2">
-                                    <i class="far fa-calendar-plus mr-1"></i>
-                                    <?php echo translate('label_join_date', 'Join Date'); ?>: <?php echo $accountInfo['joindate'] ?? 'N/A'; ?>
-                                </p>
-                                <p class="text-sm text-gray-300">
-                                    <i class="far fa-clock mr-1 text-[#f2cf5b]"></i>
-                                    <?php echo translate('label_last_login', 'Last Login'); ?>: <span class="text-gray-200 font-semibold"><?php echo $accountInfo['last_login'] ?? translate('never', 'Never'); ?></span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                            <!-- Divider on desktop -->
+                            <div class="hidden lg:block w-px bg-gradient-to-b from-transparent via-[rgba(201,162,39,0.25)] to-transparent"></div>
 
-                    <!-- Quick Stats -->
-                    <div>
-                        <h2 class="text-2xl font-bold text-white flex items-center gap-3 mb-4">
-                            <i class="fas fa-chart-simple text-[#f2cf5b]"></i>
-                            <?php echo translate('section_quick_stats', 'Quick Stats'); ?>
-                        </h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="glass-card p-6 grid grid-cols-2 md:flex md:items-center md:justify-between gap-4 md:gap-0">
-                                <div class="col-span-2 md:col-span-1 flex items-center justify-center md:justify-start"><i class="fas fa-user-friends text-3xl text-[#f2cf5b]"></i></div>
-                                <div class="text-center min-w-0">
-                                    <p class="text-2xl font-bold text-white force-wrap"><?php echo count($characters); ?></p>
-                                    <p class="text-gray-400 text-sm"><?php echo translate('label_total_characters', 'Total Characters'); ?></p>
+                            <!-- Right: Tactical Data Matrix Grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full flex-1">
+                                <!-- Email -->
+                                <div class="profile-hud-cell">
+                                    <div class="profile-hud-icon text-cyan-400 bg-cyan-500/10 border-cyan-500/25">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                            <?php echo translate('label_email', 'Email'); ?>
+                                        </div>
+                                        <div class="text-sm font-semibold text-gray-200 truncate force-wrap" title="<?php echo htmlspecialchars($accountInfo['email'] ?? ''); ?>">
+                                            <?php echo htmlspecialchars($accountInfo['email'] ?? translate('email_not_set', 'Not set')); ?>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="text-center min-w-0">
-                                    <?php 
-                                        $maxLevel = 0;
-                                        foreach ($characters as $char) {
-                                            if ($char['level'] > $maxLevel) $maxLevel = $char['level'];
-                                        }
-                                    ?>
-                                    <p class="text-2xl font-bold text-white force-wrap"><?php echo $maxLevel; ?></p>
-                                    <p class="text-gray-400 text-sm"><?php echo translate('label_highest_level', 'Highest Level'); ?></p>
+
+                                <!-- Expansion -->
+                                <div class="profile-hud-cell">
+                                    <div class="profile-hud-icon text-amber-400 bg-amber-500/10 border-amber-500/25">
+                                        <i class="fas fa-dragon"></i>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                            <?php echo translate('label_expansion', 'Expansion'); ?>
+                                        </div>
+                                        <div class="text-sm font-semibold text-[#f2cf5b] truncate force-wrap">
+                                            <?php echo translate('expansion_' . ($accountInfo['expansion'] ?? 2), ($accountInfo['expansion'] ?? 2) == 2 ? 'Wrath of the Lich King' : ($accountInfo['expansion'] == 1 ? 'The Burning Crusade' : 'Classic')); ?>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Join Date -->
+                                <div class="profile-hud-cell">
+                                    <div class="profile-hud-icon text-emerald-400 bg-emerald-500/10 border-emerald-500/25">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                            <?php echo translate('label_join_date', 'Join Date'); ?>
+                                        </div>
+                                        <div class="text-sm font-semibold text-gray-200 truncate force-wrap">
+                                            <?php echo htmlspecialchars($accountInfo['joindate'] ?? 'N/A'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Last Login -->
+                                <div class="profile-hud-cell">
+                                    <div class="profile-hud-icon text-purple-400 bg-purple-500/10 border-purple-500/25">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                            <?php echo translate('label_last_login', 'Last Login'); ?>
+                                        </div>
+                                        <div class="text-sm font-semibold text-gray-200 truncate force-wrap">
+                                            <?php echo htmlspecialchars($accountInfo['last_login'] ?? translate('never', 'Never')); ?>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="glass-card p-6 grid grid-cols-2 md:flex md:items-center md:justify-between gap-4 md:gap-0">
-                                <div class="flex items-center justify-center md:justify-start"><i class="fas fa-coins text-3xl text-[#f2cf5b]"></i></div>
-                                <div class="text-center min-w-0">
-                                    <?php 
-                                        $totalGold = 0;
-                                        foreach ($characters as $char) {
-                                            $totalGold += $char['money'];
-                                        }
-                                    ?>
-                                    <p class="text-2xl font-bold text-white force-wrap"><?php echo number_format($totalGold / 10000, 2); ?><span class="text-sm text-gray-400 ml-1">g</span></p>
-                                    <p class="text-gray-400 text-sm"><?php echo translate('label_total_gold', 'Total Gold'); ?></p>
+
+                        </div>
+
+                        <!-- Sleek Divider separating Profile Info and Quick Stats -->
+                        <div class="my-5 border-t border-[rgba(201,162,39,0.18)]"></div>
+
+                        <!-- Integrated Quick Stats Section -->
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2" style="font-family:'Cinzel',serif;">
+                                    <i class="fas fa-chart-simple text-[#f2cf5b]"></i>
+                                    <?php echo translate('section_quick_stats', 'Quick Stats'); ?>
+                                </span>
+                            </div>
+                            <?php
+                                $maxLevel = 0;
+                                $totalGold = 0;
+                                foreach ($characters as $char) {
+                                    if ($char['level'] > $maxLevel) {
+                                        $maxLevel = $char['level'];
+                                    }
+                                    $totalGold += $char['money'];
+                                }
+                            ?>
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                                <!-- Characters -->
+                                <div class="stat-hud-card group hover:border-cyan-500/40">
+                                    <div class="stat-hud-icon stat-icon-cyan">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-baseline justify-between gap-1">
+                                            <span class="text-xl md:text-2xl font-black text-white tracking-tight" style="font-family:'Cinzel',serif;">
+                                                <?php echo count($characters); ?>
+                                            </span>
+                                            <span class="text-[10px] px-1.5 py-0.2 font-semibold text-cyan-300 bg-cyan-950/60 border border-cyan-800/60 rounded">
+                                                Lv.<?php echo $maxLevel; ?>
+                                            </span>
+                                        </div>
+                                        <div class="stat-hud-label truncate">
+                                            <?php echo translate('label_total_characters', 'Characters'); ?>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="text-center min-w-0">
-                                    <p class="text-2xl font-bold text-white force-wrap"><?php echo $currencies['points']; ?> <span class="text-sm text-gray-400">P</span></p>
-                                    <p class="text-gray-400 text-sm"><?php echo translate('label_points', 'Points'); ?></p>
+
+                                <!-- Total Gold -->
+                                <div class="stat-hud-card group hover:border-amber-500/40">
+                                    <div class="stat-hud-icon stat-icon-amber">
+                                        <i class="fas fa-coins"></i>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-baseline gap-1">
+                                            <span class="text-xl md:text-2xl font-black text-white tracking-tight" style="font-family:'Cinzel',serif;">
+                                                <?php echo number_format($totalGold / 10000, 2); ?>
+                                            </span>
+                                            <span class="text-xs font-bold text-amber-400">g</span>
+                                        </div>
+                                        <div class="stat-hud-label truncate">
+                                            <?php echo translate('label_total_gold', 'Total Gold'); ?>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="text-center min-w-0">
-                                    <p class="text-2xl font-bold text-white force-wrap"><?php echo $currencies['tokens']; ?> <span class="text-sm text-gray-400">T</span></p>
-                                    <p class="text-gray-400 text-sm"><?php echo translate('label_tokens', 'Tokens'); ?></p>
+
+                                <!-- Points -->
+                                <div class="stat-hud-card group hover:border-yellow-500/40">
+                                    <div class="stat-hud-icon stat-icon-gold">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-baseline justify-between gap-1">
+                                            <span class="text-xl md:text-2xl font-black text-white tracking-tight" style="font-family:'Cinzel',serif;">
+                                                <?php echo number_format((int)($currencies['points'] ?? 0)); ?>
+                                            </span>
+                                            <a href="<?php echo $base_path; ?>vote" class="text-[10px] text-yellow-400 hover:text-white font-semibold flex items-center gap-0.5 transition-colors">
+                                                <i class="fas fa-vote-yea text-[9px]"></i> <?php echo translate('tab_vote', 'Vote'); ?>
+                                            </a>
+                                        </div>
+                                        <div class="stat-hud-label truncate">
+                                            <?php echo translate('label_points', 'Points'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tokens -->
+                                <div class="stat-hud-card group hover:border-purple-500/40">
+                                    <div class="stat-hud-icon stat-icon-purple">
+                                        <i class="fas fa-gem"></i>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-baseline justify-between gap-1">
+                                            <span class="text-xl md:text-2xl font-black text-white tracking-tight" style="font-family:'Cinzel',serif;">
+                                                <?php echo number_format((int)($currencies['tokens'] ?? 0)); ?>
+                                            </span>
+                                            <a href="<?php echo $base_path; ?>shop" class="text-[10px] text-purple-400 hover:text-white font-semibold flex items-center gap-0.5 transition-colors">
+                                                <i class="fas fa-store text-[9px]"></i> <?php echo translate('shop_title', 'Shop'); ?>
+                                            </a>
+                                        </div>
+                                        <div class="stat-hud-label truncate">
+                                            <?php echo translate('label_tokens', 'Tokens'); ?>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -995,7 +1431,7 @@ include_once $project_root . 'includes/header.php';
                                                 <option value="shattrath"><?php echo translate('city_shattrath', 'Shattrath'); ?></option>
                                                 <option value="dalaran"><?php echo translate('city_dalaran', 'Dalaran'); ?></option>
                                             </select>
-                                            <button class="px-4 py-1.5 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 text-sm font-semibold whitespace-nowrap" type="submit" name="teleport_character" <?php echo $is_on_cooldown ? 'disabled' : ''; ?>>
+                                            <button class="px-4 py-1.5 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 text-sm font-semibold whitespace-nowrap cursor-pointer shadow-sm hover:border-[#f2cf5b]" type="submit" name="teleport_character" <?php echo $is_on_cooldown ? 'disabled' : ''; ?>>
                                                 <span class="teleport-btn-idle"><i class="fas fa-arrow-right mr-1"></i><?php echo translate('button_teleport', 'Teleport'); ?></span><span class="teleport-btn-busy"><i class="fas fa-circle-notch fa-spin mr-1"></i><?php echo translate('button_teleporting', 'Teleporting...'); ?></span>
                                             </button>
                                         </div>
@@ -1010,7 +1446,11 @@ include_once $project_root . 'includes/header.php';
                             <?php endforeach; ?>
                         </div>
                     <?php else: ?>
-                        <p class="text-center text-gray-400 py-8"><?php echo translate('no_characters', 'You have no characters yet.'); ?></p>
+                        <div class="glass-card empty-state">
+                            <span class="empty-state-icon"><i class="fas fa-user-plus"></i></span>
+                            <p class="text-gray-300 font-semibold"><?php echo translate('no_characters', 'You have no characters yet.'); ?></p>
+                            <p class="text-gray-400 text-sm"><?php echo translate('empty_no_characters_hint', 'Create a character in-game, then reload this page to see them here.'); ?></p>
+                        </div>
                     <?php endif; ?>
                 </div>
 
@@ -1047,7 +1487,11 @@ include_once $project_root . 'includes/header.php';
                             </div>
                         </div>
                     <?php else: ?>
-                        <p class="text-center text-gray-400 py-8"><?php echo translate('no_activity', 'No recent activity.'); ?></p>
+                        <div class="glass-card empty-state">
+                            <span class="empty-state-icon"><i class="fas fa-scroll"></i></span>
+                            <p class="text-gray-300 font-semibold"><?php echo translate('no_activity', 'No recent activity.'); ?></p>
+                            <p class="text-gray-400 text-sm"><?php echo translate('empty_no_activity_hint', 'Actions like logins, teleports and shop purchases will appear here.'); ?></p>
+                        </div>
                     <?php endif; ?>
                 </div>
 
@@ -1069,7 +1513,7 @@ include_once $project_root . 'includes/header.php';
                                     <label class="block text-sm text-gray-300 mb-1"><?php echo translate('label_new_email', 'New Email'); ?></label>
                                     <input type="email" class="w-full px-4 py-2 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 focus:border-[#f2cf5b] focus:outline-none transition-colors" name="new_email" required value="<?php echo htmlspecialchars($accountInfo['email'] ?? ''); ?>" placeholder="<?php echo translate('placeholder_new_email', 'Enter new email'); ?>">
                                 </div>
-                                <button class="px-6 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold" type="submit" name="change_email">
+                                <button class="px-6 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold cursor-pointer shadow-sm hover:border-[#f2cf5b]" type="submit" name="change_email">
                                     <i class="fas fa-save mr-2"></i><?php echo translate('button_update_email', 'Update Email'); ?>
                                 </button>
                             </form>
@@ -1094,7 +1538,7 @@ include_once $project_root . 'includes/header.php';
                                     <label class="block text-sm text-gray-300 mb-1"><?php echo translate('label_confirm_password', 'Confirm New Password'); ?></label>
                                     <input type="password" class="w-full px-4 py-2 bg-[rgba(0,0,0,0.4)] border border-[rgba(201,162,39,0.2)] text-gray-200 focus:border-[#f2cf5b] focus:outline-none transition-colors" name="confirm_password" required minlength="6" maxlength="16" placeholder="<?php echo translate('placeholder_confirm_password', 'Confirm new password'); ?>">
                                 </div>
-                                <button class="px-6 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold" type="submit" name="change_password">
+                                <button class="px-6 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold cursor-pointer shadow-sm hover:border-[#f2cf5b]" type="submit" name="change_password">
                                     <i class="fas fa-lock mr-2"></i><?php echo translate('button_change_password', 'Change Password'); ?>
                                 </button>
                             </form>
@@ -1126,7 +1570,7 @@ include_once $project_root . 'includes/header.php';
                                     </div>
                                 </div>
                                 <input type="hidden" name="avatar" id="avatar" value="<?php echo htmlspecialchars($currencies['avatar'] ?? ''); ?>">
-                                <button class="px-6 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold mt-4" type="submit" name="change_avatar">
+                                <button class="px-6 py-2 bg-[rgba(242,207,82,0.15)] border border-[rgba(201,162,39,0.3)] text-[#f2cf5b] hover:bg-[rgba(242,207,82,0.25)] transition-all duration-300 font-semibold mt-4 cursor-pointer shadow-sm hover:border-[#f2cf5b]" type="submit" name="change_avatar">
                                     <i class="fas fa-check mr-2"></i><?php echo translate('button_update_avatar', 'Update Avatar'); ?>
                                 </button>
                             </form>
@@ -1183,16 +1627,10 @@ include_once $project_root . 'includes/header.php';
             // Remove active class from all tabs
             document.querySelectorAll('.nav-tab-gaming').forEach(t => {
                 t.classList.remove('active');
-                t.style.background = 'rgba(10,14,22,0.6)';
-                t.style.borderColor = 'rgba(201,162,39,0.2)';
-                t.style.color = '#d1d5db';
             });
             
             // Add active class to clicked tab
             this.classList.add('active');
-            this.style.background = 'rgba(242,207,82,0.15)';
-            this.style.borderColor = '#f2cf5b';
-            this.style.color = '#f2cf5b';
             
             // Get tab ID
             const tabId = this.getAttribute('data-tab');
@@ -1210,14 +1648,8 @@ include_once $project_root . 'includes/header.php';
         });
     });
 
-    // Set initial active tab state
-    document.querySelectorAll('.nav-tab-gaming').forEach(tab => {
-        if (tab.classList.contains('active')) {
-            tab.style.background = 'rgba(242,207,82,0.15)';
-            tab.style.borderColor = '#f2cf5b';
-            tab.style.color = '#f2cf5b';
-        }
-    });
+    // Initial active styling comes from the .active class in the markup,
+    // styled by .nav-tab-gaming.active in the <style> block (no inline JS styles).
 
     // Avatar selection
     function selectAvatar(filename) {
@@ -1255,9 +1687,7 @@ include_once $project_root . 'includes/header.php';
         }
     });
 
-    // Custom teleport confirmation popup - replaces the native confirm() dialog.
-    // The real POST form, its CSRF token and all server-side checks stay untouched:
-    // this only adds a frontend confirmation step before the form is submitted.
+    // Custom teleport confirmation popup fix
     (function () {
         const modal = document.getElementById('teleport-modal');
         if (!modal) return;
@@ -1291,22 +1721,18 @@ include_once $project_root . 'includes/header.php';
             const form = pendingForm;
             if (!form) return;
 
-            // Let the submit handler below pass the real submission through,
-            // and block every other submit attempt for this character
             form.dataset.teleportConfirmed = '1';
             form.dataset.teleportSubmitting = '1';
             closeTeleportModal();
 
             const submitter = form.querySelector('button[type="submit"][name="teleport_character"]');
             if (typeof form.requestSubmit === 'function') {
-                // requestSubmit() keeps the button name/value (teleport_character) in the POST data
                 if (submitter) {
                     form.requestSubmit(submitter);
                 } else {
                     form.requestSubmit();
                 }
             } else {
-                // Legacy fallback: keep the submit button name so the backend still receives it
                 const hidden = document.createElement('input');
                 hidden.type = 'hidden';
                 hidden.name = 'teleport_character';
@@ -1315,33 +1741,38 @@ include_once $project_root . 'includes/header.php';
                 form.submit();
             }
 
-            // Disable the button only after the form data has been collected: the backend
-            // checks isset($_POST['teleport_character']), so the button value must stay in
-            // the POST payload (disabled controls are not submitted).
             if (submitter) {
                 submitter.disabled = true;
                 submitter.classList.add('is-submitting');
                 submitter.setAttribute('aria-busy', 'true');
             }
 
-            // Clear the one-shot confirmation flag in case the browser never navigates away
-            // (further submits stay blocked by the in-flight guard in the submit handler)
             window.setTimeout(function () {
                 form.dataset.teleportConfirmed = '';
             }, 1000);
         }
 
-        // Every character card has its own form, so bind them all
-        document.querySelectorAll('form.teleport-form').forEach(function (form) {
-            form.addEventListener('submit', function (event) {
+        // Bind ONLY to explicit teleport buttons to prevent stray form triggers
+        document.querySelectorAll('form.teleport-form button[type="submit"][name="teleport_character"]').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                const form = button.closest('form');
+                if (!form) return;
+
                 if (form.dataset.teleportConfirmed === '1') {
-                    return; // already confirmed - post normally
+                    return; // already confirmed
                 }
+
+                // Check HTML5 validity (e.g. dropdown selection required)
+                const select = form.querySelector('select[name="destination"]');
+                if (select && !select.value) {
+                    return; // let native select validation handle the error message
+                }
+
                 event.preventDefault();
                 if (form.dataset.teleportSubmitting === '1') {
-                    return; // a confirmed teleport is already in flight - never send it twice
+                    return;
                 }
-                // Native HTML5 validation already passed here; ask for confirmation first
+
                 openTeleportModal(form);
             });
         });
@@ -1350,14 +1781,12 @@ include_once $project_root . 'includes/header.php';
             confirmButton.addEventListener('click', confirmTeleport);
         }
 
-        // Clicking the dark overlay closes the popup without submitting
         cancelTargets.forEach(function (element) {
             element.addEventListener('click', function () {
                 closeTeleportModal();
             });
         });
 
-        // Escape key closes the popup without submitting
         document.addEventListener('keydown', function (event) {
             if ((event.key === 'Escape' || event.key === 'Esc') && modal.classList.contains('is-open')) {
                 closeTeleportModal();

@@ -26,6 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $smtp_name = trim($_POST['smtp_name'] ?? '');
     $smtp_port = (int) ($_POST['smtp_port'] ?? 587);
     $smtp_secure = trim($_POST['smtp_secure'] ?? 'tls');
+    $smtp_allow_self_signed = isset($_POST['smtp_allow_self_signed']) ? 1 : 0;
+    $test_email = trim($_POST['test_email'] ?? '');
 
     if ($smtp_enabled) {
         if (empty($smtp_host)) {
@@ -39,7 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if (empty($smtp_from)) {
             $errors[] = translate('err_smtp_from_required', 'From Email is required.');
+        } elseif (!filter_var($smtp_from, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = translate('err_smtp_from_invalid', 'From Email must be a valid email address.');
         }
+
+        // NOTE: $smtp_user is intentionally NOT validated as an email address -
+        // transactional providers (Resend, SendGrid, Amazon SES) use plain SMTP
+        // usernames such as "resend" or "apikey".
         
         // Validate port
         if ($smtp_port < 1 || $smtp_port > 65535) {
@@ -57,6 +65,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // Resolve the test recipient: the optional "Send Test Email To" field,
+    // otherwise the SMTP user when it is a real mailbox, otherwise the From
+    // address. Non-email usernames ("resend", "apikey", ...) must never be
+    // passed to addAddress().
+    if ($test_email === '') {
+        $test_email = filter_var($smtp_user, FILTER_VALIDATE_EMAIL) ? $smtp_user : $smtp_from;
+    }
+    if ($smtp_enabled && $composer_installed && !filter_var($test_email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = translate('err_test_email_invalid', 'Please enter a valid email address for the test recipient.');
+    }
+
     if (empty($errors)) {
         // Test SMTP connection if enabled
         if ($smtp_enabled && $composer_installed) {
@@ -72,17 +91,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mail->SMTPAuth = true;
                 $mail->Username = $smtp_user;
                 $mail->Password = $smtp_pass;
-                $mail->SMTPSecure = $smtp_secure;
+                $mail->SMTPSecure = $smtp_secure === 'ssl'
+                    ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
+                    : ($smtp_secure === 'tls' ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS : '');
                 $mail->Port = $smtp_port;
                 
-                // Set timeout (prevent hanging)
-                $mail->Timeout = 30;
+                // Connection reliability: fixed timeout, don't force opportunistic
+                // TLS when encryption is "None", and accept self-signed certs
+                // (local XAMPP / cPanel mail servers).
+                $mail->Timeout = 15;
+                $mail->SMTPAutoTLS = !empty($smtp_secure);
+
+                // Only bypass TLS certificate verification for local development or when explicitly enabled
+                $isLocalHost = in_array(strtolower((string)$smtp_host), ['localhost', '127.0.0.1', '::1'], true)
+                    || (is_string($smtp_host) && (str_ends_with(strtolower($smtp_host), '.local') || str_ends_with(strtolower($smtp_host), '.test')));
+                if (!empty($smtp_allow_self_signed) || $isLocalHost) {
+                    $mail->SMTPOptions = [
+                        'ssl' => [
+                            'verify_peer' => false,
+                            'verify_peer_name' => false,
+                            'allow_self_signed' => true,
+                        ],
+                    ];
+                }
                 
                 // Sender
                 $mail->setFrom($smtp_from, $smtp_name);
                 
-                // Recipient (send to the SMTP user email)
-                $mail->addAddress($smtp_user);
+                // Recipient (validated above; never the raw SMTP username)
+                $mail->addAddress($test_email);
                 
                 // Email content
                 $mail->Subject = translate('mail_test_subject', 'Test Email - Sahtout CMS Installer');
@@ -104,7 +141,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
             } catch (Exception $e) {
                 $test_result = 'failed';
-                $errors[] = sprintf(translate('err_smtp_test_failed', 'SMTP test failed: %s'), $e->getMessage());
+                // Show both the exception message and PHPMailer's SMTP error
+                $error_detail = trim($e->getMessage());
+                $error_info = trim($mail->ErrorInfo ?? '');
+                if ($error_info !== '' && strpos($error_detail, $error_info) === false) {
+                    $error_detail .= ' | ' . $error_info;
+                }
+                $errors[] = sprintf(translate('err_smtp_test_failed', 'SMTP test failed: %s'), $error_detail);
                 $success = false;
             }
         } elseif ($smtp_enabled && !$composer_installed) {
@@ -117,6 +160,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Save configuration if SMTP test passed or SMTP is disabled
         if ($success) {
+            // Unified config: raw variables (var_export) + the central
+            // getMailer() function - identical to what the admin panel
+            // (pages/admin/settings/smtp.php) generates.
             $configContent = "<?php\n";
             $configContent .= "if (!defined('ALLOWED_ACCESS')) { exit('Forbidden'); }\n\n";
             $configContent .= "\$smtp_enabled = " . var_export((bool)$smtp_enabled, true) . ";\n";
@@ -125,9 +171,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $configContent .= "\$smtp_pass = " . var_export($smtp_pass, true) . ";\n";
             $configContent .= "\$smtp_from = " . var_export($smtp_from, true) . ";\n";
             $configContent .= "\$smtp_name = " . var_export($smtp_name, true) . ";\n";
-            $configContent .= "\$smtp_port = " . var_export($smtp_port, true) . ";\n";
+            $configContent .= "\$smtp_port = " . var_export((int)$smtp_port, true) . ";\n";
             $configContent .= "\$smtp_secure = " . var_export($smtp_secure, true) . ";\n";
-            $configContent .= "?>";
+            $configContent .= "\$smtp_allow_self_signed = " . var_export((bool)$smtp_allow_self_signed, true) . ";\n\n";
+            $configContent .= <<<'MAILER'
+if (!function_exists('getMailer')) {
+    /**
+     * Build a configured PHPMailer instance from the SMTP settings above.
+     *
+     * Falls back to the PHP mail() function when SMTP is disabled.
+     *
+     * @return \PHPMailer\PHPMailer\PHPMailer
+     */
+    function getMailer(): \PHPMailer\PHPMailer\PHPMailer
+    {
+        global $smtp_enabled, $smtp_host, $smtp_user, $smtp_pass, $smtp_from, $smtp_name, $smtp_port, $smtp_secure, $smtp_allow_self_signed;
+
+        // Lazy-load PHPMailer so including this file never fatals when the
+        // Composer dependencies have not been installed yet.
+        $autoload = __DIR__ . '/../vendor/autoload.php';
+        if (!is_file($autoload)) {
+            throw new \RuntimeException(
+                'PHPMailer is not installed. Run "composer install" in the project root to enable email features.'
+            );
+        }
+        require_once $autoload;
+
+        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+        try {
+            $mail->CharSet = 'UTF-8';
+            $mail->isHTML(true);
+
+            if (!empty($smtp_enabled)) {
+                // SMTP transport (Gmail, Resend, SendGrid, Amazon SES, cPanel, ...)
+                $mail->isSMTP();
+                $mail->Host = $smtp_host;
+                $mail->SMTPAuth = true;
+                $mail->Username = $smtp_user;
+                $mail->Password = $smtp_pass;
+                $mail->Port = (int) $smtp_port;
+                $mail->SMTPSecure = $smtp_secure === 'ssl'
+                    ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
+                    : ($smtp_secure === 'tls'
+                        ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS
+                        : '');
+                // Never force opportunistic TLS when encryption is set to "None"
+                $mail->SMTPAutoTLS = !empty($smtp_secure);
+                $mail->Timeout = 15;
+
+                // Only bypass TLS certificate verification for local development or when explicitly enabled
+                $isLocalHost = in_array(strtolower((string)$smtp_host), ['localhost', '127.0.0.1', '::1'], true)
+                    || (is_string($smtp_host) && (str_ends_with(strtolower($smtp_host), '.local') || str_ends_with(strtolower($smtp_host), '.test')));
+                if (!empty($smtp_allow_self_signed) || $isLocalHost) {
+                    $mail->SMTPOptions = [
+                        'ssl' => [
+                            'verify_peer' => false,
+                            'verify_peer_name' => false,
+                            'allow_self_signed' => true,
+                        ],
+                    ];
+                }
+            } else {
+                // Fallback to the PHP mail() function when SMTP is disabled
+                $mail->isMail();
+            }
+
+            // Resolve sender address: prefer valid $smtp_from unless it is the unconfigured default placeholder and $smtp_user is a valid mailbox
+            $isPlaceholderFrom = empty($smtp_from) || $smtp_from === 'noreply@yourdomain.com';
+            if ($isPlaceholderFrom && filter_var($smtp_user ?? '', FILTER_VALIDATE_EMAIL)) {
+                $fromAddress = $smtp_user;
+            } elseif (filter_var($smtp_from ?? '', FILTER_VALIDATE_EMAIL)) {
+                $fromAddress = $smtp_from;
+            } elseif (filter_var($smtp_user ?? '', FILTER_VALIDATE_EMAIL)) {
+                $fromAddress = $smtp_user;
+            } else {
+                $fromAddress = !empty($smtp_from) ? $smtp_from : 'noreply@yourdomain.com';
+            }
+            $fromName = !empty($smtp_name) ? $smtp_name : 'Sahtout Account';
+            $mail->setFrom($fromAddress, $fromName);
+        } catch (\Exception $e) {
+            $mail->ErrorInfo = $e->getMessage();
+        }
+
+        return $mail;
+    }
+}
+MAILER;
+            $configContent .= "\n?>";
 
             $configDir = dirname($configMailFile);
             if (!is_writable($configDir)) {
@@ -136,6 +266,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (file_put_contents($configMailFile, $configContent) === false) {
                 $errors[] = sprintf(translate('err_write_mail_config', 'Cannot write to %s.'), $configMailFile);
                 $success = false;
+            } else {
+                // Production servers with OPcache keep serving the old cached
+                // config for several seconds; force an immediate refresh.
+                if (function_exists('opcache_invalidate')) {
+                    @opcache_invalidate($configMailFile, true);
+                }
             }
         }
     }
@@ -398,7 +534,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <span class="font-medium"><?= translate('msg_mail_saved', 'Email configuration saved! Test email sent successfully.') ?></span>
                             <p class="text-sm text-emerald-300/70 mt-1">
                                 <i class="fas fa-envelope mr-1"></i>
-                                <?= sprintf(translate('msg_test_email_sent_to', 'Test email sent to %s'), htmlspecialchars($smtp_user)) ?>
+                                <?= sprintf(translate('msg_test_email_sent_to', 'Test email sent to %s'), htmlspecialchars($test_email)) ?>
                             </p>
                         </div>
                     </div>
@@ -491,16 +627,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div>
                             <label for="smtp_user" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
                                 <i class="fas fa-user text-gold-400 mr-1"></i>
-                                <?= translate('label_email_address', 'Email Address') ?>
+                                <?= translate('label_smtp_user', 'SMTP Username / Email') ?>
                             </label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 pointer-events-none">
                                     <i class="fas fa-envelope text-sm"></i>
                                 </span>
-                                <input id="smtp_user" type="email" name="smtp_user" 
+                                <input id="smtp_user" type="text" name="smtp_user" 
                                        value="<?= htmlspecialchars($_POST['smtp_user'] ?? '') ?>"
                                        class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all placeholder-slate-500 text-sm"
-                                       placeholder="<?= translate('placeholder_email', 'e.g., yourname@gmail.com') ?>">
+                                       placeholder="<?= translate('placeholder_smtp_user', 'e.g., you@gmail.com, resend, apikey') ?>">
                             </div>
                         </div>
 
@@ -547,7 +683,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input id="smtp_port" type="number" name="smtp_port" 
                                        value="<?= htmlspecialchars($_POST['smtp_port'] ?? '587') ?>"
                                        min="1" max="65535"
+                                       placeholder="<?= translate('placeholder_port', '587 (TLS), 465 (SSL), 25 (Plain)') ?>"
                                        class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all text-sm">
+                                <p class="mt-1 text-[11px] text-slate-500"><?= translate('help_smtp_port', 'Common SMTP ports: 587 (TLS), 465 (SSL), 25 (no encryption). Some providers also use 2525.') ?></p>
                             </div>
                             <div>
                                 <label for="smtp_secure" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
@@ -561,12 +699,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </select>
                             </div>
                         </div>
+
+                        <div class="flex items-center gap-4 p-4 bg-slate-800/30 border border-slate-700/50 rounded-lg">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="smtp_allow_self_signed" name="smtp_allow_self_signed" <?= !empty($_POST['smtp_allow_self_signed']) ? 'checked' : '' ?>>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <div>
+                                <span class="text-slate-300 text-sm font-medium"><?= translate('label_allow_self_signed', 'Allow Self-Signed Certificates') ?></span>
+                                <p class="text-xs text-slate-400 mt-0.5"><?= translate('help_allow_self_signed', 'Only enable for local development or private servers with self-signed SSL/TLS certificates.') ?></p>
+                            </div>
+                        </div>
                         
+                        <div>
+                            <label for="test_email" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">
+                                <i class="fas fa-paper-plane text-gold-400 mr-1"></i>
+                                <?= translate('label_test_email', 'Send Test Email To') ?>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 pointer-events-none">
+                                    <i class="fas fa-inbox text-sm"></i>
+                                </span>
+                                <input id="test_email" type="email" name="test_email"
+                                       value="<?= htmlspecialchars($_POST['test_email'] ?? '') ?>"
+                                       class="w-full bg-slate-900/60 border border-slate-600 text-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 transition-all placeholder-slate-500 text-sm"
+                                       placeholder="<?= translate('placeholder_test_email', 'Blank = SMTP username if it is an email, otherwise From address') ?>">
+                            </div>
+                        </div>
+
                         <!-- Test Info Box -->
                         <div class="bg-slate-800/30 border border-slate-700/50 rounded-lg p-3 mt-2">
                             <p class="text-xs text-slate-400 flex items-center gap-2">
                                 <i class="fas fa-info-circle text-gold-400"></i>
-                                <?= translate('info_test_email', 'A test email will be sent to your email address to verify the configuration.') ?>
+                                <?= translate('info_test_email', 'A test email will be sent to the "Send Test Email To" address above (defaults to your SMTP username if it is an email, otherwise the From address) to verify the configuration.') ?>
                             </p>
                         </div>
                     </div>

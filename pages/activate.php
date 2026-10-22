@@ -16,45 +16,13 @@ $errors = [];
 $success = '';
 $token = $_GET['token'] ?? '';
 
-// Make sure getMailer function exists (fallback)
-if (!function_exists('getMailer')) {
-    function getMailer() {
-        global $smtp_enabled, $smtp_host, $smtp_user, $smtp_pass, $smtp_from, $smtp_name, $smtp_port, $smtp_secure;
-        
-        require_once __DIR__ . '/../vendor/autoload.php';
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        
-        try {
-            $mail->CharSet = 'UTF-8';
-            
-            // Check if SMTP is enabled
-            if (isset($smtp_enabled) && $smtp_enabled === true) {
-                $mail->isSMTP();
-                $mail->Host = $smtp_host ?? '';
-                $mail->SMTPAuth = true;
-                $mail->Username = $smtp_user ?? '';
-                $mail->Password = $smtp_pass ?? '';
-                $mail->SMTPSecure = $smtp_secure ?? 'tls';
-                $mail->Port = isset($smtp_port) ? (int)$smtp_port : 587;
-                $mail->setFrom($smtp_from ?? 'noreply@yourdomain.com', $smtp_name ?? 'Sahtout Account');
-            } else {
-                // Fallback to PHP mail() function
-                $mail->isMail();
-                $mail->setFrom('noreply@yourdomain.com', 'Sahtout Account');
-            }
-            
-            $mail->isHTML(true);
-        } catch (Exception $e) {
-            error_log("Failed to create mailer: " . $e->getMessage());
-        }
-        
-        return $mail;
-    }
-}
-
 // Function to send activation confirmation email with improved template
 function sendActivationConfirmationEmail($username, $email) {
-    global $errors, $site_url, $project_root, $base_path;
+    global $site_url, $project_root, $base_path;
+    
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
     
     try {
         $mail = getMailer();
@@ -115,13 +83,11 @@ function sendActivationConfirmationEmail($username, $email) {
         
         if (!$mail->send()) {
             error_log("Failed to send activation confirmation email to {$email}: " . $mail->ErrorInfo);
-            $errors[] = translate('error_email_failed', 'Failed to send confirmation email: ') . $mail->ErrorInfo;
             return false;
         }
         return true;
     } catch (Exception $e) {
         error_log("Email sending failed for {$email}: " . $e->getMessage());
-        $errors[] = translate('error_email_failed', 'Failed to send confirmation email: ') . $e->getMessage();
         return false;
     }
 }
@@ -135,7 +101,8 @@ if (!$token) {
     // Look for pending account
     $stmt_select = $site_db->prepare("SELECT username, email, salt, verifier FROM pending_accounts WHERE token = ? AND activated = 0");
     if (!$stmt_select) {
-        $errors[] = translate('error_database', 'Database query error: ') . $site_db->error;
+        error_log("Activate: Select pending account prepare failed: " . $site_db->error);
+        $errors[] = translate('error_database', 'Database error. Please try again later.');
     } else {
         $stmt_select->bind_param('s', $token);
         $stmt_select->execute();
@@ -151,7 +118,8 @@ if (!$token) {
             $upper_username = strtoupper($account['username']);
             $stmt_insert = $auth_db->prepare("INSERT INTO account (username, salt, verifier, email, reg_mail, expansion) VALUES (?, ?, ?, ?, ?, 2)");
             if (!$stmt_insert) {
-                $errors[] = translate('error_database', 'Database query error: ') . $auth_db->error;
+                error_log("Activate: Insert account prepare failed: " . $auth_db->error);
+                $errors[] = translate('error_database', 'Database error. Please try again later.');
             } else {
                 $stmt_insert->bind_param('sssss', $upper_username, $account['salt'], $account['verifier'], $account['email'], $account['email']);
                 if ($stmt_insert->execute()) {
@@ -160,34 +128,27 @@ if (!$token) {
                     // Delete from pending_accounts
                     $stmt_delete = $site_db->prepare("DELETE FROM pending_accounts WHERE token = ?");
                     if (!$stmt_delete) {
-                        $errors[] = translate('error_database', 'Database query error: ') . $site_db->error;
+                        error_log("Activate: Delete pending account prepare failed: " . $site_db->error);
+                        $errors[] = translate('error_database', 'Database error. Please try again later.');
                     } else {
                         $stmt_delete->bind_param('s', $token);
                         if ($stmt_delete->execute()) {
                             // Send confirmation email if SMTP is enabled
                             global $smtp_enabled;
-                            $is_smtp_enabled = isset($smtp_enabled) && $smtp_enabled === true;
-                            
-                            if ($is_smtp_enabled) {
-                                $email_sent = sendActivationConfirmationEmail($account['username'], $account['email']);
-                                if (!$email_sent) {
-                                    // Email failed but account was activated - still show success
-                                    $success = translate('success_account_activated', 'Your account has been activated! You will be redirected to the login page shortly.');
-                                } else {
-                                    $success = translate('success_account_activated', 'Your account has been activated! You will be redirected to the login page shortly.');
-                                }
-                            } else {
-                                $success = translate('success_account_activated', 'Your account has been activated! You will be redirected to the login page shortly.');
+                            if (!empty($smtp_enabled)) {
+                                sendActivationConfirmationEmail($account['username'], $account['email']);
                             }
-                            
+                            $success = translate('success_account_activated', 'Your account has been activated! You will be redirected to the login page shortly.');
                             header("Refresh: 3; url={$base_path}login");
                         } else {
-                            $errors[] = translate('error_delete_failed', 'Failed to delete pending account: ') . $site_db->error;
+                            error_log("Activate: Failed to delete pending account: " . $site_db->error);
+                            $errors[] = translate('error_delete_failed', 'Failed to process pending account. Please contact support.');
                         }
                         $stmt_delete->close();
                     }
                 } else {
-                    $errors[] = translate('error_activation_failed', 'Failed to activate account: ') . $auth_db->error;
+                    error_log("Activate: Failed to activate account: " . $auth_db->error);
+                    $errors[] = translate('error_activation_failed', 'Failed to activate account. Please contact support.');
                 }
             }
         }

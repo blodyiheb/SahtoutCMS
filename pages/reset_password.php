@@ -25,45 +25,13 @@ $valid_token = false;
 $email = '';
 $username = '';
 
-// Make sure getMailer function exists (fallback)
-if (!function_exists('getMailer')) {
-    function getMailer() {
-        global $smtp_enabled, $smtp_host, $smtp_user, $smtp_pass, $smtp_from, $smtp_name, $smtp_port, $smtp_secure;
-        
-        require_once __DIR__ . '/../vendor/autoload.php';
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        
-        try {
-            $mail->CharSet = 'UTF-8';
-            
-            // Check if SMTP is enabled
-            if (isset($smtp_enabled) && $smtp_enabled === true) {
-                $mail->isSMTP();
-                $mail->Host = $smtp_host ?? '';
-                $mail->SMTPAuth = true;
-                $mail->Username = $smtp_user ?? '';
-                $mail->Password = $smtp_pass ?? '';
-                $mail->SMTPSecure = $smtp_secure ?? 'tls';
-                $mail->Port = isset($smtp_port) ? (int)$smtp_port : 587;
-                $mail->setFrom($smtp_from ?? 'noreply@yourdomain.com', $smtp_name ?? 'Sahtout Account');
-            } else {
-                // Fallback to PHP mail() function
-                $mail->isMail();
-                $mail->setFrom('noreply@yourdomain.com', 'Sahtout Account');
-            }
-            
-            $mail->isHTML(true);
-        } catch (Exception $e) {
-            error_log("Failed to create mailer: " . $e->getMessage());
-        }
-        
-        return $mail;
-    }
-}
-
 // Function to send confirmation email with improved template
 function sendResetConfirmationEmail($username, $email) {
     global $errors, $project_root, $base_path;
+    
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
     
     try {
         $mail = getMailer();
@@ -184,8 +152,9 @@ if ($token) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
     // Validate nonce to prevent re-submission and CSRF
-    $submitted_nonce = $_POST['nonce'] ?? '';
-    if (!isset($_SESSION['reset_nonce']) || !hash_equals($_SESSION['reset_nonce'], (string)$submitted_nonce)) {
+    $submitted_nonce = is_string($_POST['nonce'] ?? null) ? $_POST['nonce'] : '';
+    $session_nonce = is_string($_SESSION['reset_nonce'] ?? null) ? $_SESSION['reset_nonce'] : '';
+    if ($submitted_nonce === '' || !hash_equals($session_nonce, $submitted_nonce)) {
         $errors[] = translate('error_invalid_nonce', 'Invalid or expired form submission. Please try again.');
     } else {
         $password = $_POST['password'] ?? '';
@@ -227,19 +196,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
                 
                 // Send confirmation email if SMTP is enabled
                 global $smtp_enabled;
-                $is_smtp_enabled = isset($smtp_enabled) && $smtp_enabled === true;
-                
-                if ($is_smtp_enabled) {
-                    $email_sent = sendResetConfirmationEmail($username, $email);
-                    if (!$email_sent) {
-                        // Email failed but password was reset - still show success with a warning
-                        $success = translate('success_password_reset', 'Your password has been successfully reset. You can now log in.');
-                    } else {
-                        $success = translate('success_password_reset', 'Your password has been successfully reset. You can now log in.');
-                    }
-                } else {
-                    $success = translate('success_password_reset', 'Your password has been successfully reset. You can now log in.');
+                if (!empty($smtp_enabled)) {
+                    sendResetConfirmationEmail($username, $email);
                 }
+                $success = translate('success_password_reset', 'Your password has been successfully reset. You can now log in.');
                 
                 // Clear nonce and token to prevent re-submission
                 unset($_SESSION['reset_nonce']);
